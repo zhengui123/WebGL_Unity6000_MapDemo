@@ -45,8 +45,16 @@
 - Material: `Assets/Materials/Car/M_MercedesHologram.mat`
 - 菜单: `Tools/Car/创建全息材质并应用到 Mercedes`
 
+## 项目约定（材质与运行时）
+
+1. **单一 Body 材质**：全车统一 `M_MercedesHologram`，不分部件、不按子网格区分。
+2. **运行时不再自动赋材质**：Play 以场景中已保存的材质为准；勿在 `Awake` 中批量改写 `sharedMaterials`。
+3. **手调材质不覆盖**：`M_MercedesHologram` / `M_MercedesEdgeOutline` 为基准；实验请新建命名区分的 `.mat`。
+4. **双层场景**：`mercedes`（全息）+ `mercedes_edge`（边缘线静态副本），禁止运行时生成边缘子物体。
+
+> AI/协作规则详见：`.cursor/rules/car-mercedes-hologram.mdc`
+
 ## 建议
 
-1. 主相机 Background 设为深色；开启 **Bloom**（URP/HDRP 或 Post Processing）增强发光。
-2. 玻璃子网格如需更透，可复制材质调低 `_Alpha` / `_FillStrength`。
-3. 当前工具对所有子网格使用同一全息材质，与参考图统一风格一致。
+1. 主相机 Background 设为深色；开启 **Bloom** 增强发光。
+2. 效果微调请直接改 `M_MercedesHologram` / `M_MercedesEdgeOutline`，或复制为新材质球再试。

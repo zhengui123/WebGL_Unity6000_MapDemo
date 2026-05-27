@@ -1,0 +1,44 @@
+---
+description: Mercedes 全息车材质与场景约定（单材质、编辑器布置、无运行时赋值）
+globs: Assets/Scripts/Car/**,Assets/Scripts/Editor/Car/**,Assets/Shaders/Car/**,Assets/Materials/Car/**,Assets/Model/Car/**,Assets/Scenes/Car.unity
+alwaysApply: false
+---
+
+# Mercedes 全息车 — 项目约定
+
+## 材质策略
+
+- **不分部件**：全车（body / wheel / suspension 等所有 MeshRenderer）统一使用 **一套 Body 全息材质**，不做玻璃/轮毂/灯光等子网格或槽位区分。
+- **不考虑子网格**：分配材质时按 Renderer 整体替换 `sharedMaterials` 即可，无需维护 body 13 槽、wheel 4 槽等映射表。
+- **手调材质保留**：`M_MercedesHologram.mat`、`M_MercedesEdgeOutline.mat` 为用户手调基准；优化或实验请 **新建区分命名的 .mat**，禁止覆盖或菜单批量写回这两份资产。
+
+## 运行时
+
+- **Play 时不再自动赋材质**：不在 `Awake`/`Start` 中通过 Bootstrap / Applier 改写 `sharedMaterials`。
+- 材质以 **场景内已保存的引用** 为准（编辑器布置或手动指定）。
+
+## 场景结构（边缘线）
+
+- 车身层：`mercedes` → `Custom/CarHologram`（`M_MercedesHologram`）
+- 边缘层：`mercedes_edge`（场景内静态副本，与 mercedes 同变换叠放）→ `Custom/CarHologramEdgeOutline`（`M_MercedesEdgeOutline`）
+- **禁止**运行时复制 Mesh 生成 `*_EdgeOutline` 子物体。
+
+## 编辑器操作
+
+- 布置/刷新材质使用菜单（如 `Tools/Car/场景：布置双层车辆`），在编辑态完成并 **保存场景**。
+- `Tools/Car/分析 Mercedes 材质与子网格` 仅作文档参考，分析结果 **不驱动** 分部件逻辑。
+
+## 实现时避免
+
+- 不引入 `MercedesHologramMaterialProfile`、PartAssigner、按子网格索引分配等分部件方案（除非用户明确要求改约定）。
+- `MercedesHologramEditor.GetOrCreateHologramMaterial` 等逻辑：已有手调 `.mat` 时不要 `SetFloat`/`SetColor` 覆盖默认值。
+
+## 透明与深度（内饰不穿透）
+
+- Shader 使用 **Cull Back** + **DepthPrepass** + `_SurfaceFacingMin` 视线裁剪，只保留朝向相机的外表面。
+- 手调材质无需更换；新参数默认即可，穿透仍明显时略增 `M_MercedesHologram` 的 `_SurfaceFacingMin`（约 0.08→0.12）。
+
+## 参考
+
+- 网格说明：`Assets/Model/Car/Mercedes_MeshMaterialAnalysis.md`
+- Shader：`Assets/Shaders/Car/CarHologram.shader`、`CarHologramCommon.cginc`、`CarHologramEdgeOutline.shader`
