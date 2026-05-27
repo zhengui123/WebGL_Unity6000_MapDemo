@@ -39,7 +39,7 @@ public class MapController : MonoBehaviour
     [SerializeField] private int _centerAlignIterations = 3;
 
     [Header("双击拉近")]
-    [SerializeField] private Test _cameraZoomController;
+    [SerializeField] private CameraController _cameraZoomController;
 
     [Header("屏幕中心 / 中国区域")]
     [SerializeField] private bool _enableChinaRegionCheck = true;
@@ -102,7 +102,7 @@ public class MapController : MonoBehaviour
 
         if (_cameraZoomController == null)
         {
-            _cameraZoomController = FindObjectOfType<Test>();
+            _cameraZoomController = FindObjectOfType<CameraController>();
         }
 
         _baseRootWorldRotation = _mapRoot.rotation;

@@ -27,9 +27,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 1
-    - _CircuitIntensity: 0.22
-    - _CircuitScale: 48
-    - _EmissionIntensity: 3.32
+    - _CircuitIntensity: 0.53
+    - _CircuitScale: 106
+    - _EmissionIntensity: 2.2
     - _GridIntensity: 2
     - _GridLineWidth: 0.5
     - _GridScale: 1
@@ -38,10 +38,11 @@ Material:
     - _PulseAmount: 0.163
     - _PulseSpeed: 1.17
     - _RimIntensity: 4
-    - _RimPower: 6.01
+    - _RimPower: 4.4
     m_Colors:
     - _BaseColor: {r: 0.02, g: 0.06, b: 0.18, a: 0.75}
     - _EmissionColor: {r: 0, g: 0.70506907, b: 1, a: 1}
     - _GridColor: {r: 1, g: 0.5502859, b: 0.10196078, a: 1}
     - _RimColor: {r: 0.3, g: 0.95, b: 1, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1

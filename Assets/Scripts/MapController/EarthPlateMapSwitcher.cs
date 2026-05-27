@@ -30,7 +30,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
     [Header("引用（可留空，按名称查找）")]
     [SerializeField] private MapController _mapController;
 
-    [SerializeField] private Test _cameraZoomController;
+    [SerializeField] private CameraController _cameraZoomController;
 
     [Tooltip("地球分支根节点，如 MapParentX（含 CesiumGeoreference）")]
     [SerializeField] private Transform _earthRoot;
@@ -291,7 +291,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
 
         if (_cameraZoomController == null)
         {
-            _cameraZoomController = FindObjectOfType<Test>();
+            _cameraZoomController = FindObjectOfType<CameraController>();
         }
 
         if (_earthRoot == null && !string.IsNullOrEmpty(_earthRootName))

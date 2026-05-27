@@ -3,7 +3,7 @@ using UnityEngine;
 /// <summary>
 /// 挂在相机架（如 CameraPivot）：滚轮沿子相机局部 Y 缩放；由 MapController 在双击旋转结束后调用固定拉近。
 /// </summary>
-public class Test : MonoBehaviour
+public class CameraController : MonoBehaviour
 {
     [Header("目标相机（子物体）")]
     [SerializeField] private Transform _cameraTransform;
