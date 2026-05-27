@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_MercedesHologram
+  m_Name: old-M_MercedesHologram 1
   m_Shader: {fileID: 4800000, guid: 7c4e9a2b1f8d4e6c9a0b3d5e7f1a2c4b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -27,10 +27,10 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Alpha: 1
+    - _Alpha: 0.997
     - _FacingMinGlow: 0.402
     - _FillStrength: 0.54
-    - _FresnelIntensity: 0.25
+    - _FresnelIntensity: 0.64
     - _FresnelPower: 3.92
     - _GridIntensity: 2
     - _GridLineWidth: 0.084
@@ -42,6 +42,6 @@ Material:
     - _ScanSpeed: 1.45
     m_Colors:
     - _BaseColor: {r: 0.05, g: 0.25, b: 0.45, a: 1}
-    - _GlowColor: {r: 0.25130892, g: 0.6027384, b: 1.6, a: 1}
+    - _GlowColor: {r: 0.25, g: 1.1, b: 1.6, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

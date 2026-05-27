@@ -1,12 +1,13 @@
 using UnityEngine;
 
 /// <summary>
-/// 运行时将所有子网格 Renderer 替换为全息材质（Car 场景备用，FBX Remap 未生效时兜底）。
+/// 将全息材质应用到车身层（mercedes），跳过边缘线层 mercedes_edge。
 /// </summary>
 [DisallowMultipleComponent]
 public class MercedesHologramApplier : MonoBehaviour
 {
     private const string DefaultMaterialPath = "Assets/Materials/Car/M_MercedesHologram.mat";
+    private const string EdgeLayerName = "mercedes_edge";
 
     [SerializeField] private Material hologramMaterial;
 
@@ -25,10 +26,27 @@ public class MercedesHologramApplier : MonoBehaviour
             return;
         }
 
+        if (gameObject.name == EdgeLayerName)
+        {
+            return;
+        }
+
         int count = 0;
         MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>(true);
         foreach (MeshRenderer renderer in renderers)
         {
+            if (renderer == null || IsUnderEdgeLayer(renderer.transform))
+            {
+                continue;
+            }
+
+            if (renderer.sharedMaterial != null &&
+                renderer.sharedMaterial.shader != null &&
+                renderer.sharedMaterial.shader.name == "Custom/CarHologramEdgeOutline")
+            {
+                continue;
+            }
+
             Material[] mats = renderer.sharedMaterials;
             for (int i = 0; i < mats.Length; i++)
             {
@@ -40,6 +58,21 @@ public class MercedesHologramApplier : MonoBehaviour
         }
 
         Debug.Log($"[MercedesHologramApplier] 已对 {count} 个 MeshRenderer 应用 {mat.name}。", this);
+    }
+
+    private static bool IsUnderEdgeLayer(Transform t)
+    {
+        while (t != null)
+        {
+            if (t.name == EdgeLayerName)
+            {
+                return true;
+            }
+
+            t = t.parent;
+        }
+
+        return false;
     }
 
     private Material ResolveMaterial()

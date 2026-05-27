@@ -2,11 +2,11 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Car 场景启动时自动为 mercedes 应用全息材质（编辑器菜单与 FBX Remap 的补充）。
+/// Car 场景启动时仅为 mercedes（车身层）应用全息材质；边缘线使用场景内 mercedes_edge 副本。
 /// </summary>
 public class CarSceneHologramBootstrap : MonoBehaviour
 {
-    [SerializeField] private string targetObjectName = "mercedes";
+    [SerializeField] private string bodyObjectName = "mercedes";
 
     private void Awake()
     {
@@ -15,17 +15,17 @@ public class CarSceneHologramBootstrap : MonoBehaviour
             return;
         }
 
-        GameObject target = GameObject.Find(targetObjectName);
-        if (target == null)
+        GameObject bodyRoot = GameObject.Find(bodyObjectName);
+        if (bodyRoot == null)
         {
-            Debug.LogWarning("[CarSceneHologramBootstrap] 未找到目标对象: " + targetObjectName);
+            Debug.LogWarning("[CarSceneHologramBootstrap] 未找到车身对象: " + bodyObjectName);
             return;
         }
 
-        MercedesHologramApplier applier = target.GetComponent<MercedesHologramApplier>();
+        MercedesHologramApplier applier = bodyRoot.GetComponent<MercedesHologramApplier>();
         if (applier == null)
         {
-            applier = target.AddComponent<MercedesHologramApplier>();
+            applier = bodyRoot.AddComponent<MercedesHologramApplier>();
         }
 
         applier.ApplyHologramMaterial();

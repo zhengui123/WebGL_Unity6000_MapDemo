@@ -104,27 +104,28 @@ Shader "Custom/CarHologram"
                 float3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos);
                 float ndv = saturate(dot(n, viewDir));
 
-                // Fresnel 仅作边缘增强，正面保留最低亮度，避免“只有近看/侧看才明显”
+                // Fresnel：正面暗、轮廓亮（全息体积感）
                 float rim = pow(1.0 - ndv, _FresnelPower);
-                float rimBoost = lerp(_FacingMinGlow, 1.0, rim);
+                float facing = lerp(_FacingMinGlow, 1.0, rim);
 
-                // 世界空间网格：与相机距离无关，全场景一致
+                // 世界空间网格
                 float2 gridUv = i.worldPos.xz * _GridWorldScale + i.uv * _GridScale * 0.15;
                 float grid = GridLines(gridUv, _GridScale, _GridLineWidth) * _GridIntensity;
 
                 float scan = (sin((i.worldPos.y + _Time.y * _ScanSpeed) * _ScanDensity) * 0.5 + 0.5) * _ScanIntensity;
 
-                float3 fill = _BaseColor.rgb * _FillStrength * rimBoost;
-                float3 glowBase = _GlowColor.rgb * (_FacingMinGlow * 0.6 + 0.25);
+                // --- 颜色分层（保持原有结构，只调权重）---
+                float3 fill = _BaseColor.rgb * _FillStrength * facing;
+                float3 glowBase = _GlowColor.rgb * (_FacingMinGlow * 0.35);
                 float3 rimCol = _GlowColor.rgb * rim * _FresnelIntensity;
-                float3 gridCol = _GlowColor.rgb * grid;
-                float3 scanCol = _GlowColor.rgb * scan * rimBoost;
+                float3 gridCol = _GlowColor.rgb * grid * (0.45 + 0.55 * facing);
+                float3 scanCol = _GlowColor.rgb * scan * facing * 0.45;
 
                 float3 rgb = fill + glowBase + rimCol + gridCol + scanCol;
 
-                // 透明度：基底恒定 + 边缘/网格略增，不随距离衰减
-                float a = saturate(_Alpha + rim * _RimAlphaBoost + grid * 0.2);
-                a = max(a, _Alpha * 0.85);
+                // _Alpha 为总开关：0=完全不可见；detail 只控制表面明暗分布
+                float detailAlpha = saturate(0.25 + rim * _RimAlphaBoost + grid * 0.18 + scan * 0.12);
+                float a = _Alpha * detailAlpha;
 
                 return fixed4(rgb, a);
             }
