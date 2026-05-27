@@ -4,6 +4,7 @@
     "com.cesium.unity": "file:D:/Unity插件/com.cesium.unity-1.23.1.tgz",
     "com.coplaydev.unity-mcp": "https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#main",
     "com.unity.cinemachine": "3.1.6",
+    "com.unity.postprocessing": "3.4.0",
     "com.unity.collab-proxy": "2.7.1",
     "com.unity.feature.development": "1.0.1",
     "com.unity.inputsystem": "1.14.2",

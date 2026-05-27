@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: M_MercedesEdgeOutline
+  m_Name: OldM_MercedesEdgeOutline 1
   m_Shader: {fileID: 4800000, guid: 2b8c1a7f3e8f4b1f9a6e2f6db0f3a4c1, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -34,8 +34,8 @@ Material:
     - _EdgeNearBoost: 1.35
     - _EdgeScreenNorm: 1
     - _LineSharpness: 1
-    - _NormalEdgeScale: 7.3
-    - _NormalEdgeStrength: 1.09
+    - _NormalEdgeScale: 0.6
+    - _NormalEdgeStrength: 1.02
     - _RimPower: 2.53
     - _RimStrength: 0
     - _SurfaceFacingMin: 0

@@ -8,5 +8,11 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/EarthModelDemo.unity
     guid: a312f74a3c3535c499da82db7941b39a
+  - enabled: 1
+    path: Assets/Scenes/CityScenes.unity
+    guid: ecf0423b624913143b2656252c30dea5
+  - enabled: 1
+    path: Assets/Scenes/Car.unity
+    guid: 83feb42fff1dc064bb217c0b5fc03b61
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

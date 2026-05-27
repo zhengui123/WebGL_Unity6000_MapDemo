@@ -33,6 +33,12 @@ alwaysApply: false
 - 不引入 `MercedesHologramMaterialProfile`、PartAssigner、按子网格索引分配等分部件方案（除非用户明确要求改约定）。
 - `MercedesHologramEditor.GetOrCreateHologramMaterial` 等逻辑：已有手调 `.mat` 时不要 `SetFloat`/`SetColor` 覆盖默认值。
 
+## HDR 与后期
+
+- 边缘 Shader：`_EdgeColor` 为 **HDR**，可用 `_EdgeHdrIntensity` 增亮；配合 **Bloom** 更霓虹。
+- Car 场景后期：`Tools/Car/场景：添加后期 Volume（曝光 + Bloom）`（Built-in + `com.unity.postprocessing`），Profile：`Assets/Settings/Car/CarPostProcessProfile.asset`。
+- Main Camera 需 **Allow HDR**。
+
 ## 透明与深度（内饰不穿透）
 
 - Shader 使用 **Cull Back** + **DepthPrepass** + `_SurfaceFacingMin` 视线裁剪，只保留朝向相机的外表面。
