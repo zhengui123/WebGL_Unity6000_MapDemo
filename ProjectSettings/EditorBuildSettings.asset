@@ -14,5 +14,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Car.unity
     guid: 83feb42fff1dc064bb217c0b5fc03b61
+  - enabled: 1
+    path: Assets/Scenes/3DTilesDemo.unity
+    guid: d717e8b14a4557e4b88710b8aaad4727
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
