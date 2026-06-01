@@ -1,4 +1,4 @@
-﻿# Mercedes 模型 — 材质与子网格分析
+# Mercedes 模型 — 材质与子网格分析
 
 > 由 `Tools/Car/分析 Mercedes 材质与子网格` 自动生成
 
