@@ -7,18 +7,78 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Material
+    second: {fileID: 2100000, guid: 6888690eab7d8dc4aa6941ab38bd646e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black
+    second: {fileID: 2100000, guid: 443d87a16f136fc4fbe094277cce58a1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black plastic
+    second: {fileID: 2100000, guid: 090301c6ddd1af949a676c79758a496e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: black_black
+    second: {fileID: 2100000, guid: 09fc9fc158e25ea418afb00f6d687830, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: body
-    second: {fileID: 2100000, guid: 8d5f0b3c2e9a4f7d8b1c6e0a4f2d8b6c, type: 2}
+    second: {fileID: 2100000, guid: d2926f492f1abac4c9e771f2af8b8281, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bulb
+    second: {fileID: 2100000, guid: 6753ca4ece2270f43870b1cd07fa346f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: bulb red
+    second: {fileID: 2100000, guid: 4d8b3d6c48d619643a31b7518be95aba, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: glass
-    second: {fileID: 2100000, guid: 8d5f0b3c2e9a4f7d8b1c6e0a4f2d8b6c, type: 2}
+    second: {fileID: 2100000, guid: a8d03e5bb67e73b4992f6b97e6c33bf7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: illinoisplatemerc
+    second: {fileID: 2100000, guid: 629b33381e9bb51419008732d519253c, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
       name: interior plastic
-    second: {fileID: 2100000, guid: 8d5f0b3c2e9a4f7d8b1c6e0a4f2d8b6c, type: 2}
+    second: {fileID: 2100000, guid: b7f14992d4bbd634399f04be1c7dad2d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metallic
+    second: {fileID: 2100000, guid: 8a3bb103f613f2e42aa16c29fb108d51, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: metallic rim
+    second: {fileID: 2100000, guid: 94a399ed74e1e7f4fa0d36026e39f017, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: rear bulb
+    second: {fileID: 2100000, guid: 3e72203fffb00304695a9b7b9b17faa2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: red
+    second: {fileID: 2100000, guid: 0218469b165273047bbce9f8671cfe35, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: tyre
+    second: {fileID: 2100000, guid: 06688a7024db28446aedad2135f6254d, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
