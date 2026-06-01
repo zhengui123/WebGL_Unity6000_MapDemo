@@ -75,13 +75,16 @@ public class PlateMapGeoConverter : MonoBehaviour
         UnregisterFromVehiclePointEvents();
     }
 
+    private string PlateMapKey => gameObject.name;
+
     private void RegisterToVehiclePointEvents()
     {
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        hub.RequestGeoConverterRebuild += Rebuild;
-        hub.IsGeoConverterReady = () => _isReady;
-        hub.TryLongitudeLatitudeToLocal = TryLongitudeLatitudeToLocalBridge;
-        hub.GetProvinceLongitudeLatitudeBounds = GetProvinceLongitudeLatitudeBounds;
+        PlateMapVehiclePointEvents.Instance.RegisterGeoConverterActions(
+            PlateMapKey,
+            Rebuild,
+            () => _isReady,
+            TryLongitudeLatitudeToLocalBridge,
+            GetProvinceLongitudeLatitudeBounds);
     }
 
     private void UnregisterFromVehiclePointEvents()
@@ -91,10 +94,8 @@ public class PlateMapGeoConverter : MonoBehaviour
         {
             return;
         }
-        hub.RequestGeoConverterRebuild -= Rebuild;
-        hub.IsGeoConverterReady = null;
-        hub.TryLongitudeLatitudeToLocal = null;
-        hub.GetProvinceLongitudeLatitudeBounds = null;
+
+        hub.UnregisterGeoConverterActions(PlateMapKey);
     }
 
     private bool TryLongitudeLatitudeToLocalBridge(double longitude, double latitude, out Vector3 localPosition)

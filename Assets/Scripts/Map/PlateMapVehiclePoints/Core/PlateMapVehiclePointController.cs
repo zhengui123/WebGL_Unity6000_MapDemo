@@ -4,6 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 板块地图车辆点位显示：GPU Instancing、合并与颜色标定。对外指令与通知均经 <see cref="PlateMapVehiclePointEvents"/> 单例。
+/// 合并可根据中国地图与省级地图相应调整合并距离。
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(PlateMapVehiclePointInstancedRenderer))]
@@ -76,6 +77,9 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private PlateMapVehiclePointEvents Hub => PlateMapVehiclePointEvents.Instance;
 
+    /// <summary>板块地图 GameObject 名称，作为事件总线字典 key。</summary>
+    private string PlateMapKey => gameObject.name;
+
     private void OnEnable()
     {
         RegisterToEventHub();
@@ -88,11 +92,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void RegisterToEventHub()
     {
-        PlateMapVehiclePointEvents hub = Hub;
-        hub.RequestSetVehiclePoints += ApplySetVehiclePoints;
-        hub.RequestRebuildPoints += RebuildPoints;
-        hub.RequestClearVehiclePoints += ClearSpawnedPoints;
-        hub.GetCurrentVehiclePoints = () => _vehiclePoints;
+        Hub.RegisterSetVehiclePointsAction(PlateMapKey, ApplySetVehiclePoints);
+        Hub.RegisterGetCurrentVehiclePointsAction(PlateMapKey, () => _vehiclePoints);
     }
 
     private void UnregisterFromEventHub()
@@ -102,10 +103,9 @@ public class PlateMapVehiclePointController : MonoBehaviour
         {
             return;
         }
-        hub.RequestSetVehiclePoints -= ApplySetVehiclePoints;
-        hub.RequestRebuildPoints -= RebuildPoints;
-        hub.RequestClearVehiclePoints -= ClearSpawnedPoints;
-        hub.GetCurrentVehiclePoints = null;
+
+        hub.UnregisterSetVehiclePointsAction(PlateMapKey);
+        hub.UnregisterGetCurrentVehiclePointsAction(PlateMapKey);
     }
 
     private void OnValidate()
@@ -124,11 +124,11 @@ public class PlateMapVehiclePointController : MonoBehaviour
         ResolveReferences();
         if (_rebuildOnStart)
         {
-            RebuildPoints();
+            RefreshDisplayFromVehiclePoints();
         }
         else
         {
-            _initialized = Hub.InvokeIsGeoConverterReady();
+            _initialized = Hub.InvokeIsGeoConverterReady(PlateMapKey);
         }
     }
 
@@ -149,28 +149,27 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void ApplySetVehiclePoints(VehicleMapPointData[] points, bool syncNow)
     {
-        Hub.RaiseVehiclePointsWillChange(points);
+        Hub.RaiseVehiclePointsWillChange(PlateMapKey, points);
         _vehiclePoints = points;
-        Hub.RaiseVehiclePointsChanged(_vehiclePoints);
+        Hub.RaiseVehiclePointsChanged(PlateMapKey, _vehiclePoints);
         InvalidateMergeCache();
         if (syncNow)
         {
-            RebuildPoints();
+            RefreshDisplayFromVehiclePoints();
         }
     }
 
-    [ContextMenu("重建车辆点位")]
-    public void RebuildPoints()
+    /// <summary>根据当前 _vehiclePoints 刷新 GPU 显示（内部流程，无对外菜单）。</summary>
+    private void RefreshDisplayFromVehiclePoints()
     {
         ResolveReferences();
-        Hub.RaiseRebuildStarted();
+        Hub.RaiseRebuildStarted(PlateMapKey);
 
-        if (!Hub.InvokeIsGeoConverterReady())
+        if (!Hub.InvokeIsGeoConverterReady(PlateMapKey))
         {
-            Debug.LogWarning("[PlateMapVehiclePointController] 地理转换未就绪。");
+            Debug.LogWarning($"[PlateMapVehiclePointController] 地理转换未就绪：{PlateMapKey}");
             _initialized = false;
             _instancedRenderer?.ClearInstances();
-            Hub.RaiseRebuildCompleted(new PlateMapVehiclePointRebuildInfo(0, 0, 0, 0, 0, false));
             return;
         }
 
@@ -180,64 +179,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _initialized = true;
 
         int instanceCount = _instancedRenderer != null ? _instancedRenderer.InstanceCount : 0;
-        var rebuildInfo = new PlateMapVehiclePointRebuildInfo(
-            _lastRawPointCount,
-            _lastMergedPointCount,
-            instanceCount,
-            GetDrawCallCount(instanceCount),
-            _lastMaxClusterSize,
-            instanceCount > 0);
-        Hub.RaiseRebuildCompleted(rebuildInfo);
 
-        string mergeInfo = _enableProximityMerge
-            ? $"，合并 {_lastRawPointCount}→{_lastMergedPointCount}（最大簇 {_lastMaxClusterSize}）"
-            : string.Empty;
-        Debug.Log(
-            $"[PlateMapVehiclePointController] GPU 实例化重建完成，{instanceCount} 个点，DrawCall≈{rebuildInfo.DrawCallCount}{mergeInfo}");
-    }
-
-    [ContextMenu("验证近距离合并（幂等）")]
-    public void VerifyProximityMergeIdempotent()
-    {
-        ResolveReferences();
-        if (!Hub.InvokeIsGeoConverterReady())
-        {
-            Debug.LogWarning("[PlateMapVehiclePointController] 地理转换未就绪，无法验证合并。");
-            return;
-        }
-
-        VehicleMapPointData[] displaySource = GetPointsForDisplay();
-        InvalidateMergeCache();
-        int firstRaw = CollectMergeInputs(displaySource, _mergeInputs);
-        PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
-        int firstMerged = _mergedPoints.Count;
-        int firstMax = GetMaxClusterSize(_mergedPoints);
-
-        InvalidateMergeCache();
-        int secondRaw = CollectMergeInputs(displaySource, _mergeInputs);
-        PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
-        int secondMerged = _mergedPoints.Count;
-        int secondMax = GetMaxClusterSize(_mergedPoints);
-
-        bool idempotent = firstRaw == secondRaw && firstMerged == secondMerged && firstMax == secondMax;
-        Debug.Log(
-            idempotent
-                ? $"[PlateMapVehiclePointController] 合并验证通过：原始 {firstRaw} → 显示 {firstMerged}，最大簇 {firstMax}"
-                : $"[PlateMapVehiclePointController] 合并验证失败：{firstRaw}/{firstMerged}/{firstMax} vs {secondRaw}/{secondMerged}/{secondMax}");
-    }
-
-    [ContextMenu("清空车辆点位")]
-    public void ClearSpawnedPoints()
-    {
-        Hub.RaiseVehiclePointsWillChange(Array.Empty<VehicleMapPointData>());
-        _vehiclePoints = Array.Empty<VehicleMapPointData>();
-        Hub.RaiseVehiclePointsChanged(_vehiclePoints);
-        InvalidateMergeCache();
-        _instancedRenderer?.ClearInstances();
-        _matrices.Clear();
-        _gpuInstanceData.Clear();
-        _initialized = false;
-        Hub.RaiseCleared();
     }
 
     private float NormalizeDataValue(float dataValue)
@@ -283,7 +225,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
             return;
         }
 
-        if (!Hub.InvokeIsGeoConverterReady() || _instancedRenderer == null)
+        if (!Hub.InvokeIsGeoConverterReady(PlateMapKey) || _instancedRenderer == null)
         {
             return;
         }
@@ -377,12 +319,12 @@ public class PlateMapVehiclePointController : MonoBehaviour
                 continue;
             }
 
-            if (!hub.InvokeShouldIncludePoint(data))
+            if (!hub.InvokeShouldIncludePoint(PlateMapKey, data))
             {
                 continue;
             }
 
-            if (!hub.InvokeTryLongitudeLatitudeToLocal(data.longitude, data.latitude, out Vector3 localPos))
+            if (!hub.InvokeTryLongitudeLatitudeToLocal(PlateMapKey, data.longitude, data.latitude, out Vector3 localPos))
             {
                 continue;
             }
@@ -436,7 +378,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
             return null;
         }
 
-        return Hub.InvokeTransformPointsBeforeDisplay(_vehiclePoints);
+        return Hub.InvokeTransformPointsBeforeDisplay(PlateMapKey, _vehiclePoints);
     }
 
     private int ComputeVehiclePointsSourceHash()
@@ -475,12 +417,11 @@ public class PlateMapVehiclePointController : MonoBehaviour
             hash = hash * 31 + _mergeScaleMaxMultiplier.GetHashCode();
             hash = hash * 31 + _dataValueMin.GetHashCode();
             hash = hash * 31 + _dataValueMax.GetHashCode();
-            hash = hash * 31 + (hub.ShouldIncludePoint != null ? 1 : 0);
-            hash = hash * 31 + (hub.TransformPointsBeforeDisplay != null ? 1 : 0);
+            hash = hash * 31 + PlateMapKey.GetHashCode();
 
-            if (hub.InvokeIsGeoConverterReady() &&
+            if (hub.InvokeIsGeoConverterReady(PlateMapKey) &&
                 hub.InvokeGetProvinceLongitudeLatitudeBounds(
-                    out double west, out double east, out double south, out double north))
+                    PlateMapKey, out double west, out double east, out double south, out double north))
             {
                 hash = hash * 31 + west.GetHashCode();
                 hash = hash * 31 + east.GetHashCode();
@@ -526,7 +467,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
             _mapRoot = transform;
         }
 
-        Hub.PublishGeoConverterRebuild();
+        Hub.PublishGeoConverterRebuild(PlateMapKey);
 
         if (_instancedRenderer == null)
         {

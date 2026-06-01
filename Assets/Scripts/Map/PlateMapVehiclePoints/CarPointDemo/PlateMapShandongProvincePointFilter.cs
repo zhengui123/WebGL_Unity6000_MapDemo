@@ -57,7 +57,7 @@ public class PlateMapShandongProvincePointFilter
     }
 
     /// <summary>采样一对省内（或矩形内缩进后）的 WGS84 经纬度（经 <see cref="PlateMapVehiclePointEvents"/> 获取地理范围）。</summary>
-    public bool TrySampleRandomLongitudeLatitude(System.Random rng, out double longitude, out double latitude)
+    public bool TrySampleRandomLongitudeLatitude(string plateMapName, System.Random rng, out double longitude, out double latitude)
     {
         if (_strictProvinceBoundary)
         {
@@ -72,7 +72,7 @@ public class PlateMapShandongProvincePointFilter
                 rng, out longitude, out latitude, _randomMaxAttemptsPerPoint);
         }
 
-        TryGetShandongLongitudeLatitudeBounds(out double westLon, out double eastLon, out double southLat, out double northLat);
+        TryGetShandongLongitudeLatitudeBounds(plateMapName, out double westLon, out double eastLon, out double southLat, out double northLat);
         ApplyBoundsInset(ref westLon, ref eastLon, ref southLat, ref northLat, _randomBoundsInset);
         longitude = westLon + rng.NextDouble() * (eastLon - westLon);
         latitude = southLat + rng.NextDouble() * (northLat - southLat);
@@ -106,6 +106,7 @@ public class PlateMapShandongProvincePointFilter
     }
 
     private void TryGetShandongLongitudeLatitudeBounds(
+        string plateMapName,
         out double westLon,
         out double eastLon,
         out double southLat,
@@ -116,14 +117,14 @@ public class PlateMapShandongProvincePointFilter
         southLat = _fallbackSouthLatitude;
         northLat = _fallbackNorthLatitude;
 
-        if (!_useGeoConverterBounds)
+        if (!_useGeoConverterBounds || string.IsNullOrWhiteSpace(plateMapName))
         {
             return;
         }
 
         PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub.InvokeIsGeoConverterReady() &&
-            hub.InvokeGetProvinceLongitudeLatitudeBounds(out westLon, out eastLon, out southLat, out northLat))
+        if (hub.InvokeIsGeoConverterReady(plateMapName) &&
+            hub.InvokeGetProvinceLongitudeLatitudeBounds(plateMapName, out westLon, out eastLon, out southLat, out northLat))
         {
             return;
         }
