@@ -65,6 +65,43 @@ public class PlateMapGeoConverter : MonoBehaviour
         Rebuild();
     }
 
+    private void OnEnable()
+    {
+        RegisterToVehiclePointEvents();
+    }
+
+    private void OnDisable()
+    {
+        UnregisterFromVehiclePointEvents();
+    }
+
+    private void RegisterToVehiclePointEvents()
+    {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        hub.RequestGeoConverterRebuild += Rebuild;
+        hub.IsGeoConverterReady = () => _isReady;
+        hub.TryLongitudeLatitudeToLocal = TryLongitudeLatitudeToLocalBridge;
+        hub.GetProvinceLongitudeLatitudeBounds = GetProvinceLongitudeLatitudeBounds;
+    }
+
+    private void UnregisterFromVehiclePointEvents()
+    {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null)
+        {
+            return;
+        }
+        hub.RequestGeoConverterRebuild -= Rebuild;
+        hub.IsGeoConverterReady = null;
+        hub.TryLongitudeLatitudeToLocal = null;
+        hub.GetProvinceLongitudeLatitudeBounds = null;
+    }
+
+    private bool TryLongitudeLatitudeToLocalBridge(double longitude, double latitude, out Vector3 localPosition)
+    {
+        return TryLongitudeLatitudeToLocal(longitude, latitude, out localPosition);
+    }
+
     private void OnValidate()
     {
         if (!Application.isPlaying)

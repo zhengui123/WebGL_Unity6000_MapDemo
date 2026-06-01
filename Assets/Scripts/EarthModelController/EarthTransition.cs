@@ -2,7 +2,7 @@ using UnityEngine;
 using VolumetricFogAndMist;
 using DG.Tweening;
 
-public class EarthTransition : MonoBehaviour
+public class EarthTransition : UnitySingle<EarthTransition>
 {
     #region 序列化字段
 

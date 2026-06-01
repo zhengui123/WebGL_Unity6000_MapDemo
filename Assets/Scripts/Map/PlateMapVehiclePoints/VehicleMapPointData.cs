@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// 车辆点位数据（经纬度 + 告警值）。
-/// 序列化在 PlateMapVehiclePointController._vehiclePoints 中，可由 Inspector 编辑或代码/随机生成写入。
+/// 由 PlateMapVehiclePointController 持有；业务/Demo 经 PlateMapVehiclePointEvents 单例写入。
 /// </summary>
 [Serializable]
 public struct VehicleMapPointData
