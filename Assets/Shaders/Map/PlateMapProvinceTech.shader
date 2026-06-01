@@ -1,4 +1,4 @@
-Shader "Custom/SdMapProvinceTech"
+Shader "Custom/PlateMapProvinceTech"
 {
     Properties
     {

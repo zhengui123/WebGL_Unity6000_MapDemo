@@ -1,6 +1,6 @@
-// 顶面轮廓距离：顶点色 R（0=外轮廓，1=中心），由 SdMapPlateTopEdgeBaker 烘焙
+// 顶面轮廓距离：顶点色 R（0=外轮廓，1=中心），由 PlateMapPlateTopEdgeBaker 烘焙
 // 顶面渐变：沿外轮廓 → 中心，由亮到暗（edgeOut = 1 - inward）
-Shader "Custom/SdMapPlateHud"
+Shader "Custom/PlateMapPlateHud"
 {
     Properties
     {

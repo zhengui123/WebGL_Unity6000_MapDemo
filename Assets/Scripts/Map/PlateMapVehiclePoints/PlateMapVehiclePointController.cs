@@ -6,13 +6,13 @@ using UnityEngine;
 /// 山东省地图打点控制器：默认 GPU Instancing 单 DrawCall 绘制全部点位。
 /// </summary>
 [DisallowMultipleComponent]
-[RequireComponent(typeof(SdMapVehiclePointInstancedRenderer))]
-public class SdMapVehiclePointController : MonoBehaviour
+[RequireComponent(typeof(PlateMapVehiclePointInstancedRenderer))]
+public class PlateMapVehiclePointController : MonoBehaviour
 {
     [Header("引用")]
     [SerializeField] private Transform _mapRoot;
-    [SerializeField] private SdMapGeoConverter _geoConverter;
-    [SerializeField] private SdMapVehiclePointInstancedRenderer _instancedRenderer;
+    [SerializeField] private PlateMapGeoConverter _geoConverter;
+    [SerializeField] private PlateMapVehiclePointInstancedRenderer _instancedRenderer;
 
     [Header("车辆点位数据")]
     [SerializeField] private VehicleMapPointData[] _vehiclePoints =
@@ -40,7 +40,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 
     [Header("近距离合并")]
     [SerializeField] private bool _enableProximityMerge = true;
-    [Tooltip("地图局部 XZ 平面距离小于该值（与 SdMapGeoConverter 局部坐标一致）则合并")]
+    [Tooltip("地图局部 XZ 平面距离小于该值（与 PlateMapGeoConverter 局部坐标一致）则合并")]
     [SerializeField] private float _mergeDistanceLocal = 0.002f;
     [Tooltip("每多合并 1 辆车，在基础缩放上乘以 (1 + 此值)")]
     [SerializeField] private float _mergeScalePerExtraVehicle = 0.35f;
@@ -77,8 +77,8 @@ public class SdMapVehiclePointController : MonoBehaviour
     private ShandongProvinceBoundary _provinceBoundary;
     private readonly List<Matrix4x4> _matrices = new List<Matrix4x4>(128);
     private readonly List<CarPointGpuInstanceData> _gpuInstanceData = new List<CarPointGpuInstanceData>(128);
-    private readonly List<SdMapVehiclePointMerger.InputPoint> _mergeInputs = new List<SdMapVehiclePointMerger.InputPoint>(128);
-    private readonly List<SdMapVehiclePointMerger.MergedPoint> _mergedPoints = new List<SdMapVehiclePointMerger.MergedPoint>(128);
+    private readonly List<PlateMapVehiclePointMerger.InputPoint> _mergeInputs = new List<PlateMapVehiclePointMerger.InputPoint>(128);
+    private readonly List<PlateMapVehiclePointMerger.MergedPoint> _mergedPoints = new List<PlateMapVehiclePointMerger.MergedPoint>(128);
     private int _cachedMergeSourceHash;
     private int _cachedMergeSettingsHash;
     private bool _mergeCacheValid;
@@ -104,7 +104,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         _centerBrightness = Mathf.Clamp(_centerBrightness, 0f, 5f);
         if (_instancedRenderer == null)
         {
-            _instancedRenderer = GetComponent<SdMapVehiclePointInstancedRenderer>();
+            _instancedRenderer = GetComponent<PlateMapVehiclePointInstancedRenderer>();
         }
 
         ApplyCenterBrightness();
@@ -138,12 +138,18 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>编辑器右键菜单：固定生成 100 个省内随机点位。</summary>
     [ContextMenu("随机生成100个山东省内点位")]
     public void GenerateRandomVehiclePointsInShandongMenu()
     {
         GenerateRandomVehiclePointsInShandong(100);
     }
 
+    /// <summary>
+    /// 在山东省范围内随机生成车辆点位并写入 <see cref="_vehiclePoints"/>。
+    /// 开启严格省界时使用 <see cref="ShandongProvinceBoundary"/> 拒绝采样；否则在 GeoConverter/回退矩形内均匀采样。
+    /// </summary>
+    /// <param name="count">生成数量；≤0 时使用 Inspector 中的 <see cref="_randomGenerateCount"/>。</param>
     public void GenerateRandomVehiclePointsInShandong(int count = -1)
     {
         if (count <= 0)
@@ -155,7 +161,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         if (_strictProvinceBoundary && !EnsureProvinceBoundaryLoaded())
         {
-            Debug.LogError("[SdMapVehiclePointController] 省界数据未加载，无法严格生成省内点位。");
+            Debug.LogError("[PlateMapVehiclePointController] 省界数据未加载，无法严格生成省内点位。");
             return;
         }
 
@@ -192,7 +198,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 #endif
 
         Debug.Log(
-            $"[SdMapVehiclePointController] 已生成 {_vehiclePoints.Length}/{count} 个省内点位（失败 {failed} 次）。");
+            $"[PlateMapVehiclePointController] 已生成 {_vehiclePoints.Length}/{count} 个省内点位（失败 {failed} 次）。");
 
         if (Application.isPlaying || !Application.isPlaying)
         {
@@ -200,32 +206,9 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
-    [ContextMenu("校验车辆点位是否在山东省内")]
-    public void ValidateVehiclePointsInsideProvince()
-    {
-        if (!EnsureProvinceBoundaryLoaded())
-        {
-            return;
-        }
-
-        int outside = 0;
-        if (_vehiclePoints != null)
-        {
-            for (int i = 0; i < _vehiclePoints.Length; i++)
-            {
-                VehicleMapPointData p = _vehiclePoints[i];
-                if (!_provinceBoundary.Contains(p.longitude, p.latitude))
-                {
-                    outside++;
-                }
-            }
-        }
-
-        Debug.Log(outside == 0
-            ? "[SdMapVehiclePointController] 全部点位均在山东省界内。"
-            : $"[SdMapVehiclePointController] 共 {outside} 个点位在省界外。");
-    }
-
+    /// <summary>替换车辆点位数据源；可选立即触发 <see cref="RebuildPoints"/>。</summary>
+    /// <param name="points">新的点位数组，可为 null（视为清空）。</param>
+    /// <param name="syncNow">为 true 时立刻重建 GPU 实例。</param>
     public void SetVehiclePoints(VehicleMapPointData[] points, bool syncNow = true)
     {
         _vehiclePoints = points;
@@ -236,6 +219,10 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 完整重建流程：解析引用 → 清理旧版 GameObject 打点 → 合并/着色 → 提交给 InstancedRenderer。
+    /// 地理转换未就绪时会清空实例并置 <see cref="_initialized"/> 为 false。
+    /// </summary>
     [ContextMenu("重建车辆点位")]
     public void RebuildPoints()
     {
@@ -243,7 +230,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         if (_geoConverter == null || !_geoConverter.IsReady)
         {
-            Debug.LogWarning("[SdMapVehiclePointController] 地理转换未就绪。");
+            Debug.LogWarning("[PlateMapVehiclePointController] 地理转换未就绪。");
             _initialized = false;
             _instancedRenderer?.ClearInstances();
             return;
@@ -257,38 +244,40 @@ public class SdMapVehiclePointController : MonoBehaviour
             ? $"，合并 {_lastRawPointCount}→{_lastMergedPointCount}（最大簇 {_lastMaxClusterSize}）"
             : string.Empty;
         Debug.Log(
-            $"[SdMapVehiclePointController] GPU 实例化重建完成，{_instancedRenderer.InstanceCount} 个点，DrawCall≈{GetDrawCallCount(_instancedRenderer.InstanceCount)}{mergeInfo}");
+            $"[PlateMapVehiclePointController] GPU 实例化重建完成，{_instancedRenderer.InstanceCount} 个点，DrawCall≈{GetDrawCallCount(_instancedRenderer.InstanceCount)}{mergeInfo}");
     }
 
+    /// <summary>对当前点位数据连续执行两次合并，验证结果一致（并查集 + 网格应幂等）。</summary>
     [ContextMenu("验证近距离合并（幂等）")]
     public void VerifyProximityMergeIdempotent()
     {
         ResolveReferences();
         if (_geoConverter == null || !_geoConverter.IsReady)
         {
-            Debug.LogWarning("[SdMapVehiclePointController] 地理转换未就绪，无法验证合并。");
+            Debug.LogWarning("[PlateMapVehiclePointController] 地理转换未就绪，无法验证合并。");
             return;
         }
 
         InvalidateMergeCache();
         int firstRaw = CollectMergeInputs(_mergeInputs);
-        SdMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
+        PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
         int firstMerged = _mergedPoints.Count;
         int firstMax = GetMaxClusterSize(_mergedPoints);
 
         InvalidateMergeCache();
         int secondRaw = CollectMergeInputs(_mergeInputs);
-        SdMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
+        PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
         int secondMerged = _mergedPoints.Count;
         int secondMax = GetMaxClusterSize(_mergedPoints);
 
         bool idempotent = firstRaw == secondRaw && firstMerged == secondMerged && firstMax == secondMax;
         Debug.Log(
             idempotent
-                ? $"[SdMapVehiclePointController] 合并验证通过：原始 {firstRaw} → 显示 {firstMerged}，最大簇 {firstMax}（两次结果一致）"
-                : $"[SdMapVehiclePointController] 合并验证失败：{firstRaw}/{firstMerged}/{firstMax} vs {secondRaw}/{secondMerged}/{secondMax}");
+                ? $"[PlateMapVehiclePointController] 合并验证通过：原始 {firstRaw} → 显示 {firstMerged}，最大簇 {firstMax}（两次结果一致）"
+                : $"[PlateMapVehiclePointController] 合并验证失败：{firstRaw}/{firstMerged}/{firstMax} vs {secondRaw}/{secondMerged}/{secondMax}");
     }
 
+    /// <summary>清空数据源与 GPU 实例缓存，停止绘制。</summary>
     [ContextMenu("清空车辆点位")]
     public void ClearSpawnedPoints()
     {
@@ -325,6 +314,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         };
     }
 
+    /// <summary>按 Unity 单批最多 1023 实例估算 DrawCall 批次数。</summary>
     private static int GetDrawCallCount(int instanceCount)
     {
         if (instanceCount <= 0)
@@ -335,6 +325,10 @@ public class SdMapVehiclePointController : MonoBehaviour
         return (instanceCount + 1022) / 1023;
     }
 
+    /// <summary>
+    /// 将合并后的显示点转为世界矩阵与 <see cref="CarPointGpuInstanceData"/>，推送给 InstancedRenderer。
+    /// 在 <see cref="Update"/> 中开启实时更新时每帧调用。
+    /// </summary>
     private void RebuildGpuInstances()
     {
         _matrices.Clear();
@@ -357,7 +351,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         _instancedRenderer.SyncTransformSettings(_pointHeightOffset, _pointLocalScale);
 
-        if (!TryGetMergedPointsForDisplay(out IReadOnlyList<SdMapVehiclePointMerger.MergedPoint> displayPoints))
+        if (!TryGetMergedPointsForDisplay(out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> displayPoints))
         {
             _instancedRenderer.ClearInstances();
             return;
@@ -365,7 +359,7 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         for (int i = 0; i < displayPoints.Count; i++)
         {
-            SdMapVehiclePointMerger.MergedPoint merged = displayPoints[i];
+            PlateMapVehiclePointMerger.MergedPoint merged = displayPoints[i];
             float scaleMul = GetMergeScaleMultiplier(merged.SourceCount);
             _matrices.Add(_instancedRenderer.BuildInstanceMatrix(merged.LocalPosition, scaleMul));
             _gpuInstanceData.Add(BuildGpuInstanceData(merged.SummedAlertValue));
@@ -375,7 +369,7 @@ public class SdMapVehiclePointController : MonoBehaviour
     }
 
     /// <summary>从原始 _vehiclePoints 构建/读取合并结果（不修改源数据，同输入哈希只算一次）。</summary>
-    private bool TryGetMergedPointsForDisplay(out IReadOnlyList<SdMapVehiclePointMerger.MergedPoint> mergedPoints)
+    private bool TryGetMergedPointsForDisplay(out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedPoints)
     {
         mergedPoints = _mergedPoints;
         int sourceHash = ComputeVehiclePointsSourceHash();
@@ -403,14 +397,14 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         if (_enableProximityMerge)
         {
-            SdMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
+            PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
         }
         else
         {
             for (int i = 0; i < _mergeInputs.Count; i++)
             {
-                SdMapVehiclePointMerger.InputPoint input = _mergeInputs[i];
-                _mergedPoints.Add(new SdMapVehiclePointMerger.MergedPoint
+                PlateMapVehiclePointMerger.InputPoint input = _mergeInputs[i];
+                _mergedPoints.Add(new PlateMapVehiclePointMerger.MergedPoint
                 {
                     LocalPosition = input.LocalPosition,
                     SummedAlertValue = input.AlertValue,
@@ -428,7 +422,11 @@ public class SdMapVehiclePointController : MonoBehaviour
         return _mergedPoints.Count > 0;
     }
 
-    private int CollectMergeInputs(List<SdMapVehiclePointMerger.InputPoint> output)
+    /// <summary>
+    /// 遍历 <see cref="_vehiclePoints"/>：省界过滤 → 经纬度转地图局部坐标，写入合并器输入列表。
+    /// </summary>
+    /// <returns>有效输入点数量。</returns>
+    private int CollectMergeInputs(List<PlateMapVehiclePointMerger.InputPoint> output)
     {
         output.Clear();
         if (_vehiclePoints == null)
@@ -455,7 +453,7 @@ public class SdMapVehiclePointController : MonoBehaviour
                 continue;
             }
 
-            output.Add(new SdMapVehiclePointMerger.InputPoint
+            output.Add(new PlateMapVehiclePointMerger.InputPoint
             {
                 LocalPosition = localPos,
                 AlertValue = data.alertValue
@@ -465,6 +463,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         return output.Count;
     }
 
+    /// <summary>根据合并簇内车辆数放大点位缩放，上限受 <see cref="_mergeScaleMaxMultiplier"/> 约束。</summary>
     private float GetMergeScaleMultiplier(int sourceCount)
     {
         if (sourceCount <= 1 || !_enableProximityMerge)
@@ -476,7 +475,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         return Mathf.Min(mul, _mergeScaleMaxMultiplier);
     }
 
-    private static int GetMaxClusterSize(IReadOnlyList<SdMapVehiclePointMerger.MergedPoint> points)
+    private static int GetMaxClusterSize(IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> points)
     {
         int max = 0;
         for (int i = 0; i < points.Count; i++)
@@ -490,6 +489,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         return max;
     }
 
+    /// <summary>使合并结果缓存失效，下次显示重建时重新聚类。</summary>
     private void InvalidateMergeCache()
     {
         _mergeCacheValid = false;
@@ -497,6 +497,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         _cachedMergeSettingsHash = 0;
     }
 
+    /// <summary>对当前车辆点位数组内容求哈希，用于检测数据是否变化。</summary>
     private int ComputeVehiclePointsSourceHash()
     {
         unchecked
@@ -520,6 +521,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>对合并开关、距离、标定区间与地理边界等设置求哈希。</summary>
     private int ComputeMergeSettingsHash()
     {
         unchecked
@@ -547,6 +549,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>采样一对省内（或矩形内缩进后）的 WGS84 经纬度。</summary>
     private bool TrySampleRandomLongitudeLatitude(System.Random rng, out double longitude, out double latitude)
     {
         if (_strictProvinceBoundary && _provinceBoundary != null)
@@ -561,6 +564,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         return true;
     }
 
+    /// <summary>懒加载省界 JSON（Inspector 指定或 Resources/ShandongBoundary）。</summary>
     private bool EnsureProvinceBoundaryLoaded()
     {
         if (_provinceBoundary != null)
@@ -577,6 +581,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         return fallback != null && ShandongProvinceBoundary.TryLoad(fallback, out _provinceBoundary);
     }
 
+    /// <summary>获取随机采样用的经纬度外接矩形（优先 GeoConverter，否则 Inspector 回退值）。</summary>
     private void TryGetShandongLongitudeLatitudeBounds(
         out double westLon,
         out double eastLon,
@@ -597,6 +602,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         _geoConverter.GetProvinceLongitudeLatitudeBounds(out westLon, out eastLon, out southLat, out northLat);
     }
 
+    /// <summary>按比例向内收缩矩形边界，避免随机点落在地图边缘外。</summary>
     private static void ApplyBoundsInset(
         ref double westLon,
         ref double eastLon,
@@ -645,6 +651,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>解析地图根、GeoConverter、InstancedRenderer，并同步亮度与变换设置。</summary>
     private void ResolveReferences()
     {
         if (_mapRoot == null)
@@ -654,10 +661,10 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         if (_geoConverter == null)
         {
-            _geoConverter = GetComponent<SdMapGeoConverter>();
+            _geoConverter = GetComponent<PlateMapGeoConverter>();
             if (_geoConverter == null)
             {
-                _geoConverter = _mapRoot.GetComponent<SdMapGeoConverter>();
+                _geoConverter = _mapRoot.GetComponent<PlateMapGeoConverter>();
             }
         }
 
@@ -673,10 +680,10 @@ public class SdMapVehiclePointController : MonoBehaviour
 
         if (_instancedRenderer == null)
         {
-            _instancedRenderer = GetComponent<SdMapVehiclePointInstancedRenderer>();
+            _instancedRenderer = GetComponent<PlateMapVehiclePointInstancedRenderer>();
             if (_instancedRenderer == null)
             {
-                _instancedRenderer = gameObject.AddComponent<SdMapVehiclePointInstancedRenderer>();
+                _instancedRenderer = gameObject.AddComponent<PlateMapVehiclePointInstancedRenderer>();
             }
         }
 
@@ -685,6 +692,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         ApplyCenterBrightness();
     }
 
+    /// <summary>仅在中心亮度变化时写入渲染器，避免每帧重复 SetFloat。</summary>
     private void ApplyCenterBrightnessIfDirty()
     {
         if (float.IsNaN(_lastAppliedCenterBrightness) ||
@@ -694,6 +702,7 @@ public class SdMapVehiclePointController : MonoBehaviour
         }
     }
 
+    /// <summary>将 <see cref="_centerBrightness"/> 同步到 InstancedRenderer 材质。</summary>
     private void ApplyCenterBrightness()
     {
         if (_instancedRenderer == null)

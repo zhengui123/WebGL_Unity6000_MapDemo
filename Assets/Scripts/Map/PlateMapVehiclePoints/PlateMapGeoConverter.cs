@@ -6,7 +6,7 @@ using UnityEngine;
 /// X 轴对应经度，Z 轴对应纬度（南→北由 Inspector 或网格包围盒确定）。
 /// </summary>
 [DisallowMultipleComponent]
-public class SdMapGeoConverter : MonoBehaviour
+public class PlateMapGeoConverter : MonoBehaviour
 {
     /// <summary>地图控制点：模型子物体位置 + 对应的真实经纬度。</summary>
     [Serializable]
@@ -95,7 +95,7 @@ public class SdMapGeoConverter : MonoBehaviour
 
         if (_westAnchor.marker == null || _eastAnchor.marker == null)
         {
-            Debug.LogWarning("[SdMapGeoConverter] 未找到 Left/Right 控制点。");
+            Debug.LogWarning("[PlateMapGeoConverter] 未找到 Left/Right 控制点。");
             return;
         }
 
@@ -103,7 +103,7 @@ public class SdMapGeoConverter : MonoBehaviour
 
         if (Math.Abs(_eastAnchor.marker.localPosition.x - _westAnchor.marker.localPosition.x) < 1e-6f)
         {
-            Debug.LogWarning("[SdMapGeoConverter] 西/东控制点局部 X 过近，无法映射经度。");
+            Debug.LogWarning("[PlateMapGeoConverter] 西/东控制点局部 X 过近，无法映射经度。");
             return;
         }
 
@@ -123,7 +123,7 @@ public class SdMapGeoConverter : MonoBehaviour
 
         if (Math.Abs(_northLocalZ - _southLocalZ) < 1e-6f)
         {
-            Debug.LogWarning("[SdMapGeoConverter] 纬度方向局部 Z 范围无效。");
+            Debug.LogWarning("[PlateMapGeoConverter] 纬度方向局部 Z 范围无效。");
             return;
         }
 
@@ -136,7 +136,7 @@ public class SdMapGeoConverter : MonoBehaviour
         _isReady = true;
 
         Debug.Log(
-            $"[SdMapGeoConverter] 映射就绪 | 西({ _westAnchor.marker.name}) lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
+            $"[PlateMapGeoConverter] 映射就绪 | 西({ _westAnchor.marker.name}) lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
             $"东({ _eastAnchor.marker.name}) lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} | " +
             $"Z [{_southLocalZ:F4},{_northLocalZ:F4}] -> 纬度 [{_southLatitude:F4},{_northLatitude:F4}]");
     }
@@ -206,6 +206,7 @@ public class SdMapGeoConverter : MonoBehaviour
         return true;
     }
 
+    /// <summary>校正西/东锚点经度默认值与大小关系（山东省参考经度范围）。</summary>
     private void EnsureDefaultLongitudeLatitude()
     {
         // 山东省西缘 / 东缘参考值（WGS84）；若 Inspector 填反或为空则纠正
@@ -236,6 +237,7 @@ public class SdMapGeoConverter : MonoBehaviour
         }
     }
 
+    /// <summary>按局部 X 较大者为西缘绑定 Left/Right，避免模型朝向与命名不一致。</summary>
     private void BindWestEastByLocalX()
     {
         Transform left = FindChildMarker("Left");
@@ -267,6 +269,7 @@ public class SdMapGeoConverter : MonoBehaviour
         _eastAnchor.longitude = eastLon;
     }
 
+    /// <summary>根据锚点局部 Z 反算纬度并写回，用于 Inspector 校准显示。</summary>
     private void SyncAnchorLatitudeFromMarkerZ(ref GeoAnchor anchor)
     {
         if (anchor.marker == null)
@@ -278,6 +281,7 @@ public class SdMapGeoConverter : MonoBehaviour
         anchor.latitude = Mathf.Lerp((float)_southLatitude, (float)_northLatitude, tLat);
     }
 
+    /// <summary>在地图根下按名称查找子 Transform（含未激活对象）。</summary>
     private Transform FindChildMarker(string markerName)
     {
         if (_mapRoot == null)
@@ -297,6 +301,7 @@ public class SdMapGeoConverter : MonoBehaviour
         return null;
     }
 
+    /// <summary>未手动指定时按子节点名 Left/Right 查找控制点。</summary>
     private void TryFindMarkersByName()
     {
         if (_westAnchor.marker == null)

@@ -189,6 +189,7 @@ public sealed class ShandongProvinceBoundary
         return false;
     }
 
+    /// <summary>将 JSON 浮点数组转为双精度环（射线法用）。</summary>
     private static Ring CreateRing(float[] lon, float[] lat)
     {
         if (lon == null || lat == null || lon.Length != lat.Length)

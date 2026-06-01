@@ -42,7 +42,7 @@ public static class CarPointAssetsBuilder
         Selection.activeObject = prefab;
         Debug.Log(
             $"[CarPoint] 资源已生成：\n- {TexPath}\n- {MatPath}\n- {PrefabPath}\n" +
-            "请在 sd_map 的 SdMapVehiclePointController 上将 Point Prefab 指向新预制体。");
+            "请在 sd_map 的 PlateMapVehiclePointController 上将 Point Prefab 指向新预制体。");
     }
 
     private static void EnsureFolders()

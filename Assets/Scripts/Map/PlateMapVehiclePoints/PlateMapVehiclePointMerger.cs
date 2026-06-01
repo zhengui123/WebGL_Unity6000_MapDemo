@@ -4,14 +4,16 @@ using UnityEngine;
 /// <summary>
 /// 地图局部坐标下近距离点位合并（并查集 + 网格加速）。仅对原始输入做一次聚合，幂等。
 /// </summary>
-public static class SdMapVehiclePointMerger
+public static class PlateMapVehiclePointMerger
 {
+    /// <summary>合并前单点：地图局部坐标 + 业务告警值。</summary>
     public struct InputPoint
     {
         public Vector3 LocalPosition;
         public float AlertValue;
     }
 
+    /// <summary>合并后簇：质心位置、累加告警值、源点数量。</summary>
     public struct MergedPoint
     {
         public Vector3 LocalPosition;
@@ -147,11 +149,13 @@ public static class SdMapVehiclePointMerger
         }
     }
 
+    /// <summary>将网格单元坐标打包为 Dictionary 键（XZ 平面均匀网格加速邻域查询）。</summary>
     private static long PackCellKey(int cellX, int cellZ)
     {
         return ((long)cellX << 32) | (uint)cellZ;
     }
 
+    /// <summary>并查集 Find（路径压缩）。</summary>
     private static int Find(int[] parent, int index)
     {
         while (parent[index] != index)
@@ -163,6 +167,7 @@ public static class SdMapVehiclePointMerger
         return index;
     }
 
+    /// <summary>并查集 Union：将 b 的根挂到 a 的根。</summary>
     private static void Union(int[] parent, int a, int b)
     {
         int rootA = Find(parent, a);

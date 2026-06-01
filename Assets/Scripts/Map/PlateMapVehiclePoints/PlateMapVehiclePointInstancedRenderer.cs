@@ -8,7 +8,7 @@ using UnityEngine.Rendering;
 /// </summary>
 [DisallowMultipleComponent]
 [ExecuteAlways]
-public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
+public class PlateMapVehiclePointInstancedRenderer : MonoBehaviour
 {
     private const int MaxInstancesPerDraw = 1023;
 
@@ -45,11 +45,13 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>设置全局中心亮度倍数（写入运行时材质 _CenterBrightness）。</summary>
     public void SetCenterBrightness(float brightness)
     {
         CenterBrightness = brightness;
     }
 
+    /// <summary>绑定 sd_map 根节点，用于局部坐标转世界矩阵。</summary>
     public void BindMapRoot(Transform mapRoot)
     {
         if (mapRoot != null)
@@ -58,6 +60,7 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>同步点位高度偏移与局部缩放（由 Controller 在重建前调用）。</summary>
     public void SyncTransformSettings(float heightOffset, Vector3 localScale)
     {
         _pointHeightOffset = heightOffset;
@@ -73,11 +76,13 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>每帧在渲染前提交 GPU Instancing 绘制（ExecuteAlways 下编辑器亦可见）。</summary>
     private void LateUpdate()
     {
         DrawInstances();
     }
 
+    /// <summary>设置待绘制的实例矩阵与逐实例颜色/亮度数据（在 LateUpdate 中分批 DrawMeshInstanced）。</summary>
     public void SetInstances(
         IReadOnlyList<Matrix4x4> matrices,
         IReadOnlyList<CarPointGpuInstanceData> instanceData)
@@ -104,6 +109,7 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         _instanceCount = count;
     }
 
+    /// <summary>清空实例缓存，本帧不再绘制。</summary>
     public void ClearInstances()
     {
         _instanceCount = 0;
@@ -144,6 +150,7 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>单批最多 1023 个实例：MPB 写入 _InstanceColorAndGlow 后调用 Graphics.DrawMeshInstanced。</summary>
     private void DrawBatch(int offset, int batchCount)
     {
         if (_batchMatrices == null || _batchMatrices.Length < batchCount)
@@ -210,6 +217,7 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         }
     }
 
+    /// <summary>确保 Mesh、Instancing 材质与主纹理已就绪；失败则跳过绘制。</summary>
     private bool EnsureDrawResources()
     {
         if (_mapRoot == null)
@@ -304,6 +312,9 @@ public class SdMapVehiclePointInstancedRenderer : MonoBehaviour
         return mesh;
     }
 
+    /// <summary>将地图局部 XZ 点位（Y 由高度偏移决定）变换为世界空间 TRS 矩阵。</summary>
+    /// <param name="localPositionOnMap">sd_map 局部坐标。</param>
+    /// <param name="scaleMultiplier">合并簇缩放等额外倍数。</param>
     public Matrix4x4 BuildInstanceMatrix(Vector3 localPositionOnMap, float scaleMultiplier = 1f)
     {
         if (_mapRoot == null)
