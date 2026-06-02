@@ -6,45 +6,6 @@ using UnityEngine;
 public class MapApi : UnitySingle<MapApi>
 {
 
-    public void Start()
-    {
-        Debug.Log("MapApi Start");
-        EventManager.Instance.OnTransitionToPlateMapCompleted += ()=>{
-            Debug.Log("地球 → 板块过渡动画全部播放完毕");
-        };
-            
-        EventManager.Instance.OnTransitionToEarthCompleted += ()=>{
-            Debug.Log("板块 → 地球过渡动画全部播放完毕");
-        };
-
-        EventManager.Instance.OnPlateMapDisplayFocus += moduleName =>
-        {
-            Debug.Log("板块模块开始聚焦：" + moduleName);
-        };
-
-        EventManager.Instance.OnPlateMapFocusModuleCompleted += moduleName =>
-        {
-            Debug.Log("板块模块聚焦动画完成：" + moduleName);
-        };
-
-        EventManager.Instance.OnPlateMapRestoreCameraCompleted += () =>
-        {
-            Debug.Log("板块相机还原动画完成");
-        };
-    }
-
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TransitionToPlateMap();
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            TransitionToEarth();
-        }
-    }
-
     /// <summary>播放地球 → 板块过渡（与EarthTransition.TransitionToPlateMap一致）。</summary>
     public void TransitionToPlateMap()
     {

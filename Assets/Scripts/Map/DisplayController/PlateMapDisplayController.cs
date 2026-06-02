@@ -118,11 +118,6 @@ public class PlateMapDisplayController : MonoBehaviour
             return;
         }
 
-        if (_restoreKey != KeyCode.None && Input.GetKeyDown(_restoreKey) && CanRestoreCamera)
-        {
-            RestoreCameraPosition();
-        }
-
         HandleModuleClick();
     }
 
