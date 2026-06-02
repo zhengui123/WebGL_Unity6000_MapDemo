@@ -23,6 +23,9 @@ public class PlateMapDisplayModule : MonoBehaviour
     /// <summary>显示名（留空则用 GameObject 名）。</summary>
     public string DisplayName => string.IsNullOrEmpty(_displayName) ? gameObject.name : _displayName;
 
+    /// <summary>模块匹配 key，默认与场景物体名一致。</summary>
+    public string ModuleKey => gameObject.name;
+
     /// <summary>点击拉近时相机目标局部 Y。</summary>
     public float FocusCameraLocalY => _focusCameraLocalY;
 
@@ -41,7 +44,7 @@ public class PlateMapDisplayModule : MonoBehaviour
     }
 
 
-    public void Update()
+    public void ChangeColliderState()
     {
         if(_propertyBlock.GetFloat("_Alpha") >= 1)
         {
@@ -117,6 +120,7 @@ public class PlateMapDisplayModule : MonoBehaviour
             _propertyBlock.SetFloat(AlphaId, _currentAlpha);
             r.SetPropertyBlock(_propertyBlock);
         }
+        ChangeColliderState();
     }
 
     public void KillAlphaTween()

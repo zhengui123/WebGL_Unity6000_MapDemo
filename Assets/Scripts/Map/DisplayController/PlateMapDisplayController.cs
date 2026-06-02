@@ -63,8 +63,26 @@ public class PlateMapDisplayController : MonoBehaviour
     /// <summary>是否已缓存首次聚焦前相机位姿（可调用还原）。</summary>
     public bool CanRestoreCamera => _hasPreFocusPose;
 
+    private static PlateMapDisplayController _instance;
+
+    /// <summary>场景中的显示控制器（供 MapApi 等调用）。</summary>
+    public static PlateMapDisplayController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<PlateMapDisplayController>();
+            }
+
+            return _instance;
+        }
+    }
+
     private void Awake()
     {
+        _instance = this;
+
         if (_plateMapRoot == null)
         {
             _plateMapRoot = transform;
@@ -72,16 +90,13 @@ public class PlateMapDisplayController : MonoBehaviour
 
         ResolveCameraReferences();
         RefreshModuleList();
-        EventManager.Instance.OnPlateMapDisplayFocus += OnPlateMapDisplayFocus;
     }
 
-    private void OnPlateMapDisplayFocus(string plateMapName)
+    private void OnDestroy()
     {
-        PlateMapVehiclePointsJsonApiDemo.Instance.GenerateTestJsonAndPushApi();
-
-        if (plateMapName == _focusedModule.DisplayName)
+        if (_instance == this)
         {
-            Debug.Log($"[PlateMapDisplayController] 聚焦模块比对一致：{plateMapName}");
+            _instance = null;
         }
     }
 
@@ -156,6 +171,23 @@ public class PlateMapDisplayController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 按模块名聚焦（默认匹配场景 GameObject 名；亦匹配 DisplayName）。
+    /// </summary>
+    /// <param name="moduleName">如 polySurface3</param>
+    /// <returns>是否找到模块并开始播放动画。</returns>
+    public bool FocusModule(string moduleName)
+    {
+        if (!TryGetModuleByName(moduleName, out PlateMapDisplayModule module))
+        {
+            Debug.LogWarning($"[PlateMapDisplayController] 未找到模块：{moduleName}");
+            return false;
+        }
+
+        FocusModule(module);
+        return true;
+    }
+
     /// <summary>聚焦到指定模块（移动摄像机使模块位于视口中心；仅首次聚焦前缓存位姿供还原）。</summary>
     public void FocusModule(PlateMapDisplayModule module)
     {
@@ -173,8 +205,6 @@ public class PlateMapDisplayController : MonoBehaviour
             CaptureCameraPose();
             _hasPreFocusPose = true;
         }
-
-        _focusedModule = module;
 
         float targetZoomY = module.FocusCameraLocalY > 0f
             ? module.FocusCameraLocalY
@@ -194,12 +224,55 @@ public class PlateMapDisplayController : MonoBehaviour
             return;
         }
 
-        EventManager.Instance.TriggerPlateMapDisplayFocus(module.DisplayName);
+        _focusedModule = module;
+        string moduleKey = module.ModuleKey;
+
+        EventManager.Instance?.TriggerPlateMapDisplayFocus(moduleKey);
 
         FadeModulesForFocus(module);
-        PlayCameraTween(rigTargetPos, _cameraRig.rotation, camLocalTarget, _cameraTransform.localRotation, targetZoomY,
-            _focusDuration, _focusEase);
-        Debug.Log($"[PlateMapDisplayController] 聚焦模块：{module.DisplayName}");
+        PlayCameraTween(
+            rigTargetPos,
+            _cameraRig.rotation,
+            camLocalTarget,
+            _cameraTransform.localRotation,
+            targetZoomY,
+            _focusDuration,
+            _focusEase,
+            onComplete: () => EventManager.Instance?.TriggerPlateMapFocusModuleCompleted(moduleKey));
+
+        Debug.Log($"[PlateMapDisplayController] 聚焦模块：{moduleKey}");
+    }
+
+    private bool TryGetModuleByName(string moduleName, out PlateMapDisplayModule module)
+    {
+        module = null;
+        if (string.IsNullOrWhiteSpace(moduleName))
+        {
+            return false;
+        }
+
+        RefreshModuleList();
+        if (_modules == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < _modules.Length; i++)
+        {
+            PlateMapDisplayModule candidate = _modules[i];
+            if (candidate == null)
+            {
+                continue;
+            }
+
+            if (candidate.ModuleKey == moduleName || candidate.DisplayName == moduleName)
+            {
+                module = candidate;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -241,11 +314,12 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>DOTween 还原至首次聚焦前的摄像机位姿。</summary>
-    public void RestoreCameraPosition()
+    /// <returns>是否已开始还原动画。</returns>
+    public bool RestoreCameraPosition()
     {
         if (!_hasPreFocusPose || _cameraRig == null || _cameraTransform == null)
         {
-            return;
+            return false;
         }
 
         KillCameraTweens();
@@ -262,9 +336,11 @@ public class PlateMapDisplayController : MonoBehaviour
             {
                 _hasPreFocusPose = false;
                 _focusedModule = null;
+                EventManager.Instance?.TriggerPlateMapRestoreCameraCompleted();
             });
 
         Debug.Log("[PlateMapDisplayController] 正在还原摄像机位置。");
+        return true;
     }
 
     /// <summary>聚焦：当前模块保持 1，其余模块淡出到 0。</summary>
@@ -422,7 +498,7 @@ public class PlateMapDisplayController : MonoBehaviour
             return;
         }
 
-        FocusModule(module);
+        FocusModule(module.ModuleKey);
     }
 
     private bool IsRegisteredModule(PlateMapDisplayModule module)

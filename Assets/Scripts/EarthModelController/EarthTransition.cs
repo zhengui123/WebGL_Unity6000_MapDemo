@@ -41,6 +41,15 @@ public class EarthTransition : UnitySingle<EarthTransition>
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning("[EarthTransition] 场景中存在多个实例，将销毁重复对象。");
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
         if (mainCameraTransform == null && Camera.main != null)
         {
             mainCameraTransform = Camera.main.transform;
@@ -49,21 +58,13 @@ public class EarthTransition : UnitySingle<EarthTransition>
         CacheEarthCameraLocalPos();
     }
 
-    public void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            TransitionToPlateMap();
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            TransitionToEarth();
-        }
-    }
-
     private void OnDestroy()
     {
         KillCurrentSequence();
+        if (Instance == this)
+        {
+            Instance = null;
+        }
     }
 
     #endregion
@@ -104,6 +105,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         _transitionSequence.Append(AnimateCameraAndFogIn(secondTargetLocalPos, showFogAnimTime));
         _transitionSequence.AppendCallback(SwitchToPlateMapView);
         _transitionSequence.Append(AnimateCameraAndFogOut(plateViewLocalPos, showPlateMapAnimTime));
+        _transitionSequence.OnComplete(NotifyTransitionToPlateMapCompleted);
     }
 
     #endregion
@@ -127,6 +129,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         _transitionSequence.AppendCallback(SwitchToEarthView);
         _transitionSequence.Append(AnimateCameraAndFogOut(firstTargetLocalPos, showFogAnimTime));
         _transitionSequence.Append(MoveCameraLocal(GetEarthReturnLocalPos(), goEarthAnimTime));
+        _transitionSequence.OnComplete(NotifyTransitionToEarthCompleted);
     }
 
     #endregion
@@ -233,6 +236,30 @@ public class EarthTransition : UnitySingle<EarthTransition>
         {
             _transitionSequence.Kill();
         }
+
+        _transitionSequence = null;
+    }
+
+    private static void NotifyTransitionToPlateMapCompleted()
+    {
+        EventManager eventManager = EventManager.Instance;
+        if (eventManager == null)
+        {
+            return;
+        }
+
+        eventManager.TriggerTransitionToPlateMapCompleted();
+    }
+
+    private static void NotifyTransitionToEarthCompleted()
+    {
+        EventManager eventManager = EventManager.Instance;
+        if (eventManager == null)
+        {
+            return;
+        }
+
+        eventManager.TriggerTransitionToEarthCompleted();
     }
 
     private void CacheEarthCameraLocalPos()
