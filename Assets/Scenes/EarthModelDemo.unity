@@ -1104,22 +1104,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 9136295643160966089, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
   m_PrefabInstance: {fileID: 161437002835538100}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &730227208
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 730227206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d70109978348a54b95f905e095e2a1e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlateMapProvinceTechOpacity
-  _renderers: []
-  _overallAlpha: 1
-  _uiSlider: {fileID: 0}
-  _syncSliderOnEnable: 1
 --- !u!114 &730227209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1151,7 +1135,6 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
-  _provinceTechOpacity: {fileID: 0}
 --- !u!1001 &876298915
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2435,6 +2418,10 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 6797051415395481404, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
+      propertyPath: _plateMapName
+      value: sd_map
+      objectReference: {fileID: 0}
     - target: {fileID: 6869690088419851588, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: m_Name
       value: sd_map
@@ -2479,9 +2466,6 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6199007169313579943, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 730227208}
     - targetCorrespondingSourceObject: {fileID: 6199007169313579943, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 730227209}

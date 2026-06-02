@@ -28,6 +28,7 @@ public class PlateMapDisplayModule : MonoBehaviour
 
     public float CurrentAlpha => _currentAlpha;
 
+    private MeshCollider meshCollider;
     private void Awake()
     {
         if (_autoAddMeshColliderIfMissing)
@@ -37,6 +38,19 @@ public class PlateMapDisplayModule : MonoBehaviour
 
         CacheRenderers();
         ApplyAlphaImmediate(_currentAlpha);
+    }
+
+
+    public void Update()
+    {
+        if(_propertyBlock.GetFloat("_Alpha") >= 1)
+        {
+            meshCollider.enabled = true;
+        }
+        else if(meshCollider.enabled)
+        {
+            meshCollider.enabled = false;
+        }
     }
 
     private void OnDestroy()
@@ -146,7 +160,7 @@ public class PlateMapDisplayModule : MonoBehaviour
         MeshFilter meshFilter = GetComponent<MeshFilter>();
         if (meshFilter != null && meshFilter.sharedMesh != null)
         {
-            var meshCollider = gameObject.AddComponent<MeshCollider>();
+            meshCollider = gameObject.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = meshFilter.sharedMesh;
             return;
         }

@@ -50,8 +50,6 @@ public class PlateMapDisplayController : MonoBehaviour
     [Header("可点击模块（留空则收集子级 PlateMapDisplayModule）")]
     [SerializeField] private PlateMapDisplayModule[] _modules;
 
-    [Header("关联（可选）")]
-    [SerializeField] private PlateMapProvinceTechOpacity _provinceTechOpacity;
 
     private Vector3 _mouseDownPosition;
     private Sequence _cameraTweenSequence;
@@ -146,11 +144,6 @@ public class PlateMapDisplayController : MonoBehaviour
         if (_cameraRig == null && _cameraTransform != null)
         {
             _cameraRig = _cameraTransform.parent != null ? _cameraTransform.parent : _cameraTransform;
-        }
-
-        if (_provinceTechOpacity == null)
-        {
-            _provinceTechOpacity = GetComponentInChildren<PlateMapProvinceTechOpacity>(true);
         }
     }
 
