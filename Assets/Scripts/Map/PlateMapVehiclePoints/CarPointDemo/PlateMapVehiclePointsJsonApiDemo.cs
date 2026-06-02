@@ -5,7 +5,7 @@ using UnityEngine;
 /// 演示 <see cref="PlateMapVehiclePointEvents.UpdateVehiclePointsFromJson"/> 按板块名推送 JSON。
 /// </summary>
 [DisallowMultipleComponent]
-public class PlateMapVehiclePointsJsonApiDemo : MonoBehaviour
+public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePointsJsonApiDemo>
 {
     [Header("目标板块")]
     [SerializeField] private string _plateMapName = "sd_map (1)";
@@ -48,7 +48,7 @@ public class PlateMapVehiclePointsJsonApiDemo : MonoBehaviour
         TryExportJsonToAssets(json);
 #endif
 
-        bool ok = Hub.UpdateVehiclePointsFromJson(_plateMapName, json);
+        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, json);
         Debug.Log(ok
             ? $"[PlateMapVehiclePointsJsonApiDemo] 已推送到 {_plateMapName}，{points.Length} 个点。"
             : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
@@ -63,7 +63,7 @@ public class PlateMapVehiclePointsJsonApiDemo : MonoBehaviour
             return;
         }
 
-        bool ok = Hub.UpdateVehiclePointsFromJson(_plateMapName, _sampleJsonAsset.text);
+        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, _sampleJsonAsset.text);
         Debug.Log(ok ? $"[PlateMapVehiclePointsJsonApiDemo] 样本 JSON 已推送到 {_plateMapName}。" : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
     }
 

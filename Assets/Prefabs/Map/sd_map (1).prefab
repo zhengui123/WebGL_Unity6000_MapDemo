@@ -809,7 +809,6 @@ Transform:
   - {fileID: 4858115910835859131}
   - {fileID: 6129615447928288769}
   - {fileID: 9041301595068284568}
-  - {fileID: 6697125406691528407}
   m_Father: {fileID: 1390008880049182587}
   m_LocalEulerAnglesHint: {x: 1.988, y: 0.505, z: 0.899}
 --- !u!1 &6232559813740353479
@@ -1162,7 +1161,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _mapRoot: {fileID: 1390008880049182587}
-  _geoConverter: {fileID: 6238814874542099929}
   _instancedRenderer: {fileID: 2985936283357233736}
   _vehiclePoints:
   - vehicleId: SD-001
@@ -1611,8 +1609,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14a377a6e6b51644f916b973f4f3b54d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapShandongRandomPointsDemo
-  _pointController: {fileID: 2407045919986893658}
-  _geoConverter: {fileID: 6238814874542099929}
+  _plateMapName: sd_map (1)
   _provinceFilter:
     _shandongBoundaryJson: {fileID: 4900000, guid: d5b642c3e08805140b07f5686c7ba998, type: 3}
     _strictProvinceBoundary: 1
@@ -1625,6 +1622,8 @@ MonoBehaviour:
     _randomBoundsInset: 0.02
   _randomGenerateCount: 100
   _randomSeed: 0
+  _logRebuildCompletedAction: 0
+  _pushViaJsonApi: 1
 --- !u!1 &6909811583490524380
 GameObject:
   m_ObjectHideFlags: 0
@@ -2165,37 +2164,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1 &8842901303649733263
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 6697125406691528407}
-  m_Layer: 0
-  m_Name: transform52
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &6697125406691528407
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8842901303649733263}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9136295643160966089}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8875564760726512463
 GameObject:
   m_ObjectHideFlags: 0

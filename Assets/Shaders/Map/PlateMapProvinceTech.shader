@@ -18,7 +18,9 @@ Shader "Custom/PlateMapProvinceTech"
         _NoiseIntensity ("噪点强度", Range(0, 0.5)) = 0.12
         _PulseSpeed ("呼吸速度", Range(0, 3)) = 0.6
         _PulseAmount ("呼吸幅度", Range(0, 0.5)) = 0.08
-        _Alpha ("整体透明度", Range(0.1, 1)) = 0.82
+        [Header(Overall Visibility)]
+        // 0=完全隐藏，1=完全显示；材质 Inspector 进度条或脚本 SetOverallAlpha 均可驱动
+        _Alpha ("整体透明度", Range(0, 1)) = 1
     }
 
     SubShader
@@ -128,11 +130,14 @@ Shader "Custom/PlateMapProvinceTech"
             emission += _RimColor.rgb * fresnel * _RimIntensity;
             emission *= pulse;
 
+            float localAlpha = saturate(0.35 + fresnel * 0.65 + pattern * 0.25);
+            half masterAlpha = saturate(_Alpha);
+
             o.Albedo = baseCol;
             o.Metallic = 0.0;
             o.Smoothness = 0.55;
-            o.Emission = emission;
-            o.Alpha = _Alpha * saturate(0.35 + fresnel * 0.65 + pattern * 0.25);
+            o.Emission = emission * masterAlpha;
+            o.Alpha = localAlpha * masterAlpha;
         }
         ENDCG
     }

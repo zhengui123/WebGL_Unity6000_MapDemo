@@ -131,16 +131,6 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         return true;
     }
 
-    public bool UpdateVehiclePointsFromJson(string plateMapName, string vehiclePointsJson, bool syncNow = true)
-    {
-        if (!VehicleMapPointJson.TryParse(vehiclePointsJson, out VehicleMapPointData[] points, out string error))
-        {
-            Debug.LogError($"[PlateMapVehiclePointEvents] UpdateVehiclePointsFromJson 失败：{error}");
-            return false;
-        }
-
-        return PublishSetVehiclePoints(plateMapName, points, syncNow);
-    }
 
     public void PublishGeoConverterRebuild(string plateMapName)
     {

@@ -21,6 +21,14 @@ public class CameraController : MonoBehaviour
     private float _targetZoomY;
     private float _currentZoomY;
     private float _zoomVelocity;
+    private bool _zoomControlEnabled = true;
+
+    /// <summary>为 false 时暂停滚轮与 SmoothDamp（板块聚焦 DOTween 期间使用）。</summary>
+    public bool ZoomControlEnabled
+    {
+        get => _zoomControlEnabled;
+        set => _zoomControlEnabled = value;
+    }
 
     private void Awake()
     {
@@ -44,7 +52,7 @@ public class CameraController : MonoBehaviour
 
     private void HandleZoomInput()
     {
-        if (_cameraTransform == null)
+        if (_cameraTransform == null || !_zoomControlEnabled)
         {
             return;
         }
@@ -59,6 +67,9 @@ public class CameraController : MonoBehaviour
         _targetZoomY = Mathf.Clamp(_targetZoomY, _minZoomY, _maxZoomY);
     }
 
+    public float MinZoomY => _minZoomY;
+    public float MaxZoomY => _maxZoomY;
+
     /// <summary>
     /// 当前相机沿局部 Y 的距离（与滚轮缩放一致，越小越近）。
     /// </summary>
@@ -68,6 +79,28 @@ public class CameraController : MonoBehaviour
         {
             return _cameraTransform != null ? _cameraTransform.localPosition.y : float.MaxValue;
         }
+    }
+
+    /// <summary>设置目标缩放局部 Y（供板块模块点击拉近等）。</summary>
+    /// <param name="immediate">为 true 时立即到位，否则走 SmoothDamp。</param>
+    public void SetTargetZoomY(float localY, bool immediate = false)
+    {
+        if (_cameraTransform == null)
+        {
+            return;
+        }
+
+        _targetZoomY = Mathf.Clamp(localY, _minZoomY, _maxZoomY);
+        if (!immediate)
+        {
+            return;
+        }
+
+        _currentZoomY = _targetZoomY;
+        _zoomVelocity = 0f;
+        Vector3 localPos = _cameraTransform.localPosition;
+        localPos.y = _currentZoomY;
+        _cameraTransform.localPosition = localPos;
     }
 
     /// <summary>
@@ -91,7 +124,7 @@ public class CameraController : MonoBehaviour
 
     private void ApplyZoom()
     {
-        if (_cameraTransform == null)
+        if (_cameraTransform == null || !_zoomControlEnabled)
         {
             return;
         }

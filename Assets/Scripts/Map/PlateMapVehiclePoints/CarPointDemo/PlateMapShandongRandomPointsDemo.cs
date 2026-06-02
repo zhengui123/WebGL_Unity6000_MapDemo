@@ -76,7 +76,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         }
 
         bool ok = _pushViaJsonApi
-            ? Hub.UpdateVehiclePointsFromJson(_plateMapName, VehicleMapPointJson.ToJson(points))
+            ? PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, VehicleMapPointJson.ToJson(points))
             : Hub.PublishSetVehiclePoints(_plateMapName, points);
 
 #if UNITY_EDITOR
