@@ -61,6 +61,19 @@ public class MapApi : UnitySingle<MapApi>
         return controller.PlayTransition(provinceName);
     }
 
+    /// <summary>倒放 GaodeMap → AllPlateMap 过渡（可选指定省名，用于事件参数）。</summary>
+    public bool TransitionGaodeMapToPlateMap(string provinceName = null)
+    {
+        PlateToGaodeMapTransitionController controller = PlateToGaodeMapTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 PlateToGaodeMapTransitionController。");
+            return false;
+        }
+
+        return controller.PlayTransitionReverse(provinceName);
+    }
+
     /// <summary>还原板块相机至首次聚焦前的位姿。</summary>
     public bool RestorePlateMapCamera()
     {

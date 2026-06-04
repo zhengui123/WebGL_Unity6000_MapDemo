@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 
 public static class PlateToGaodeMapFocusEditorTools
 {
@@ -26,21 +27,28 @@ public static class PlateToGaodeMapFocusEditorTools
             manager.GetComponent<PlateToGaodeMapScanlineOverlay>() ??
             manager.AddComponent<PlateToGaodeMapScanlineOverlay>();
 
-        GaodeMapTransitionVisibility visibility =
-            manager.GetComponent<GaodeMapTransitionVisibility>() ??
-            manager.AddComponent<GaodeMapTransitionVisibility>();
+        GameObject rawImgGo = GameObject.Find("GaodeMap_RawImg");
+        GaodeMapRawImageVisibility rawVisibility = null;
+        if (rawImgGo != null)
+        {
+            rawVisibility = rawImgGo.GetComponent<GaodeMapRawImageVisibility>() ??
+                            rawImgGo.AddComponent<GaodeMapRawImageVisibility>();
+        }
 
         SerializedObject transitionSo = new SerializedObject(controller);
         AssignIfNull(transitionSo, "_allPlateMapRoot", GameObject.Find("AllPlateMap"));
         AssignIfNull(transitionSo, "_gaodeMapController", manager.GetComponent<GaodeMapController>());
         AssignIfNull(transitionSo, "_provinceFocusController", manager.GetComponent<GaodeMapProvinceFocusController>());
-        AssignIfNull(transitionSo, "_gaodeVisibility", visibility);
+        AssignIfNull(transitionSo, "_gaodeRawImageVisibility", rawVisibility);
         transitionSo.FindProperty("_scanlineOverlay").objectReferenceValue = overlay;
         transitionSo.ApplyModifiedPropertiesWithoutUndo();
 
-        SerializedObject visibilitySo = new SerializedObject(visibility);
-        AssignIfNull(visibilitySo, "_gaodeMapController", manager.GetComponent<GaodeMapController>());
-        visibilitySo.ApplyModifiedPropertiesWithoutUndo();
+        if (rawVisibility != null)
+        {
+            SerializedObject rawSo = new SerializedObject(rawVisibility);
+            AssignIfNull(rawSo, "_rawImage", rawImgGo != null ? rawImgGo.GetComponent<RawImage>() : null);
+            rawSo.ApplyModifiedPropertiesWithoutUndo();
+        }
 
         SerializedObject overlaySo = new SerializedObject(overlay);
         Material mat = AssetDatabase.LoadAssetAtPath<Material>(ScanlineMatPath);
@@ -60,7 +68,12 @@ public static class PlateToGaodeMapFocusEditorTools
         }
 
         EditorUtility.SetDirty(manager);
-        Debug.Log("[PlateToGaodeFocus] 配置完成。");
+        if (rawImgGo != null)
+        {
+            EditorUtility.SetDirty(rawImgGo);
+        }
+
+        Debug.Log("[PlateToGaodeFocus] 配置完成（显隐由 GaodeMap_RawImg 控制）。");
     }
 
     private static void EnsureScanlineMaterial()

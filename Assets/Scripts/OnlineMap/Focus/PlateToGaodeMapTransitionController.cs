@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// AllPlateMap → GaodeMap：扫描线过渡 + 板块淡出 + 高德图显示。
+/// AllPlateMap ↔ GaodeMap：扫描线过渡 + 板块淡入淡出 + GaodeMap_RawImg 渐显/渐隐。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateToGaodeMapTransitionController : MonoBehaviour
@@ -13,7 +13,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
     [Header("组件引用")]
     [SerializeField] private GaodeMapProvinceFocusController _provinceFocusController;
-    [SerializeField] private GaodeMapTransitionVisibility _gaodeVisibility;
+    [SerializeField] private GaodeMapRawImageVisibility _gaodeRawImageVisibility;
     [SerializeField] private PlateToGaodeMapScanlineOverlay _scanlineOverlay;
 
     [Header("过渡参数")]
@@ -51,7 +51,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         _instance = this;
         ResolveReferences();
         CachePlateModules();
-        HideGaodeAtStart();
+        HideGaodeRawImageAtStart();
     }
 
     private void OnDestroy()
@@ -63,7 +63,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>播放过渡：扫描线 + AllPlateMap 淡出 + GaodeMap 显示。</summary>
+    /// <summary>播放过渡：扫描线 + AllPlateMap 淡出 + GaodeMap_RawImg 渐显。</summary>
     public bool PlayTransition(string provinceName = null)
     {
         if (_isTransitioning)
@@ -80,7 +80,13 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
         if (_gaodeMapController == null || _gaodeMapController.OnlineMaps == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMap（GaodeMapController.OnlineMaps）。");
+            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapController.OnlineMaps。");
+            return false;
+        }
+
+        if (_gaodeRawImageVisibility == null)
+        {
+            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
             return false;
         }
 
@@ -88,7 +94,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         _isTransitioning = true;
         KillSequence();
 
-        PrepareGaodeMapForFadeIn(_activeProvinceName);
+        PrepareGaodeMapView(_activeProvinceName);
 
         if (_scanlineOverlay != null)
         {
@@ -100,9 +106,9 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
         _sequence = DOTween.Sequence();
         Tween scanTween = _scanlineOverlay != null
-            ? _scanlineOverlay.TweenProgress(1f, _transitionDuration, Ease.InOutCubic)
+            ? _scanlineOverlay.TweenProgress(1f, _transitionDuration, Ease.Linear)
             : null;
-        Tween gaodeTween = BeginGaodeMapFadeIn();
+        Tween gaodeTween = _gaodeRawImageVisibility.ShowFade(_gaodeFadeDuration, _gaodeFadeEase);
 
         if (scanTween != null)
         {
@@ -126,25 +132,77 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         return true;
     }
 
-    private void PrepareGaodeMapForFadeIn(string provinceName)
+    /// <summary>倒放过渡：扫描线收回 + AllPlateMap 淡入 + GaodeMap_RawImg 渐隐。</summary>
+    public bool PlayTransitionReverse(string provinceName = null)
+    {
+        if (_isTransitioning)
+        {
+            return false;
+        }
+
+        ResolveReferences();
+        if (_allPlateMapRoot == null)
+        {
+            Debug.LogError("[PlateToGaodeMapTransition] 未找到 AllPlateMap。");
+            return false;
+        }
+
+        if (_gaodeRawImageVisibility == null)
+        {
+            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
+            return false;
+        }
+
+        _activeProvinceName = ResolveProvinceName(provinceName);
+        _isTransitioning = true;
+        KillSequence();
+
+        _allPlateMapRoot.SetActive(true);
+
+        if (_scanlineOverlay != null)
+        {
+            _scanlineOverlay.SetVisible(true);
+            _scanlineOverlay.SetProgressImmediate(1f);
+        }
+
+        FadeAllPlateModules(1f, _plateFadeDuration);
+
+        _sequence = DOTween.Sequence();
+        Tween scanTween = _scanlineOverlay != null
+            ? _scanlineOverlay.TweenProgress(0f, _transitionDuration, Ease.Linear)
+            : null;
+        Tween gaodeTween = _gaodeRawImageVisibility.HideFade(_gaodeFadeDuration, _gaodeFadeEase);
+
+        if (scanTween != null)
+        {
+            _sequence.Append(scanTween);
+            if (gaodeTween != null)
+            {
+                _sequence.Join(gaodeTween);
+            }
+        }
+        else if (gaodeTween != null)
+        {
+            _sequence.Append(gaodeTween);
+        }
+        else
+        {
+            _sequence.AppendInterval(_gaodeFadeDuration);
+        }
+
+        _sequence.OnComplete(CompleteTransitionReverse);
+        EventManager.Instance?.TriggerGaodeMapToPlateTransitionStarted(_activeProvinceName);
+        return true;
+    }
+
+    private void PrepareGaodeMapView(string provinceName)
     {
         if (_provinceFocusController != null && !string.IsNullOrEmpty(provinceName))
         {
             _provinceFocusController.FocusProvince(provinceName);
         }
-    }
 
-    private Tween BeginGaodeMapFadeIn()
-    {
-        if (_gaodeVisibility != null)
-        {
-            return _gaodeVisibility.ShowFade(_gaodeFadeDuration, _gaodeFadeEase);
-        }
-
-        GameObject gaode = _gaodeMapController.OnlineMaps.gameObject;
-        gaode.SetActive(true);
         _gaodeMapController.OnlineMaps.RedrawImmediately();
-        return null;
     }
 
     private void CompleteTransition()
@@ -165,23 +223,26 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         EventManager.Instance?.TriggerPlateToGaodeMapTransitionCompleted(_activeProvinceName);
     }
 
-    private void HideGaodeAtStart()
+    private void CompleteTransitionReverse()
     {
-        if (_gaodeVisibility != null)
+        _gaodeRawImageVisibility?.HideImmediate();
+
+        if (_scanlineOverlay != null)
         {
-            _gaodeVisibility.ApplyInitialTransparentState();
+            _scanlineOverlay.KillProgressTween();
+            _scanlineOverlay.SetProgressImmediate(0f);
+            _scanlineOverlay.SetVisible(false);
         }
-        else if (_gaodeMapController != null && _gaodeMapController.OnlineMaps != null)
+
+        _isTransitioning = false;
+        EventManager.Instance?.TriggerGaodeMapToPlateTransitionCompleted(_activeProvinceName);
+    }
+
+    private void HideGaodeRawImageAtStart()
+    {
+        if (_gaodeRawImageVisibility != null)
         {
-            GameObject gaode = _gaodeMapController.OnlineMaps.gameObject;
-            gaode.SetActive(true);
-            Renderer renderer = gaode.GetComponent<Renderer>();
-            if (renderer != null && renderer.material.HasProperty("_Color"))
-            {
-                Color c = renderer.material.color;
-                c.a = 0f;
-                renderer.material.color = c;
-            }
+            _gaodeRawImageVisibility.HideImmediate();
         }
     }
 
@@ -250,9 +311,9 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             _provinceFocusController = GaodeMapProvinceFocusController.Instance;
         }
 
-        if (_gaodeVisibility == null)
+        if (_gaodeRawImageVisibility == null)
         {
-            _gaodeVisibility = GetComponent<GaodeMapTransitionVisibility>();
+            _gaodeRawImageVisibility = FindFirstObjectByType<GaodeMapRawImageVisibility>();
         }
 
         if (_scanlineOverlay == null)
@@ -271,7 +332,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
 
         _sequence = null;
-        _gaodeVisibility?.KillAlphaTween();
+        _gaodeRawImageVisibility?.KillAlphaTween();
     }
 
 #if UNITY_EDITOR
@@ -279,6 +340,12 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     private void EditorTestPlay()
     {
         PlayTransition(_defaultProvinceName);
+    }
+
+    [ContextMenu("测试：倒放过渡")]
+    private void EditorTestPlayReverse()
+    {
+        PlayTransitionReverse(_defaultProvinceName);
     }
 #endif
 }

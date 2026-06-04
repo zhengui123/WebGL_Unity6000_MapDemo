@@ -1895,7 +1895,6 @@ GameObject:
   - component: {fileID: 1389356380}
   - component: {fileID: 1389356382}
   - component: {fileID: 1389356383}
-  - component: {fileID: 1389356384}
   m_Layer: 0
   m_Name: OnlineMapManger
   m_TagString: Untagged
@@ -1959,11 +1958,11 @@ MonoBehaviour:
   _allPlateMapRoot: {fileID: 1332108060}
   _gaodeMapController: {fileID: 1389356381}
   _provinceFocusController: {fileID: 1389356380}
-  _gaodeVisibility: {fileID: 1389356384}
+  _gaodeRawImageVisibility: {fileID: 1589988927}
   _scanlineOverlay: {fileID: 1389356383}
-  _transitionDuration: 2.5
-  _plateFadeDuration: 2
-  _gaodeFadeDuration: 2
+  _transitionDuration: 0.7
+  _plateFadeDuration: 0.5
+  _gaodeFadeDuration: 0.5
   _plateFadeEase: 7
   _gaodeFadeEase: 7
   _defaultProvinceName: "\u5C71\u4E1C"
@@ -1983,22 +1982,6 @@ MonoBehaviour:
   _canvas: {fileID: 0}
   _rawImage: {fileID: 0}
   _scanIntensity: 0.85
---- !u!114 &1389356384
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1389356378}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e21116c8fe3b7d14081c51b3dfbf322e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::GaodeMapTransitionVisibility
-  _gaodeMapController: {fileID: 1389356381}
-  _onlineMaps: {fileID: 1776442838505719864}
-  _tileRenderer: {fileID: 4216297850590016179, guid: 3c1c2e01df93caa4192519289131b866, type: 3}
-  _deactivateWhenHidden: 0
 --- !u!1 &1409157158
 GameObject:
   m_ObjectHideFlags: 0
@@ -2110,6 +2093,7 @@ MonoBehaviour:
   _transitionController: {fileID: 1389356382}
   _provinceName: "\u5C71\u4E1C"
   _playKey: 116
+  _reverseKey: 121
 --- !u!4 &1560082574
 Transform:
   m_ObjectHideFlags: 0
@@ -2136,6 +2120,7 @@ GameObject:
   - component: {fileID: 1589988924}
   - component: {fileID: 1589988926}
   - component: {fileID: 1589988925}
+  - component: {fileID: 1589988927}
   m_Layer: 5
   m_Name: GaodeMap_RawImg
   m_TagString: Untagged
@@ -2175,7 +2160,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.RawImage
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2197,6 +2182,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589988923}
   m_CullTransparentMesh: 1
+--- !u!114 &1589988927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589988923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7c4e8f92a1d64e5aa93f0b1c2d3e4f5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GaodeMapRawImageVisibility
+  _rawImage: {fileID: 1589988925}
+  _deactivateWhenHidden: 0
 --- !u!1 &1594526985
 GameObject:
   m_ObjectHideFlags: 0

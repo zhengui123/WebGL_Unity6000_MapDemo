@@ -25,6 +25,12 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>AllPlateMap → GaodeMap 过渡全部完成（参数为省份名）。</summary>
     public event Action<string> OnPlateToGaodeMapTransitionCompleted;
 
+    /// <summary>GaodeMap → AllPlateMap 倒放过渡开始（参数为省份名）。</summary>
+    public event Action<string> OnGaodeMapToPlateTransitionStarted;
+
+    /// <summary>GaodeMap → AllPlateMap 倒放过渡全部完成（参数为省份名）。</summary>
+    public event Action<string> OnGaodeMapToPlateTransitionCompleted;
+
  
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
@@ -60,5 +66,15 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerPlateToGaodeMapTransitionCompleted(string provinceName)
     {
         OnPlateToGaodeMapTransitionCompleted?.Invoke(provinceName);
+    }
+
+    public void TriggerGaodeMapToPlateTransitionStarted(string provinceName)
+    {
+        OnGaodeMapToPlateTransitionStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerGaodeMapToPlateTransitionCompleted(string provinceName)
+    {
+        OnGaodeMapToPlateTransitionCompleted?.Invoke(provinceName);
     }
 }
