@@ -46,6 +46,10 @@ public class ChangeSceneDemo : MonoBehaviour
         {
             ChangeSceneManager.Instance.ChangeScene("Car");
         }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            ChangeSceneManager.Instance.ChangeScene("MyTest");
+        }
     }
 
     

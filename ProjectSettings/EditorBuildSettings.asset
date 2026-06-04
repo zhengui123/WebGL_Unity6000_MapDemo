@@ -17,5 +17,8 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/3DTilesDemo.unity
     guid: d717e8b14a4557e4b88710b8aaad4727
+  - enabled: 1
+    path: Assets/ThirdParty/Online maps/Examples/Scenes/Features/MyTest.unity
+    guid: 6347d11945c1a694f81f14d1c96b5c84
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
