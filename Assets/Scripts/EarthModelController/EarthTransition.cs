@@ -55,6 +55,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
             mainCameraTransform = Camera.main.transform;
         }
 
+        plateMapObj.SetActive(false);
         CacheEarthCameraLocalPos();
     }
 
