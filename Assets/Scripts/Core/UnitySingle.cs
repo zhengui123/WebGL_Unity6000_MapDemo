@@ -34,6 +34,17 @@ public class UnitySingle<T> : MonoBehaviour where T : UnitySingle<T>
         }
     }
 
+    public void Awake()
+    {
+        if (instance != null && instance != this)
+        {
+            Debug.LogWarning("[EventManager] 场景中存在多个实例，将销毁重复对象。");
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = (T)this;
+    }
     // public void Start()
     // {
     //     DontDestroyOnLoad(gameObject);

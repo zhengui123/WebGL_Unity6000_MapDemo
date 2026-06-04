@@ -19,25 +19,13 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>板块 → 地球过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToEarthCompleted;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Debug.LogWarning("[EventManager] 场景中存在多个实例，将销毁重复对象。");
-            Destroy(gameObject);
-            return;
-        }
+    /// <summary>AllPlateMap → GaodeMap 过渡开始（参数为省份名）。</summary>
+    public event Action<string> OnPlateToGaodeMapTransitionStarted;
 
-        Instance = this;
-    }
+    /// <summary>AllPlateMap → GaodeMap 过渡全部完成（参数为省份名）。</summary>
+    public event Action<string> OnPlateToGaodeMapTransitionCompleted;
 
-    private void OnDestroy()
-    {
-        if (Instance == this)
-        {
-            Instance = null;
-        }
-    }
+ 
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
     {
@@ -62,5 +50,15 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerTransitionToEarthCompleted()
     {
         OnTransitionToEarthCompleted?.Invoke();
+    }
+
+    public void TriggerPlateToGaodeMapTransitionStarted(string provinceName)
+    {
+        OnPlateToGaodeMapTransitionStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerPlateToGaodeMapTransitionCompleted(string provinceName)
+    {
+        OnPlateToGaodeMapTransitionCompleted?.Invoke(provinceName);
     }
 }

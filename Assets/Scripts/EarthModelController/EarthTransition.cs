@@ -222,6 +222,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
 
     private bool CanPlayTransition()
     {
+        Debug.Log("[EarthTransition] CanPlayTransition: " + (mainCameraTransform != null && fogController != null));
         return mainCameraTransform != null && fogController != null;
     }
 
