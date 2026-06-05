@@ -83,8 +83,10 @@ public class PlateToGaodeMapScanlineOverlay : MonoBehaviour
 
     public void SetVisible(bool visible)
     {
+        EnsureUi();
         if (_canvas != null)
         {
+            _canvas.gameObject.SetActive(visible);
             _canvas.enabled = visible;
         }
     }
@@ -102,26 +104,42 @@ public class PlateToGaodeMapScanlineOverlay : MonoBehaviour
 
     public Tween TweenProgress(float to, float duration, Ease ease = Ease.InOutCubic)
     {
+        EnsureUi();
+        float from = _overlayMaterial != null ? _overlayMaterial.GetFloat(ProgressId) : 0f;
+        return TweenProgressFromTo(from, to, duration, ease);
+    }
+
+    /// <summary>指定起止 Progress 的扫描线动画（倒播时须从 1→0）。</summary>
+    public Tween TweenProgressFromTo(float from, float to, float duration, Ease ease = Ease.InOutCubic)
+    {
         KillProgressTween();
+        EnsureUi();
         if (_overlayMaterial == null)
         {
             return null;
         }
 
-        ApplyVisualSettings();
-        BeginTransitionPulse(duration);
-
-        float from = _overlayMaterial.GetFloat(ProgressId);
+        float current = from;
         _progressTween = DOTween.To(
-            () => from,
+            () => current,
             v =>
             {
-                from = v;
+                current = v;
                 _overlayMaterial.SetFloat(ProgressId, v);
             },
             Mathf.Clamp01(to),
             duration
-        ).SetEase(ease).SetTarget(this);
+        )
+            .OnStart(() =>
+            {
+                SetVisible(true);
+                ApplyVisualSettings();
+                BeginTransitionPulse(duration);
+                current = from;
+                _overlayMaterial.SetFloat(ProgressId, from);
+            })
+            .SetEase(ease)
+            .SetTarget(this);
         return _progressTween;
     }
 

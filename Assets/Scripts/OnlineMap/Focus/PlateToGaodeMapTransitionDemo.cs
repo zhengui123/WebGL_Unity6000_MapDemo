@@ -1,37 +1,49 @@
 using UnityEngine;
 
 /// <summary>
-/// T：正向过渡（AllPlateMap → GaodeMap）；Y：倒放过渡（GaodeMap → AllPlateMap）。
+/// T：板块→GaodeMap；Y：板块过渡倒放；U：GaodeMap→City；I：City→GaodeMap 倒放。
 /// </summary>
 public class PlateToGaodeMapTransitionDemo : MonoBehaviour
 {
     [SerializeField] private PlateToGaodeMapTransitionController _transitionController;
+    [SerializeField] private GaodeToCityTransitionController _cityTransitionController;
     [SerializeField] private string _provinceName = "山东";
     [SerializeField] private KeyCode _playKey = KeyCode.T;
     [SerializeField] private KeyCode _reverseKey = KeyCode.Y;
+    [SerializeField] private KeyCode _cityTransitionKey = KeyCode.U;
+    [SerializeField] private KeyCode _cityReverseKey = KeyCode.I;
 
     private void Update()
     {
-        PlateToGaodeMapTransitionController controller = ResolveController();
-        if (controller == null)
-        {
-            return;
-        }
-
         if (Input.GetKeyDown(_playKey))
         {
-            controller.PlayTransition(_provinceName);
+            ResolvePlateController()?.PlayTransition(_provinceName);
         }
         else if (Input.GetKeyDown(_reverseKey))
         {
-            controller.PlayTransitionReverse(_provinceName);
+            ResolvePlateController()?.PlayTransitionReverse(_provinceName);
+        }
+        else if (Input.GetKeyDown(_cityTransitionKey))
+        {
+            ResolveCityController()?.PlayTransition();
+        }
+        else if (Input.GetKeyDown(_cityReverseKey))
+        {
+            ResolveCityController()?.PlayTransitionReverse();
         }
     }
 
-    private PlateToGaodeMapTransitionController ResolveController()
+    private PlateToGaodeMapTransitionController ResolvePlateController()
     {
         return _transitionController != null
             ? _transitionController
             : PlateToGaodeMapTransitionController.Instance;
+    }
+
+    private GaodeToCityTransitionController ResolveCityController()
+    {
+        return _cityTransitionController != null
+            ? _cityTransitionController
+            : GaodeToCityTransitionController.Instance;
     }
 }

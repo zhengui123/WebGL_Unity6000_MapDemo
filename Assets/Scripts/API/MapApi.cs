@@ -74,6 +74,32 @@ public class MapApi : UnitySingle<MapApi>
         return controller.PlayTransitionReverse(provinceName);
     }
 
+    /// <summary>播放 GaodeMap → City-Maker 第二阶段过渡。</summary>
+    public bool TransitionGaodeMapToCity()
+    {
+        GaodeToCityTransitionController controller = GaodeToCityTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GaodeToCityTransitionController。");
+            return false;
+        }
+
+        return controller.PlayTransition();
+    }
+
+    /// <summary>倒放 City-Maker → GaodeMap 第二阶段过渡。</summary>
+    public bool TransitionCityToGaodeMap()
+    {
+        GaodeToCityTransitionController controller = GaodeToCityTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GaodeToCityTransitionController。");
+            return false;
+        }
+
+        return controller.PlayTransitionReverse();
+    }
+
     /// <summary>还原板块相机至首次聚焦前的位姿。</summary>
     public bool RestorePlateMapCamera()
     {

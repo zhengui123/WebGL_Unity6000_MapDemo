@@ -31,6 +31,18 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>GaodeMap → AllPlateMap 倒放过渡全部完成（参数为省份名）。</summary>
     public event Action<string> OnGaodeMapToPlateTransitionCompleted;
 
+    /// <summary>GaodeMap → City-Maker 第二阶段过渡开始。</summary>
+    public event Action OnGaodeMapToCityTransitionStarted;
+
+    /// <summary>GaodeMap → City-Maker 第二阶段过渡全部完成。</summary>
+    public event Action OnGaodeMapToCityTransitionCompleted;
+
+    /// <summary>City-Maker → GaodeMap 第二阶段倒放开始。</summary>
+    public event Action OnCityToGaodeMapTransitionReverseStarted;
+
+    /// <summary>City-Maker → GaodeMap 第二阶段倒放全部完成。</summary>
+    public event Action OnCityToGaodeMapTransitionReverseCompleted;
+
  
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
@@ -76,5 +88,25 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerGaodeMapToPlateTransitionCompleted(string provinceName)
     {
         OnGaodeMapToPlateTransitionCompleted?.Invoke(provinceName);
+    }
+
+    public void TriggerGaodeMapToCityTransitionStarted()
+    {
+        OnGaodeMapToCityTransitionStarted?.Invoke();
+    }
+
+    public void TriggerGaodeMapToCityTransitionCompleted()
+    {
+        OnGaodeMapToCityTransitionCompleted?.Invoke();
+    }
+
+    public void TriggerCityToGaodeMapTransitionReverseStarted()
+    {
+        OnCityToGaodeMapTransitionReverseStarted?.Invoke();
+    }
+
+    public void TriggerCityToGaodeMapTransitionReverseCompleted()
+    {
+        OnCityToGaodeMapTransitionReverseCompleted?.Invoke();
     }
 }
