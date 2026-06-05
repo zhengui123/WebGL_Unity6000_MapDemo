@@ -8,14 +8,16 @@ public class ChangeSceneDemo : MonoBehaviour
 {
     private static ChangeSceneDemo _instance;
 
-    private void Awake()
+    private void Start()
     {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
+        // Debug.Log("[ChangeSceneDemo] Awake");
+        // if (_instance != null && _instance != this)
+        // {
+        //     Debug.Log("[ChangeSceneDemo] Destroy duplicate instance");
+        //     Destroy(gameObject);
+        //     return;
+        // }
+        Debug.Log("[ChangeSceneDemo] Set instance");
         _instance = this;
         DontDestroyOnLoad(gameObject);
     }
@@ -46,9 +48,13 @@ public class ChangeSceneDemo : MonoBehaviour
         {
             ChangeSceneManager.Instance.ChangeScene("Car");
         }
-        else if (Input.GetKeyDown(KeyCode.T))
+        else if (Input.GetKeyDown(KeyCode.A))
         {
             ChangeSceneManager.Instance.ChangeScene("MyTest");
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            ChangeSceneManager.Instance.ChangeScene("city01");
         }
     }
 

@@ -106,7 +106,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
         _sequence = DOTween.Sequence();
         Tween scanTween = _scanlineOverlay != null
-            ? _scanlineOverlay.TweenProgress(1f, _transitionDuration, Ease.Linear)
+            ? _scanlineOverlay.TweenProgress(1f, _transitionDuration, Ease.InOutCubic)
             : null;
         Tween gaodeTween = _gaodeRawImageVisibility.ShowFade(_gaodeFadeDuration, _gaodeFadeEase);
 
@@ -169,7 +169,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
         _sequence = DOTween.Sequence();
         Tween scanTween = _scanlineOverlay != null
-            ? _scanlineOverlay.TweenProgress(0f, _transitionDuration, Ease.Linear)
+            ? _scanlineOverlay.TweenProgress(0f, _transitionDuration, Ease.InOutCubic)
             : null;
         Tween gaodeTween = _gaodeRawImageVisibility.HideFade(_gaodeFadeDuration, _gaodeFadeEase);
 
