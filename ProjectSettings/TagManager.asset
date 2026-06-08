@@ -6,6 +6,8 @@ TagManager:
   tags:
   - CinemachineTarget
   - Sun
+  - Stop
+  - Marcador
   layers:
   - Default
   - TransparentFX
@@ -16,7 +18,7 @@ TagManager:
   - Earth
   - PlateMap
   - GaodeMap
-  - 
+  - City
   - 
   - 
   - 

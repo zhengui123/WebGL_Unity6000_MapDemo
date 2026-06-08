@@ -1,6 +1,5 @@
-// CarHologram 共享：表面朝向裁剪 + 透明度计算
-#ifndef CAR_HOLOGRAM_COMMON_INCLUDED
-#define CAR_HOLOGRAM_COMMON_INCLUDED
+#ifndef CAR_MODEL_CHANGE_HOLOGRAM_COMMON_INCLUDED
+#define CAR_MODEL_CHANGE_HOLOGRAM_COMMON_INCLUDED
 
 #include "CarDissolveCommon.cginc"
 
@@ -55,7 +54,6 @@ float HologramGridLines(float2 uv, float scale, float lineWidth)
     return saturate(max(gridMask.x, gridMask.y));
 }
 
-// ndvOut：法线与视线夹角余弦（朝相机为 1）
 void HologramSurfaceBasis(HologramV2f i, out float ndvOut, out float rimOut, out float facingOut)
 {
     float3 n = normalize(i.worldNormal);
@@ -112,9 +110,8 @@ fixed4 fragColor(HologramV2f i) : SV_Target
     HologramSurfaceBasis(i, ndv, rim, facing);
     HologramClipSurfaceFacing(ndv);
     fixed4 col = HologramComputeColor(i, ndv, rim, facing);
-    CarDissolveClip(i.worldPos);
+    ApplyCarDissolve(i.worldPos, col);
     return col;
 }
 
 #endif
-

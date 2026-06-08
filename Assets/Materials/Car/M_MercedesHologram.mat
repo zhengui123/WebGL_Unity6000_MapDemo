@@ -29,6 +29,9 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _DepthAlphaClip: 0.02
+    - _DissolveAmount: 0
+    - _DissolveEdgeWidth: 0
+    - _DissolveNoiseScale: 23
     - _FacingMinGlow: 0.623
     - _FillStrength: 0.66
     - _FresnelIntensity: 0.84
@@ -44,6 +47,7 @@ Material:
     - _SurfaceFacingMin: 0
     m_Colors:
     - _BaseColor: {r: 0.05, g: 0.25, b: 0.45, a: 1}
+    - _DissolveEdgeColor: {r: 0, g: 0.11764706, b: 0.4509804, a: 1}
     - _GlowColor: {r: 0, g: 0.11603593, b: 0.45230317, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

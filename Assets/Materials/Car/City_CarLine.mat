@@ -26,6 +26,9 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _DissolveAmount: 0
+    - _DissolveEdgeWidth: 0.04
+    - _DissolveNoiseScale: 12
     - _EdgeAlpha: 1
     - _EdgeDistReference: 8
     - _EdgeDistanceInfluence: 1
@@ -40,6 +43,7 @@ Material:
     - _RimStrength: 0
     - _SurfaceFacingMin: 0
     m_Colors:
+    - _DissolveEdgeColor: {r: 0.15, g: 0.75, b: 1, a: 1}
     - _EdgeColor: {r: 0, g: 1.8638744, b: 2, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
