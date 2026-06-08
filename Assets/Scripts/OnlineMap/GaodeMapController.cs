@@ -6,7 +6,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class GaodeMapController : MonoBehaviour
 {
-    [Header("引用（留空则取同物体 OnlineMaps）")]
+    [Header("引用（留空则自动查找场景中的 OnlineMaps）")]
     [SerializeField] private OnlineMaps _onlineMaps;
 
     private static GaodeMapController _instance;
@@ -93,10 +93,40 @@ public class GaodeMapController : MonoBehaviour
 
     private void ResolveReferences()
     {
-        if (_onlineMaps == null)
+        if (_onlineMaps != null)
         {
-            _onlineMaps = GetComponent<OnlineMaps>();
+            return;
         }
+
+        _onlineMaps = GetComponent<OnlineMaps>();
+        if (_onlineMaps != null)
+        {
+            return;
+        }
+
+        _onlineMaps = GetComponentInChildren<OnlineMaps>(true);
+        if (_onlineMaps != null)
+        {
+            return;
+        }
+
+        GameObject gaodeMapRoot = GameObject.Find("GaodeMap");
+        if (gaodeMapRoot != null)
+        {
+            _onlineMaps = gaodeMapRoot.GetComponent<OnlineMaps>();
+            if (_onlineMaps != null)
+            {
+                return;
+            }
+        }
+
+        _onlineMaps = OnlineMaps.instance;
+        if (_onlineMaps != null)
+        {
+            return;
+        }
+
+        _onlineMaps = FindFirstObjectByType<OnlineMaps>();
     }
 
     private bool TryGetMap(out OnlineMaps map)
