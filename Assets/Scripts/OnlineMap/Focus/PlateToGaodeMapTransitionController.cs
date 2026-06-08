@@ -12,6 +12,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     [SerializeField] private GaodeMapController _gaodeMapController;
 
     [Header("组件引用")]
+    [SerializeField] private PlateMapDisplayController _plateMapDisplayController;
     [SerializeField] private GaodeMapProvinceFocusController _provinceFocusController;
     [SerializeField] private GaodeMapRawImageVisibility _gaodeRawImageVisibility;
     [SerializeField] private PlateToGaodeMapScanlineOverlay _scanlineOverlay;
@@ -25,7 +26,6 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     [SerializeField] private string _defaultProvinceName = "山东";
 
     private Sequence _sequence;
-    private PlateMapDisplayModule[] _plateModules;
     private bool _isTransitioning;
     private string _activeProvinceName;
 
@@ -50,7 +50,6 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     {
         _instance = this;
         ResolveReferences();
-        CachePlateModules();
         HideGaodeRawImageAtStart();
     }
 
@@ -102,7 +101,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             _scanlineOverlay.SetProgressImmediate(0f);
         }
 
-        FadeAllPlateModules(0f, _plateFadeDuration);
+        HidePlateDisplayForTransition();
 
         _sequence = DOTween.Sequence();
         Tween scanTween = _scanlineOverlay != null
@@ -165,7 +164,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             _scanlineOverlay.SetProgressImmediate(1f);
         }
 
-        FadeAllPlateModules(1f, _plateFadeDuration);
+        RestorePlateDisplayForTransition();
 
         _sequence = DOTween.Sequence();
         Tween scanTween = _scanlineOverlay != null
@@ -256,28 +255,24 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         return _defaultProvinceName;
     }
 
-    private void FadeAllPlateModules(float alpha, float duration)
+    private void HidePlateDisplayForTransition()
     {
-        CachePlateModules();
-        if (_plateModules == null)
+        if (_plateMapDisplayController == null)
         {
             return;
         }
 
-        for (int i = 0; i < _plateModules.Length; i++)
-        {
-            _plateModules[i]?.TweenAlpha(alpha, duration, _plateFadeEase);
-        }
+        _plateMapDisplayController.HidePlateDisplayForTransition(_plateFadeDuration, _plateFadeEase);
     }
 
-    private void CachePlateModules()
+    private void RestorePlateDisplayForTransition()
     {
-        if (_allPlateMapRoot == null)
+        if (_plateMapDisplayController == null)
         {
             return;
         }
 
-        _plateModules = _allPlateMapRoot.GetComponentsInChildren<PlateMapDisplayModule>(true);
+        _plateMapDisplayController.RestorePlateDisplayForTransition(_plateFadeDuration, _plateFadeEase);
     }
 
     private void ResolveReferences()
@@ -321,7 +316,10 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             _scanlineOverlay = GetComponent<PlateToGaodeMapScanlineOverlay>();
         }
 
-        CachePlateModules();
+        if (_plateMapDisplayController == null)
+        {
+            _plateMapDisplayController = PlateMapDisplayController.Instance;
+        }
     }
 
     private void KillSequence()
@@ -333,6 +331,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
         _sequence = null;
         _gaodeRawImageVisibility?.KillAlphaTween();
+        _plateMapDisplayController?.KillPlateDisplayTweens();
     }
 
 #if UNITY_EDITOR

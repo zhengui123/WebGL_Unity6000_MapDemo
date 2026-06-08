@@ -54,11 +54,15 @@ public class PlateMapDisplayController : MonoBehaviour
     private Vector3 _mouseDownPosition;
     private Sequence _cameraTweenSequence;
     private PlateMapDisplayModule _focusedModule;
+    private PlateMapDisplayModule _transitionCachedModule;
     private CameraPoseSnapshot _preFocusPose;
     private bool _hasPreFocusPose;
 
     /// <summary>当前聚焦的模块；无则为 null。</summary>
     public PlateMapDisplayModule FocusedModule => _focusedModule;
+
+    /// <summary>过渡隐藏前缓存的聚焦模块；未聚焦则为 null。</summary>
+    public PlateMapDisplayModule TransitionCachedModule => _transitionCachedModule;
 
     /// <summary>是否已缓存首次聚焦前相机位姿（可调用还原）。</summary>
     public bool CanRestoreCamera => _hasPreFocusPose;
@@ -224,7 +228,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         EventManager.Instance?.TriggerPlateMapDisplayFocus(moduleKey);
 
-        FadeModulesForFocus(module);
+        FadeModulesForFocus(module, _otherModuleFadeDuration, _otherModuleFadeEase);
         PlayCameraTween(
             rigTargetPos,
             _cameraRig.rotation,
@@ -338,8 +342,65 @@ public class PlateMapDisplayController : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 过渡至 GaodeMap 前隐藏板块显示：缓存当前聚焦模块（未聚焦则为 null），再淡出可见板块。
+    /// </summary>
+    public void HidePlateDisplayForTransition(float duration, Ease ease)
+    {
+        _transitionCachedModule = _focusedModule;
+        KillAllModuleAlphaTweens();
+        RefreshModuleList();
+
+        if (_transitionCachedModule != null)
+        {
+            _transitionCachedModule.TweenAlpha(0f, duration, ease);
+            return;
+        }
+
+        if (_modules == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _modules.Length; i++)
+        {
+            _modules[i]?.TweenAlpha(0f, duration, ease);
+        }
+    }
+
+    /// <summary>
+    /// 从 GaodeMap 倒播回板块时恢复显示：有缓存则聚焦块高亮、其余隐藏；无缓存则全部显示。
+    /// </summary>
+    public void RestorePlateDisplayForTransition(float duration, Ease ease)
+    {
+        KillAllModuleAlphaTweens();
+        RefreshModuleList();
+
+        if (_transitionCachedModule != null)
+        {
+            FadeModulesForFocus(_transitionCachedModule, duration, ease);
+            return;
+        }
+
+        if (_modules == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _modules.Length; i++)
+        {
+            _modules[i]?.TweenAlpha(1f, duration, ease);
+        }
+    }
+
+    /// <summary>停止板块透明度 Tween（过渡被中断时调用）。</summary>
+    public void KillPlateDisplayTweens()
+    {
+        KillAllModuleAlphaTweens();
+    }
+
     /// <summary>聚焦：当前模块保持 1，其余模块淡出到 0。</summary>
-    private void FadeModulesForFocus(PlateMapDisplayModule focusedModule)
+    private void FadeModulesForFocus(PlateMapDisplayModule focusedModule, float duration, Ease ease)
     {
         RefreshModuleList();
         if (_modules == null)
@@ -356,7 +417,7 @@ public class PlateMapDisplayController : MonoBehaviour
             }
 
             float target = module == focusedModule ? 1f : 0f;
-            module.TweenAlpha(target, _otherModuleFadeDuration, _otherModuleFadeEase);
+            module.TweenAlpha(target, duration, ease);
         }
     }
 
