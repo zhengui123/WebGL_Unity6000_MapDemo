@@ -6,7 +6,7 @@ using UnityEngine;
 public class MapApi : UnitySingle<MapApi>
 {
 
-    /// <summary>播放地球 → 板块过渡（与EarthTransition.TransitionToPlateMap一致）。</summary>
+    /// <summary>播放地球 → 板块过渡。</summary>
     public void TransitionToPlateMap()
     {
         Debug.Log("[MapApi] TransitionToPlateMap");
@@ -20,7 +20,7 @@ public class MapApi : UnitySingle<MapApi>
         earthTransition.TransitionToPlateMap();
     }
 
-    /// <summary>播放板块 → 地球过渡（与"EarthTransition.TransitionToEarth"一致）。</summary>
+    /// <summary>播放板块 → 地球过渡。</summary>
     public void TransitionToEarth()
     {
         EarthTransition earthTransition = EarthTransition.Instance;
@@ -34,7 +34,7 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 聚焦指定板块模块（<paramref name="moduleName"/> 默认对应场景中 GameObject 名，如 polySurface3）。
+    /// 聚焦指定板块模块,默认对应场景中 GameObject 名，如 polySurface2）。
     /// </summary>
     public bool FocusPlateMapModule(string moduleName)
     {

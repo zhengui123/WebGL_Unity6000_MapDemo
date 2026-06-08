@@ -8,7 +8,7 @@ using UnityEngine;
 /// </summary>
 public class WebGLCommunication : MonoBehaviour
 {
-    
+    #if UNITY_WEBGL && !UNITY_EDITOR
     // 声明外部JavaScript函数
     [DllImport("__Internal")]
     private static extern string GetDataFromHTML(string message);
@@ -36,5 +36,5 @@ public class WebGLCommunication : MonoBehaviour
     {
         Debug.Log("Unity输出返回结果：" + msg);
     }
-
+#endif
 }
