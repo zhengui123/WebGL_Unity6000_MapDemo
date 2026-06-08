@@ -1,17 +1,20 @@
 using UnityEngine;
 
 /// <summary>
-/// T：板块→GaodeMap；Y：板块过渡倒放；U：GaodeMap→City；I：City→GaodeMap 倒放。
+/// T/Y/U/I：单阶段过渡；G/H：两阶段总控正播/倒播。
 /// </summary>
 public class PlateToGaodeMapTransitionDemo : MonoBehaviour
 {
     [SerializeField] private PlateToGaodeMapTransitionController _transitionController;
     [SerializeField] private GaodeToCityTransitionController _cityTransitionController;
+    [SerializeField] private PlateToCityMapTransitionOrchestrator _orchestrator;
     [SerializeField] private string _provinceName = "山东";
     [SerializeField] private KeyCode _playKey = KeyCode.T;
     [SerializeField] private KeyCode _reverseKey = KeyCode.Y;
     [SerializeField] private KeyCode _cityTransitionKey = KeyCode.U;
     [SerializeField] private KeyCode _cityReverseKey = KeyCode.I;
+    [SerializeField] private KeyCode _fullPlayKey = KeyCode.G;
+    [SerializeField] private KeyCode _fullReverseKey = KeyCode.H;
 
     private void Update()
     {
@@ -31,6 +34,14 @@ public class PlateToGaodeMapTransitionDemo : MonoBehaviour
         {
             ResolveCityController()?.PlayTransitionReverse();
         }
+        else if (Input.GetKeyDown(_fullPlayKey))
+        {
+            ResolveOrchestrator()?.PlayFullTransition(_provinceName);
+        }
+        else if (Input.GetKeyDown(_fullReverseKey))
+        {
+            ResolveOrchestrator()?.PlayFullTransitionReverse(_provinceName);
+        }
     }
 
     private PlateToGaodeMapTransitionController ResolvePlateController()
@@ -45,5 +56,12 @@ public class PlateToGaodeMapTransitionDemo : MonoBehaviour
         return _cityTransitionController != null
             ? _cityTransitionController
             : GaodeToCityTransitionController.Instance;
+    }
+
+    private PlateToCityMapTransitionOrchestrator ResolveOrchestrator()
+    {
+        return _orchestrator != null
+            ? _orchestrator
+            : PlateToCityMapTransitionOrchestrator.Instance;
     }
 }

@@ -43,6 +43,24 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>City-Maker → GaodeMap 第二阶段倒放全部完成。</summary>
     public event Action OnCityToGaodeMapTransitionReverseCompleted;
 
+    /// <summary>请求正播两阶段过渡：板块 → GaodeMap → City-Maker（参数为省份名，可空）。</summary>
+    public event Action<string> OnPlateToCityMapTransitionPlay;
+
+    /// <summary>两阶段正播开始（参数为省份名）。</summary>
+    public event Action<string> OnPlateToCityMapTransitionStarted;
+
+    /// <summary>两阶段正播全部完成（参数为省份名）。</summary>
+    public event Action<string> OnPlateToCityMapTransitionCompleted;
+
+    /// <summary>请求倒播两阶段过渡：City-Maker → GaodeMap → 板块（参数为省份名，可空）。</summary>
+    public event Action<string> OnCityToPlateMapTransitionReverse;
+
+    /// <summary>两阶段倒播开始（参数为省份名）。</summary>
+    public event Action<string> OnCityToPlateMapTransitionReverseStarted;
+
+    /// <summary>两阶段倒播全部完成（参数为省份名）。</summary>
+    public event Action<string> OnCityToPlateMapTransitionReverseCompleted;
+
  
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
@@ -108,5 +126,35 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerCityToGaodeMapTransitionReverseCompleted()
     {
         OnCityToGaodeMapTransitionReverseCompleted?.Invoke();
+    }
+
+    public void TriggerPlateToCityMapTransitionPlay(string provinceName = null)
+    {
+        OnPlateToCityMapTransitionPlay?.Invoke(provinceName);
+    }
+
+    public void TriggerPlateToCityMapTransitionStarted(string provinceName)
+    {
+        OnPlateToCityMapTransitionStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerPlateToCityMapTransitionCompleted(string provinceName)
+    {
+        OnPlateToCityMapTransitionCompleted?.Invoke(provinceName);
+    }
+
+    public void TriggerCityToPlateMapTransitionReverse(string provinceName = null)
+    {
+        OnCityToPlateMapTransitionReverse?.Invoke(provinceName);
+    }
+
+    public void TriggerCityToPlateMapTransitionReverseStarted(string provinceName)
+    {
+        OnCityToPlateMapTransitionReverseStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerCityToPlateMapTransitionReverseCompleted(string provinceName)
+    {
+        OnCityToPlateMapTransitionReverseCompleted?.Invoke(provinceName);
     }
 }

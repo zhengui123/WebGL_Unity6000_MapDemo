@@ -116,33 +116,6 @@ public class AndroidMessage : MonoBehaviour
     {
         MapApi.Instance.RestorePlateMapCamera();
     }
-
-    /// <summary>播放 AllPlateMap → GaodeMap 过渡（可选指定省名）。</summary>
-    public void TransitionPlateMapToGaodeMap(string provinceName = null)
-    {
-        MapApi.Instance.TransitionPlateMapToGaodeMap(provinceName);
-    }
-    
-    /// <summary>倒放 GaodeMap → AllPlateMap 过渡（可选指定省名，用于事件参数）。</summary>
-    public void TransitionGaodeMapToPlateMap(string provinceName = null)
-    {
-        MapApi.Instance.TransitionGaodeMapToPlateMap(provinceName);
-    }
-
-    /// <summary>播放 GaodeMap → City-Maker 第二阶段过渡。</summary>
-    public void TransitionGaodeMapToCity()
-    {
-        MapApi.Instance.TransitionGaodeMapToCity();
-    }
-
-
-    /// <summary>倒放 City-Maker → GaodeMap 第二阶段过渡。</summary>
-    public void TransitionCityToGaodeMap()
-    {
-        MapApi.Instance.TransitionCityToGaodeMap();
-    }
-
-
  
     #endregion
 }

@@ -48,58 +48,6 @@ public class MapApi : UnitySingle<MapApi>
         return controller.FocusModule(moduleName);
     }
 
-    /// <summary>播放 AllPlateMap → GaodeMap 过渡（可选指定省名）。</summary>
-    public bool TransitionPlateMapToGaodeMap(string provinceName = null)
-    {
-        PlateToGaodeMapTransitionController controller = PlateToGaodeMapTransitionController.Instance;
-        if (controller == null)
-        {
-            Debug.LogWarning("[MapApi] 未找到 PlateToGaodeMapTransitionController。");
-            return false;
-        }
-
-        return controller.PlayTransition(provinceName);
-    }
-
-    /// <summary>倒放 GaodeMap → AllPlateMap 过渡（可选指定省名，用于事件参数）。</summary>
-    public bool TransitionGaodeMapToPlateMap(string provinceName = null)
-    {
-        PlateToGaodeMapTransitionController controller = PlateToGaodeMapTransitionController.Instance;
-        if (controller == null)
-        {
-            Debug.LogWarning("[MapApi] 未找到 PlateToGaodeMapTransitionController。");
-            return false;
-        }
-
-        return controller.PlayTransitionReverse(provinceName);
-    }
-
-    /// <summary>播放 GaodeMap → City-Maker 第二阶段过渡。</summary>
-    public bool TransitionGaodeMapToCity()
-    {
-        GaodeToCityTransitionController controller = GaodeToCityTransitionController.Instance;
-        if (controller == null)
-        {
-            Debug.LogWarning("[MapApi] 未找到 GaodeToCityTransitionController。");
-            return false;
-        }
-
-        return controller.PlayTransition();
-    }
-
-    /// <summary>倒放 City-Maker → GaodeMap 第二阶段过渡。</summary>
-    public bool TransitionCityToGaodeMap()
-    {
-        GaodeToCityTransitionController controller = GaodeToCityTransitionController.Instance;
-        if (controller == null)
-        {
-            Debug.LogWarning("[MapApi] 未找到 GaodeToCityTransitionController。");
-            return false;
-        }
-
-        return controller.PlayTransitionReverse();
-    }
-
     /// <summary>还原板块相机至首次聚焦前的位姿。</summary>
     public bool RestorePlateMapCamera()
     {
@@ -112,4 +60,44 @@ public class MapApi : UnitySingle<MapApi>
 
         return controller.RestoreCameraPosition();
     }
+
+    /// <summary>正播两阶段：板块 → GaodeMap → City-Maker。</summary>
+    public bool TransitionPlateMapToCity(string provinceName = null)
+    {
+        PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
+        if (orchestrator == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
+            return false;
+        }
+
+        return orchestrator.PlayFullTransition(provinceName);
+    }
+
+    /// <summary>倒播两阶段：City-Maker → GaodeMap → 板块。</summary>
+    public bool TransitionCityToPlateMap(string provinceName = null)
+    {
+        PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
+        if (orchestrator == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
+            return false;
+        }
+
+        return orchestrator.PlayFullTransitionReverse(provinceName);
+    }
+
+    /// <summary>通过事件请求正播两阶段过渡。</summary>
+    public void RequestPlateToCityMapTransitionPlay(string provinceName = null)
+    {
+        EventManager.Instance?.TriggerPlateToCityMapTransitionPlay(provinceName);
+    }
+
+    /// <summary>通过事件请求倒播两阶段过渡。</summary>
+    public void RequestCityToPlateMapTransitionReverse(string provinceName = null)
+    {
+        EventManager.Instance?.TriggerCityToPlateMapTransitionReverse(provinceName);
+    }
+
+
 }
