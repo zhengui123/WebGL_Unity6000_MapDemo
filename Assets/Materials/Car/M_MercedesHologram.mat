@@ -29,9 +29,9 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _DepthAlphaClip: 0.02
-    - _DissolveAmount: 0
+    - _DissolveAmount: 1
     - _DissolveEdgeWidth: 0
-    - _DissolveNoiseScale: 23
+    - _DissolveNoiseScale: 24
     - _FacingMinGlow: 0.623
     - _FillStrength: 0.66
     - _FresnelIntensity: 0.84

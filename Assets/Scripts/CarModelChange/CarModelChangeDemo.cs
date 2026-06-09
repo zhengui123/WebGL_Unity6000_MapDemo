@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 键盘测试：C 切换到 KJ_Car，V 切换回 RealyCar。
+/// 键盘测试车辆溶解切换，需场景中存在 CarModelChangeController。
+/// C：RealyCar → KJ_Car；V：KJ_Car → RealyCar。
 /// </summary>
 public class CarModelChangeDemo : MonoBehaviour
 {

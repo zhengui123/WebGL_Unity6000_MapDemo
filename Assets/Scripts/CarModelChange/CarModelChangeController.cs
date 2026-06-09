@@ -2,7 +2,8 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// RealyCar 与 KJ_Car 溶解切换：隐藏方 DissolveAmount 0→1，显现方 1→0，结束后隐藏消失方。
+/// RealyCar 与 KJ_Car 溶解切换控制器。
+/// 隐藏方 DissolveAmount 0→1，显现方 1→0，过渡结束后 SetActive(false) 隐藏消失方。
 /// </summary>
 [DisallowMultipleComponent]
 public class CarModelChangeController : MonoBehaviour
@@ -14,13 +15,16 @@ public class CarModelChangeController : MonoBehaviour
     [Header("过渡参数")]
     [SerializeField] private float _transitionDuration = 2f;
     [SerializeField] private Ease _transitionEase = Ease.InOutQuad;
+    /// <summary>写入材质 _DissolveNoiseScale，值越大溶解噪声越细密。</summary>
     [SerializeField] private float _dissolveNoiseScale = 12f;
 
+    // 分别管理两车根节点下所有溶解材质，切换时并行 tween
     private readonly CarModelDissolveGroup _realyDissolve = new CarModelDissolveGroup();
     private readonly CarModelDissolveGroup _kjDissolve = new CarModelDissolveGroup();
 
     private Sequence _sequence;
     private bool _isTransitioning;
+    /// <summary>当前是否处于 KJ_Car 显示状态（过渡完成后更新）。</summary>
     private bool _showingKjCar;
 
     public bool IsTransitioning => _isTransitioning;
@@ -71,6 +75,10 @@ public class CarModelChangeController : MonoBehaviour
         return PlayTransition(showKjCar: false);
     }
 
+    /// <summary>
+    /// 播放双向溶解：两车同时 SetActive(true)，隐藏方 0→1、显现方 1→0。
+    /// </summary>
+    /// <returns>已在过渡中、目标状态相同或缺少材质时返回 false。</returns>
     private bool PlayTransition(bool showKjCar)
     {
         if (_isTransitioning)
@@ -90,6 +98,7 @@ public class CarModelChangeController : MonoBehaviour
             return false;
         }
 
+        // 每次切换前重新收集材质实例，防止 Renderer 或材质在运行时被替换
         CacheDissolveMaterials();
         ApplyDissolveNoiseScale();
 
@@ -110,6 +119,7 @@ public class CarModelChangeController : MonoBehaviour
         hideRoot.SetActive(true);
         appearRoot.SetActive(true);
 
+        // 重置到过渡起点：隐藏方完全可见，显现方完全溶解
         hideGroup.SetDissolveAmount(0f);
         appearGroup.SetDissolveAmount(1f);
 
@@ -133,6 +143,7 @@ public class CarModelChangeController : MonoBehaviour
         return true;
     }
 
+    /// <summary>过渡结束：显现方归零溶解值，隐藏方 GameObject 关闭，并广播完成事件。</summary>
     private void CompleteTransition(bool showKjCar, GameObject hideRoot, CarModelDissolveGroup appearGroup)
     {
         _showingKjCar = showKjCar;
@@ -140,8 +151,27 @@ public class CarModelChangeController : MonoBehaviour
 
         appearGroup.SetDissolveAmount(0f);
         hideRoot.SetActive(false);
+
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        if (showKjCar)
+        {
+            em.TriggerCarSwitchToKjCarCompleted();
+        }
+        else
+        {
+            em.TriggerCarSwitchToRealyCarCompleted();
+        }
     }
 
+    /// <summary>
+    /// 默认只显示 RealyCar。KJ_Car 虽隐藏但 DissolveAmount=1，
+    /// 以便下次 SwitchToKjCar 时从完全溶解状态开始显现。
+    /// </summary>
     private void ApplyInitialVisibility()
     {
         if (_realyCarRoot == null || _kjCarRoot == null)
@@ -166,7 +196,7 @@ public class CarModelChangeController : MonoBehaviour
 
         if (_kjCarRoot != null)
         {
-            _kjDissolve.CollectFrom(_kjCarRoot);
+            _kjDissolve.CollectFrom(_kjCarRoot, true);
         }
     }
 
@@ -208,6 +238,10 @@ public class CarModelChangeController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 查找同时包含 RealyCar、KJ_Car 的 Car 根节点。
+    /// 使用 FindObjectsOfTypeAll 以兼容未激活或预制体编辑场景中的对象。
+    /// </summary>
     private static Transform FindCarRootTransform()
     {
         Transform[] all = Resources.FindObjectsOfTypeAll<Transform>();

@@ -61,7 +61,12 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>两阶段倒播全部完成（参数为省份名）。</summary>
     public event Action<string> OnCityToPlateMapTransitionReverseCompleted;
 
- 
+    /// <summary>RealyCar → KJ_Car 车辆溶解切换全部完成。</summary>
+    public event Action OnCarSwitchToKjCarCompleted;
+
+    /// <summary>KJ_Car → RealyCar 车辆溶解切换全部完成。</summary>
+    public event Action OnCarSwitchToRealyCarCompleted;
+
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
     {
@@ -156,5 +161,15 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerCityToPlateMapTransitionReverseCompleted(string provinceName)
     {
         OnCityToPlateMapTransitionReverseCompleted?.Invoke(provinceName);
+    }
+
+    public void TriggerCarSwitchToKjCarCompleted()
+    {
+        OnCarSwitchToKjCarCompleted?.Invoke();
+    }
+
+    public void TriggerCarSwitchToRealyCarCompleted()
+    {
+        OnCarSwitchToRealyCarCompleted?.Invoke();
     }
 }
