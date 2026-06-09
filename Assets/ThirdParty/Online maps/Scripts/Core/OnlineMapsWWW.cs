@@ -505,7 +505,7 @@ public class OnlineMapsWWW: CustomYieldInstruction, IDisposable
         OnlineMapsLog.Info(url, OnlineMapsLog.Type.request);
         _url = url;
 
-        Debug.Log("url: " + url);
+        //Debug.Log("url: " + url);
     }
 
     private IEnumerator WaitCancel()
