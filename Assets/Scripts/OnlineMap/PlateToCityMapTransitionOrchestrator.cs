@@ -1,8 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 板块地图 → 二维 GaodeMap → 城市模型 两阶段过渡总控，衔接车辆溶解切换。
-/// 正播：阶段一 → 阶段二 → SwitchToKjCar；倒播：SwitchToRealyCar → 阶段二倒放 → 阶段一倒放。
+/// 板块地图 → 二维 GaodeMap → 城市模型 两阶段过渡总控。
+/// 正播：阶段一 → 阶段二 → SwitchToKjCar + PlayHideTransition 并行；倒播：SwitchToRealyCar + PlayHideTransitionReverse 并行 → 地图倒放。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
@@ -11,6 +11,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     [SerializeField] private PlateToGaodeMapTransitionController _plateTransitionController;
     [SerializeField] private GaodeToCityTransitionController _cityTransitionController;
     [SerializeField] private CarModelChangeController _carModelChangeController;
+    [SerializeField] private CityHideTransitionController _cityHideTransitionController;
 
     [Header("默认省份（事件未传参时使用）")]
     [SerializeField] private string _defaultProvinceName = "山东";
@@ -112,7 +113,8 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_plateTransitionController.IsTransitioning
             || _cityTransitionController.IsTransitioning
-            || IsCarTransitionBlocking())
+            || IsCarTransitionBlocking()
+            || IsCityHideTransitionBlocking())
         {
             return false;
         }
@@ -123,6 +125,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.None;
 
         EventManager.Instance?.TriggerPlateToCityMapTransitionStarted(_activeProvinceName);
+        EventManager.Instance?.TriggerPlateToVehicleViewTransitionStarted(_activeProvinceName);
 
         if (!_plateTransitionController.PlayTransition(_activeProvinceName))
         {
@@ -150,7 +153,8 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_plateTransitionController.IsTransitioning
             || _cityTransitionController.IsTransitioning
-            || IsCarTransitionBlocking())
+            || IsCarTransitionBlocking()
+            || IsCityHideTransitionBlocking())
         {
             return false;
         }
@@ -161,6 +165,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.None;
 
         EventManager.Instance?.TriggerCityToPlateMapTransitionReverseStarted(_activeProvinceName);
+        EventManager.Instance?.TriggerVehicleToPlateViewTransitionStarted(_activeProvinceName);
 
         PlayCarTransitionAtReverseStart();
         return true;
@@ -259,10 +264,12 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         BeginReverseMapTransitions();
     }
 
-    /// <summary>正播末尾：RealyCar 溶解切换为 KJ_Car。</summary>
+    /// <summary>正播末尾：SwitchToKjCar 与 PlayHideTransition 同时启动（不等待城市隐藏完成）。</summary>
     private void PlayCarTransitionAtForwardEnd()
     {
         ResolveReferences();
+        TryPlayCityHideTransitionParallel(forward: true);
+
         if (_carModelChangeController == null)
         {
             Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelChangeController，跳过车辆溶解并直接完成正播。");
@@ -279,10 +286,12 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         }
     }
 
-    /// <summary>倒播开头：KJ_Car 溶解切换回 RealyCar，完成后进入地图倒播。</summary>
+    /// <summary>倒播开头：SwitchToRealyCar 与 PlayHideTransitionReverse 同时启动。</summary>
     private void PlayCarTransitionAtReverseStart()
     {
         ResolveReferences();
+        TryPlayCityHideTransitionParallel(forward: false);
+
         if (_carModelChangeController == null)
         {
             Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelChangeController，跳过车辆溶解并直接开始倒播。");
@@ -296,6 +305,26 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
             Debug.LogWarning("[PlateToCityOrchestrator] SwitchToRealyCar 未启动，直接开始倒播。");
             _carPhase = OrchestratorCarPhase.None;
             BeginReverseMapTransitions();
+        }
+    }
+
+    /// <summary>与车辆切换并行播放城市隐藏/显现，失败仅打日志，不影响编排器等待车辆完成事件。</summary>
+    private void TryPlayCityHideTransitionParallel(bool forward)
+    {
+        if (_cityHideTransitionController == null)
+        {
+            return;
+        }
+
+        bool started = forward
+            ? _cityHideTransitionController.PlayHideTransition()
+            : _cityHideTransitionController.PlayHideTransitionReverse();
+
+        if (!started)
+        {
+            Debug.LogWarning(forward
+                ? "[PlateToCityOrchestrator] PlayHideTransition 未启动，继续等待车辆切换完成。"
+                : "[PlateToCityOrchestrator] PlayHideTransitionReverse 未启动，继续等待车辆切换完成。");
         }
     }
 
@@ -322,6 +351,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         string provinceName = _activeProvinceName;
         ResetOrchestration();
         EventManager.Instance?.TriggerPlateToCityMapTransitionCompleted(provinceName);
+        EventManager.Instance?.TriggerPlateToVehicleViewTransitionCompleted(provinceName);
     }
 
     private void CompleteReverseOrchestration()
@@ -329,12 +359,19 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         string provinceName = _activeProvinceName;
         ResetOrchestration();
         EventManager.Instance?.TriggerCityToPlateMapTransitionReverseCompleted(provinceName);
+        EventManager.Instance?.TriggerVehicleToPlateViewTransitionCompleted(provinceName);
     }
 
     private bool IsCarTransitionBlocking()
     {
         ResolveReferences();
         return _carModelChangeController != null && _carModelChangeController.IsTransitioning;
+    }
+
+    private bool IsCityHideTransitionBlocking()
+    {
+        ResolveReferences();
+        return _cityHideTransitionController != null && _cityHideTransitionController.IsTransitioning;
     }
 
     private void ResetOrchestration()
@@ -369,6 +406,11 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         if (_carModelChangeController == null)
         {
             _carModelChangeController = CarModelChangeController.Instance;
+        }
+
+        if (_cityHideTransitionController == null)
+        {
+            _cityHideTransitionController = CityHideTransitionController.Instance;
         }
     }
 

@@ -48,6 +48,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnPlateMapFocusModuleCompleted += HandlePlateMapFocusModuleCompleted;
         em.OnPlateMapRestoreCameraCompleted += HandlePlateMapRestoreCameraCompleted;
         em.OnPlateMapDisplayFocus += HandlePlateMapDisplayFocus;
+        em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted += HandleVehicleToPlateViewTransitionCompleted;
 
         // 初始：地球级别（默认禁用点击）
         ApplyStateSideEffects(_currentState);
@@ -68,6 +70,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnPlateMapFocusModuleCompleted -= HandlePlateMapFocusModuleCompleted;
         em.OnPlateMapRestoreCameraCompleted -= HandlePlateMapRestoreCameraCompleted;
         em.OnPlateMapDisplayFocus -= HandlePlateMapDisplayFocus;
+        em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted -= HandleVehicleToPlateViewTransitionCompleted;
     }
 
 
@@ -128,6 +132,20 @@ public class GameManager : UnitySingle<GameManager>
     {
         SetState(ControlState.CountryLevel);
         ApplyStateSideEffects(ControlState.CountryLevel);
+    }
+
+    /// <summary>板块界面 → 车辆界面过渡完成：进入车辆级别。</summary>
+    private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
+    {
+        SetState(ControlState.VehicleLevel);
+        ApplyStateSideEffects(ControlState.VehicleLevel);
+    }
+
+    /// <summary>车辆界面 → 板块界面过渡完成：回到省级。</summary>
+    private void HandleVehicleToPlateViewTransitionCompleted(string provinceName)
+    {
+        SetState(ControlState.ProvinceLevel);
+        ApplyStateSideEffects(ControlState.ProvinceLevel);
     }
 
     #endregion

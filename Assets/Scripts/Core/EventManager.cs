@@ -19,6 +19,7 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>板块 → 地球过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToEarthCompleted;
 
+    #region 板块-车辆过渡动画
     /// <summary>AllPlateMap → GaodeMap 过渡开始（参数为省份名）。</summary>
     public event Action<string> OnPlateToGaodeMapTransitionStarted;
 
@@ -66,6 +67,19 @@ public class EventManager : UnitySingle<EventManager>
 
     /// <summary>KJ_Car → RealyCar 车辆溶解切换全部完成。</summary>
     public event Action OnCarSwitchToRealyCarCompleted;
+
+    /// <summary>板块界面 → 车辆界面过渡开始（参数为省份名）。</summary>
+    public event Action<string> OnPlateToVehicleViewTransitionStarted;
+
+    /// <summary>板块界面 → 车辆界面过渡全部完成（参数为省份名）。</summary>
+    public event Action<string> OnPlateToVehicleViewTransitionCompleted;
+
+    /// <summary>车辆界面 → 板块界面过渡开始（参数为省份名）。</summary>
+    public event Action<string> OnVehicleToPlateViewTransitionStarted;
+
+    /// <summary>车辆界面 → 板块界面过渡全部完成（参数为省份名）。</summary>
+    public event Action<string> OnVehicleToPlateViewTransitionCompleted;
+    #endregion
 
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
@@ -171,5 +185,25 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerCarSwitchToRealyCarCompleted()
     {
         OnCarSwitchToRealyCarCompleted?.Invoke();
+    }
+
+    public void TriggerPlateToVehicleViewTransitionStarted(string provinceName)
+    {
+        OnPlateToVehicleViewTransitionStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerPlateToVehicleViewTransitionCompleted(string provinceName)
+    {
+        OnPlateToVehicleViewTransitionCompleted?.Invoke(provinceName);
+    }
+
+    public void TriggerVehicleToPlateViewTransitionStarted(string provinceName)
+    {
+        OnVehicleToPlateViewTransitionStarted?.Invoke(provinceName);
+    }
+
+    public void TriggerVehicleToPlateViewTransitionCompleted(string provinceName)
+    {
+        OnVehicleToPlateViewTransitionCompleted?.Invoke(provinceName);
     }
 }
