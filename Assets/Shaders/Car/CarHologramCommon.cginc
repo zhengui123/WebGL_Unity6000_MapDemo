@@ -101,9 +101,13 @@ fixed4 fragDepth(HologramV2f i) : SV_Target
     HologramSurfaceBasis(i, ndv, rim, facing);
     HologramClipSurfaceFacing(ndv);
     CarDissolveClip(i.worldPos);
+#if defined(_SURFACETYPE_OPAQUE)
+    return 0;
+#else
     float a = HologramComputeAlpha(i, ndv, rim, facing);
     clip(a - _DepthAlphaClip);
     return 0;
+#endif
 }
 
 fixed4 fragColor(HologramV2f i) : SV_Target
@@ -113,6 +117,9 @@ fixed4 fragColor(HologramV2f i) : SV_Target
     HologramClipSurfaceFacing(ndv);
     fixed4 col = HologramComputeColor(i, ndv, rim, facing);
     CarDissolveClip(i.worldPos);
+#if defined(_SURFACETYPE_OPAQUE)
+    col.a = 1.0;
+#endif
     return col;
 }
 
