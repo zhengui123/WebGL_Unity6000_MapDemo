@@ -54,8 +54,15 @@ public class CarModelChangeController : MonoBehaviour
         ApplyInitialVisibility();
     }
 
+    // private void OnDisable()
+    // {
+    //       _realyDissolve.SetDissolveAmount(0f);
+    //     _kjDissolve.SetDissolveAmount(0f);
+    // }
     private void OnDestroy()
     {
+         _realyDissolve.SetDissolveAmount(0f);
+        _kjDissolve.SetDissolveAmount(0f);
         KillSequence();
         if (_instance == this)
         {

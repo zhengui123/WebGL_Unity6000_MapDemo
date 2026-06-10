@@ -19,6 +19,18 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>板块 → 地球过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToEarthCompleted;
 
+  /// <summary>板块界面 → 车辆界面过渡开始（参数为省份名）。</summary>
+    public event Action<string> OnPlateToVehicleViewTransitionStarted;
+
+    /// <summary>板块界面 → 车辆界面过渡全部完成（参数为省份名）。</summary>
+    public event Action<string> OnPlateToVehicleViewTransitionCompleted;
+
+    /// <summary>车辆界面 → 板块界面过渡开始（参数为二维地图省份名）。</summary>
+    public event Action<string> OnVehicleToPlateViewTransitionStarted;
+
+    /// <summary>车辆界面 → 板块界面过渡全部完成（参数为二维地图省份名）。</summary>
+    public event Action<string> OnVehicleToPlateViewTransitionCompleted;
+
     #region 板块-车辆过渡动画
     /// <summary>AllPlateMap → GaodeMap 过渡开始（参数为省份名）。</summary>
     public event Action<string> OnPlateToGaodeMapTransitionStarted;
@@ -68,19 +80,9 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>KJ_Car → RealyCar 车辆溶解切换全部完成。</summary>
     public event Action OnCarSwitchToRealyCarCompleted;
 
-    /// <summary>板块界面 → 车辆界面过渡开始（参数为省份名）。</summary>
-    public event Action<string> OnPlateToVehicleViewTransitionStarted;
+  
 
-    /// <summary>板块界面 → 车辆界面过渡全部完成（参数为省份名）。</summary>
-    public event Action<string> OnPlateToVehicleViewTransitionCompleted;
-
-    /// <summary>车辆界面 → 板块界面过渡开始（参数为省份名）。</summary>
-    public event Action<string> OnVehicleToPlateViewTransitionStarted;
-
-    /// <summary>车辆界面 → 板块界面过渡全部完成（参数为省份名）。</summary>
-    public event Action<string> OnVehicleToPlateViewTransitionCompleted;
     #endregion
-
 
     public void TriggerPlateMapDisplayFocus(string moduleName)
     {

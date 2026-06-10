@@ -61,7 +61,7 @@ public class MapApi : UnitySingle<MapApi>
         return controller.RestoreCameraPosition();
     }
 
-    /// <summary>正播两阶段：板块 → GaodeMap → City-Maker。</summary>
+    /// <summary>正播完整阶段：板块 → 车辆视图。</summary>
     public bool TransitionPlateMapToCity(string provinceName = null)
     {
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
@@ -74,7 +74,7 @@ public class MapApi : UnitySingle<MapApi>
         return orchestrator.PlayFullTransition(provinceName);
     }
 
-    /// <summary>倒播两阶段：City-Maker → GaodeMap → 板块。</summary>
+    /// <summary>倒播完整阶段：车辆视图 → 板块。</summary>
     public bool TransitionCityToPlateMap(string provinceName = null)
     {
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
