@@ -2,25 +2,37 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 主相机（FogCamera）本地位姿，用于拉近终点配置。
+/// 拉近终点：通过场景中的 Marker Transform 定义主相机与车辆父物体的目标位姿。
 /// </summary>
 [Serializable]
 public class CityCameraPoseSettings
 {
-    [Tooltip("主相机相对 CameraPivot 的本地坐标")]
-    public Vector3 cameraLocalPosition;
+    [Tooltip("目标主相机位姿参考（运行时读取其世界位姿并换算为 CameraPivot 本地空间）")]
+    public Transform targetCameraTransform;
 
-    [Tooltip("主相机相对 CameraPivot 的本地欧拉角")]
-    public Vector3 cameraLocalEuler;
+    [Tooltip("目标车辆父物体位姿参考（运行时读取其世界坐标与旋转）")]
+    public Transform targetVehicleTransform;
 
-    public void CaptureFrom(Transform cameraTransform)
+    /// <summary>将 Marker 同步为当前主相机与车辆父物体的世界位姿（便于在 Inspector 中录制）。</summary>
+    public void SyncMarkersFrom(Transform cameraTransform, Transform vehicleParentTransform)
     {
-        if (cameraTransform == null)
+        if (targetCameraTransform != null && cameraTransform != null)
         {
-            return;
+            targetCameraTransform.SetPositionAndRotation(
+                cameraTransform.position,
+                cameraTransform.rotation);
         }
 
-        cameraLocalPosition = cameraTransform.localPosition;
-        cameraLocalEuler = cameraTransform.localEulerAngles;
+        if (targetVehicleTransform != null && vehicleParentTransform != null)
+        {
+            targetVehicleTransform.SetPositionAndRotation(
+                vehicleParentTransform.position,
+                vehicleParentTransform.rotation);
+        }
+    }
+
+    public bool IsValid()
+    {
+        return targetCameraTransform != null && targetVehicleTransform != null;
     }
 }

@@ -16,6 +16,8 @@ public class GaodeToCityTransitionController : MonoBehaviour
     [SerializeField] private GameObject _cityMakerRoot;
     [SerializeField] private Transform _cameraRig;
     [SerializeField] private Transform _cameraTransform;
+    [SerializeField] private Transform _cityCameraTransform;
+    [SerializeField] private Transform _vehicleParentTransform;
     [SerializeField] private Camera _mainCamera;
 
     [Header("缩放阶段")]
@@ -29,17 +31,24 @@ public class GaodeToCityTransitionController : MonoBehaviour
     [SerializeField] private Ease _scanlineEase = Ease.InOutCubic;
     [SerializeField] private Ease _rawImageHideEase = Ease.InOutQuad;
 
-    [Header("主相机拉近终点（起点为 PlayTransition 开始时缓存的本地位姿）")]
-    [SerializeField] private CityCameraPoseSettings _cityFocusPose = new CityCameraPoseSettings();
+    [Header("拉近终点（起点为 PlayTransition 开始时缓存位姿）")]
+    [SerializeField] private CityCameraPoseSettings[] _cityFocusPoses;
+    [SerializeField] private int _focusPoseIndex;
     [SerializeField] private float _cameraDollyDuration = 2f;
     [SerializeField] private Ease _cameraDollyEase = Ease.InOutQuad;
 
     private Sequence _sequence;
     private Tween _zoomTween;
     private bool _isTransitioning;
-    private CityCameraPoseSettings _dollyStartPose;
     private float _zoomAtTransitionStart;
     private bool _hasDollyStartPose;
+    private Vector3 _dollyStartCameraLocalPosition;
+    private Quaternion _dollyStartCameraLocalRotation;
+    private Vector3 _dollyStartCityCameraLocalPosition;
+    private Quaternion _dollyStartCityCameraLocalRotation;
+    private Vector3 _dollyStartVehicleWorldPosition;
+    private Quaternion _dollyStartVehicleWorldRotation;
+    private CityCameraPoseSettings _activeFocusPose;
     private Vector3 _cameraRigInitialPosition;
     private Quaternion _cameraRigInitialRotation;
     private bool _hasCameraRigInitialPose;
@@ -113,12 +122,20 @@ public class GaodeToCityTransitionController : MonoBehaviour
             return false;
         }
 
+        _activeFocusPose = GetCurrentFocusPose();
+        if (_activeFocusPose == null || !_activeFocusPose.IsValid())
+        {
+            Debug.LogError("[GaodeToCityTransition] 拉近终点数组为空或当前标号缺少 Marker Transform。");
+            return false;
+        }
+
         _isTransitioning = true;
         KillSequence();
         _zoomAtTransitionStart = _gaodeMapController.OnlineMaps.floatZoom;
         CacheCameraRigPreDollyPose();
         ApplyCameraRigInitialPose();
         CacheDollyStartPose();
+        AdvanceFocusPoseIndex();
 
         EventManager.Instance?.TriggerGaodeMapToCityTransitionStarted();
 
@@ -162,12 +179,12 @@ public class GaodeToCityTransitionController : MonoBehaviour
         }
 
         _sequence.AppendCallback(CompleteOverlayPhase);
-        _sequence.Append(TweenCameraToFocusPose());
+        _sequence.Append(TweenToFocusPose(_activeFocusPose));
         _sequence.OnComplete(CompleteTransition);
         return true;
     }
 
-    /// <summary>倒放：相机拉回 → 扫描线收回 + RawImage 渐显 → 隐藏 City-Maker → zoom 还原。</summary>
+    /// <summary>倒放：相机与车辆拉回 → 扫描线收回 + RawImage 渐显 → 隐藏 City-Maker → zoom 还原。</summary>
     public bool PlayTransitionReverse()
     {
         if (_isTransitioning)
@@ -194,7 +211,7 @@ public class GaodeToCityTransitionController : MonoBehaviour
         EventManager.Instance?.TriggerCityToGaodeMapTransitionReverseStarted();
 
         _sequence = DOTween.Sequence();
-        _sequence.Append(TweenCameraToDollyStartPose());
+        _sequence.Append(TweenToDollyStartPose());
         _sequence.Append(BuildReverseOverlaySequence());
         _sequence.AppendCallback(RestoreCameraRigPreDollyPose);
         _sequence.AppendCallback(CompleteReverseOverlayPhase);
@@ -217,6 +234,27 @@ public class GaodeToCityTransitionController : MonoBehaviour
 
         _sequence.OnComplete(CompleteTransitionReverse);
         return true;
+    }
+
+    private CityCameraPoseSettings GetCurrentFocusPose()
+    {
+        if (_cityFocusPoses == null || _cityFocusPoses.Length == 0)
+        {
+            return null;
+        }
+
+        int index = Mathf.Clamp(_focusPoseIndex, 0, _cityFocusPoses.Length - 1);
+        return _cityFocusPoses[index];
+    }
+
+    private void AdvanceFocusPoseIndex()
+    {
+        if (_cityFocusPoses == null || _cityFocusPoses.Length == 0)
+        {
+            return;
+        }
+
+        _focusPoseIndex = (_focusPoseIndex + 1) % _cityFocusPoses.Length;
     }
 
     private void BeginRevealAndOverlayPhase()
@@ -258,7 +296,6 @@ public class GaodeToCityTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>倒播叠层子序列：扫描线 1→0 与 RawImage 渐显并行。</summary>
     private Sequence BuildReverseOverlaySequence()
     {
         BeginReverseOverlayPhase();
@@ -316,35 +353,105 @@ public class GaodeToCityTransitionController : MonoBehaviour
         _cityMakerRoot.SetActive(true);
     }
 
-    /// <summary>从当前位姿插值到面板配置的拉近终点。</summary>
-    private Tween TweenCameraToFocusPose()
+    private Tween TweenToFocusPose(CityCameraPoseSettings target)
     {
-        return TweenCameraToPose(_cityFocusPose);
-    }
-
-    /// <summary>倒播：从当前位姿回到正向拉进前的起点。</summary>
-    private Tween TweenCameraToDollyStartPose()
-    {
-        if (!_hasDollyStartPose || _dollyStartPose == null)
+        if (target == null || !target.IsValid())
         {
             return DOTween.Sequence().AppendInterval(_cameraDollyDuration);
         }
 
-        return TweenCameraToPose(_dollyStartPose);
+        ApplyFocusPoseInstant(target);
+        ResolveCameraLocalPoseFromMarker(target.targetCameraTransform, out Vector3 camLocalPos, out Quaternion camLocalRot);
+        return BuildCameraDollyTween(camLocalPos, camLocalRot);
     }
 
-    private Tween TweenCameraToPose(CityCameraPoseSettings target)
+    private Tween TweenToDollyStartPose()
     {
-        if (_cameraTransform == null || target == null)
+        if (!_hasDollyStartPose)
         {
             return DOTween.Sequence().AppendInterval(_cameraDollyDuration);
         }
 
-        Quaternion targetCamLocalRot = Quaternion.Euler(target.cameraLocalEuler);
-        Sequence camSeq = DOTween.Sequence();
-        camSeq.Join(_cameraTransform.DOLocalMove(target.cameraLocalPosition, _cameraDollyDuration).SetEase(_cameraDollyEase));
-        camSeq.Join(_cameraTransform.DOLocalRotateQuaternion(targetCamLocalRot, _cameraDollyDuration).SetEase(_cameraDollyEase));
-        return camSeq;
+        //ApplyDollyStartInstant();
+        return BuildCameraDollyTween(_dollyStartCameraLocalPosition, _dollyStartCameraLocalRotation);
+    }
+
+    /// <summary>拉近终点变更：车辆与 CityCamera 立即到位，不做插值。</summary>
+    private void ApplyFocusPoseInstant(CityCameraPoseSettings target)
+    {
+        if (target == null || !target.IsValid())
+        {
+            return;
+        }
+
+        if (_vehicleParentTransform != null)
+        {
+            _vehicleParentTransform.SetPositionAndRotation(
+                target.targetVehicleTransform.position,
+                target.targetVehicleTransform.rotation);
+        }
+
+        ApplyCityCameraFromMarker(target.targetCameraTransform);
+    }
+
+    /// <summary>倒播起点：车辆与 CityCamera 立即还原为正向拉进前缓存位姿。</summary>
+    private void ApplyDollyStartInstant()
+    {
+        if (!_hasDollyStartPose)
+        {
+            return;
+        }
+
+        if (_vehicleParentTransform != null)
+        {
+            _vehicleParentTransform.SetPositionAndRotation(
+                _dollyStartVehicleWorldPosition,
+                _dollyStartVehicleWorldRotation);
+        }
+
+        if (_cityCameraTransform != null)
+        {
+            _cityCameraTransform.localPosition = _dollyStartCityCameraLocalPosition;
+            _cityCameraTransform.localRotation = _dollyStartCityCameraLocalRotation;
+        }
+    }
+
+    private void ApplyCityCameraFromMarker(Transform cameraMarker)
+    {
+        if (_cityCameraTransform == null || cameraMarker == null)
+        {
+            return;
+        }
+
+        ResolveCameraLocalPoseFromMarker(cameraMarker, out Vector3 localPos, out Quaternion localRot);
+        _cityCameraTransform.localPosition = localPos;
+        _cityCameraTransform.localRotation = localRot;
+    }
+
+    private Tween BuildCameraDollyTween(Vector3 cameraLocalPosition, Quaternion cameraLocalRotation)
+    {
+        if (_cameraTransform == null)
+        {
+            return DOTween.Sequence().AppendInterval(_cameraDollyDuration);
+        }
+
+        Sequence dollySeq = DOTween.Sequence();
+        dollySeq.Join(_cameraTransform.DOLocalMove(cameraLocalPosition, _cameraDollyDuration).SetEase(_cameraDollyEase));
+        dollySeq.Join(_cameraTransform.DOLocalRotateQuaternion(cameraLocalRotation, _cameraDollyDuration).SetEase(_cameraDollyEase));
+        return dollySeq;
+    }
+
+    private void ResolveCameraLocalPoseFromMarker(Transform cameraMarker, out Vector3 localPosition, out Quaternion localRotation)
+    {
+        if (_cameraRig == null || cameraMarker == null)
+        {
+            localPosition = Vector3.zero;
+            localRotation = Quaternion.identity;
+            return;
+        }
+
+        localPosition = _cameraRig.InverseTransformPoint(cameraMarker.position);
+        localRotation = Quaternion.Inverse(_cameraRig.rotation) * cameraMarker.rotation;
     }
 
     private void CompleteTransition()
@@ -367,20 +474,32 @@ public class GaodeToCityTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>记录拉进动画起点（重置父物体后主相机本地位姿，倒播时复用）。</summary>
     private void CacheDollyStartPose()
     {
-        if (_cameraTransform == null)
+        _hasDollyStartPose = false;
+
+        if (_cameraTransform != null)
         {
-            return;
+            _dollyStartCameraLocalPosition = _cameraTransform.localPosition;
+            _dollyStartCameraLocalRotation = _cameraTransform.localRotation;
+            _hasDollyStartPose = true;
         }
 
-        _dollyStartPose ??= new CityCameraPoseSettings();
-        _dollyStartPose.CaptureFrom(_cameraTransform);
-        _hasDollyStartPose = true;
+        if (_cityCameraTransform != null)
+        {
+            _dollyStartCityCameraLocalPosition = _cityCameraTransform.localPosition;
+            _dollyStartCityCameraLocalRotation = _cityCameraTransform.localRotation;
+            _hasDollyStartPose = true;
+        }
+
+        if (_vehicleParentTransform != null)
+        {
+            _dollyStartVehicleWorldPosition = _vehicleParentTransform.position;
+            _dollyStartVehicleWorldRotation = _vehicleParentTransform.rotation;
+            _hasDollyStartPose = true;
+        }
     }
 
-    /// <summary>Start 时记录相机父物体（CameraPivot）初始世界位姿。</summary>
     private void CacheCameraRigInitialPose()
     {
         if (_cameraRig == null)
@@ -393,7 +512,6 @@ public class GaodeToCityTransitionController : MonoBehaviour
         _hasCameraRigInitialPose = true;
     }
 
-    /// <summary>PlayTransition 开始时记录拉进前相机父物体世界位姿。</summary>
     private void CacheCameraRigPreDollyPose()
     {
         if (_cameraRig == null)
@@ -406,7 +524,6 @@ public class GaodeToCityTransitionController : MonoBehaviour
         _hasCameraRigPreDollyPose = true;
     }
 
-    /// <summary>将相机父物体重置为 Start 时缓存的初始世界位姿。</summary>
     private void ApplyCameraRigInitialPose()
     {
         if (_cameraRig == null || !_hasCameraRigInitialPose)
@@ -417,7 +534,6 @@ public class GaodeToCityTransitionController : MonoBehaviour
         _cameraRig.SetPositionAndRotation(_cameraRigInitialPosition, _cameraRigInitialRotation);
     }
 
-    /// <summary>倒播 RawImage 渐显完成后，将相机父物体还原为拉进前缓存的世界位姿。</summary>
     private void RestoreCameraRigPreDollyPose()
     {
         if (_cameraRig == null || !_hasCameraRigPreDollyPose)
@@ -472,6 +588,15 @@ public class GaodeToCityTransitionController : MonoBehaviour
             }
         }
 
+        if (_cityCameraTransform == null && _cameraRig != null)
+        {
+            Transform cityCamera = _cameraRig.Find("CityCamera");
+            if (cityCamera != null)
+            {
+                _cityCameraTransform = cityCamera;
+            }
+        }
+
         if (_mainCamera == null && _cameraTransform != null)
         {
             _mainCamera = _cameraTransform.GetComponent<Camera>();
@@ -480,6 +605,17 @@ public class GaodeToCityTransitionController : MonoBehaviour
         if (_mainCamera == null)
         {
             _mainCamera = Camera.main;
+        }
+
+        if (_vehicleParentTransform == null)
+        {
+            Transform model = GameObject.Find("Model")?.transform;
+            Transform cityMaker = model != null ? model.Find("City-Maker") : null;
+            Transform carModel = cityMaker != null ? cityMaker.Find("CarModel") : null;
+            if (carModel != null)
+            {
+                _vehicleParentTransform = carModel;
+            }
         }
     }
 
@@ -504,12 +640,19 @@ public class GaodeToCityTransitionController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    [ContextMenu("将当前主相机位姿写入拉近终点")]
-    private void EditorCaptureCityFocusPose()
+    [ContextMenu("将当前位姿同步到当前标号对应 Marker")]
+    private void EditorSyncFocusPoseMarkers()
     {
         ResolveReferences();
-        _cityFocusPose ??= new CityCameraPoseSettings();
-        _cityFocusPose.CaptureFrom(_cameraTransform);
+        CityCameraPoseSettings pose = GetCurrentFocusPose();
+        if (pose == null)
+        {
+            Debug.LogWarning("[GaodeToCityTransition] 拉近终点数组为空。");
+            return;
+        }
+
+        pose.SyncMarkersFrom(_cameraTransform, _vehicleParentTransform);
+        Debug.Log($"[GaodeToCityTransition] 已同步标号 {_focusPoseIndex} 的 Marker。");
     }
 
     [ContextMenu("测试：Gaode → City 过渡")]
