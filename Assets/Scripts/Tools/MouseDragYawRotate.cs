@@ -26,6 +26,7 @@ public class MouseDragYawRotate : MonoBehaviour
 
     private bool _isDragging;
     private Quaternion _targetRotation;
+    private Quaternion startRotation;
     private bool _hasTargetRotation;
 
     public bool IsDragging => _isDragging;
@@ -41,6 +42,7 @@ public class MouseDragYawRotate : MonoBehaviour
         {
             _raycastCamera = Camera.main;
         }
+        startRotation = _rotateTarget.rotation;
 
         SyncTargetRotation();
     }
@@ -124,7 +126,13 @@ public class MouseDragYawRotate : MonoBehaviour
             return;
         }
 
-        _targetRotation = _rotateTarget.rotation;
+        _targetRotation = startRotation;
+        _hasTargetRotation = true;
+    }
+
+    private void ResetTargetRotation()
+    {
+        _targetRotation = startRotation;
         _hasTargetRotation = true;
     }
 
@@ -164,6 +172,7 @@ public class MouseDragYawRotate : MonoBehaviour
             _isDragging = false;
             SyncTargetRotation();
         }
+            SyncTargetRotation();
 
         this.enabled = enabled;
     }

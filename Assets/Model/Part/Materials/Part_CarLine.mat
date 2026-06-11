@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Part_CarLine
+  m_Shader: {fileID: 4800000, guid: 2b8c1a7f3e8f4b1f9a6e2f6db0f3a4c1, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 2
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 3015
+  stringTagMap:
+    RenderType: Transparent
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _DissolveAmount: 0
+    - _DissolveEdgeWidth: 0.04
+    - _DissolveNoiseScale: 24
+    - _EdgeAlpha: 1
+    - _EdgeDistReference: 8
+    - _EdgeDistanceInfluence: 1
+    - _EdgeFarScale: 1
+    - _EdgeHdrIntensity: 1
+    - _EdgeNearBoost: 1.35
+    - _EdgeScreenNorm: 1
+    - _LineSharpness: 1
+    - _NormalEdgeScale: 0.1
+    - _NormalEdgeStrength: 0.33
+    - _RimPower: 2.53
+    - _RimStrength: 0
+    - _SurfaceFacingMin: 0
+    m_Colors:
+    - _DissolveEdgeColor: {r: 0.15, g: 0.75, b: 1, a: 1}
+    - _EdgeColor: {r: 0, g: 1.8638744, b: 2, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1
