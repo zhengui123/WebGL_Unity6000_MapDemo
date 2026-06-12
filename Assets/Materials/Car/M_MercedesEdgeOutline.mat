@@ -27,7 +27,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _DissolveAmount: 0
-    - _DissolveNoiseScale: 12
+    - _DissolveNoiseScale: 24
     - _EdgeAlpha: 1
     - _EdgeDistReference: 8
     - _EdgeDistanceInfluence: 1
