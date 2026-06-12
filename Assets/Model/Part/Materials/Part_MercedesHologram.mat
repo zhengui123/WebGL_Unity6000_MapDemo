@@ -18,9 +18,8 @@ Material:
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
-  stringTagMap:
-    RenderType: Opaque
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -36,7 +35,7 @@ Material:
     - _FacingMinGlow: 0.1
     - _FillStrength: 0.66
     - _FresnelIntensity: 0.84
-    - _FresnelPower: 1.4
+    - _FresnelPower: 1.45
     - _GridIntensity: 0.98
     - _GridLineWidth: 0.08
     - _GridScale: 1
