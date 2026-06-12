@@ -19,6 +19,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [Header("KJ_Car（留空则自动查找 Model/Car/KJ_Car）")]
     [SerializeField] private GameObject _kjCarRoot;
 
+    [Header("车辆旋转（倒播时重置拖拽旋转）")]
+    [SerializeField] private MouseDragYawRotate _carDragYawRotate;
+
     [Header("过渡参数")]
     [SerializeField] private float _firstMoveDuration = 1.2f;
     [SerializeField] private float _secondMoveDuration = 1.5f;
@@ -33,14 +36,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private bool _isTransitioning;
     private Transform _activePart;
     private string _lastPartName;
-    private Vector3 _cachedPartPosition;
-    private Quaternion _cachedPartRotation;
+    private Vector3 _cachedPartLocalPosition;
+    private Quaternion _cachedPartLocalRotation;
     private Vector3 _cachedPartLocalScale;
 
     private struct PartInitialState
     {
-        public Vector3 Position;
-        public Quaternion Rotation;
+        public Vector3 LocalPosition;
+        public Quaternion LocalRotation;
         public Vector3 LocalScale;
         public bool IsActive;
     }
@@ -180,6 +183,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         PrepareKjCarDissolve();
         KillSequence();
+        ResetCarDragRotation();
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
@@ -341,13 +345,13 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         Sequence moveSequence = DOTween.Sequence();
-        moveSequence.Join(part.DOMove(_cachedPartPosition, duration).SetEase(_moveEase));
-        moveSequence.Join(part.DORotateQuaternion(_cachedPartRotation, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DOLocalMove(_cachedPartLocalPosition, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DOLocalRotateQuaternion(_cachedPartLocalRotation, duration).SetEase(_moveEase));
         moveSequence.Join(part.DOScale(_cachedPartLocalScale, duration).SetEase(_moveEase));
         return moveSequence;
     }
 
-    /// <summary>开局记录列表中所有零件的位姿与显隐状态。</summary>
+    /// <summary>开局记录列表中所有零件的本地位姿与显隐状态。</summary>
     private void CacheAllPartInitialStates()
     {
         _partInitialStates.Clear();
@@ -368,15 +372,15 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
             _partInitialStates[part.GetInstanceID()] = new PartInitialState
             {
-                Position = part.position,
-                Rotation = part.rotation,
+                LocalPosition = part.localPosition,
+                LocalRotation = part.localRotation,
                 LocalScale = part.localScale,
                 IsActive = part.gameObject.activeSelf
             };
         }
     }
 
-    /// <summary>将列表内零件立即还原为开局缓存的 Transform 与显隐状态。</summary>
+    /// <summary>将列表内零件立即还原为开局缓存的本地 Transform 与显隐状态。</summary>
     private void RestoreAllPartsToInitialState()
     {
         if (_partRoots == null)
@@ -393,9 +397,49 @@ public class VehicleToPartTransitionController : MonoBehaviour
             }
 
             part.DOKill();
-            part.SetPositionAndRotation(state.Position, state.Rotation);
+            part.localPosition = state.LocalPosition;
+            part.localRotation = state.LocalRotation;
             part.localScale = state.LocalScale;
             part.gameObject.SetActive(state.IsActive);
+        }
+    }
+
+    /// <summary>重置 Car 物体上的拖拽旋转（MouseDragYawRotate）。</summary>
+    private void ResetCarDragRotation()
+    {
+        ResolveCarDragYawRotate();
+        if (_carDragYawRotate != null)
+        {
+            _carDragYawRotate.ResetRotation();
+        }
+    }
+
+    private void ResolveCarDragYawRotate()
+    {
+        if (_carDragYawRotate != null)
+        {
+            return;
+        }
+
+        Transform carRoot = FindCarRootTransform();
+        if (carRoot != null)
+        {
+            _carDragYawRotate = carRoot.GetComponent<MouseDragYawRotate>();
+            if (_carDragYawRotate == null)
+            {
+                _carDragYawRotate = carRoot.GetComponentInChildren<MouseDragYawRotate>(true);
+            }
+        }
+
+        if (_carDragYawRotate != null)
+        {
+            return;
+        }
+
+        CarModelController carModelController = FindFirstObjectByType<CarModelController>();
+        if (carModelController != null)
+        {
+            _carDragYawRotate = carModelController.carModelRotateController;
         }
     }
 
@@ -418,8 +462,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return;
         }
 
-        _cachedPartPosition = state.Position;
-        _cachedPartRotation = state.Rotation;
+        _cachedPartLocalPosition = state.LocalPosition;
+        _cachedPartLocalRotation = state.LocalRotation;
         _cachedPartLocalScale = state.LocalScale;
     }
 
@@ -430,8 +474,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return;
         }
 
-        _cachedPartPosition = part.position;
-        _cachedPartRotation = part.rotation;
+        _cachedPartLocalPosition = part.localPosition;
+        _cachedPartLocalRotation = part.localRotation;
         _cachedPartLocalScale = part.localScale;
     }
 
