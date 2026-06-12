@@ -80,7 +80,11 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>KJ_Car → RealyCar 车辆溶解切换全部完成。</summary>
     public event Action OnCarSwitchToRealyCarCompleted;
 
-  
+    /// <summary>车辆 → 零件过渡全部完成（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionCompleted;
+
+    /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionReverseCompleted;
 
     #endregion
 
@@ -187,6 +191,16 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerCarSwitchToRealyCarCompleted()
     {
         OnCarSwitchToRealyCarCompleted?.Invoke();
+    }
+
+    public void TriggerVehicleToPartTransitionCompleted(string partName)
+    {
+        OnVehicleToPartTransitionCompleted?.Invoke(partName);
+    }
+
+    public void TriggerVehicleToPartTransitionReverseCompleted(string partName)
+    {
+        OnVehicleToPartTransitionReverseCompleted?.Invoke(partName);
     }
 
     public void TriggerPlateToVehicleViewTransitionStarted(string provinceName)

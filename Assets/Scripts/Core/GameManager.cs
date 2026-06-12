@@ -50,6 +50,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnPlateMapDisplayFocus += HandlePlateMapDisplayFocus;
         em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
         em.OnVehicleToPlateViewTransitionCompleted += HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted += HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted += HandleVehicleToPartTransitionReverseCompleted;
 
         // 初始：地球级别（默认禁用点击）
         ApplyStateSideEffects(_currentState);
@@ -72,6 +74,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnPlateMapDisplayFocus -= HandlePlateMapDisplayFocus;
         em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
         em.OnVehicleToPlateViewTransitionCompleted -= HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted -= HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted -= HandleVehicleToPartTransitionReverseCompleted;
     }
 
 
@@ -146,6 +150,20 @@ public class GameManager : UnitySingle<GameManager>
     {
         SetState(ControlState.ProvinceLevel);
         ApplyStateSideEffects(ControlState.ProvinceLevel);
+    }
+
+    /// <summary>车辆 → 零件过渡完成：进入零部件级。</summary>
+    private void HandleVehicleToPartTransitionCompleted(string partName)
+    {
+        SetState(ControlState.PartLevel);
+        ApplyStateSideEffects(ControlState.PartLevel);
+    }
+
+    /// <summary>零件 → 车辆过渡倒播完成：回到车辆级。</summary>
+    private void HandleVehicleToPartTransitionReverseCompleted(string partName)
+    {
+        SetState(ControlState.VehicleLevel);
+        ApplyStateSideEffects(ControlState.VehicleLevel);
     }
 
     #endregion

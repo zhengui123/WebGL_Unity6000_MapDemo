@@ -3,8 +3,8 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 车辆 → 零件过渡：指定零件先 DOTween 到第一目标位姿，再移动到第二目标位姿；
-/// 第二阶段与 KJ_Car 溶解隐藏并行执行。
+/// 车辆 → 零件过渡：零件先移动到第一目标（与 KJ_Car 溶解隐藏并行），再移动到第二目标；
+/// 倒播则反向执行并令 KJ_Car 溶解显现。
 /// </summary>
 [DisallowMultipleComponent]
 public class VehicleToPartTransitionController : MonoBehaviour
@@ -28,12 +28,26 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private float _dissolveNoiseScale = 12f;
 
     private readonly CarModelDissolveGroup _kjDissolve = new CarModelDissolveGroup();
+    private readonly Dictionary<int, PartInitialState> _partInitialStates = new Dictionary<int, PartInitialState>();
     private Sequence _sequence;
     private bool _isTransitioning;
     private Transform _activePart;
+    private string _lastPartName;
+    private Vector3 _cachedPartPosition;
+    private Quaternion _cachedPartRotation;
+    private Vector3 _cachedPartLocalScale;
+
+    private struct PartInitialState
+    {
+        public Vector3 Position;
+        public Quaternion Rotation;
+        public Vector3 LocalScale;
+        public bool IsActive;
+    }
 
     public bool IsTransitioning => _isTransitioning;
     public Transform ActivePart => _activePart;
+    public string LastPartName => _lastPartName;
 
     private static VehicleToPartTransitionController _instance;
 
@@ -54,6 +68,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     {
         _instance = this;
         ResolveKjCarReference();
+        CacheAllPartInitialStates();
     }
 
     private void OnDestroy()
@@ -88,6 +103,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         ResolveKjCarReference();
+
         if (_kjCarRoot == null)
         {
             Debug.LogError("[VehicleToPart] 未找到 KJ_Car。");
@@ -101,13 +117,80 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         KillSequence();
+        RestoreAllPartsToInitialState();
+        ApplyCachedPoseFromInitialState(part);
+
         _isTransitioning = true;
         _activePart = part;
+        _lastPartName = part.name;
         part.gameObject.SetActive(true);
 
         _sequence = DOTween.Sequence();
         AppendMoveToTarget(_sequence, part, _firstTarget, _firstMoveDuration);
-        _sequence.AppendCallback(() => BeginSecondPhase(part));
+        JoinCarHideTween(_sequence);
+
+        _sequence.AppendCallback(() => BeginForwardSecondPhase(part));
+        return true;
+    }
+
+    /// <summary>
+    /// 倒播车辆 → 零件过渡：零件第二目标 → 第一目标 → 初始位姿，KJ_Car 溶解显现。
+    /// </summary>
+    /// <param name="partName">零件名称；为空时使用上次正播记录的零件。</param>
+    public bool PlayTransitionReverse(string partName = null)
+    {
+        if (_isTransitioning)
+        {
+            return false;
+        }
+
+        if (string.IsNullOrEmpty(partName))
+        {
+            partName = _lastPartName;
+        }
+
+        if (string.IsNullOrEmpty(partName) || !TryResolvePart(partName, out Transform part))
+        {
+            Debug.LogError("[VehicleToPart] 倒播失败：未指定零件或找不到对应零件。");
+            return false;
+        }
+
+        if (_firstTarget == null || _secondTarget == null)
+        {
+            Debug.LogError("[VehicleToPart] 未配置第一或第二目标 Transform。");
+            return false;
+        }
+
+        if (!TryGetPartInitialState(part, out PartInitialState initialState))
+        {
+            Debug.LogWarning("[VehicleToPart] 未找到零件开局位姿缓存，倒播终点将使用当前位姿。");
+            ApplyCachedPoseFromCurrentTransform(part);
+        }
+        else
+        {
+            ApplyCachedPoseFromInitialState(part);
+        }
+
+        ResolveKjCarReference();
+        if (_kjCarRoot == null)
+        {
+            Debug.LogError("[VehicleToPart] 未找到 KJ_Car。");
+            return false;
+        }
+
+        PrepareKjCarDissolve();
+        KillSequence();
+        _isTransitioning = true;
+        _activePart = part;
+        _lastPartName = part.name;
+        part.gameObject.SetActive(true);
+        _kjCarRoot.SetActive(true);
+        _kjDissolve.SetDissolveAmount(1f);
+
+        _sequence = DOTween.Sequence();
+        AppendMoveToTarget(_sequence, part, _firstTarget, _secondMoveDuration);
+        JoinCarAppearTween(_sequence);
+        _sequence.AppendCallback(() => BeginReverseSecondPhase(part));
         return true;
     }
 
@@ -146,27 +229,27 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return false;
     }
 
-    private void BeginSecondPhase(Transform part)
+    private void BeginForwardSecondPhase(Transform part)
     {
-        Tween moveTween = BuildMoveTween(part, _secondTarget, _secondMoveDuration);
-        Tween dissolveTween = BuildKjDissolveTween();
-
         _sequence = DOTween.Sequence();
+        AppendMoveToTarget(_sequence, part, _secondTarget, _secondMoveDuration);
+        _sequence.OnComplete(CompleteForwardTransition);
+    }
+
+    private void BeginReverseSecondPhase(Transform part)
+    {
+        _sequence = DOTween.Sequence();
+        Tween moveTween = BuildMoveTweenToCachedPose(part, _firstMoveDuration);
         if (moveTween != null)
         {
             _sequence.Append(moveTween);
         }
-
-        if (dissolveTween != null)
+        else
         {
-            _sequence.Join(dissolveTween);
-        }
-        else if (moveTween == null)
-        {
-            _sequence.AppendInterval(_secondMoveDuration);
+            _sequence.AppendInterval(_firstMoveDuration);
         }
 
-        _sequence.OnComplete(CompleteTransition);
+        _sequence.OnComplete(CompleteReverseTransition);
     }
 
     private void AppendMoveToTarget(Sequence sequence, Transform part, Transform target, float duration)
@@ -179,6 +262,26 @@ public class VehicleToPartTransitionController : MonoBehaviour
         else
         {
             sequence.AppendInterval(duration);
+        }
+    }
+
+    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解隐藏（0→1）。</summary>
+    private void JoinCarHideTween(Sequence sequence)
+    {
+        Tween dissolveTween = BuildKjDissolveHideTween();
+        if (dissolveTween != null)
+        {
+            sequence.Join(dissolveTween);
+        }
+    }
+
+    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解显现（1→0）。</summary>
+    private void JoinCarAppearTween(Sequence sequence)
+    {
+        Tween kjAppearTween = BuildKjDissolveAppearTween();
+        if (kjAppearTween != null)
+        {
+            sequence.Join(kjAppearTween);
         }
     }
 
@@ -197,7 +300,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return moveSequence;
     }
 
-    private Tween BuildKjDissolveTween()
+    private Tween BuildKjDissolveHideTween()
     {
         if (_kjDissolve.MaterialCount == 0)
         {
@@ -215,7 +318,124 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }, 1f, _kjDissolveDuration).SetEase(_kjDissolveEase);
     }
 
-    private void CompleteTransition()
+    private Tween BuildKjDissolveAppearTween()
+    {
+        if (_kjDissolve.MaterialCount == 0)
+        {
+            return null;
+        }
+
+        float dissolveAmount = 1f;
+        return DOTween.To(() => dissolveAmount, value =>
+        {
+            dissolveAmount = value;
+            _kjDissolve.SetDissolveAmount(value);
+        }, 0f, _kjDissolveDuration).SetEase(_kjDissolveEase);
+    }
+
+    private Tween BuildMoveTweenToCachedPose(Transform part, float duration)
+    {
+        if (part == null)
+        {
+            return null;
+        }
+
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Join(part.DOMove(_cachedPartPosition, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DORotateQuaternion(_cachedPartRotation, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DOScale(_cachedPartLocalScale, duration).SetEase(_moveEase));
+        return moveSequence;
+    }
+
+    /// <summary>开局记录列表中所有零件的位姿与显隐状态。</summary>
+    private void CacheAllPartInitialStates()
+    {
+        _partInitialStates.Clear();
+        if (_partRoots == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            Transform part = _partRoots[i];
+            if (part == null)
+            {
+                continue;
+            }
+
+            part.gameObject.SetActive(false);
+
+            _partInitialStates[part.GetInstanceID()] = new PartInitialState
+            {
+                Position = part.position,
+                Rotation = part.rotation,
+                LocalScale = part.localScale,
+                IsActive = part.gameObject.activeSelf
+            };
+        }
+    }
+
+    /// <summary>将列表内零件立即还原为开局缓存的 Transform 与显隐状态。</summary>
+    private void RestoreAllPartsToInitialState()
+    {
+        if (_partRoots == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            Transform part = _partRoots[i];
+            if (part == null || !_partInitialStates.TryGetValue(part.GetInstanceID(), out PartInitialState state))
+            {
+                continue;
+            }
+
+            part.DOKill();
+            part.SetPositionAndRotation(state.Position, state.Rotation);
+            part.localScale = state.LocalScale;
+            part.gameObject.SetActive(state.IsActive);
+        }
+    }
+
+    private bool TryGetPartInitialState(Transform part, out PartInitialState state)
+    {
+        state = default;
+        if (part == null)
+        {
+            return false;
+        }
+
+        return _partInitialStates.TryGetValue(part.GetInstanceID(), out state);
+    }
+
+    private void ApplyCachedPoseFromInitialState(Transform part)
+    {
+        if (!TryGetPartInitialState(part, out PartInitialState state))
+        {
+            ApplyCachedPoseFromCurrentTransform(part);
+            return;
+        }
+
+        _cachedPartPosition = state.Position;
+        _cachedPartRotation = state.Rotation;
+        _cachedPartLocalScale = state.LocalScale;
+    }
+
+    private void ApplyCachedPoseFromCurrentTransform(Transform part)
+    {
+        if (part == null)
+        {
+            return;
+        }
+
+        _cachedPartPosition = part.position;
+        _cachedPartRotation = part.rotation;
+        _cachedPartLocalScale = part.localScale;
+    }
+
+    private void CompleteForwardTransition()
     {
         _isTransitioning = false;
         _kjDissolve.SetDissolveAmount(1f);
@@ -224,11 +444,46 @@ public class VehicleToPartTransitionController : MonoBehaviour
         {
             _kjCarRoot.SetActive(false);
         }
+
+        NotifyTransitionCompleted(isReverse: false);
+    }
+
+    private void CompleteReverseTransition()
+    {
+        _isTransitioning = false;
+        _kjDissolve.SetDissolveAmount(0f);
+
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(true);
+        }
+
+        NotifyTransitionCompleted(isReverse: true);
+    }
+
+    private void NotifyTransitionCompleted(bool isReverse)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        string partName = _lastPartName ?? string.Empty;
+        if (isReverse)
+        {
+            em.TriggerVehicleToPartTransitionReverseCompleted(partName);
+        }
+        else
+        {
+            em.TriggerVehicleToPartTransitionCompleted(partName);
+        }
     }
 
     private void PrepareKjCarDissolve()
     {
-        _kjDissolve.CollectFrom(_kjCarRoot, isShareMaterial: true);
+        // 使用材质实例，避免修改 sharedMaterial 污染 Part_CarLine 等资源
+        _kjDissolve.CollectFrom(_kjCarRoot, isShareMaterial: false);
         _kjDissolve.SetDissolveNoiseScale(_dissolveNoiseScale);
         _kjDissolve.SetDissolveAmount(0f);
     }
@@ -298,10 +553,22 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    [ContextMenu("测试：过渡到列表第一个零件")]
+    [ContextMenu("重新缓存零件开局位姿")]
+    private void EditorRecachePartInitialStates()
+    {
+        CacheAllPartInitialStates();
+    }
+
+    [ContextMenu("测试：正播（列表第一个零件）")]
     private void EditorPlayFirstPartTransition()
     {
         PlayTransition();
+    }
+
+    [ContextMenu("测试：倒播（上次正播零件）")]
+    private void EditorPlayReverseTransition()
+    {
+        PlayTransitionReverse();
     }
 #endif
 }
