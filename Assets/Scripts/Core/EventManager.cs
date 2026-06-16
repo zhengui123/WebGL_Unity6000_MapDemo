@@ -16,10 +16,13 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>地球 → 板块过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToPlateMapCompleted;
 
+    /// <summary>板块 → 地球过渡动画开始。</summary>
+    public event Action OnTransitionToEarthStarted;
+
     /// <summary>板块 → 地球过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToEarthCompleted;
 
-  /// <summary>板块界面 → 车辆界面过渡开始（参数为省份名）。</summary>
+    /// <summary>板块界面 → 车辆界面过渡开始（参数为省份名）。</summary>
     public event Action<string> OnPlateToVehicleViewTransitionStarted;
 
     /// <summary>板块界面 → 车辆界面过渡全部完成（参数为省份名）。</summary>
@@ -111,6 +114,11 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerTransitionToPlateMapCompleted()
     {
         OnTransitionToPlateMapCompleted?.Invoke();
+    }
+
+    public void TriggerTransitionToEarthStarted()
+    {
+        OnTransitionToEarthStarted?.Invoke();
     }
 
     public void TriggerTransitionToEarthCompleted()

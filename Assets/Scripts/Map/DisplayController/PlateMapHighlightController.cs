@@ -69,11 +69,47 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
     private void OnEnable()
     {
         RefreshModuleList();
+        SubscribePlateModeExitEvents();
     }
 
     private void OnDisable()
     {
+        UnsubscribePlateModeExitEvents();
         KillAllModuleEmissionTweens();
+    }
+
+    private void SubscribePlateModeExitEvents()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionStarted += HandlePlateModeExit;
+        em.OnTransitionToEarthStarted += HandlePlateModeExit;
+    }
+
+    private void UnsubscribePlateModeExitEvents()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionStarted -= HandlePlateModeExit;
+        em.OnTransitionToEarthStarted -= HandlePlateModeExit;
+    }
+
+    private void HandlePlateModeExit(string _)
+    {
+        ClearHighlight();
+    }
+
+    private void HandlePlateModeExit()
+    {
+        ClearHighlight();
     }
 
     /// <summary>重新收集子级模块。</summary>

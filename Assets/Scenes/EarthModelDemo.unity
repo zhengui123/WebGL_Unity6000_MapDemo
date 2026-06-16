@@ -30349,9 +30349,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartDemo
   _applyOnPlay: 1
-  _startState: 3
+  _startState: 4
+  _ensureEarthBaselineOnPlay: 1
   _provinceName: "\u5C71\u4E1C"
   _provinceModuleName: polySurface3
+  _partName: 
   _warmupFrames: 2
   _stepTimeoutSeconds: 30
 --- !u!4 &563856880

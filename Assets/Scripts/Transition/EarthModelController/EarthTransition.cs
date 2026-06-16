@@ -35,6 +35,9 @@ public class EarthTransition : UnitySingle<EarthTransition>
     private Vector3 _cachedEarthCameraLocalPos;
     private bool _hasCachedEarthCameraPos;
 
+    /// <summary>地球 ↔ 板块过渡序列是否正在播放。</summary>
+    public bool IsTransitioning => _transitionSequence != null && _transitionSequence.IsActive();
+
     #endregion
 
     #region 生命周期
@@ -125,6 +128,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
 
         BeginSequence();
         ResetFogDensity(0f);
+        EventManager.Instance?.TriggerTransitionToEarthStarted();
 
         _transitionSequence.Append(AnimateCameraAndFogIn(secondTargetLocalPos, showPlateMapAnimTime));
         _transitionSequence.AppendCallback(SwitchToEarthView);

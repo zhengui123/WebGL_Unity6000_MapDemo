@@ -4,49 +4,46 @@ using UnityEngine;
 
 /// <summary>
 /// 编辑器/运行时测试：开局按预设 <see cref="GameManager.ControlState"/> 快速进入对应界面。
-/// 跳转期间通过 <see cref="TransitionInstantDurationScope"/> 将过渡时长临时置 0，
-/// 结束后恢复各控制器 Inspector 配置，不影响正式过渡参数。
+/// 从当前操控级别出发，每次只播放<strong>相邻一级</strong>的正播或倒播过渡，直至到达目标。
+/// 地球 → 车辆 示例：地球→板块 → 板块聚焦 → 板块聚焦→城市→车辆。
 /// </summary>
 [DisallowMultipleComponent]
-[DefaultExecutionOrder(200)] // 晚于多数 Awake，确保单例与场景引用已就绪
+[DefaultExecutionOrder(200)]
 public class ControlStateStartDemo : MonoBehaviour
 {
     [Header("开局跳转")]
-    [Tooltip("进入 Play 后是否自动执行开局跳转")]
     [SerializeField] private bool _applyOnPlay = true;
-    [Tooltip("开局目标操控级别")]
     [SerializeField] private GameManager.ControlState _startState = GameManager.ControlState.EarthLevel;
+    [Tooltip("Play 进入时先将 GameManager 逻辑状态对齐为地球级（场景默认地球视角）")]
+    [SerializeField] private bool _ensureEarthBaselineOnPlay = true;
 
-    [Header("过渡参数（与正式流程一致，仅用于触发 API）")]
-    [Tooltip("车辆级及倒播编排使用的省份名")]
+    [Header("过渡参数（与正式流程一致）")]
     [SerializeField] private string _provinceName = "山东";
-    [Tooltip("省级聚焦使用的板块模块名（场景 GameObject 名）")]
     [SerializeField] private string _provinceModuleName = "polySurface3";
+    [SerializeField] private string _partName;
 
     [Header("启动时机")]
-    [Tooltip("Play 后等待帧数，避免与其它 Awake/Start 抢初始化顺序")]
     [SerializeField] private int _warmupFrames = 2;
-    [Tooltip("单步过渡最长等待秒数，超时打 Warning")]
     [SerializeField] private float _stepTimeoutSeconds = 30f;
 
-    /// <summary>是否正在执行开局跳转协程。</summary>
-    private bool _isBootstrapping;
+    private const int MaxTransitionSteps = 16;
 
+    private bool _isBootstrapping;
     public bool IsBootstrapping => _isBootstrapping;
+
+    private bool _stepDone;
 
     private void Start()
     {
-
         if (!_applyOnPlay)
         {
             return;
         }
 #if UNITY_EDITOR
-        StartCoroutine(BootstrapAfterWarmup());
+        StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline: _ensureEarthBaselineOnPlay));
 #endif
     }
 
-    /// <summary>编辑器 Inspector 按钮或运行时手动触发开局跳转。</summary>
     public void ApplyStartStateNow()
     {
         if (_isBootstrapping)
@@ -55,54 +52,40 @@ public class ControlStateStartDemo : MonoBehaviour
             return;
         }
 
-        StartCoroutine(BootstrapAfterWarmup());
+        StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline: false));
     }
 
-    /// <summary>预热若干帧后再开始跳转，降低初始化竞态。</summary>
-    private IEnumerator BootstrapAfterWarmup()
+    private IEnumerator BootstrapAfterWarmup(bool ensureEarthBaseline)
     {
         for (int i = 0; i < Mathf.Max(0, _warmupFrames); i++)
         {
             yield return null;
         }
 
-        yield return BootstrapToState(_startState);
+        yield return BootstrapToState(_startState, ensureEarthBaseline);
     }
 
-    /// <summary>
-    /// 核心流程：先归零到地球级，再按枚举顺序逐级正播至目标状态。
-    /// using 块内时长为 0，块结束后自动恢复各控制器原时长。
-    /// </summary>
-    private IEnumerator BootstrapToState(GameManager.ControlState targetState)
+    private IEnumerator BootstrapToState(GameManager.ControlState targetState, bool ensureEarthBaseline)
     {
         _isBootstrapping = true;
         try
         {
+            GameManager manager = GameManager.Instance;
+            if (manager == null)
+            {
+                Debug.LogWarning("[ControlStateStartDemo] 未找到 GameManager。");
+                yield break;
+            }
+
             using (TransitionInstantDurationScope.ApplyToLoadedScene())
             {
-                // 统一从地球级起步，若当前更高则先倒播还原
-                yield return ResetToEarthLevel();
-
-                if (targetState > GameManager.ControlState.EarthLevel)
+                if (ensureEarthBaseline)
                 {
-                    yield return GoToCountryLevel();
+                    GameManagerDemoAccess.ForceState(manager, GameManager.ControlState.EarthLevel);
+                    yield return null;
                 }
 
-                if (targetState > GameManager.ControlState.CountryLevel)
-                {
-                    yield return GoToProvinceLevel(_provinceModuleName);
-                }
-
-                if (targetState > GameManager.ControlState.ProvinceLevel)
-                {
-                    yield return GoToVehicleLevel(_provinceName);
-                }
-
-                // 零部件级尚无独立场景过渡，仅设置 GameManager 状态
-                if (targetState > GameManager.ControlState.VehicleLevel)
-                {
-                    ApplyPartLevelState();
-                }
+                yield return StepTowardTarget(manager, targetState);
             }
 
             LogCompleted(targetState);
@@ -113,70 +96,144 @@ public class ControlStateStartDemo : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// 将当前操控级别降到 EarthLevel：按 Part → Vehicle → Province → Country 顺序倒播或强制降级。
-    /// </summary>
-    private IEnumerator ResetToEarthLevel()
+    /// <summary>比较当前与目标，每次只执行一级正播或倒播。</summary>
+    private IEnumerator StepTowardTarget(GameManager manager, GameManager.ControlState targetState)
     {
-        GameManager manager = GameManager.Instance;
-        if (manager == null)
-        {
-            Debug.LogWarning("[ControlStateStartDemo] 未找到 GameManager。");
-            yield break;
-        }
+        GameManager.ControlState previousState = GameManagerDemoAccess.GetCurrentState(manager);
 
-        while (GameManagerDemoAccess.GetCurrentState(manager) > GameManager.ControlState.EarthLevel)
+        for (int step = 0; step < MaxTransitionSteps; step++)
         {
-            GameManager.ControlState state = GameManagerDemoAccess.GetCurrentState(manager);
-            switch (state)
+            GameManager.ControlState currentState = GameManagerDemoAccess.GetCurrentState(manager);
+            if (currentState == targetState)
             {
-                case GameManager.ControlState.PartLevel:
-                    // 无倒播 API，先降到 Vehicle 再走正式倒播链
-                    GameManagerDemoAccess.ForceState(manager, GameManager.ControlState.VehicleLevel);
-                    yield return null;
-                    break;
-
-                case GameManager.ControlState.VehicleLevel:
-                    yield return RunOrchestratorStep(
-                        () => MapApi.Instance.TransitionCityToPlateMap(_provinceName),
-                        "车辆 → 板块倒播");
-                    break;
-
-                case GameManager.ControlState.ProvinceLevel:
-                    yield return WaitForVoidEvent(
-                        h => EventManager.Instance.OnPlateMapRestoreCameraCompleted += h,
-                        h => EventManager.Instance.OnPlateMapRestoreCameraCompleted -= h,
-                        () => MapApi.Instance.RestorePlateMapCamera(),
-                        "省级相机还原");
-                    break;
-
-                case GameManager.ControlState.CountryLevel:
-                    yield return WaitForVoidEvent(
-                        h => EventManager.Instance.OnTransitionToEarthCompleted += h,
-                        h => EventManager.Instance.OnTransitionToEarthCompleted -= h,
-                        () => MapApi.Instance.TransitionToEarth(),
-                        "板块 → 地球");
-                    break;
-
-                default:
-                    GameManagerDemoAccess.ForceState(manager, GameManager.ControlState.EarthLevel);
-                    yield return null;
-                    break;
+                yield break;
             }
+
+            bool stepUp = currentState < targetState;
+            GameManager.ControlState expectedNext = stepUp
+                ? currentState + 1
+                : currentState - 1;
+
+            if (stepUp)
+            {
+                yield return PlayStepUp(currentState);
+            }
+            else
+            {
+                yield return PlayStepDown(currentState);
+            }
+
+            yield return WaitUntilControllersIdle();
+
+            GameManager.ControlState nextState = GameManagerDemoAccess.GetCurrentState(manager);
+            if (nextState == previousState)
+            {
+                Debug.LogWarning(
+                    $"[ControlStateStartDemo] 过渡后状态未变化：{previousState}，目标 {targetState}，中止。");
+                yield break;
+            }
+
+            if (nextState != expectedNext)
+            {
+                Debug.LogWarning(
+                    $"[ControlStateStartDemo] 状态跳变异常：{previousState} → {nextState}，期望 {expectedNext}。");
+            }
+
+            previousState = nextState;
+        }
+
+        Debug.LogWarning(
+            $"[ControlStateStartDemo] 超过最大步数 {MaxTransitionSteps}，当前 {GameManagerDemoAccess.GetCurrentState(manager)}，目标 {targetState}。");
+    }
+
+    #region 正播（当前 → 下一级）
+
+    private IEnumerator PlayStepUp(GameManager.ControlState currentState)
+    {
+        switch (currentState)
+        {
+            case GameManager.ControlState.EarthLevel:
+                // 地球 → 板块（国家级别）
+                yield return WaitForVoidEvent(
+                    h => EventManager.Instance.OnTransitionToPlateMapCompleted += h,
+                    h => EventManager.Instance.OnTransitionToPlateMapCompleted -= h,
+                    () => MapApi.Instance.TransitionToPlateMap(),
+                    "地球 → 板块");
+                break;
+
+            case GameManager.ControlState.CountryLevel:
+                // 板块 → 板块聚焦（省级）
+                yield return GoToProvinceLevel(_provinceModuleName);
+                break;
+
+            case GameManager.ControlState.ProvinceLevel:
+                // 板块聚焦 → GaodeMap → 城市 → 车辆
+                yield return GoToVehicleLevel(_provinceName);
+                break;
+
+            case GameManager.ControlState.VehicleLevel:
+                // 车辆 → 零件
+                yield return GoToPartLevel(_partName);
+                break;
+
+            default:
+                Debug.LogWarning($"[ControlStateStartDemo] 无法从 {currentState} 继续正播。");
+                yield break;
         }
     }
 
-    /// <summary>地球级 → 国家级别：地球过渡到板块地图。</summary>
-    private IEnumerator GoToCountryLevel()
+    #endregion
+
+    #region 倒播（当前 → 上一级）
+
+    private IEnumerator PlayStepDown(GameManager.ControlState currentState)
     {
-        yield return WaitForVoidEvent(
-            h => EventManager.Instance.OnTransitionToPlateMapCompleted += h,
-            h => EventManager.Instance.OnTransitionToPlateMapCompleted -= h,
-            () => MapApi.Instance.TransitionToPlateMap(),
-            "地球 → 板块");
+        switch (currentState)
+        {
+            case GameManager.ControlState.PartLevel:
+                yield return WaitForStringEvent(
+                    h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted += h,
+                    h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted -= h,
+                    () => MapApi.Instance.TransitionPartToVehicle(_partName),
+                    "零件 → 车辆倒播");
+                break;
+
+            case GameManager.ControlState.VehicleLevel:
+                // 车辆 → 城市 → GaodeMap → 板块聚焦
+                yield return WaitForStringEvent(
+                    h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted += h,
+                    h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted -= h,
+                    () => MapApi.Instance.TransitionCityToPlateMap(_provinceName),
+                    "车辆 → 板块聚焦倒播");
+                break;
+
+            case GameManager.ControlState.ProvinceLevel:
+                // 板块聚焦 → 板块（国家级别）
+                yield return WaitForVoidEvent(
+                    h => EventManager.Instance.OnPlateMapRestoreCameraCompleted += h,
+                    h => EventManager.Instance.OnPlateMapRestoreCameraCompleted -= h,
+                    () => MapApi.Instance.RestorePlateMapCamera(),
+                    "省级相机还原");
+                break;
+
+            case GameManager.ControlState.CountryLevel:
+                // 板块 → 地球
+                yield return WaitForVoidEvent(
+                    h => EventManager.Instance.OnTransitionToEarthCompleted += h,
+                    h => EventManager.Instance.OnTransitionToEarthCompleted -= h,
+                    () => MapApi.Instance.TransitionToEarth(),
+                    "板块 → 地球");
+                break;
+
+            default:
+                GameManagerDemoAccess.ForceState(GameManager.Instance, GameManager.ControlState.EarthLevel);
+                yield return null;
+                break;
+        }
     }
 
-    /// <summary>国家级别 → 省级：聚焦指定板块模块。</summary>
+    #endregion
+
     private IEnumerator GoToProvinceLevel(string moduleName)
     {
         if (string.IsNullOrWhiteSpace(moduleName))
@@ -186,51 +243,32 @@ public class ControlStateStartDemo : MonoBehaviour
         }
 
         string key = moduleName.Trim();
-        yield return WaitForStringEvent(
+        yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnPlateMapFocusModuleCompleted += h,
             h => EventManager.Instance.OnPlateMapFocusModuleCompleted -= h,
             () => MapApi.Instance.FocusPlateMapModule(key),
-            $"聚焦省级模块 {key}");
+            $"板块 → 板块聚焦 {key}");
     }
 
-    /// <summary>省级 → 车辆级：两阶段编排正播（板块 → Gaode → City）。</summary>
     private IEnumerator GoToVehicleLevel(string provinceName)
     {
-        yield return RunOrchestratorStep(
+        yield return WaitForBoolStringEvent(
+            h => EventManager.Instance.OnPlateToVehicleViewTransitionCompleted += h,
+            h => EventManager.Instance.OnPlateToVehicleViewTransitionCompleted -= h,
             () => MapApi.Instance.TransitionPlateMapToCity(provinceName),
-            "板块 → 车辆界面");
+            "板块聚焦 → 城市 → 车辆");
     }
 
-    /// <summary>车辆级 → 零部件级：仅更新 GameManager 状态（占位）。</summary>
-    private void ApplyPartLevelState()
+    private IEnumerator GoToPartLevel(string partName)
     {
-        GameManager manager = GameManager.Instance;
-        if (manager == null)
-        {
-            return;
-        }
-
-        GameManagerDemoAccess.ForceState(manager, GameManager.ControlState.PartLevel);
-        Debug.Log("[ControlStateStartDemo] 零部件级暂无独立过渡，已直接设置 GameManager 状态。");
+        string key = string.IsNullOrWhiteSpace(partName) ? null : partName.Trim();
+        yield return WaitForBoolStringEvent(
+            h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
+            h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
+            () => MapApi.Instance.TransitionVehicleToPart(key),
+            string.IsNullOrEmpty(key) ? "车辆 → 零件（默认）" : $"车辆 → 零件 {key}");
     }
 
-    /// <summary>启动编排器并轮询直至 <see cref="PlateToCityMapTransitionOrchestrator.IsOrchestrating"/> 为 false。</summary>
-    private IEnumerator RunOrchestratorStep(Func<bool> startAction, string stepName)
-    {
-        yield return WaitUntilControllersIdle();
-        if (!startAction())
-        {
-            yield return WaitUntilControllersIdle();
-            startAction();
-        }
-
-        yield return WaitUntil(
-            () => PlateToCityMapTransitionOrchestrator.Instance == null
-                || !PlateToCityMapTransitionOrchestrator.Instance.IsOrchestrating,
-            stepName);
-    }
-
-    /// <summary>订阅无参完成事件 → 触发 API → 等待事件回调。</summary>
     private IEnumerator WaitForVoidEvent(
         Action<Action> subscribe,
         Action<Action> unsubscribe,
@@ -252,11 +290,10 @@ public class ControlStateStartDemo : MonoBehaviour
         unsubscribe(OnStepDone);
     }
 
-    /// <summary>订阅带模块名参数的完成事件 → 触发 API → 等待事件回调。</summary>
-    private IEnumerator WaitForStringEvent(
+    private IEnumerator WaitForBoolStringEvent(
         Action<Action<string>> subscribe,
         Action<Action<string>> unsubscribe,
-        Action trigger,
+        Func<bool> tryStart,
         string stepName)
     {
         EventManager em = EventManager.Instance;
@@ -269,13 +306,34 @@ public class ControlStateStartDemo : MonoBehaviour
         _stepDone = false;
         subscribe(OnStepDoneWithName);
         yield return WaitUntilControllersIdle();
-        trigger();
+
+        if (!tryStart())
+        {
+            Debug.LogWarning($"[ControlStateStartDemo] {stepName} 启动失败。");
+            unsubscribe(OnStepDoneWithName);
+            yield break;
+        }
+
         yield return WaitUntil(() => _stepDone, stepName);
         unsubscribe(OnStepDoneWithName);
     }
 
-    /// <summary>当前步骤是否收到完成事件。</summary>
-    private bool _stepDone;
+    private IEnumerator WaitForStringEvent(
+        Action<Action<string>> subscribe,
+        Action<Action<string>> unsubscribe,
+        Action trigger,
+        string stepName)
+    {
+        yield return WaitForBoolStringEvent(
+            subscribe,
+            unsubscribe,
+            () =>
+            {
+                trigger();
+                return true;
+            },
+            stepName);
+    }
 
     private void OnStepDone()
     {
@@ -287,13 +345,11 @@ public class ControlStateStartDemo : MonoBehaviour
         _stepDone = true;
     }
 
-    /// <summary>等待场景中所有已知过渡控制器均空闲。</summary>
     private IEnumerator WaitUntilControllersIdle()
     {
         yield return WaitUntil(() => !IsAnyTransitionBusy(), "等待其它过渡结束");
     }
 
-    /// <summary>通用轮询等待，使用 unscaledDeltaTime 避免 Time.timeScale 影响。</summary>
     private IEnumerator WaitUntil(Func<bool> predicate, string stepName)
     {
         float elapsed = 0f;
@@ -309,9 +365,13 @@ public class ControlStateStartDemo : MonoBehaviour
         }
     }
 
-    /// <summary>检查各过渡单例是否仍在播放中。</summary>
     private static bool IsAnyTransitionBusy()
     {
+        if (EarthTransition.Instance != null && EarthTransition.Instance.IsTransitioning)
+        {
+            return true;
+        }
+
         if (PlateToCityMapTransitionOrchestrator.Instance != null
             && PlateToCityMapTransitionOrchestrator.Instance.IsOrchestrating)
         {
@@ -342,11 +402,21 @@ public class ControlStateStartDemo : MonoBehaviour
             return true;
         }
 
+        if (VehicleToPartTransitionController.Instance != null
+            && VehicleToPartTransitionController.Instance.IsTransitioning)
+        {
+            return true;
+        }
+
         return false;
     }
 
-    private static void LogCompleted(GameManager.ControlState state)
+    private static void LogCompleted(GameManager.ControlState targetState)
     {
-        Debug.Log($"[ControlStateStartDemo] 开局已进入 {state}（演示用瞬时过渡已结束，各控制器时长已恢复）。");
+        GameManager manager = GameManager.Instance;
+        GameManager.ControlState actual = manager != null
+            ? GameManagerDemoAccess.GetCurrentState(manager)
+            : targetState;
+        Debug.Log($"[ControlStateStartDemo] 跳转结束，目标 {targetState}，当前 {actual}。");
     }
 }
