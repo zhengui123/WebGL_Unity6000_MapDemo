@@ -15,6 +15,32 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         gridLine.enabled = false;
     }
 
+    private void OnEnable()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionStarted += HandleVehicleToPlateViewTransitionStarted;
+        em.OnVehicleToPartTransitionStarted += HandleVehicleToPartTransitionStarted;
+    }
+
+    private void OnDisable()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionStarted -= HandleVehicleToPlateViewTransitionStarted;
+        em.OnVehicleToPartTransitionStarted -= HandleVehicleToPartTransitionStarted;
+    }
+
     public void Update()
     {
         if (Input.GetKeyDown(KeyCode.Z))
@@ -38,9 +64,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         CarPanel.SetActive(false);
     }
 
-
-    public void OpenCarUI(string start3DObjectName)
+    public bool OpenCarUI(string start3DObjectName)
     {
+        if (!IsVehicleLevel())
+        {
+            Debug.LogWarning("[CarPanelManager] 当前非 VehicleLevel，无法打开车辆 UI。");
+            return false;
+        }
+
         if (string.IsNullOrEmpty(start3DObjectName))
         {
             start3DObjectName = _defaultStart3DObjectName;
@@ -50,10 +81,17 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         gridLine.enabled = true;
         _currentStart3DObjectName = start3DObjectName;
         gridLine.PlayDrawAnimation(start3DObjectName);
+        return true;
     }
 
     public void CloseCarUI()
     {
+        if (!IsVehicleLevel())
+        {
+            Debug.LogWarning("[CarPanelManager] 当前非 VehicleLevel，无法关闭车辆 UI。");
+            return;
+        }
+
         if (gridLine == null || !gridLine.enabled)
         {
             SetPanelInactive();
@@ -71,6 +109,27 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         gridLine.PlayReverseAnimation(targetName, OnGridLineReverseCompleted);
+    }
+
+    private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
+    {
+        OpenCarPanel();
+    }
+
+    private void HandleVehicleToPlateViewTransitionStarted(string provinceName)
+    {
+        CloseCarUI();
+    }
+
+    private void HandleVehicleToPartTransitionStarted(string partName)
+    {
+        CloseCarUI();
+    }
+
+    private static bool IsVehicleLevel()
+    {
+        GameManager manager = GameManager.Instance;
+        return manager != null && manager.CurrentState == GameManager.ControlState.VehicleLevel;
     }
 
     private void OnGridLineReverseCompleted()

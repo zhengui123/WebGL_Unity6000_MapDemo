@@ -29,7 +29,7 @@ Material:
     - _Alpha: 0.92
     - _CircuitIntensity: 0.238
     - _CircuitScale: 1
-    - _EmissionIntensity: 2.2
+    - _EmissionIntensity: 1.51
     - _GridIntensity: 1.38
     - _GridLineWidth: 0.5
     - _GridScale: 1

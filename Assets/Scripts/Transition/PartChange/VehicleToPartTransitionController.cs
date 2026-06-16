@@ -126,6 +126,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
+        EventManager.Instance?.TriggerVehicleToPartTransitionStarted(_lastPartName);
         part.gameObject.SetActive(true);
 
         _sequence = DOTween.Sequence();

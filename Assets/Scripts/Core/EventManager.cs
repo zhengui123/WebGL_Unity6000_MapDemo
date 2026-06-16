@@ -31,6 +31,15 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>车辆界面 → 板块界面过渡全部完成（参数为二维地图省份名）。</summary>
     public event Action<string> OnVehicleToPlateViewTransitionCompleted;
 
+    /// <summary>车辆 → 零件过渡开始（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionStarted;
+
+    /// <summary>车辆 → 零件过渡全部完成（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionCompleted;
+
+    /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionReverseCompleted;
+
     #region 板块-车辆过渡动画
     /// <summary>AllPlateMap → GaodeMap 过渡开始（参数为省份名）。</summary>
     public event Action<string> OnPlateToGaodeMapTransitionStarted;
@@ -80,11 +89,7 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>KJ_Car → RealyCar 车辆溶解切换全部完成。</summary>
     public event Action OnCarSwitchToRealyCarCompleted;
 
-    /// <summary>车辆 → 零件过渡全部完成（参数为零件名）。</summary>
-    public event Action<string> OnVehicleToPartTransitionCompleted;
 
-    /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
-    public event Action<string> OnVehicleToPartTransitionReverseCompleted;
 
     #endregion
 
@@ -191,6 +196,11 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerCarSwitchToRealyCarCompleted()
     {
         OnCarSwitchToRealyCarCompleted?.Invoke();
+    }
+
+    public void TriggerVehicleToPartTransitionStarted(string partName)
+    {
+        OnVehicleToPartTransitionStarted?.Invoke(partName);
     }
 
     public void TriggerVehicleToPartTransitionCompleted(string partName)

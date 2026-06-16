@@ -89,10 +89,7 @@ public class GameManager : UnitySingle<GameManager>
         {
             RestoreToEarthLevel();
         }
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            SwitchToProvinceLevel("polySurface3");
-        }
+       
         if (Input.GetKeyDown(KeyCode.Escape) && _currentState == ControlState.ProvinceLevel)
         {
             RestoreToCountryLevelFromProvince();

@@ -36,12 +36,14 @@ public class ControlStateStartDemo : MonoBehaviour
 
     private void Start()
     {
+
         if (!_applyOnPlay)
         {
             return;
         }
-
+#if UNITY_EDITOR
         StartCoroutine(BootstrapAfterWarmup());
+#endif
     }
 
     /// <summary>编辑器 Inspector 按钮或运行时手动触发开局跳转。</summary>

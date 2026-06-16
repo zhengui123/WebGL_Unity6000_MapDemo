@@ -9,6 +9,7 @@ using UnityEngine;
 public class PlateMapDisplayModule : MonoBehaviour
 {
     private static readonly int AlphaId = Shader.PropertyToID("_Alpha");
+    private static readonly int EmissionIntensityId = Shader.PropertyToID("_EmissionIntensity");
 
     [SerializeField] private string _displayName;
     [Tooltip("点击后相机局部 Y，越小越近")]
@@ -18,7 +19,10 @@ public class PlateMapDisplayModule : MonoBehaviour
     private Renderer[] _renderers;
     private MaterialPropertyBlock _propertyBlock;
     private float _currentAlpha = 1f;
+    private float _currentEmissionIntensity;
+    private float _baseEmissionIntensity = 2.2f;
     private Tween _alphaTween;
+    private Tween _emissionTween;
 
     /// <summary>显示名（留空则用 GameObject 名）。</summary>
     public string DisplayName => string.IsNullOrEmpty(_displayName) ? gameObject.name : _displayName;
@@ -31,6 +35,10 @@ public class PlateMapDisplayModule : MonoBehaviour
 
     public float CurrentAlpha => _currentAlpha;
 
+    public float BaseEmissionIntensity => _baseEmissionIntensity;
+
+    public float CurrentEmissionIntensity => _currentEmissionIntensity;
+
     private MeshCollider meshCollider;
     private void Awake()
     {
@@ -40,7 +48,9 @@ public class PlateMapDisplayModule : MonoBehaviour
         }
 
         CacheRenderers();
+        CacheBaseEmissionIntensity();
         ApplyAlphaImmediate(_currentAlpha);
+        ApplyEmissionIntensityImmediate(_currentEmissionIntensity);
     }
 
 
@@ -59,6 +69,7 @@ public class PlateMapDisplayModule : MonoBehaviour
     private void OnDestroy()
     {
         KillAlphaTween();
+        KillEmissionTween();
     }
 
     /// <summary>模块在世界空间下的包围盒（用于屏幕居中）。</summary>
@@ -101,6 +112,81 @@ public class PlateMapDisplayModule : MonoBehaviour
     public void ApplyAlphaImmediate(float alpha)
     {
         _currentAlpha = Mathf.Clamp01(alpha);
+        ApplyRendererProperty(AlphaId, _currentAlpha);
+    }
+
+    public void KillAlphaTween()
+    {
+        if (_alphaTween != null && _alphaTween.IsActive())
+        {
+            _alphaTween.Kill();
+        }
+
+        _alphaTween = null;
+    }
+
+    public void TweenEmissionIntensity(float targetIntensity, float duration, Ease ease = Ease.InOutQuad)
+    {
+        KillEmissionTween();
+        targetIntensity = Mathf.Max(0f, targetIntensity);
+
+        if (duration <= 0f)
+        {
+            ApplyEmissionIntensityImmediate(targetIntensity);
+            return;
+        }
+
+        _emissionTween = DOTween.To(() => _currentEmissionIntensity, ApplyEmissionIntensityImmediate, targetIntensity, duration)
+            .SetEase(ease)
+            .SetTarget(this);
+    }
+
+    public void ApplyEmissionIntensityImmediate(float intensity)
+    {
+        _currentEmissionIntensity = Mathf.Max(0f, intensity);
+        ApplyRendererProperty(EmissionIntensityId, _currentEmissionIntensity);
+    }
+
+    public void RestoreEmissionIntensity(float duration, Ease ease = Ease.InOutQuad)
+    {
+        TweenEmissionIntensity(_baseEmissionIntensity, duration, ease);
+    }
+
+    public void KillEmissionTween()
+    {
+        if (_emissionTween != null && _emissionTween.IsActive())
+        {
+            _emissionTween.Kill();
+        }
+
+        _emissionTween = null;
+    }
+
+    private void CacheBaseEmissionIntensity()
+    {
+        CacheRenderers();
+        if (_renderers == null || _renderers.Length == 0)
+        {
+            _baseEmissionIntensity = 2.2f;
+            _currentEmissionIntensity = _baseEmissionIntensity;
+            return;
+        }
+
+        Material mat = _renderers[0].sharedMaterial;
+        if (mat != null && mat.HasProperty(EmissionIntensityId))
+        {
+            _baseEmissionIntensity = mat.GetFloat(EmissionIntensityId);
+        }
+        else
+        {
+            _baseEmissionIntensity = 2.2f;
+        }
+
+        _currentEmissionIntensity = _baseEmissionIntensity;
+    }
+
+    private void ApplyRendererProperty(int propertyId, float value)
+    {
         CacheRenderers();
         if (_renderers == null || _renderers.Length == 0)
         {
@@ -117,20 +203,14 @@ public class PlateMapDisplayModule : MonoBehaviour
             }
 
             r.GetPropertyBlock(_propertyBlock);
-            _propertyBlock.SetFloat(AlphaId, _currentAlpha);
+            _propertyBlock.SetFloat(propertyId, value);
             r.SetPropertyBlock(_propertyBlock);
         }
-        ChangeColliderState();
-    }
 
-    public void KillAlphaTween()
-    {
-        if (_alphaTween != null && _alphaTween.IsActive())
+        if (propertyId == AlphaId)
         {
-            _alphaTween.Kill();
+            ChangeColliderState();
         }
-
-        _alphaTween = null;
     }
 
     private void CacheRenderers()
