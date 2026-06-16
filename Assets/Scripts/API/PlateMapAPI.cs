@@ -14,7 +14,7 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
     {
         if (!VehicleMapPointJson.TryParse(vehiclePointsJson, out VehicleMapPointData[] points, out string error))
         {
-            Debug.LogError($"[PlateMapVehiclePointEvents] UpdateVehiclePointsFromJson 失败：{error}");
+            Debug.LogError($"[PlateMapAPI] UpdateVehiclePointsFromJson 失败：{error}");
             return false;
         }
 

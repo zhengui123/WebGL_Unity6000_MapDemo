@@ -83,7 +83,7 @@ public class PlateMapGeoConverter : MonoBehaviour
             PlateMapKey,
             Rebuild,
             () => _isReady,
-            TryLongitudeLatitudeToLocalBridge,
+            TryLongitudeLatitudeToLocal,
             GetProvinceLongitudeLatitudeBounds);
     }
 
@@ -96,11 +96,6 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
 
         hub.UnregisterGeoConverterActions(PlateMapKey);
-    }
-
-    private bool TryLongitudeLatitudeToLocalBridge(double longitude, double latitude, out Vector3 localPosition)
-    {
-        return TryLongitudeLatitudeToLocal(longitude, latitude, out localPosition);
     }
 
     private void OnValidate()

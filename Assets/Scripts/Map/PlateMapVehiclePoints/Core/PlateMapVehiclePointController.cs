@@ -47,7 +47,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     [Header("运行")]
     [SerializeField] private bool _rebuildOnStart = true;
-    [SerializeField] private bool _enableRealtimeUpdate = true;
 
     private readonly List<Matrix4x4> _matrices = new List<Matrix4x4>(128);
     private readonly List<CarPointGpuInstanceData> _gpuInstanceData = new List<CarPointGpuInstanceData>(128);
@@ -57,9 +56,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private int _cachedMergeSettingsHash;
     private bool _mergeCacheValid;
     private bool _initialized;
-    private int _lastRawPointCount;
-    private int _lastMergedPointCount;
-    private int _lastMaxClusterSize;
     private float _lastAppliedCenterBrightness = float.NaN;
 
     public VehicleMapPointData[] VehiclePoints => _vehiclePoints;
@@ -117,6 +113,12 @@ public class PlateMapVehiclePointController : MonoBehaviour
         }
 
         ApplyCenterBrightness();
+
+        if (Application.isPlaying && _initialized)
+        {
+            InvalidateMergeCache();
+            RebuildGpuInstances();
+        }
     }
 
     private void Start()
@@ -132,18 +134,11 @@ public class PlateMapVehiclePointController : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void LateUpdate()
     {
-        if (!_initialized)
+        if (_initialized)
         {
-            return;
-        }
-
-        ApplyCenterBrightnessIfDirty();
-
-        if (_enableRealtimeUpdate)
-        {
-            RebuildGpuInstances();
+            ApplyCenterBrightnessIfDirty();
         }
     }
 
@@ -177,9 +172,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
         CleanupLegacyPointObjects();
         RebuildGpuInstances();
         _initialized = true;
-
-        int instanceCount = _instancedRenderer != null ? _instancedRenderer.InstanceCount : 0;
-
     }
 
     private float NormalizeDataValue(float dataValue)
@@ -204,18 +196,10 @@ public class PlateMapVehiclePointController : MonoBehaviour
         };
     }
 
-    private static int GetDrawCallCount(int instanceCount)
-    {
-        return instanceCount <= 0 ? 0 : (instanceCount + 1022) / 1023;
-    }
-
     private void RebuildGpuInstances()
     {
         _matrices.Clear();
         _gpuInstanceData.Clear();
-        _lastRawPointCount = 0;
-        _lastMergedPointCount = 0;
-        _lastMaxClusterSize = 0;
 
         VehicleMapPointData[] vehicleSource = GetPointsForDisplay();
         if (vehicleSource == null || vehicleSource.Length == 0)
@@ -257,9 +241,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         if (_mergeCacheValid && _cachedMergeSourceHash == sourceHash && _cachedMergeSettingsHash == settingsHash)
         {
-            _lastRawPointCount = _mergeInputs.Count;
-            _lastMergedPointCount = _mergedPoints.Count;
-            _lastMaxClusterSize = GetMaxClusterSize(_mergedPoints);
             return _mergedPoints.Count > 0;
         }
 
@@ -267,7 +248,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _mergedPoints.Clear();
 
         int rawCount = CollectMergeInputs(GetPointsForDisplay(), _mergeInputs);
-        _lastRawPointCount = rawCount;
 
         if (rawCount == 0)
         {
@@ -296,8 +276,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _cachedMergeSourceHash = sourceHash;
         _cachedMergeSettingsHash = settingsHash;
         _mergeCacheValid = true;
-        _lastMergedPointCount = _mergedPoints.Count;
-        _lastMaxClusterSize = GetMaxClusterSize(_mergedPoints);
         mergedPoints = _mergedPoints;
         return _mergedPoints.Count > 0;
     }
@@ -348,20 +326,6 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         float mul = 1f + (sourceCount - 1) * _mergeScalePerExtraVehicle;
         return Mathf.Min(mul, _mergeScaleMaxMultiplier);
-    }
-
-    private static int GetMaxClusterSize(IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> points)
-    {
-        int max = 0;
-        for (int i = 0; i < points.Count; i++)
-        {
-            if (points[i].SourceCount > max)
-            {
-                max = points[i].SourceCount;
-            }
-        }
-
-        return max;
     }
 
     private void InvalidateMergeCache()
@@ -467,7 +431,10 @@ public class PlateMapVehiclePointController : MonoBehaviour
             _mapRoot = transform;
         }
 
-        Hub.PublishGeoConverterRebuild(PlateMapKey);
+        if (!Hub.InvokeIsGeoConverterReady(PlateMapKey))
+        {
+            Hub.PublishGeoConverterRebuild(PlateMapKey);
+        }
 
         if (_instancedRenderer == null)
         {

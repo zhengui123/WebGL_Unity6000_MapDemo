@@ -27,6 +27,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         Hub.RegisterShouldIncludePointAction(_plateMapName, ShouldIncludePointAction);
         if (_logRebuildCompletedAction)
         {
+            Hub.VehiclePointsChangedAction += OnVehiclePointsChangedForLog;
         }
     }
 
@@ -39,6 +40,18 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         }
 
         hub.UnregisterShouldIncludePointAction(_plateMapName);
+        hub.VehiclePointsChangedAction -= OnVehiclePointsChangedForLog;
+    }
+
+    private void OnVehiclePointsChangedForLog(string plateMapName, VehicleMapPointData[] points)
+    {
+        if (plateMapName != _plateMapName)
+        {
+            return;
+        }
+
+        int count = points != null ? points.Length : 0;
+        Debug.Log($"[PlateMapShandongRandomPointsDemo] 板块「{plateMapName}」点位已更新，共 {count} 个。");
     }
 
 

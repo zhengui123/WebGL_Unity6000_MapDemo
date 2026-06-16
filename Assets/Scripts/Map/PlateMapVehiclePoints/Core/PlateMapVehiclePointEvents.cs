@@ -22,76 +22,77 @@ public delegate void PlateMapGetProvinceBoundsAction(
 [DisallowMultipleComponent]
 public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents>
 {
-    private readonly Dictionary<string, PlateMapSetVehiclePointsAction> _setVehiclePointsActions = new();
-    private readonly Dictionary<string, PlateMapGetCurrentVehiclePointsAction> _getCurrentVehiclePointsActions = new();
+    /// <summary>单板块全部回调，合并原 7 个独立字典。</summary>
+    private sealed class PlateHandlers
+    {
+        public PlateMapSetVehiclePointsAction SetVehiclePoints;
+        public PlateMapGetCurrentVehiclePointsAction GetCurrentVehiclePoints;
+        public PlateMapShouldIncludePointAction ShouldIncludePoint;
+        public PlateMapTransformPointsBeforeDisplayAction TransformBeforeDisplay;
+        public PlateMapGeoConverterRebuildAction GeoConverterRebuild;
+        public PlateMapIsGeoConverterReadyAction IsGeoConverterReady;
+        public PlateMapTryLonLatToLocalAction TryLonLatToLocal;
+        public PlateMapGetProvinceBoundsAction GetProvinceBounds;
 
-    private readonly Dictionary<string, PlateMapShouldIncludePointAction> _shouldIncludePointActions = new();
-    private readonly Dictionary<string, PlateMapTransformPointsBeforeDisplayAction> _transformPointsBeforeDisplayActions =
-        new();
+        public bool IsEmpty =>
+            SetVehiclePoints == null &&
+            GetCurrentVehiclePoints == null &&
+            ShouldIncludePoint == null &&
+            TransformBeforeDisplay == null &&
+            GeoConverterRebuild == null &&
+            IsGeoConverterReady == null &&
+            TryLonLatToLocal == null &&
+            GetProvinceBounds == null;
+    }
 
-    private readonly Dictionary<string, PlateMapGeoConverterRebuildAction> _geoConverterRebuildActions = new();
-    private readonly Dictionary<string, PlateMapIsGeoConverterReadyAction> _isGeoConverterReadyActions = new();
-    private readonly Dictionary<string, PlateMapTryLonLatToLocalAction> _tryLonLatToLocalActions = new();
-    private readonly Dictionary<string, PlateMapGetProvinceBoundsAction> _getProvinceBoundsActions = new();
+    private readonly Dictionary<string, PlateHandlers> _plates = new();
 
     public event Action<string, VehicleMapPointData[]> VehiclePointsWillChangeAction;
     public event Action<string, VehicleMapPointData[]> VehiclePointsChangedAction;
     public event Action<string> RebuildStartedAction;
 
-    private void Awake()
-    {
-        if (Instance != null && Instance != this)
-        {
-            Debug.LogWarning("[PlateMapVehiclePointEvents] 场景中存在多个实例，将销毁重复对象。");
-            Destroy(gameObject);
-            return;
-        }
-
-        Instance = this;
-    }
-
     #region 注册 / 注销（板块名为 gameObject.name）
 
     public void RegisterSetVehiclePointsAction(string plateMapName, PlateMapSetVehiclePointsAction action)
     {
-        _setVehiclePointsActions[plateMapName] = action;
+        GetOrCreateHandlers(plateMapName).SetVehiclePoints = action;
     }
 
     public void UnregisterSetVehiclePointsAction(string plateMapName)
     {
-        _setVehiclePointsActions.Remove(plateMapName);
+        ClearHandler(plateMapName, h => h.SetVehiclePoints = null);
     }
 
     public void RegisterGetCurrentVehiclePointsAction(string plateMapName, PlateMapGetCurrentVehiclePointsAction action)
     {
-        _getCurrentVehiclePointsActions[plateMapName] = action;
+        GetOrCreateHandlers(plateMapName).GetCurrentVehiclePoints = action;
     }
 
     public void UnregisterGetCurrentVehiclePointsAction(string plateMapName)
     {
-        _getCurrentVehiclePointsActions.Remove(plateMapName);
+        ClearHandler(plateMapName, h => h.GetCurrentVehiclePoints = null);
     }
 
     public void RegisterShouldIncludePointAction(string plateMapName, PlateMapShouldIncludePointAction action)
     {
-        _shouldIncludePointActions[plateMapName] = action;
+        GetOrCreateHandlers(plateMapName).ShouldIncludePoint = action;
     }
 
     public void UnregisterShouldIncludePointAction(string plateMapName)
     {
-        _shouldIncludePointActions.Remove(plateMapName);
+        ClearHandler(plateMapName, h => h.ShouldIncludePoint = null);
     }
 
     public void RegisterTransformPointsBeforeDisplayAction(
         string plateMapName,
         PlateMapTransformPointsBeforeDisplayAction action)
     {
-        _transformPointsBeforeDisplayActions[plateMapName] = action;
+        GetOrCreateHandlers(plateMapName).TransformBeforeDisplay = action;
     }
 
     public void UnregisterTransformPointsBeforeDisplayAction(string plateMapName)
     {
-        _transformPointsBeforeDisplayActions.Remove(plateMapName);
+        ClearHandler(plateMapName, h => h.TransformBeforeDisplay = null);
     }
 
     public void RegisterGeoConverterActions(
@@ -101,18 +102,25 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         PlateMapTryLonLatToLocalAction lonLatToLocalAction,
         PlateMapGetProvinceBoundsAction boundsAction)
     {
-        _geoConverterRebuildActions[plateMapName] = rebuildAction;
-        _isGeoConverterReadyActions[plateMapName] = readyAction;
-        _tryLonLatToLocalActions[plateMapName] = lonLatToLocalAction;
-        _getProvinceBoundsActions[plateMapName] = boundsAction;
+        PlateHandlers handlers = GetOrCreateHandlers(plateMapName);
+        handlers.GeoConverterRebuild = rebuildAction;
+        handlers.IsGeoConverterReady = readyAction;
+        handlers.TryLonLatToLocal = lonLatToLocalAction;
+        handlers.GetProvinceBounds = boundsAction;
     }
 
     public void UnregisterGeoConverterActions(string plateMapName)
     {
-        _geoConverterRebuildActions.Remove(plateMapName);
-        _isGeoConverterReadyActions.Remove(plateMapName);
-        _tryLonLatToLocalActions.Remove(plateMapName);
-        _getProvinceBoundsActions.Remove(plateMapName);
+        if (!_plates.TryGetValue(plateMapName, out PlateHandlers handlers))
+        {
+            return;
+        }
+
+        handlers.GeoConverterRebuild = null;
+        handlers.IsGeoConverterReady = null;
+        handlers.TryLonLatToLocal = null;
+        handlers.GetProvinceBounds = null;
+        RemoveIfEmpty(plateMapName, handlers);
     }
 
     #endregion
@@ -121,22 +129,21 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
 
     public bool PublishSetVehiclePoints(string plateMapName, VehicleMapPointData[] points, bool syncNow = true)
     {
-        if (!_setVehiclePointsActions.TryGetValue(plateMapName, out PlateMapSetVehiclePointsAction action))
+        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.SetVehiclePoints == null)
         {
             Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 SetVehiclePointsAction。");
             return false;
         }
 
-        action.Invoke(points, syncNow);
+        handlers.SetVehiclePoints.Invoke(points, syncNow);
         return true;
     }
 
-
     public void PublishGeoConverterRebuild(string plateMapName)
     {
-        if (_geoConverterRebuildActions.TryGetValue(plateMapName, out PlateMapGeoConverterRebuildAction action))
+        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.GeoConverterRebuild != null)
         {
-            action.Invoke();
+            handlers.GeoConverterRebuild.Invoke();
         }
     }
 
@@ -159,15 +166,14 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         RebuildStartedAction?.Invoke(plateMapName);
     }
 
-
     public bool InvokeShouldIncludePoint(string plateMapName, VehicleMapPointData data)
     {
-        if (!_shouldIncludePointActions.TryGetValue(plateMapName, out PlateMapShouldIncludePointAction action))
+        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.ShouldIncludePoint == null)
         {
             return true;
         }
 
-        return action.Invoke(data);
+        return handlers.ShouldIncludePoint.Invoke(data);
     }
 
     public VehicleMapPointData[] InvokeTransformPointsBeforeDisplay(string plateMapName, VehicleMapPointData[] source)
@@ -177,11 +183,12 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             return null;
         }
 
-        return _transformPointsBeforeDisplayActions.TryGetValue(
-            plateMapName,
-            out PlateMapTransformPointsBeforeDisplayAction action)
-            ? action.Invoke(source)
-            : source;
+        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.TransformBeforeDisplay != null)
+        {
+            return handlers.TransformBeforeDisplay.Invoke(source);
+        }
+
+        return source;
     }
 
     public bool InvokeTryLongitudeLatitudeToLocal(
@@ -191,18 +198,19 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         out Vector3 localPosition)
     {
         localPosition = Vector3.zero;
-        if (!_tryLonLatToLocalActions.TryGetValue(plateMapName, out PlateMapTryLonLatToLocalAction action))
+        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.TryLonLatToLocal == null)
         {
             return false;
         }
 
-        return action.Invoke(longitude, latitude, out localPosition);
+        return handlers.TryLonLatToLocal.Invoke(longitude, latitude, out localPosition);
     }
 
     public bool InvokeIsGeoConverterReady(string plateMapName)
     {
-        return _isGeoConverterReadyActions.TryGetValue(plateMapName, out PlateMapIsGeoConverterReadyAction action) &&
-               action.Invoke();
+        return TryGetHandlers(plateMapName, out PlateHandlers handlers) &&
+               handlers.IsGeoConverterReady != null &&
+               handlers.IsGeoConverterReady.Invoke();
     }
 
     public bool InvokeGetProvinceLongitudeLatitudeBounds(
@@ -213,23 +221,59 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         out double northLatitude)
     {
         westLongitude = eastLongitude = southLatitude = northLatitude = 0;
-        if (!_getProvinceBoundsActions.TryGetValue(plateMapName, out PlateMapGetProvinceBoundsAction action))
+        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.GetProvinceBounds == null)
         {
             return false;
         }
 
-        action.Invoke(out westLongitude, out eastLongitude, out southLatitude, out northLatitude);
+        handlers.GetProvinceBounds.Invoke(out westLongitude, out eastLongitude, out southLatitude, out northLatitude);
         return true;
     }
 
     public VehicleMapPointData[] InvokeGetCurrentVehiclePoints(string plateMapName)
     {
-        return _getCurrentVehiclePointsActions.TryGetValue(
-            plateMapName,
-            out PlateMapGetCurrentVehiclePointsAction action)
-            ? action.Invoke()
-            : null;
+        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.GetCurrentVehiclePoints != null)
+        {
+            return handlers.GetCurrentVehiclePoints.Invoke();
+        }
+
+        return null;
     }
 
     #endregion
+
+    private PlateHandlers GetOrCreateHandlers(string plateMapName)
+    {
+        if (!_plates.TryGetValue(plateMapName, out PlateHandlers handlers))
+        {
+            handlers = new PlateHandlers();
+            _plates[plateMapName] = handlers;
+        }
+
+        return handlers;
+    }
+
+    private bool TryGetHandlers(string plateMapName, out PlateHandlers handlers)
+    {
+        return _plates.TryGetValue(plateMapName, out handlers);
+    }
+
+    private void ClearHandler(string plateMapName, Action<PlateHandlers> clear)
+    {
+        if (!_plates.TryGetValue(plateMapName, out PlateHandlers handlers))
+        {
+            return;
+        }
+
+        clear(handlers);
+        RemoveIfEmpty(plateMapName, handlers);
+    }
+
+    private void RemoveIfEmpty(string plateMapName, PlateHandlers handlers)
+    {
+        if (handlers.IsEmpty)
+        {
+            _plates.Remove(plateMapName);
+        }
+    }
 }
