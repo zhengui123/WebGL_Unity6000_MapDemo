@@ -34,7 +34,7 @@ public class UnitySingle<T> : MonoBehaviour where T : UnitySingle<T>
         }
     }
 
-    public void Awake()
+    public virtual void Awake()
     {
         if (instance != null && instance != this)
         {

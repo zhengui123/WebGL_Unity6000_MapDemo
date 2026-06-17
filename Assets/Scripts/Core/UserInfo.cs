@@ -13,8 +13,9 @@ public class UserInfo : UnitySingle<UserInfo>
     public string userName;
 
 
-    public void Awake()
+    public override void Awake()
     {
+        base.Awake();
         userID = Guid.NewGuid().ToString();
         userName = "userName-test" + 001;
     }

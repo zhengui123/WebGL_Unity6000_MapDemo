@@ -98,6 +98,7 @@ public class PlateMapGeoConverter : MonoBehaviour
         hub.UnregisterGeoConverterActions(PlateMapKey);
     }
 
+    //编辑器修改时触发
     private void OnValidate()
     {
         if (!Application.isPlaying)

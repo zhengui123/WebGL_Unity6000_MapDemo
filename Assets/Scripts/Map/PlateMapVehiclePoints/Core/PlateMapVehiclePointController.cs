@@ -51,7 +51,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private readonly List<Matrix4x4> _matrices = new List<Matrix4x4>(128);
     private readonly List<CarPointGpuInstanceData> _gpuInstanceData = new List<CarPointGpuInstanceData>(128);
     private readonly List<PlateMapVehiclePointMerger.InputPoint> _mergeInputs = new List<PlateMapVehiclePointMerger.InputPoint>(128);
-    private readonly List<PlateMapVehiclePointMerger.MergedPoint> _mergedPoints = new List<PlateMapVehiclePointMerger.MergedPoint>(128);
+    public readonly List<PlateMapVehiclePointMerger.MergedPoint> _mergedPoints = new List<PlateMapVehiclePointMerger.MergedPoint>(128);
     private int _cachedMergeSourceHash;
     private int _cachedMergeSettingsHash;
     private bool _mergeCacheValid;
@@ -123,6 +123,9 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void Start()
     {
+
+
+        PlateMapVehiclePointEvents.Instance.SetPlateMapName(PlateMapKey);
         ResolveReferences();
         if (_rebuildOnStart)
         {

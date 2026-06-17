@@ -30349,7 +30349,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartDemo
   _applyOnPlay: 1
-  _startState: 4
+  _startState: 2
   _ensureEarthBaselineOnPlay: 1
   _provinceName: "\u5C71\u4E1C"
   _provinceModuleName: polySurface3
@@ -69233,6 +69233,7 @@ Transform:
   m_LocalScale: {x: 15000, y: 15000, z: 15000}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 1458947380}
   - {fileID: 6126028031482390969}
   m_Father: {fileID: 137802905}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -73303,6 +73304,52 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1436921568}
   m_Mesh: {fileID: 4300000, guid: de54ebd2128dfcc4bab33a76803d043c, type: 3}
+--- !u!1 &1438777470
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1438777472}
+  - component: {fileID: 1438777471}
+  m_Layer: 0
+  m_Name: PoiDemo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1438777471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438777470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e0a57cda6abbd148995d102c9b556d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::POI_Demo
+  poiManager: {fileID: 1560363273}
+  plateMapVehiclePointController: {fileID: 6126028031482390972}
+--- !u!4 &1438777472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1438777470}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.06883257, y: -0.032495108, z: 0.040194586}
+  m_LocalScale: {x: 0.00006666667, y: 0.00006666667, z: 0.00006666667}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1560363272}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1439258942
 GameObject:
   m_ObjectHideFlags: 0
@@ -74463,6 +74510,11 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1458791726}
   m_Mesh: {fileID: 4300000, guid: 13e8234257743cd43b1b8c98a3ab9370, type: 3}
+--- !u!4 &1458947380 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7515587463870879443, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
+  m_PrefabInstance: {fileID: 6363827375721309284}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1458965910
 GameObject:
   m_ObjectHideFlags: 0
@@ -79710,6 +79762,59 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b521b47354a10e840bc390a19fe5c40a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CityHideTransitionDemo
+--- !u!1 &1560363271
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1560363272}
+  - component: {fileID: 1560363273}
+  m_Layer: 0
+  m_Name: PoiCManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1560363272
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560363271}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.002, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1438777472}
+  m_Father: {fileID: 6126028031482390969}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1560363273
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1560363271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c7b0b1092ba3e047bfc57aae4c72816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::POI_Manager
+  poiData:
+    type: 0
+    obj: {fileID: 524913973072024973, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
+    x: 0
+    y: 0
+    localPosition: {x: 0, y: 0, z: 0}
+  _waitForGeoConverterReady: 1
+  poiList: []
 --- !u!1 &1560886627
 GameObject:
   m_ObjectHideFlags: 0
@@ -93474,7 +93579,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1773839546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -105916,6 +106021,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fa10a332b6d78e4caf19d6a24644f41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointEvents
+  plateMapName: 
+  plateMapNameList: []
 --- !u!4 &1991451754
 Transform:
   m_ObjectHideFlags: 0
@@ -114083,7 +114190,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 1390008880049182587, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1560363272}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 6199007169313579943, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       insertIndex: -1
@@ -115603,6 +115713,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1390008880049182587, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
   m_PrefabInstance: {fileID: 161437002835538100}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &6126028031482390972 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
+  m_PrefabInstance: {fileID: 161437002835538100}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &6187912193681263261
 Transform:
   m_ObjectHideFlags: 0
@@ -115641,23 +115762,27 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 0}
+    m_TransformParent: {fileID: 1332108061}
     m_Modifications:
     - target: {fileID: 524913973072024973, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
       propertyPath: m_Name
       value: POI_Point
       objectReference: {fileID: 0}
+    - target: {fileID: 524913973072024973, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7515587463870879443, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 28.19067
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7515587463870879443, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -743.39
+      value: 0.0084
       objectReference: {fileID: 0}
     - target: {fileID: 7515587463870879443, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -482.49304
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7515587463870879443, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
       propertyPath: m_LocalRotation.w
@@ -116186,8 +116311,7 @@ SceneRoots:
   - {fileID: 147679207}
   - {fileID: 1560082574}
   - {fileID: 997992917}
-  - {fileID: 1740864825}
   - {fileID: 960054155}
-  - {fileID: 2008089229}
   - {fileID: 563856880}
-  - {fileID: 6363827375721309284}
+  - {fileID: 1740864825}
+  - {fileID: 2008089229}
