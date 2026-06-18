@@ -56,6 +56,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private int _cachedMergeSettingsHash;
     private bool _mergeCacheValid;
     private bool _initialized;
+    private bool _wasDisplayActiveBeforeDisable;
     private float _lastAppliedCenterBrightness = float.NaN;
 
     public VehicleMapPointData[] VehiclePoints => _vehiclePoints;
@@ -80,10 +81,19 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private void OnEnable()
     {
         RegisterToEventHub();
+
+        // Start 仅在首次激活执行；禁用后再启用需在此恢复 GPU 显示与省界过滤结果
+        if (Application.isPlaying && _wasDisplayActiveBeforeDisable)
+        {
+            RefreshDisplayFromVehiclePoints();
+        }
     }
 
     private void OnDisable()
     {
+        _wasDisplayActiveBeforeDisable = _initialized;
+        _initialized = false;
+        InvalidateMergeCache();
         UnregisterFromEventHub();
     }
 
@@ -208,7 +218,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _gpuInstanceData.Clear();
 
         VehicleMapPointData[] vehicleSource = GetPointsForDisplay();
-        if (vehicleSource == null || vehicleSource.Length == 0)
+        if (vehicleSource == null)
         {
             _instancedRenderer.ClearInstances();
             InvalidateMergeCache();
@@ -222,7 +232,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         _instancedRenderer.SyncTransformSettings(_pointHeightOffset, _pointLocalScale);
 
-        if (!TryGetMergedPointsForDisplay(out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedDisplay))
+        if (!TryGetMergedPointsForDisplay(vehicleSource, out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedDisplay))
         {
             _instancedRenderer.ClearInstances();
             return;
@@ -239,10 +249,12 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _instancedRenderer.SetInstances(_matrices, _gpuInstanceData);
     }
 
-    private bool TryGetMergedPointsForDisplay(out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedPoints)
+    private bool TryGetMergedPointsForDisplay(
+        VehicleMapPointData[] vehicleSource,
+        out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedPoints)
     {
         mergedPoints = _mergedPoints;
-        int sourceHash = ComputeVehiclePointsSourceHash();
+        int sourceHash = ComputeVehiclePointsSourceHash(vehicleSource);
         int settingsHash = ComputeMergeSettingsHash();
 
         if (_mergeCacheValid && _cachedMergeSourceHash == sourceHash && _cachedMergeSettingsHash == settingsHash)
@@ -253,7 +265,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _mergeInputs.Clear();
         _mergedPoints.Clear();
 
-        int rawCount = CollectMergeInputs(GetPointsForDisplay(), _mergeInputs);
+        int rawCount = CollectMergeInputs(vehicleSource, _mergeInputs);
 
         if (rawCount == 0)
         {
@@ -351,12 +363,11 @@ public class PlateMapVehiclePointController : MonoBehaviour
         return Hub.InvokeTransformPointsBeforeDisplay(PlateMapKey, _vehiclePoints);
     }
 
-    private int ComputeVehiclePointsSourceHash()
+    private int ComputeVehiclePointsSourceHash(VehicleMapPointData[] source)
     {
         unchecked
         {
             int hash = 17;
-            VehicleMapPointData[] source = GetPointsForDisplay();
             if (source == null)
             {
                 return hash;

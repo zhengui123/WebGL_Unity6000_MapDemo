@@ -96,11 +96,27 @@ public class PlateMapGeoConverter : MonoBehaviour
         CacheVehiclePointController();
         RegisterToVehiclePointEvents();
         PlateMapVehiclePointEvents.Instance.VehiclePointsChangedAction += OnVehiclePointsChanged;
+
+        // Start 不会在禁用后再启用时重跑，省界过滤须在 OnEnable 重新注册
+        if (Application.isPlaying)
+        {
+            ApplyProvinceBoundaryFilterState();
+        }
     }
 
     private void Start()
     {
-        ApplyProvinceBoundaryFilterState();
+        // 首次 Play 时 OnEnable 已注册；保留 Start 以覆盖仅 Awake 后 Hub 尚未就绪的边界情况
+        if (!_useProvinceBoundary)
+        {
+            return;
+        }
+
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub != null && !hub.HasShouldIncludePointAction(PlateMapKey))
+        {
+            ApplyProvinceBoundaryFilterState();
+        }
     }
 
     private void OnDisable()
@@ -232,7 +248,6 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
         hub.RegisterShouldIncludePointAction(PlateMapKey, ShouldIncludePointForDisplay);
-        hub.RegisterTransformPointsBeforeDisplayAction(PlateMapKey, TransformPointsBeforeDisplay);
     }
 
     private void UnregisterProvinceBoundaryFilterIfNeeded()
@@ -244,7 +259,6 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
 
         hub.UnregisterShouldIncludePointAction(PlateMapKey);
-        hub.UnregisterTransformPointsBeforeDisplayAction(PlateMapKey);
     }
 
     private bool ShouldIncludePointForDisplay(VehicleMapPointData data)
@@ -255,16 +269,6 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
 
         return _provinceFilter.ContainsInProvince(data.longitude, data.latitude);
-    }
-
-    private VehicleMapPointData[] TransformPointsBeforeDisplay(VehicleMapPointData[] source)
-    {
-        if (!_useProvinceBoundary || source == null)
-        {
-            return source;
-        }
-
-        return _provinceFilter.FilterVehiclePointsInProvince(source);
     }
 
     private void ApplyProvinceBoundaryFilterState()

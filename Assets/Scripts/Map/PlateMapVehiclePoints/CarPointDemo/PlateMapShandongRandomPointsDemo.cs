@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// 山东省内测试点位随机生成（Demo）。经 <see cref="PlateMapVehiclePointEvents"/> 按板块名推送。
@@ -41,6 +42,17 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         RegisterProvinceFilter();
     }
 
+    public InputField inputText;
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.M))
+        {
+          pointCount = int.Parse(inputText.text);
+            GenerateRandomVehiclePointsInShandongMenu();
+        }
+        
+    }
+
     private void OnDisable()
     {
         PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
@@ -52,7 +64,6 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         if (!ShouldSkipProvinceFilterRegistration())
         {
             hub.UnregisterShouldIncludePointAction(_plateMapName);
-            hub.UnregisterTransformPointsBeforeDisplayAction(_plateMapName);
         }
 
         hub.VehiclePointsChangedAction -= OnVehiclePointsChangedForLog;
@@ -67,12 +78,6 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     private void RegisterProvinceFilter()
     {
         Hub.RegisterShouldIncludePointAction(_plateMapName, ShouldIncludePointAction);
-        Hub.RegisterTransformPointsBeforeDisplayAction(_plateMapName, TransformPointsBeforeDisplay);
-    }
-
-    private VehicleMapPointData[] TransformPointsBeforeDisplay(VehicleMapPointData[] source)
-    {
-        return _provinceFilter.FilterVehiclePointsInProvince(source);
     }
 
     private void OnVehiclePointsChangedForLog(string plateMapName, VehicleMapPointData[] points)
