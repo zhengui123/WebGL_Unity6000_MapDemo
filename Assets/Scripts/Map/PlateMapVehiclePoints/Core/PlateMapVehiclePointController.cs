@@ -26,6 +26,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
     [SerializeField] private bool _enableProximityMerge = true;
     [Tooltip("地图局部 XZ 平面距离小于该值则合并")]
     [SerializeField] private float _mergeDistanceLocal = 0.002f;
+    [Tooltip("勾选：簇位置取平均值（并查集传递合并）；不勾选：以判定点为圆心，位置取圆心坐标")]
+    [SerializeField] private bool _mergeUseAveragePosition;
     [SerializeField] private float _mergeScalePerExtraVehicle = 0.35f;
     [SerializeField] private float _mergeScaleMaxMultiplier = 3f;
 
@@ -322,7 +324,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         if (_enableProximityMerge)
         {
-            PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints);
+            PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints, _mergeUseAveragePosition);
         }
         else
         {
@@ -440,6 +442,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
             PlateMapVehiclePointEvents hub = Hub;
             int hash = 17;
             hash = hash * 31 + (_enableProximityMerge ? 1 : 0);
+            hash = hash * 31 + (_mergeUseAveragePosition ? 1 : 0);
             hash = hash * 31 + _mergeDistanceLocal.GetHashCode();
             hash = hash * 31 + _mergeScalePerExtraVehicle.GetHashCode();
             hash = hash * 31 + _mergeScaleMaxMultiplier.GetHashCode();
