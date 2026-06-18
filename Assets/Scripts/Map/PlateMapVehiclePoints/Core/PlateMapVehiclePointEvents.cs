@@ -14,6 +14,9 @@ public delegate bool PlateMapShouldIncludePointAction(VehicleMapPointData data);
 /// <summary>显示前批量变换点位（如去重、裁剪）；未注册时原样返回。</summary>
 public delegate VehicleMapPointData[] PlateMapTransformPointsBeforeDisplayAction(VehicleMapPointData[] source);
 
+/// <summary>按当前数据与过滤规则重建 GPU 显示（不修改点位源数据）。</summary>
+public delegate void PlateMapRefreshVehiclePointsDisplayAction();
+
 /// <summary>重建板块地理映射（由 <see cref="PlateMapGeoConverter"/> 实现）。</summary>
 public delegate void PlateMapGeoConverterRebuildAction();
 
@@ -65,6 +68,9 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         /// <summary>可选；显示前对整批点位做变换。</summary>
         public PlateMapTransformPointsBeforeDisplayAction TransformBeforeDisplay;
 
+        /// <summary>由 Controller 注册，仅刷新 GPU 显示。</summary>
+        public PlateMapRefreshVehiclePointsDisplayAction RefreshVehiclePointsDisplay;
+
         /// <summary>由 GeoConverter 注册，触发锚点/网格映射重建。</summary>
         public PlateMapGeoConverterRebuildAction GeoConverterRebuild;
 
@@ -83,6 +89,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             GetCurrentVehiclePoints == null &&
             ShouldIncludePoint == null &&
             TransformBeforeDisplay == null &&
+            RefreshVehiclePointsDisplay == null &&
             GeoConverterRebuild == null &&
             IsGeoConverterReady == null &&
             TryLonLatToLocal == null &&
@@ -158,6 +165,32 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         ClearHandler(plateMapName, h => h.TransformBeforeDisplay = null);
     }
 
+    /// <summary>注册仅刷新 GPU 显示（不修改点位源数据）。</summary>
+    public void RegisterRefreshVehiclePointsDisplayAction(
+        string plateMapName,
+        PlateMapRefreshVehiclePointsDisplayAction action)
+    {
+        GetOrCreateHandlers(plateMapName).RefreshVehiclePointsDisplay = action;
+    }
+
+    /// <summary>注销 GPU 显示刷新回调。</summary>
+    public void UnregisterRefreshVehiclePointsDisplayAction(string plateMapName)
+    {
+        ClearHandler(plateMapName, h => h.RefreshVehiclePointsDisplay = null);
+    }
+
+    /// <summary>板块是否已注册逐点过滤。</summary>
+    public bool HasShouldIncludePointAction(string plateMapName)
+    {
+        return TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.ShouldIncludePoint != null;
+    }
+
+    /// <summary>板块是否已注册显示前批量变换。</summary>
+    public bool HasTransformPointsBeforeDisplayAction(string plateMapName)
+    {
+        return TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.TransformBeforeDisplay != null;
+    }
+
     /// <summary>
     /// 一次性注册地理转换相关四个回调（由 <see cref="PlateMapGeoConverter"/> 在 OnEnable 调用）。
     /// </summary>
@@ -218,6 +251,19 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         }
 
         handlers.SetVehiclePoints.Invoke(points, syncNow);
+        return true;
+    }
+
+    /// <summary>请求指定板块按当前过滤规则重建 GPU 显示（不修改源数据）。</summary>
+    public bool RequestRefreshVehiclePointsDisplay(string plateMapName)
+    {
+        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.RefreshVehiclePointsDisplay == null)
+        {
+            Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 RefreshVehiclePointsDisplay。");
+            return false;
+        }
+
+        handlers.RefreshVehiclePointsDisplay.Invoke();
         return true;
     }
 

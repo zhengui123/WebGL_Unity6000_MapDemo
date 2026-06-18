@@ -93,17 +93,60 @@ public sealed class ShandongProvinceBoundary
             }
 
             Ring exterior = CreateRing(src.exteriorLon, src.exteriorLat);
+            if (exterior.Lon == null || exterior.Lon.Length < 3)
+            {
+                continue;
+            }
+
             Ring[] holes = Array.Empty<Ring>();
             if (src.holes != null && src.holes.Length > 0)
             {
-                holes = new Ring[src.holes.Length];
+                var holeList = new System.Collections.Generic.List<Ring>(src.holes.Length);
                 for (int h = 0; h < src.holes.Length; h++)
                 {
-                    holes[h] = CreateRing(src.holes[h].lon, src.holes[h].lat);
+                    Ring hole = CreateRing(src.holes[h].lon, src.holes[h].lat);
+                    if (hole.Lon != null && hole.Lon.Length >= 3)
+                    {
+                        holeList.Add(hole);
+                    }
+                }
+
+                if (holeList.Count > 0)
+                {
+                    holes = holeList.ToArray();
                 }
             }
 
             polygons[i] = new Polygon { Exterior = exterior, Holes = holes };
+        }
+
+        int validCount = 0;
+        for (int i = 0; i < polygons.Length; i++)
+        {
+            if (polygons[i].Exterior.Lon != null && polygons[i].Exterior.Lon.Length >= 3)
+            {
+                validCount++;
+            }
+        }
+
+        if (validCount == 0)
+        {
+            return false;
+        }
+
+        if (validCount != polygons.Length)
+        {
+            var compact = new Polygon[validCount];
+            int write = 0;
+            for (int i = 0; i < polygons.Length; i++)
+            {
+                if (polygons[i].Exterior.Lon != null && polygons[i].Exterior.Lon.Length >= 3)
+                {
+                    compact[write++] = polygons[i];
+                }
+            }
+
+            polygons = compact;
         }
 
         boundary = new ShandongProvinceBoundary(
@@ -160,8 +203,16 @@ public sealed class ShandongProvinceBoundary
         return false;
     }
 
-    /// <summary>在外接矩形内拒绝采样，保证点在省界内。</summary>
-    public bool TryGetRandomLongitudeLatitude(System.Random random, out double longitude, out double latitude, int maxAttempts = 512)
+    /// <summary>在外接矩形（可与地图锚点范围求交）内拒绝采样，保证点在省界多边形内。</summary>
+    public bool TryGetRandomLongitudeLatitude(
+        System.Random random,
+        out double longitude,
+        out double latitude,
+        int maxAttempts = 512,
+        double clipWest = double.NaN,
+        double clipEast = double.NaN,
+        double clipSouth = double.NaN,
+        double clipNorth = double.NaN)
     {
         longitude = 0;
         latitude = 0;
@@ -171,11 +222,20 @@ public sealed class ShandongProvinceBoundary
             return false;
         }
 
-        // 拒绝采样：在矩形内均匀撒点，直到落在真实省界多边形内
+        double west = double.IsNaN(clipWest) ? _westLon : Math.Max(clipWest, _westLon);
+        double east = double.IsNaN(clipEast) ? _eastLon : Math.Min(clipEast, _eastLon);
+        double south = double.IsNaN(clipSouth) ? _southLat : Math.Max(clipSouth, _southLat);
+        double north = double.IsNaN(clipNorth) ? _northLat : Math.Min(clipNorth, _northLat);
+
+        if (west >= east || south >= north)
+        {
+            return false;
+        }
+
         for (int attempt = 0; attempt < maxAttempts; attempt++)
         {
-            double lon = _westLon + random.NextDouble() * (_eastLon - _westLon);
-            double lat = _southLat + random.NextDouble() * (_northLat - _southLat);
+            double lon = west + random.NextDouble() * (east - west);
+            double lat = south + random.NextDouble() * (north - south);
             if (!Contains(lon, lat))
             {
                 continue;
@@ -189,17 +249,45 @@ public sealed class ShandongProvinceBoundary
         return false;
     }
 
-    /// <summary>将 JSON 浮点数组转为双精度环（射线法用）。</summary>
+    /// <summary>点是否在指定经纬度矩形内（与 <see cref="PlateMapGeoConverter.GetProvinceLongitudeLatitudeBounds"/> 一致）。</summary>
+    public static bool IsWithinLongitudeLatitudeBounds(
+        double longitude,
+        double latitude,
+        double westLongitude,
+        double eastLongitude,
+        double southLatitude,
+        double northLatitude)
+    {
+        return longitude >= westLongitude &&
+               longitude <= eastLongitude &&
+               latitude >= southLatitude &&
+               latitude <= northLatitude;
+    }
+
+    /// <summary>将 JSON 浮点数组转为双精度环；去除 GeoJSON 闭合重复顶点。</summary>
     private static Ring CreateRing(float[] lon, float[] lat)
     {
-        if (lon == null || lat == null || lon.Length != lat.Length)
+        if (lon == null || lat == null || lon.Length != lat.Length || lon.Length < 3)
         {
             return default;
         }
 
-        double[] lonD = new double[lon.Length];
-        double[] latD = new double[lat.Length];
-        for (int i = 0; i < lon.Length; i++)
+        int count = lon.Length;
+        if (count > 3 &&
+            Math.Abs(lon[0] - lon[count - 1]) < 1e-8 &&
+            Math.Abs(lat[0] - lat[count - 1]) < 1e-8)
+        {
+            count--;
+        }
+
+        if (count < 3)
+        {
+            return default;
+        }
+
+        double[] lonD = new double[count];
+        double[] latD = new double[count];
+        for (int i = 0; i < count; i++)
         {
             lonD[i] = lon[i];
             latD[i] = lat[i];
@@ -208,7 +296,7 @@ public sealed class ShandongProvinceBoundary
         return new Ring { Lon = lonD, Lat = latD };
     }
 
-    /// <summary>射线法判断点是否在闭合环内。</summary>
+    /// <summary>射线法 + 非零环绕数，兼容 GeoJSON 外环顺/逆时针。</summary>
     private static bool IsPointInRing(double x, double y, Ring ring)
     {
         if (ring.Lon == null || ring.Lat == null || ring.Lon.Length < 3)
@@ -216,24 +304,31 @@ public sealed class ShandongProvinceBoundary
             return false;
         }
 
-        // 经典射线法：从点向右发水平射线，统计与多边形边交点数，奇数为内、偶数为外
-        bool inside = false;
+        int winding = 0;
         int count = ring.Lon.Length;
-        for (int i = 0, j = count - 1; i < count; j = i++)
+        for (int i = 0; i < count; i++)
         {
-            double xi = ring.Lon[i];
+            int j = (i + 1) % count;
             double yi = ring.Lat[i];
-            double xj = ring.Lon[j];
             double yj = ring.Lat[j];
-
-            // 边 (j→i) 是否跨过纬度 y；若跨过则求交点经度并与 x 比较
-            bool intersect = yi > y != yj > y && x < (xj - xi) * (y - yi) / (yj - yi + 1e-15) + xi;
-            if (intersect)
+            if (yi <= y)
             {
-                inside = !inside;
+                if (yj > y && Cross(ring.Lon[i], yi, ring.Lon[j], yj, x, y) > 0d)
+                {
+                    winding++;
+                }
+            }
+            else if (yj <= y && Cross(ring.Lon[i], yi, ring.Lon[j], yj, x, y) < 0d)
+            {
+                winding--;
             }
         }
 
-        return inside;
+        return winding != 0;
+    }
+
+    private static double Cross(double ax, double ay, double bx, double by, double px, double py)
+    {
+        return (bx - ax) * (py - ay) - (by - ay) * (px - ax);
     }
 }

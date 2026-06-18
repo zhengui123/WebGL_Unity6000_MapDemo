@@ -75,7 +75,6 @@ public sealed class TransitionInstantDurationScope : IDisposable
         Type type = behaviour.GetType();
         const BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
 
-        Debug.Log($"ApplyZeroToBehaviour: {behaviour.name} {type.Name}");
         // 沿继承链向上查找，覆盖派生类与基类中声明的时长字段
         while (type != null && type != typeof(MonoBehaviour))
         {

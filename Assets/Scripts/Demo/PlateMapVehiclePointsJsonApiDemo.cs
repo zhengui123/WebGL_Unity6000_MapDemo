@@ -32,7 +32,7 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
     [ContextMenu("生成测试JSON并推送API")]
     public void GenerateTestJsonAndPushApi()
     {
-        VehicleMapPointData[] points = PlateMapShandongTestPointGenerator.Generate(
+        VehicleMapPointData[] points = PlateMapShandongTestPointGenerator.GenerateFiltered(
             _plateMapName, _provinceFilter, _randomGenerateCount, _randomSeed);
 
         if (points.Length == 0)

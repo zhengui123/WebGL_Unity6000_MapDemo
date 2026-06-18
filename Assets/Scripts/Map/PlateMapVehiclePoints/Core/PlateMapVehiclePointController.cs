@@ -60,6 +60,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     public VehicleMapPointData[] VehiclePoints => _vehiclePoints;
     public bool IsDisplayReady => _initialized;
+    public string EventPlateMapKey => gameObject.name;
 
     public float CenterBrightness
     {
@@ -74,7 +75,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private PlateMapVehiclePointEvents Hub => PlateMapVehiclePointEvents.Instance;
 
     /// <summary>板块地图 GameObject 名称，作为事件总线字典 key。</summary>
-    private string PlateMapKey => gameObject.name;
+    private string PlateMapKey => EventPlateMapKey;
 
     private void OnEnable()
     {
@@ -90,6 +91,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     {
         Hub.RegisterSetVehiclePointsAction(PlateMapKey, ApplySetVehiclePoints);
         Hub.RegisterGetCurrentVehiclePointsAction(PlateMapKey, () => _vehiclePoints);
+        Hub.RegisterRefreshVehiclePointsDisplayAction(PlateMapKey, RefreshDisplayFromVehiclePoints);
     }
 
     private void UnregisterFromEventHub()
@@ -102,6 +104,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         hub.UnregisterSetVehiclePointsAction(PlateMapKey);
         hub.UnregisterGetCurrentVehiclePointsAction(PlateMapKey);
+        hub.UnregisterRefreshVehiclePointsDisplayAction(PlateMapKey);
     }
 
     private void OnValidate()
@@ -385,6 +388,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
             hash = hash * 31 + _dataValueMin.GetHashCode();
             hash = hash * 31 + _dataValueMax.GetHashCode();
             hash = hash * 31 + PlateMapKey.GetHashCode();
+            hash = hash * 31 + (hub.HasShouldIncludePointAction(PlateMapKey) ? 1 : 0);
+            hash = hash * 31 + (hub.HasTransformPointsBeforeDisplayAction(PlateMapKey) ? 1 : 0);
 
             if (hub.InvokeIsGeoConverterReady(PlateMapKey) &&
                 hub.InvokeGetProvinceLongitudeLatitudeBounds(

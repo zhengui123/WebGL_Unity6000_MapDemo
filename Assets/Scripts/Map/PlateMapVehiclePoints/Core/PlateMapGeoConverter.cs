@@ -40,16 +40,40 @@ public class PlateMapGeoConverter : MonoBehaviour
     [SerializeField] private float _manualSouthLocalZ;
     [SerializeField] private float _manualNorthLocalZ;
 
+    [Header("省界过滤")]
+    [Tooltip("勾选后按山东省界 JSON 过滤显示；取消勾选则全量显示（不修改原始点位数据）")]
+    [SerializeField] private bool _useProvinceBoundary;
+    [SerializeField] private PlateMapShandongProvincePointFilter _provinceFilter = new PlateMapShandongProvincePointFilter();
+    [Tooltip("仅在没有同物体 PlateMapVehiclePointController 时生效")]
+    [SerializeField] private string _plateMapKeyOverride;
+
+    private PlateMapVehiclePointController _vehiclePointController;
+
     // 纬度方向：模型局部 Z 南端/北端（由网格包围盒或手动指定）
     private float _southLocalZ;
     private float _northLocalZ;
     private bool _isReady;
+    private bool _lastUseProvinceBoundary;
 
     public bool IsReady => _isReady;
     public GeoAnchor WestAnchor => _westAnchor;
     public GeoAnchor EastAnchor => _eastAnchor;
     public double SouthLatitude => _southLatitude;
     public double NorthLatitude => _northLatitude;
+    public bool UseProvinceBoundary => _useProvinceBoundary;
+
+    /// <summary>运行时动态开关省界过滤，并立即刷新当前板块显示。</summary>
+    public void SetUseProvinceBoundary(bool useProvinceBoundary)
+    {
+        if (_useProvinceBoundary == useProvinceBoundary)
+        {
+            return;
+        }
+
+        _useProvinceBoundary = useProvinceBoundary;
+        _lastUseProvinceBoundary = useProvinceBoundary;
+        ApplyProvinceBoundaryFilterState();
+    }
 
     /// <summary>获取山东省映射用的经纬度外接矩形（西经、东经、南纬、北纬）。</summary>
     public void GetProvinceLongitudeLatitudeBounds(out double westLongitude, out double eastLongitude, out double southLatitude, out double northLatitude)
@@ -62,20 +86,114 @@ public class PlateMapGeoConverter : MonoBehaviour
 
     private void Awake()
     {
+        TryAutoAssignProvinceBoundaryJson();
         Rebuild();
     }
 
     private void OnEnable()
     {
+        _lastUseProvinceBoundary = _useProvinceBoundary;
+        CacheVehiclePointController();
         RegisterToVehiclePointEvents();
+        PlateMapVehiclePointEvents.Instance.VehiclePointsChangedAction += OnVehiclePointsChanged;
+    }
+
+    private void Start()
+    {
+        ApplyProvinceBoundaryFilterState();
     }
 
     private void OnDisable()
     {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub != null)
+        {
+            hub.VehiclePointsChangedAction -= OnVehiclePointsChanged;
+        }
+
+        UnregisterProvinceBoundaryFilterIfNeeded();
         UnregisterFromVehiclePointEvents();
     }
 
-    private string PlateMapKey => gameObject.name;
+    private void OnVehiclePointsChanged(string plateMapName, VehicleMapPointData[] points)
+    {
+        if (plateMapName != PlateMapKey)
+        {
+            return;
+        }
+
+        if (!_useProvinceBoundary)
+        {
+            return;
+        }
+
+        PlateMapVehiclePointEvents.Instance?.RequestRefreshVehiclePointsDisplay(PlateMapKey);
+    }
+
+    private void CacheVehiclePointController()
+    {
+        if (_vehiclePointController != null)
+        {
+            return;
+        }
+
+        _vehiclePointController = GetComponent<PlateMapVehiclePointController>();
+        if (_vehiclePointController != null)
+        {
+            return;
+        }
+
+        if (_mapRoot != null)
+        {
+            _vehiclePointController = _mapRoot.GetComponentInChildren<PlateMapVehiclePointController>(true);
+        }
+    }
+
+    /// <summary>与 PlateMapVehiclePointController 注册的板块名保持一致（以其 GameObject 名为准）。</summary>
+    private string PlateMapKey
+    {
+        get
+        {
+            CacheVehiclePointController();
+            if (_vehiclePointController != null)
+            {
+                string controllerKey = _vehiclePointController.gameObject.name;
+                if (!string.IsNullOrWhiteSpace(_plateMapKeyOverride) &&
+                    _plateMapKeyOverride.Trim() != controllerKey)
+                {
+                    Debug.LogWarning(
+                        $"[PlateMapGeoConverter] PlateMapKeyOverride「{_plateMapKeyOverride}」与 Controller 物体名「{controllerKey}」不一致，已使用 Controller 名称。");
+                }
+
+                return controllerKey;
+            }
+
+            return string.IsNullOrWhiteSpace(_plateMapKeyOverride) ? gameObject.name : _plateMapKeyOverride.Trim();
+        }
+    }
+
+    private VehicleMapPointData[] TryGetCurrentVehiclePoints(PlateMapVehiclePointEvents hub)
+    {
+        VehicleMapPointData[] fromHub = hub.InvokeGetCurrentVehiclePoints(PlateMapKey);
+        if (fromHub != null)
+        {
+            return fromHub;
+        }
+
+        CacheVehiclePointController();
+        return _vehiclePointController != null ? _vehiclePointController.VehiclePoints : null;
+    }
+
+    private void Update()
+    {
+        if (!Application.isPlaying || _useProvinceBoundary == _lastUseProvinceBoundary)
+        {
+            return;
+        }
+
+        _lastUseProvinceBoundary = _useProvinceBoundary;
+        ApplyProvinceBoundaryFilterState();
+    }
 
     private void RegisterToVehiclePointEvents()
     {
@@ -98,13 +216,127 @@ public class PlateMapGeoConverter : MonoBehaviour
         hub.UnregisterGeoConverterActions(PlateMapKey);
     }
 
-    //编辑器修改时触发
-    private void OnValidate()
+    private void RegisterProvinceBoundaryFilterIfNeeded()
     {
+        if (!_useProvinceBoundary)
+        {
+            return;
+        }
+
+        if (!_provinceFilter.EnsureProvinceBoundaryLoaded())
+        {
+            Debug.LogWarning(
+                $"[PlateMapGeoConverter] 板块「{PlateMapKey}」已开启省界过滤，但 ShandongBoundary.json 未配置或未加载。");
+            return;
+        }
+
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        hub.RegisterShouldIncludePointAction(PlateMapKey, ShouldIncludePointForDisplay);
+        hub.RegisterTransformPointsBeforeDisplayAction(PlateMapKey, TransformPointsBeforeDisplay);
+    }
+
+    private void UnregisterProvinceBoundaryFilterIfNeeded()
+    {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null)
+        {
+            return;
+        }
+
+        hub.UnregisterShouldIncludePointAction(PlateMapKey);
+        hub.UnregisterTransformPointsBeforeDisplayAction(PlateMapKey);
+    }
+
+    private bool ShouldIncludePointForDisplay(VehicleMapPointData data)
+    {
+        if (!_useProvinceBoundary)
+        {
+            return true;
+        }
+
+        return _provinceFilter.ContainsInProvince(data.longitude, data.latitude);
+    }
+
+    private VehicleMapPointData[] TransformPointsBeforeDisplay(VehicleMapPointData[] source)
+    {
+        if (!_useProvinceBoundary || source == null)
+        {
+            return source;
+        }
+
+        return _provinceFilter.FilterVehiclePointsInProvince(source);
+    }
+
+    private void ApplyProvinceBoundaryFilterState()
+    {
+        UnregisterProvinceBoundaryFilterIfNeeded();
+        RegisterProvinceBoundaryFilterIfNeeded();
+
         if (!Application.isPlaying)
         {
-            Rebuild();
+            return;
         }
+
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null)
+        {
+            return;
+        }
+
+        LogProvinceBoundaryFilterStats(hub);
+
+        if (!hub.RequestRefreshVehiclePointsDisplay(PlateMapKey))
+        {
+            Debug.LogWarning(
+                $"[PlateMapGeoConverter] 省界过滤已{(_useProvinceBoundary ? "开启" : "关闭")}，" +
+                $"但板块「{PlateMapKey}」未找到 Controller 显示刷新回调（请确认 GameObject 名与 Controller 一致）。");
+        }
+    }
+
+    private void TryAutoAssignProvinceBoundaryJson()
+    {
+        _provinceFilter.TryAutoAssignBoundaryJsonAsset();
+    }
+
+    private void LogProvinceBoundaryFilterStats(PlateMapVehiclePointEvents hub)
+    {
+        VehicleMapPointData[] current = TryGetCurrentVehiclePoints(hub);
+        int total = current?.Length ?? 0;
+        bool hasGetCallback = hub.InvokeGetCurrentVehiclePoints(PlateMapKey) != null;
+        CacheVehiclePointController();
+        int controllerDirectCount = _vehiclePointController?.VehiclePoints?.Length ?? 0;
+
+        if (!_useProvinceBoundary)
+        {
+            Debug.Log(
+                $"[PlateMapGeoConverter] 省界过滤已关闭 | 板块「{PlateMapKey}」显示 {total}/{total} 点 | " +
+                $"Controller直连={controllerDirectCount}");
+            return;
+        }
+
+        if (!_provinceFilter.EnsureProvinceBoundaryLoaded())
+        {
+            Debug.LogWarning($"[PlateMapGeoConverter] 省界过滤开启失败：JSON 未加载 | 板块「{PlateMapKey}」。");
+            return;
+        }
+
+        int kept = 0;
+        if (current != null)
+        {
+            for (int i = 0; i < current.Length; i++)
+            {
+                VehicleMapPointData point = current[i];
+                if (_provinceFilter.ContainsInProvince(point.longitude, point.latitude))
+                {
+                    kept++;
+                }
+            }
+        }
+
+        bool hasFilterHandler = hub.HasShouldIncludePointAction(PlateMapKey);
+        Debug.Log(
+            $"[PlateMapGeoConverter] 省界过滤已开启 | 板块「{PlateMapKey}」省内 {kept}/{total} 点 | " +
+            $"过滤回调注册={hasFilterHandler} | Controller直连={controllerDirectCount} | Get回调有效={hasGetCallback}");
     }
 
     /// <summary>
@@ -143,7 +375,11 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         if (_autoLatitudeBoundsFromMesh)
         {
-            if (!TryComputeMeshLocalZBounds(out _southLocalZ, out _northLocalZ))
+            if (TryComputeMeshLocalBounds(out _, out _, out float meshMinZ, out float meshMaxZ))
+            {
+                AssignSouthNorthLocalZFromMeshExtents(meshMinZ, meshMaxZ);
+            }
+            else
             {
                 _southLocalZ = _manualSouthLocalZ;
                 _northLocalZ = _manualNorthLocalZ;
@@ -169,10 +405,53 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         _isReady = true;
 
+        Vector3 localNorth = _mapRoot.InverseTransformDirection(Vector3.forward);
         Debug.Log(
             $"[PlateMapGeoConverter] 映射就绪 | 西({ _westAnchor.marker.name}) lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
             $"东({ _eastAnchor.marker.name}) lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} | " +
-            $"Z [{_southLocalZ:F4},{_northLocalZ:F4}] -> 纬度 [{_southLatitude:F4},{_northLatitude:F4}]");
+            $"Z 南[{_southLocalZ:F4}] 北[{_northLocalZ:F4}] <- 纬度 [{_southLatitude:F4},{_northLatitude:F4}] | " +
+            $"局部Z朝向北分量={localNorth.z:F4}（世界Z+为北）");
+
+        RefreshVehiclePointsDisplayIfPlaying();
+    }
+
+    private void RefreshVehiclePointsDisplayIfPlaying()
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        PlateMapVehiclePointEvents.Instance?.RequestRefreshVehiclePointsDisplay(PlateMapKey);
+    }
+
+    // 编辑器修改 Inspector 时触发
+    private void OnValidate()
+    {
+        if (!Application.isPlaying)
+        {
+            Rebuild();
+            return;
+        }
+
+        if (_useProvinceBoundary != _lastUseProvinceBoundary)
+        {
+            _lastUseProvinceBoundary = _useProvinceBoundary;
+            ApplyProvinceBoundaryFilterState();
+        }
+    }
+
+    /// <summary>经纬度线性映射到 sd_map 局部坐标。</summary>
+    private Vector3 ComputeLocalPosition(double longitude, double latitude)
+    {
+        float westX = _westAnchor.marker.localPosition.x;
+        float eastX = _eastAnchor.marker.localPosition.x;
+        float tLon = Mathf.InverseLerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, (float)longitude);
+        float x = Mathf.Lerp(westX, eastX, tLon);
+
+        float tLat = Mathf.InverseLerp((float)_southLatitude, (float)_northLatitude, (float)latitude);
+        float z = Mathf.Lerp(_southLocalZ, _northLocalZ, tLat);
+        return new Vector3(x, 0f, z);
     }
 
     /// <summary>模型局部坐标 → 经纬度。</summary>
@@ -186,13 +465,11 @@ public class PlateMapGeoConverter : MonoBehaviour
             return false;
         }
 
-        // 经度：局部 X 在西/东锚点 X 之间插值
         float westX = _westAnchor.marker.localPosition.x;
         float eastX = _eastAnchor.marker.localPosition.x;
         float tLon = Mathf.InverseLerp(westX, eastX, localPosition.x);
         longitude = Mathf.Lerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, tLon);
 
-        // 纬度：局部 Z 在南/北 Z 之间插值
         float tLat = Mathf.InverseLerp(_southLocalZ, _northLocalZ, localPosition.z);
         latitude = Mathf.Lerp((float)_southLatitude, (float)_northLatitude, tLat);
         return true;
@@ -208,15 +485,7 @@ public class PlateMapGeoConverter : MonoBehaviour
             return false;
         }
 
-        float westX = _westAnchor.marker.localPosition.x;
-        float eastX = _eastAnchor.marker.localPosition.x;
-        float tLon = Mathf.InverseLerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, (float)longitude);
-        float x = Mathf.Lerp(westX, eastX, tLon);
-
-        float tLat = Mathf.InverseLerp((float)_southLatitude, (float)_northLatitude, (float)latitude);
-        float z = Mathf.Lerp(_southLocalZ, _northLocalZ, tLat);
-
-        localPosition = new Vector3(x, 0f, z);
+        localPosition = ComputeLocalPosition(longitude, latitude);
         return true;
     }
 
@@ -349,13 +618,19 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
     }
 
-    /// <summary>遍历省界网格 Renderer，在 sd_map 局部空间合并 Z 包围盒，作为纬度映射范围。</summary>
-    private bool TryComputeMeshLocalZBounds(out float southZ, out float northZ)
+    /// <summary>合并地图网格在 sd_map 局部空间的 XZ 包围盒。</summary>
+    private bool TryComputeMeshLocalBounds(
+        out float minX,
+        out float maxX,
+        out float minZ,
+        out float maxZ)
     {
-        southZ = northZ = 0f;
+        minX = maxX = minZ = maxZ = 0f;
         bool has = false;
-        float minZ = float.MaxValue;
-        float maxZ = float.MinValue;
+        float boundsMinX = float.MaxValue;
+        float boundsMaxX = float.MinValue;
+        float boundsMinZ = float.MaxValue;
+        float boundsMaxZ = float.MinValue;
 
         Renderer[] renderers = _mapRoot.GetComponentsInChildren<Renderer>(true);
         for (int i = 0; i < renderers.Length; i++)
@@ -371,7 +646,14 @@ public class PlateMapGeoConverter : MonoBehaviour
                 continue;
             }
 
-            if (r.transform.IsChildOf(_westAnchor.marker) || r.transform.IsChildOf(_eastAnchor.marker))
+            if (_westAnchor.marker != null &&
+                (r.transform.IsChildOf(_westAnchor.marker) || r.transform == _westAnchor.marker))
+            {
+                continue;
+            }
+
+            if (_eastAnchor.marker != null &&
+                (r.transform.IsChildOf(_eastAnchor.marker) || r.transform == _eastAnchor.marker))
             {
                 continue;
             }
@@ -379,10 +661,14 @@ public class PlateMapGeoConverter : MonoBehaviour
             Bounds b = r.bounds;
             Vector3 cLocal = _mapRoot.InverseTransformPoint(b.center);
             Vector3 eLocal = _mapRoot.InverseTransformVector(b.extents);
+            float x0 = cLocal.x - Mathf.Abs(eLocal.x);
+            float x1 = cLocal.x + Mathf.Abs(eLocal.x);
             float z0 = cLocal.z - Mathf.Abs(eLocal.z);
             float z1 = cLocal.z + Mathf.Abs(eLocal.z);
-            minZ = Mathf.Min(minZ, z0, z1);
-            maxZ = Mathf.Max(maxZ, z0, z1);
+            boundsMinX = Mathf.Min(boundsMinX, x0, x1);
+            boundsMaxX = Mathf.Max(boundsMaxX, x0, x1);
+            boundsMinZ = Mathf.Min(boundsMinZ, z0, z1);
+            boundsMaxZ = Mathf.Max(boundsMaxZ, z0, z1);
             has = true;
         }
 
@@ -391,8 +677,43 @@ public class PlateMapGeoConverter : MonoBehaviour
             return false;
         }
 
-        southZ = minZ;
-        northZ = maxZ;
+        minX = boundsMinX;
+        maxX = boundsMaxX;
+        minZ = boundsMinZ;
+        maxZ = boundsMaxZ;
         return true;
+    }
+
+    /// <summary>
+    /// 按世界坐标北向（Z+）确定 mesh 包围盒哪一端是南/北缘。
+    /// sd_map 根节点常带 Z180°，不能假设局部 minZ 即为南端。
+    /// </summary>
+    private void AssignSouthNorthLocalZFromMeshExtents(float meshMinZ, float meshMaxZ)
+    {
+        Vector3 localNorth = _mapRoot.InverseTransformDirection(Vector3.forward);
+        if (localNorth.z >= 0f)
+        {
+            _southLocalZ = meshMinZ;
+            _northLocalZ = meshMaxZ;
+            return;
+        }
+
+        _southLocalZ = meshMaxZ;
+        _northLocalZ = meshMinZ;
+    }
+
+    /// <summary>遍历地图网格 Renderer，在 sd_map 局部空间合并 Z 包围盒，作为纬度映射范围。</summary>
+    private bool TryComputeMeshLocalZBounds(out float southZ, out float northZ)
+    {
+        if (TryComputeMeshLocalBounds(out float minX, out float maxX, out float minZ, out float maxZ))
+        {
+            AssignSouthNorthLocalZFromMeshExtents(minZ, maxZ);
+            southZ = _southLocalZ;
+            northZ = _northLocalZ;
+            return true;
+        }
+
+        southZ = northZ = 0f;
+        return false;
     }
 }

@@ -7,14 +7,16 @@ public static class PlateMapShandongTestPointGenerator
         string plateMapName,
         PlateMapShandongProvincePointFilter provinceFilter,
         int count,
-        int randomSeed = 0)
+        int randomSeed = 0,
+        bool useProvinceBoundarySampling = true)
     {
         if (count <= 0 || string.IsNullOrWhiteSpace(plateMapName))
         {
             return System.Array.Empty<VehicleMapPointData>();
         }
 
-        if (provinceFilter != null &&
+        if (useProvinceBoundarySampling &&
+            provinceFilter != null &&
             provinceFilter.StrictProvinceBoundary &&
             !provinceFilter.EnsureProvinceBoundaryLoaded())
         {
@@ -28,8 +30,25 @@ public static class PlateMapShandongTestPointGenerator
 
         for (int i = 0; i < count; i++)
         {
-            if (provinceFilter == null ||
-                !provinceFilter.TrySampleRandomLongitudeLatitude(plateMapName, rng, out double lon, out double lat))
+            bool sampled = false;
+            double lon = 0;
+            double lat = 0;
+
+            if (provinceFilter == null)
+            {
+                continue;
+            }
+
+            if (useProvinceBoundarySampling)
+            {
+                sampled = provinceFilter.TrySampleRandomLongitudeLatitude(plateMapName, rng, out lon, out lat);
+            }
+            else
+            {
+                sampled = provinceFilter.TrySampleRandomInFallbackRectangle(rng, out lon, out lat);
+            }
+
+            if (!sampled)
             {
                 continue;
             }
@@ -44,5 +63,22 @@ public static class PlateMapShandongTestPointGenerator
         }
 
         return list.ToArray();
+    }
+
+    public static VehicleMapPointData[] GenerateFiltered(
+        string plateMapName,
+        PlateMapShandongProvincePointFilter provinceFilter,
+        int count,
+        int randomSeed = 0,
+        bool useProvinceBoundarySampling = true)
+    {
+        VehicleMapPointData[] points = Generate(
+            plateMapName, provinceFilter, count, randomSeed, useProvinceBoundarySampling);
+        if (!useProvinceBoundarySampling || provinceFilter == null || points.Length == 0)
+        {
+            return points;
+        }
+
+        return provinceFilter.FilterVehiclePointsInProvince(points);
     }
 }
