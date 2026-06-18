@@ -411,8 +411,8 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         Vector3 localNorth = _mapRoot.InverseTransformDirection(Vector3.forward);
         Debug.Log(
-            $"[PlateMapGeoConverter] 映射就绪 | 西({ _westAnchor.marker.name}) lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
-            $"东({ _eastAnchor.marker.name}) lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} | " +
+            $"[PlateMapGeoConverter] 映射就绪 | 西({_westAnchor.marker.name}) lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
+            $"东({_eastAnchor.marker.name}) lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} | " +
             $"Z 南[{_southLocalZ:F4}] 北[{_northLocalZ:F4}] <- 纬度 [{_southLatitude:F4},{_northLatitude:F4}] | " +
             $"局部Z朝向北分量={localNorth.z:F4}（世界Z+为北）");
 

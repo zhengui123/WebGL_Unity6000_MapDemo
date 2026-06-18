@@ -82,8 +82,15 @@ public class PlateMapVehiclePointController : MonoBehaviour
     {
         RegisterToEventHub();
 
-        // Start 仅在首次激活执行；禁用后再启用需在此恢复 GPU 显示与省界过滤结果
-        if (Application.isPlaying && _wasDisplayActiveBeforeDisable)
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        SyncVehiclePointsFromHubCache();
+
+        // Start 仅在首次激活执行；AllPlateMap 隐藏后再显示需从 Hub 缓存重载热力图
+        if (_wasDisplayActiveBeforeDisable || Hub.ConsumePendingDisplayRefresh(PlateMapKey))
         {
             RefreshDisplayFromVehiclePoints();
         }
@@ -94,11 +101,13 @@ public class PlateMapVehiclePointController : MonoBehaviour
         _wasDisplayActiveBeforeDisable = _initialized;
         _initialized = false;
         InvalidateMergeCache();
+        SuspendGpuDisplay();
         UnregisterFromEventHub();
     }
 
     private void RegisterToEventHub()
     {
+        Hub.SeedCachedVehiclePointsIfEmpty(PlateMapKey, _vehiclePoints);
         Hub.RegisterSetVehiclePointsAction(PlateMapKey, ApplySetVehiclePoints);
         Hub.RegisterGetCurrentVehiclePointsAction(PlateMapKey, () => _vehiclePoints);
         Hub.RegisterRefreshVehiclePointsDisplayAction(PlateMapKey, RefreshDisplayFromVehiclePoints);
@@ -160,19 +169,57 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void ApplySetVehiclePoints(VehicleMapPointData[] points, bool syncNow)
     {
-        Hub.RaiseVehiclePointsWillChange(PlateMapKey, points);
         _vehiclePoints = points;
         Hub.RaiseVehiclePointsChanged(PlateMapKey, _vehiclePoints);
         InvalidateMergeCache();
-        if (syncNow)
+
+        if (!syncNow)
+        {
+            return;
+        }
+
+        if (IsVehiclePointsDisplayActive())
         {
             RefreshDisplayFromVehiclePoints();
+        }
+        else
+        {
+            SuspendGpuDisplay();
+            Hub.MarkPendingDisplayRefresh(PlateMapKey);
+        }
+    }
+
+    /// <summary>板块可见且组件启用时才绘制 GPU 热力点。</summary>
+    private bool IsVehiclePointsDisplayActive()
+    {
+        return isActiveAndEnabled && gameObject.activeInHierarchy;
+    }
+
+    /// <summary>隐藏热力图绘制，保留 _vehiclePoints 数据源。</summary>
+    private void SuspendGpuDisplay()
+    {
+        _instancedRenderer?.ClearInstances();
+    }
+
+    /// <summary>从 Hub 缓存同步数据源（AllPlateMap 隐藏期间 API 仍可能写入）。</summary>
+    private void SyncVehiclePointsFromHubCache()
+    {
+        if (Hub.TryGetCachedVehiclePoints(PlateMapKey, out VehicleMapPointData[] cached))
+        {
+            _vehiclePoints = cached;
+            InvalidateMergeCache();
         }
     }
 
     /// <summary>根据当前 _vehiclePoints 刷新 GPU 显示（内部流程，无对外菜单）。</summary>
     private void RefreshDisplayFromVehiclePoints()
     {
+        if (!IsVehiclePointsDisplayActive())
+        {
+            Hub.MarkPendingDisplayRefresh(PlateMapKey);
+            return;
+        }
+
         ResolveReferences();
         Hub.RaiseRebuildStarted(PlateMapKey);
 

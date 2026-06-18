@@ -11,7 +11,8 @@ GameObject:
   - component: {fileID: 9041301595068284568}
   - component: {fileID: 5941786858959423132}
   - component: {fileID: 7434903251340342302}
-  m_Layer: 0
+  - component: {fileID: 3110963545700953506}
+  m_Layer: 7
   m_Name: polySurface17
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -90,6 +91,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3110963545700953506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 58937187281390571}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &907532844143842709
 GameObject:
   m_ObjectHideFlags: 0
@@ -101,7 +117,8 @@ GameObject:
   - component: {fileID: 6625409334535545691}
   - component: {fileID: 1836333052848460969}
   - component: {fileID: 7105150079790195177}
-  m_Layer: 0
+  - component: {fileID: 5674915932279270915}
+  m_Layer: 7
   m_Name: polySurface11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -180,6 +197,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5674915932279270915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 907532844143842709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &973087952902054870
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,7 +223,8 @@ GameObject:
   - component: {fileID: 8674210727708411400}
   - component: {fileID: 7937491584171217483}
   - component: {fileID: 8455344267348910964}
-  m_Layer: 0
+  - component: {fileID: 4141522989183602071}
+  m_Layer: 7
   m_Name: polySurface9
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -270,6 +303,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4141522989183602071
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 973087952902054870}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &1423118754067190325
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +329,8 @@ GameObject:
   - component: {fileID: 3995073318742725098}
   - component: {fileID: 6046514204798547536}
   - component: {fileID: 1711975223690504502}
-  m_Layer: 0
+  - component: {fileID: 2130474647907169969}
+  m_Layer: 7
   m_Name: polySurface12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -360,6 +409,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2130474647907169969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1423118754067190325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &3046738117441249816
 GameObject:
   m_ObjectHideFlags: 0
@@ -372,7 +436,7 @@ GameObject:
   - component: {fileID: 8303780750086955589}
   - component: {fileID: 8230499718711130645}
   - component: {fileID: 951972073130321063}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -484,7 +548,7 @@ GameObject:
   - component: {fileID: 9051840773500811582}
   - component: {fileID: 9203662648901562538}
   - component: {fileID: 977534332349877902}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -595,7 +659,8 @@ GameObject:
   - component: {fileID: 7418110522089130141}
   - component: {fileID: 6808358883467217519}
   - component: {fileID: 7284026501673304733}
-  m_Layer: 0
+  - component: {fileID: 7758418589662777805}
+  m_Layer: 7
   m_Name: polySurface6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -674,6 +739,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7758418589662777805
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5076327656000632128}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &5158698081072324065
 GameObject:
   m_ObjectHideFlags: 0
@@ -685,7 +765,8 @@ GameObject:
   - component: {fileID: 7998923876803543157}
   - component: {fileID: 4191580079863318638}
   - component: {fileID: 841523342250626989}
-  m_Layer: 0
+  - component: {fileID: 8483433991895319455}
+  m_Layer: 7
   m_Name: polySurface10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -764,6 +845,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8483433991895319455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5158698081072324065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &6199007169313579943
 GameObject:
   m_ObjectHideFlags: 0
@@ -773,7 +869,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9136295643160966089}
-  m_Layer: 0
+  - component: {fileID: 1523848443310474419}
+  - component: {fileID: 9071553877745792962}
+  m_Layer: 7
   m_Name: polySurface1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -788,7 +886,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6199007169313579943}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.01738287, y: 0.0042735036, z: 0.00776469, w: 0.9998096}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -810,7 +908,55 @@ Transform:
   - {fileID: 6129615447928288769}
   - {fileID: 9041301595068284568}
   m_Father: {fileID: 1390008880049182587}
-  m_LocalEulerAnglesHint: {x: 1.988, y: 0.505, z: 0.899}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1523848443310474419
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199007169313579943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa3c13916125daf41bd84cf9feb02085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayController
+  _plateMapRoot: {fileID: 9136295643160966089}
+  _cameraRig: {fileID: 0}
+  _cameraTransform: {fileID: 0}
+  _pickCamera: {fileID: 0}
+  _cameraZoomController: {fileID: 0}
+  _raycastMaxDistance: 5000
+  _clickMaxDragPixels: 8
+  _pickLayerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  _defaultFocusCameraLocalY: 650
+  _focusDuration: 0.45
+  _focusEase: 7
+  _restoreDuration: 0.5
+  _restoreEase: 7
+  _restoreKey: 27
+  _otherModuleFadeDuration: 1
+  _otherModuleFadeEase: 7
+  _modules: []
+--- !u!114 &9071553877745792962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6199007169313579943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51247061997c52b48901fe8e9b14fea1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapHighlightController
+  _plateMapRoot: {fileID: 0}
+  _modules: []
+  _highlightDuration: 0.5
+  _highlightEase: 7
+  _highlightedEmissionIntensity: 4.5
 --- !u!1 &6232559813740353479
 GameObject:
   m_ObjectHideFlags: 0
@@ -822,7 +968,8 @@ GameObject:
   - component: {fileID: 4858115910835859131}
   - component: {fileID: 6149269414044701425}
   - component: {fileID: 3803738316820138316}
-  m_Layer: 0
+  - component: {fileID: 6914641722388095139}
+  m_Layer: 7
   m_Name: polySurface15
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -901,6 +1048,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6914641722388095139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6232559813740353479}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &6239242822077879039
 GameObject:
   m_ObjectHideFlags: 0
@@ -912,7 +1074,8 @@ GameObject:
   - component: {fileID: 42575098491139971}
   - component: {fileID: 8274360585796835282}
   - component: {fileID: 4164307542925608048}
-  m_Layer: 0
+  - component: {fileID: 6559025424524671836}
+  m_Layer: 7
   m_Name: polySurface5
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -991,6 +1154,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6559025424524671836
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6239242822077879039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &6450482263064228861
 GameObject:
   m_ObjectHideFlags: 0
@@ -1002,7 +1180,8 @@ GameObject:
   - component: {fileID: 298401985172244720}
   - component: {fileID: 4194399847032726928}
   - component: {fileID: 382681242334443486}
-  m_Layer: 0
+  - component: {fileID: 8116858482793375091}
+  m_Layer: 7
   m_Name: polySurface2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1081,6 +1260,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &8116858482793375091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6450482263064228861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &6869690088419851588
 GameObject:
   m_ObjectHideFlags: 0
@@ -1093,8 +1287,7 @@ GameObject:
   - component: {fileID: 6238814874542099929}
   - component: {fileID: 2407045919986893658}
   - component: {fileID: 2985936283357233736}
-  - component: {fileID: 6797051415395481404}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: sd_map (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1118,6 +1311,7 @@ Transform:
   - {fileID: 3949990970524593895}
   - {fileID: 4636049407056406958}
   - {fileID: 161072650922349199}
+  - {fileID: 3613757013794722752}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!114 &6238814874542099929
@@ -1136,18 +1330,30 @@ MonoBehaviour:
   _westAnchor:
     marker: {fileID: 4636049407056406958}
     longitude: 114.819
-    latitude: 37.52436828613281
+    latitude: 35.245506286621094
   _eastAnchor:
     marker: {fileID: 3949990970524593895}
     longitude: 122.714
-    latitude: 35.24248504638672
-  _autoBindWestEastByLocalX: 1
+    latitude: 37.536861419677734
+  _autoBindWestEastByLocalX: 0
   _syncAnchorLatitudeFromMarkerZ: 1
   _autoLatitudeBoundsFromMesh: 1
   _southLatitude: 34.377
   _northLatitude: 38.401
   _manualSouthLocalZ: 0
   _manualNorthLocalZ: 0
+  _useProvinceBoundary: 1
+  _provinceFilter:
+    _shandongBoundaryJson: {fileID: 4900000, guid: d5b642c3e08805140b07f5686c7ba998, type: 3}
+    _strictProvinceBoundary: 1
+    _randomMaxAttemptsPerPoint: 512
+    _useGeoConverterBounds: 1
+    _fallbackWestLongitude: 114.819
+    _fallbackEastLongitude: 122.714
+    _fallbackSouthLatitude: 34.377
+    _fallbackNorthLatitude: 38.401
+    _randomBoundsInset: 0.02
+  _plateMapKeyOverride: 
 --- !u!114 &2407045919986893658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1563,7 +1769,7 @@ MonoBehaviour:
     longitude: 116.03959486004744
     latitude: 36.99737731541178
     alertValue: 0.5322687
-  _enableProximityMerge: 1
+  _enableProximityMerge: 0
   _mergeDistanceLocal: 0.002
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
@@ -1577,7 +1783,6 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _enableRealtimeUpdate: 1
 --- !u!114 &2985936283357233736
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1597,33 +1802,6 @@ MonoBehaviour:
   _baseLocalScale: {x: 0.01, y: 0.01, z: 0.01}
   _pointHeightOffset: 0.002
   _centerBrightness: 1
---- !u!114 &6797051415395481404
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6869690088419851588}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 14a377a6e6b51644f916b973f4f3b54d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlateMapShandongRandomPointsDemo
-  _plateMapName: sd_map (1)
-  _provinceFilter:
-    _shandongBoundaryJson: {fileID: 4900000, guid: d5b642c3e08805140b07f5686c7ba998, type: 3}
-    _strictProvinceBoundary: 1
-    _randomMaxAttemptsPerPoint: 512
-    _useGeoConverterBounds: 1
-    _fallbackWestLongitude: 114.819
-    _fallbackEastLongitude: 122.714
-    _fallbackSouthLatitude: 34.377
-    _fallbackNorthLatitude: 38.401
-    _randomBoundsInset: 0.02
-  _randomGenerateCount: 100
-  _randomSeed: 0
-  _logRebuildCompletedAction: 0
-  _pushViaJsonApi: 1
 --- !u!1 &6909811583490524380
 GameObject:
   m_ObjectHideFlags: 0
@@ -1635,7 +1813,8 @@ GameObject:
   - component: {fileID: 311476128473776710}
   - component: {fileID: 181943693033305019}
   - component: {fileID: 4085335365985243196}
-  m_Layer: 0
+  - component: {fileID: 5418384738948403877}
+  m_Layer: 7
   m_Name: polySurface13
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1714,6 +1893,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5418384738948403877
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6909811583490524380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &7002146755131460815
 GameObject:
   m_ObjectHideFlags: 0
@@ -1725,7 +1919,8 @@ GameObject:
   - component: {fileID: 973093277439982343}
   - component: {fileID: 1941836335824100350}
   - component: {fileID: 8448984521582143044}
-  m_Layer: 0
+  - component: {fileID: 2823244051633318465}
+  m_Layer: 7
   m_Name: polySurface3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1804,6 +1999,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2823244051633318465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7002146755131460815}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &7898688931542176733
 GameObject:
   m_ObjectHideFlags: 0
@@ -1815,7 +2025,8 @@ GameObject:
   - component: {fileID: 20207492744217489}
   - component: {fileID: 680515712958183655}
   - component: {fileID: 5214244438662507425}
-  m_Layer: 0
+  - component: {fileID: 7915771700528165081}
+  m_Layer: 7
   m_Name: polySurface4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1894,6 +2105,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &7915771700528165081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7898688931542176733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &8362618331093097701
 GameObject:
   m_ObjectHideFlags: 0
@@ -1905,7 +2131,8 @@ GameObject:
   - component: {fileID: 7122630480302115408}
   - component: {fileID: 2862483577390885827}
   - component: {fileID: 7093077083777052561}
-  m_Layer: 0
+  - component: {fileID: 1730874717105490646}
+  m_Layer: 7
   m_Name: polySurface8
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1984,6 +2211,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1730874717105490646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8362618331093097701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &8760553111344378362
 GameObject:
   m_ObjectHideFlags: 0
@@ -1995,7 +2237,8 @@ GameObject:
   - component: {fileID: 6129615447928288769}
   - component: {fileID: 8291662335908759887}
   - component: {fileID: 8265828626697231422}
-  m_Layer: 0
+  - component: {fileID: 5341754860232244315}
+  m_Layer: 7
   m_Name: polySurface16
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2074,6 +2317,21 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5341754860232244315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8760553111344378362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
 --- !u!1 &8769945117076493557
 GameObject:
   m_ObjectHideFlags: 0
@@ -2085,7 +2343,8 @@ GameObject:
   - component: {fileID: 4484296639318299000}
   - component: {fileID: 1097472917476937571}
   - component: {fileID: 2408687880759129561}
-  m_Layer: 0
+  - component: {fileID: 2196086772052184896}
+  m_Layer: 7
   m_Name: polySurface7
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2164,6 +2423,67 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2196086772052184896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8769945117076493557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
+--- !u!1 &8834864016279040771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4340656499485448819}
+  - component: {fileID: 8658843227455815}
+  m_Layer: 0
+  m_Name: PoiDemo
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4340656499485448819
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8834864016279040771}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
+  m_LocalPosition: {x: 0.06883257, y: -0.032495108, z: 0.040194586}
+  m_LocalScale: {x: 0.00006666667, y: 0.00006666667, z: 0.00006666667}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3613757013794722752}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8658843227455815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8834864016279040771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e0a57cda6abbd148995d102c9b556d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::POI_Demo
+  poiManager: {fileID: 2883049771518188807}
+  plateMapVehiclePointController: {fileID: 2407045919986893658}
 --- !u!1 &8875564760726512463
 GameObject:
   m_ObjectHideFlags: 0
@@ -2173,7 +2493,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 161072650922349199}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: VehiclePoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2206,7 +2526,8 @@ GameObject:
   - component: {fileID: 524762769623405008}
   - component: {fileID: 4345455814228441113}
   - component: {fileID: 8581588575499709492}
-  m_Layer: 0
+  - component: {fileID: 5754259609393108244}
+  m_Layer: 7
   m_Name: polySurface14
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -2285,3 +2606,71 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5754259609393108244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8968168443880940337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
+--- !u!1 &9050650871865920975
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3613757013794722752}
+  - component: {fileID: 2883049771518188807}
+  m_Layer: 0
+  m_Name: PoiCManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3613757013794722752
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9050650871865920975}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.0028, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 4340656499485448819}
+  m_Father: {fileID: 1390008880049182587}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2883049771518188807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9050650871865920975}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c7b0b1092ba3e047bfc57aae4c72816, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::POI_Manager
+  poiData:
+    type: 0
+    obj: {fileID: 524913973072024973, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
+    x: 0
+    y: 0
+    localPosition: {x: 0, y: 0, z: 0}
+  _waitForGeoConverterReady: 1
+  poiList: []

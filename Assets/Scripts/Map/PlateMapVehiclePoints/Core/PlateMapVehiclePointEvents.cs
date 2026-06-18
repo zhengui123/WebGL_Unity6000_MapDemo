@@ -104,6 +104,12 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     /// <summary>板块名 → 该板块已注册的回调集合。</summary>
     private readonly Dictionary<string, PlateHandlers> _plates = new();
 
+    /// <summary>板块隐藏时仍保留的车辆点位数据源（Controller 未注册 Set 回调时由 Hub 持有）。</summary>
+    private readonly Dictionary<string, VehicleMapPointData[]> _vehiclePointsCache = new();
+
+    /// <summary>板块重新显示后需重建 GPU 热力图显示的板块名。</summary>
+    private readonly HashSet<string> _pendingDisplayRefresh = new();
+
     /// <summary>点位即将被 Controller 覆盖前广播（参数为即将写入的新数组）。</summary>
     public event Action<string, VehicleMapPointData[]> VehiclePointsWillChangeAction;
 
@@ -240,17 +246,31 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
 
     /// <summary>
     /// 按板块名推送车辆点位（<see cref="PlateMapAPI.UpdateVehiclePointsFromJson"/> 的最终落点）。
+    /// 板块隐藏（AllPlateMap SetActive false）时仍写入 Hub 缓存；显示层由 Controller 在重新启用时刷新。
     /// </summary>
-    /// <returns>目标板块已注册 Set 回调时返回 true。</returns>
+    /// <returns>写入缓存成功即返回 true（不要求 Controller 当前已注册）。</returns>
     public bool PublishSetVehiclePoints(string plateMapName, VehicleMapPointData[] points, bool syncNow = true)
     {
-        if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.SetVehiclePoints == null)
+        if (string.IsNullOrWhiteSpace(plateMapName))
         {
-            Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 SetVehiclePointsAction。");
             return false;
         }
 
-        handlers.SetVehiclePoints.Invoke(points, syncNow);
+        SetCachedVehiclePoints(plateMapName, points);
+        RaiseVehiclePointsWillChange(plateMapName, points);
+
+        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null)
+        {
+            handlers.SetVehiclePoints.Invoke(points, syncNow);
+            return true;
+        }
+
+        RaiseVehiclePointsChanged(plateMapName, points);
+        if (syncNow)
+        {
+            MarkPendingDisplayRefresh(plateMapName);
+        }
+
         return true;
     }
 
@@ -367,7 +387,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         return true;
     }
 
-    /// <summary>读取板块当前点位；未注册 Get 回调时返回 null。</summary>
+    /// <summary>读取板块当前点位；未注册 Get 回调时回退到 Hub 缓存。</summary>
     public VehicleMapPointData[] InvokeGetCurrentVehiclePoints(string plateMapName)
     {
         if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.GetCurrentVehiclePoints != null)
@@ -375,7 +395,64 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             return handlers.GetCurrentVehiclePoints.Invoke();
         }
 
-        return null;
+        return TryGetCachedVehiclePoints(plateMapName, out VehicleMapPointData[] cached) ? cached : null;
+    }
+
+    /// <summary>写入板块车辆点位缓存（板块隐藏时仍可接收 API 数据）。</summary>
+    public void SetCachedVehiclePoints(string plateMapName, VehicleMapPointData[] points)
+    {
+        if (string.IsNullOrWhiteSpace(plateMapName))
+        {
+            return;
+        }
+
+        _vehiclePointsCache[plateMapName] = points;
+    }
+
+    /// <summary>Controller 首次注册时，若 Hub 尚无缓存则用 Inspector 初始数据填充。</summary>
+    public void SeedCachedVehiclePointsIfEmpty(string plateMapName, VehicleMapPointData[] points)
+    {
+        if (string.IsNullOrWhiteSpace(plateMapName) || points == null || points.Length == 0)
+        {
+            return;
+        }
+
+        if (!_vehiclePointsCache.ContainsKey(plateMapName))
+        {
+            _vehiclePointsCache[plateMapName] = points;
+        }
+    }
+
+    /// <summary>读取 Hub 缓存的车辆点位。</summary>
+    public bool TryGetCachedVehiclePoints(string plateMapName, out VehicleMapPointData[] points)
+    {
+        points = null;
+        if (string.IsNullOrWhiteSpace(plateMapName))
+        {
+            return false;
+        }
+
+        return _vehiclePointsCache.TryGetValue(plateMapName, out points) && points != null;
+    }
+
+    /// <summary>板块隐藏期间收到 syncNow 推送时标记，重新显示后需刷新 GPU。</summary>
+    public void MarkPendingDisplayRefresh(string plateMapName)
+    {
+        if (!string.IsNullOrWhiteSpace(plateMapName))
+        {
+            _pendingDisplayRefresh.Add(plateMapName);
+        }
+    }
+
+    /// <summary>是否存在待刷新 GPU 显示的板块。</summary>
+    public bool ConsumePendingDisplayRefresh(string plateMapName)
+    {
+        if (string.IsNullOrWhiteSpace(plateMapName))
+        {
+            return false;
+        }
+
+        return _pendingDisplayRefresh.Remove(plateMapName);
     }
 
     #endregion
