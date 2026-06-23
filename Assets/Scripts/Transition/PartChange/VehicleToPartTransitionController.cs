@@ -3,12 +3,14 @@ using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 车辆 → 零件过渡：零件先移动到第一目标（与 KJ_Car 溶解隐藏并行），再移动到第二目标；
-/// 倒播则反向执行并令 KJ_Car 溶解显现。
+/// 车辆 ↔ 零件、车辆 ↔ 攻击路径 过渡控制器。
+/// 零件过渡：零件移动 + KJ_Car 溶解显隐；攻击路径过渡：KJ_Car 溶解后与 AttackPathController 衔接。
 /// </summary>
 [DisallowMultipleComponent]
 public class VehicleToPartTransitionController : MonoBehaviour
 {
+    #region 字段与属性
+
     [Header("零件列表（按 GameObject 名称查找；名称为空时使用第一个）")]
     [SerializeField] private List<Transform> _partRoots = new List<Transform>();
 
@@ -30,6 +32,15 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private Ease _kjDissolveEase = Ease.InOutQuad;
     [SerializeField] private float _dissolveNoiseScale = 12f;
 
+    [Header("攻击路径（车辆 ↔ 攻击路径过渡）")]
+    [SerializeField] private AttackPathController _attackPathController;
+    [SerializeField] private List<Transform> _showAttackPath = new List<Transform>();
+    [SerializeField] private Transform _attackPathCamera;
+    [Tooltip("车辆 → 攻击路径时相机移动到的目标位姿（世界坐标）")]
+    [SerializeField] private Transform _attackPathCameraTarget;
+    [SerializeField] private float _attackPathCameraMoveDuration = 1.2f;
+    [SerializeField] private Ease _attackPathCameraEase = Ease.InOutQuad;
+
     private readonly CarModelDissolveGroup _kjDissolve = new CarModelDissolveGroup();
     private readonly Dictionary<int, PartInitialState> _partInitialStates = new Dictionary<int, PartInitialState>();
     private Sequence _sequence;
@@ -39,6 +50,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private Vector3 _cachedPartLocalPosition;
     private Quaternion _cachedPartLocalRotation;
     private Vector3 _cachedPartLocalScale;
+    private Vector3 _cachedAttackPathCameraPosition;
+    private Quaternion _cachedAttackPathCameraRotation;
+    private bool _hasCachedAttackPathCameraPose;
 
     private struct PartInitialState
     {
@@ -51,6 +65,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public bool IsTransitioning => _isTransitioning;
     public Transform ActivePart => _activePart;
     public string LastPartName => _lastPartName;
+    public IReadOnlyList<Transform> ShowAttackPath => _showAttackPath;
 
     private static VehicleToPartTransitionController _instance;
 
@@ -67,11 +82,18 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region 生命周期
+
     private void Awake()
     {
         _instance = this;
         ResolveKjCarReference();
+        ResolveAttackPathController();
         CacheAllPartInitialStates();
+        HideAttackPathObjectImmediate();
+        ConfigureShowAttackPath(_partRoots);
     }
 
     private void OnDestroy()
@@ -82,6 +104,10 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _instance = null;
         }
     }
+
+    #endregion
+
+    #region 车辆 ↔ 零件过渡
 
     /// <summary>
     /// 播放车辆 → 零件过渡。
@@ -120,6 +146,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         KillSequence();
+        HideAttackPathObjectImmediate();
         RestoreAllPartsToInitialState();
         ApplyCachedPoseFromInitialState(part);
 
@@ -184,6 +211,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         PrepareKjCarDissolve();
         KillSequence();
+        HideAttackPathObjectImmediate();
         ResetCarDragRotation();
         _isTransitioning = true;
         _activePart = part;
@@ -270,26 +298,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解隐藏（0→1）。</summary>
-    private void JoinCarHideTween(Sequence sequence)
-    {
-        Tween dissolveTween = BuildKjDissolveHideTween();
-        if (dissolveTween != null)
-        {
-            sequence.Join(dissolveTween);
-        }
-    }
-
-    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解显现（1→0）。</summary>
-    private void JoinCarAppearTween(Sequence sequence)
-    {
-        Tween kjAppearTween = BuildKjDissolveAppearTween();
-        if (kjAppearTween != null)
-        {
-            sequence.Join(kjAppearTween);
-        }
-    }
-
     private Tween BuildMoveTween(Transform part, Transform target, float duration)
     {
         if (part == null || target == null)
@@ -305,39 +313,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return moveSequence;
     }
 
-    private Tween BuildKjDissolveHideTween()
-    {
-        if (_kjDissolve.MaterialCount == 0)
-        {
-            return null;
-        }
-
-        _kjCarRoot.SetActive(true);
-        _kjDissolve.SetDissolveAmount(0f);
-
-        float dissolveAmount = 0f;
-        return DOTween.To(() => dissolveAmount, value =>
-        {
-            dissolveAmount = value;
-            _kjDissolve.SetDissolveAmount(value);
-        }, 1f, _kjDissolveDuration).SetEase(_kjDissolveEase);
-    }
-
-    private Tween BuildKjDissolveAppearTween()
-    {
-        if (_kjDissolve.MaterialCount == 0)
-        {
-            return null;
-        }
-
-        float dissolveAmount = 1f;
-        return DOTween.To(() => dissolveAmount, value =>
-        {
-            dissolveAmount = value;
-            _kjDissolve.SetDissolveAmount(value);
-        }, 0f, _kjDissolveDuration).SetEase(_kjDissolveEase);
-    }
-
     private Tween BuildMoveTweenToCachedPose(Transform part, float duration)
     {
         if (part == null)
@@ -350,6 +325,51 @@ public class VehicleToPartTransitionController : MonoBehaviour
         moveSequence.Join(part.DOLocalRotateQuaternion(_cachedPartLocalRotation, duration).SetEase(_moveEase));
         moveSequence.Join(part.DOScale(_cachedPartLocalScale, duration).SetEase(_moveEase));
         return moveSequence;
+    }
+
+    private void CompleteForwardTransition()
+    {
+        _isTransitioning = false;
+        _kjDissolve.SetDissolveAmount(1f);
+
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(false);
+        }
+
+        NotifyPartTransitionCompleted(isReverse: false);
+    }
+
+    private void CompleteReverseTransition()
+    {
+        _isTransitioning = false;
+        _kjDissolve.SetDissolveAmount(0f);
+
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(true);
+        }
+
+        NotifyPartTransitionCompleted(isReverse: true);
+    }
+
+    private void NotifyPartTransitionCompleted(bool isReverse)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        string partName = _lastPartName ?? string.Empty;
+        if (isReverse)
+        {
+            em.TriggerVehicleToPartTransitionReverseCompleted(partName);
+        }
+        else
+        {
+            em.TriggerVehicleToPartTransitionCompleted(partName);
+        }
     }
 
     /// <summary>开局记录列表中所有零件的本地位姿与显隐状态。</summary>
@@ -405,45 +425,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>重置 Car 物体上的拖拽旋转（MouseDragYawRotate）。</summary>
-    private void ResetCarDragRotation()
-    {
-        ResolveCarDragYawRotate();
-        if (_carDragYawRotate != null)
-        {
-            _carDragYawRotate.ResetRotation();
-        }
-    }
-
-    private void ResolveCarDragYawRotate()
-    {
-        if (_carDragYawRotate != null)
-        {
-            return;
-        }
-
-        Transform carRoot = FindCarRootTransform();
-        if (carRoot != null)
-        {
-            _carDragYawRotate = carRoot.GetComponent<MouseDragYawRotate>();
-            if (_carDragYawRotate == null)
-            {
-                _carDragYawRotate = carRoot.GetComponentInChildren<MouseDragYawRotate>(true);
-            }
-        }
-
-        if (_carDragYawRotate != null)
-        {
-            return;
-        }
-
-        CarModelController carModelController = FindFirstObjectByType<CarModelController>();
-        if (carModelController != null)
-        {
-            _carDragYawRotate = carModelController.carModelRotateController;
-        }
-    }
-
     private bool TryGetPartInitialState(Transform part, out PartInitialState state)
     {
         state = default;
@@ -480,59 +461,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _cachedPartLocalScale = part.localScale;
     }
 
-    private void CompleteForwardTransition()
-    {
-        _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(1f);
-
-        if (_kjCarRoot != null)
-        {
-            _kjCarRoot.SetActive(false);
-        }
-
-        NotifyTransitionCompleted(isReverse: false);
-    }
-
-    private void CompleteReverseTransition()
-    {
-        _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(0f);
-
-        if (_kjCarRoot != null)
-        {
-            _kjCarRoot.SetActive(true);
-        }
-
-        NotifyTransitionCompleted(isReverse: true);
-    }
-
-    private void NotifyTransitionCompleted(bool isReverse)
-    {
-        EventManager em = EventManager.Instance;
-        if (em == null)
-        {
-            return;
-        }
-
-        string partName = _lastPartName ?? string.Empty;
-        if (isReverse)
-        {
-            em.TriggerVehicleToPartTransitionReverseCompleted(partName);
-        }
-        else
-        {
-            em.TriggerVehicleToPartTransitionCompleted(partName);
-        }
-    }
-
-    private void PrepareKjCarDissolve()
-    {
-        // 使用材质实例，避免修改 sharedMaterial 污染 Part_CarLine 等资源
-        _kjDissolve.CollectFrom(_kjCarRoot, isShareMaterial: false);
-        _kjDissolve.SetDissolveNoiseScale(_dissolveNoiseScale);
-        _kjDissolve.SetDissolveAmount(0f);
-    }
-
     private Transform FindFirstValidPart()
     {
         for (int i = 0; i < _partRoots.Count; i++)
@@ -544,6 +472,459 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         return null;
+    }
+
+    #endregion
+
+    #region 车辆 ↔ 攻击路径过渡
+
+    /// <summary>配置用于显示攻击路径的路点 Transform 列表（忽略 null）；配置后默认隐藏路点物体。</summary>
+    public void ConfigureShowAttackPath(IReadOnlyList<Transform> waypoints)
+    {
+        _showAttackPath.Clear();
+        if (waypoints == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < waypoints.Count; i++)
+        {
+            Transform waypoint = waypoints[i];
+            if (waypoint != null)
+            {
+                _showAttackPath.Add(waypoint);
+            }
+        }
+
+        SetShowAttackPathWaypointsActive(false);
+    }
+
+    /// <summary>清空攻击路径路点列表并隐藏原路点物体。</summary>
+    public void ClearShowAttackPath()
+    {
+        SetShowAttackPathWaypointsActive(false);
+        _showAttackPath.Clear();
+    }
+
+    /// <summary>
+    /// 车辆 → 攻击路径：过渡开始时显示路点标记，KJ_Car 溶解隐藏后播放攻击路径。
+    /// </summary>
+    public bool PlayVehicleToAttackPathTransition()
+    {
+        if (_isTransitioning)
+        {
+            return false;
+        }
+
+        if (!TryValidateAttackPathTransition(out AttackPathController controller))
+        {
+            return false;
+        }
+
+        ResolveKjCarReference();
+        if (_kjCarRoot == null)
+        {
+            Debug.LogError("[VehicleToAttackPath] 未找到 KJ_Car。");
+            return false;
+        }
+
+        PrepareKjCarDissolve();
+        if (_kjDissolve.MaterialCount == 0)
+        {
+            Debug.LogWarning("[VehicleToAttackPath] KJ_Car 未找到带 _DissolveAmount 的材质。");
+        }
+
+        KillSequence();
+        RestoreAllPartsToInitialState();
+        HideAttackPathControllerImmediate();
+        SetShowAttackPathWaypointsActive(true);
+        _activePart = null;
+        CacheAttackPathCameraPose();
+
+        _isTransitioning = true;
+        _sequence = DOTween.Sequence();
+        AppendCarHideOnlyTween(_sequence);
+        JoinAttackPathCameraToTargetTween(_sequence);
+        _sequence.OnComplete(() => CompleteVehicleToAttackPathTransition(controller));
+        return true;
+    }
+
+    /// <summary>
+    /// 攻击路径 → 车辆：停止路径动画并隐藏攻击路径，KJ_Car 溶解显现。
+    /// </summary>
+    public bool PlayAttackPathToVehicleTransition()
+    {
+        if (_isTransitioning)
+        {
+            return false;
+        }
+
+        ResolveKjCarReference();
+        if (_kjCarRoot == null)
+        {
+            Debug.LogError("[AttackPathToVehicle] 未找到 KJ_Car。");
+            return false;
+        }
+
+        PrepareKjCarDissolve();
+        KillSequence();
+        StopAndHideAttackPath();
+        RestoreAllPartsToInitialState();
+        ResetCarDragRotation();
+        _activePart = null;
+
+        _isTransitioning = true;
+        _kjCarRoot.SetActive(true);
+        _kjDissolve.SetDissolveAmount(1f);
+
+        _sequence = DOTween.Sequence();
+        AppendCarAppearOnlyTween(_sequence);
+        JoinAttackPathCameraRestoreTween(_sequence);
+        _sequence.OnComplete(CompleteAttackPathToVehicleTransition);
+        return true;
+    }
+
+    private bool TryValidateAttackPathTransition(out AttackPathController controller)
+    {
+        controller = ResolveAttackPathController();
+        if (controller == null)
+        {
+            Debug.LogError("[VehicleToAttackPath] 未配置 AttackPathController。");
+            return false;
+        }
+
+        int validWaypointCount = CountValidWaypoints(_showAttackPath);
+        if (validWaypointCount < 2)
+        {
+            Debug.LogError("[VehicleToAttackPath] showAttackPath 至少需要 2 个有效路点。");
+            return false;
+        }
+
+        return true;
+    }
+
+    private static int CountValidWaypoints(IReadOnlyList<Transform> waypoints)
+    {
+        if (waypoints == null)
+        {
+            return 0;
+        }
+
+        int count = 0;
+        for (int i = 0; i < waypoints.Count; i++)
+        {
+            if (waypoints[i] != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    /// <summary>仅播放 KJ_Car 溶解隐藏（与 PlayTransition 前半段车辆部分一致）。</summary>
+    private void AppendCarHideOnlyTween(Sequence sequence)
+    {
+        Tween dissolveTween = BuildKjDissolveHideTween();
+        if (dissolveTween != null)
+        {
+            sequence.Append(dissolveTween);
+        }
+        else
+        {
+            sequence.AppendInterval(_kjDissolveDuration);
+        }
+    }
+
+    /// <summary>仅播放 KJ_Car 溶解显现。</summary>
+    private void AppendCarAppearOnlyTween(Sequence sequence)
+    {
+        Tween appearTween = BuildKjDissolveAppearTween();
+        if (appearTween != null)
+        {
+            sequence.Append(appearTween);
+        }
+        else
+        {
+            sequence.AppendInterval(_kjDissolveDuration);
+        }
+    }
+
+    private void CompleteVehicleToAttackPathTransition(AttackPathController controller)
+    {
+        _isTransitioning = false;
+        _kjDissolve.SetDissolveAmount(1f);
+
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(false);
+        }
+
+        if (controller == null)
+        {
+            return;
+        }
+
+        controller.gameObject.SetActive(true);
+        controller.PlayPath(_showAttackPath);
+    }
+
+    private void CompleteAttackPathToVehicleTransition()
+    {
+        _isTransitioning = false;
+        _kjDissolve.SetDissolveAmount(0f);
+
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(true);
+        }
+    }
+
+    private AttackPathController ResolveAttackPathController()
+    {
+        if (_attackPathController != null)
+        {
+            return _attackPathController;
+        }
+
+        _attackPathController = FindFirstObjectByType<AttackPathController>();
+        return _attackPathController;
+    }
+
+    private void StopAndHideAttackPath()
+    {
+        SetShowAttackPathWaypointsActive(false);
+
+        AttackPathController controller = ResolveAttackPathController();
+        if (controller == null)
+        {
+            return;
+        }
+
+        controller.StopPath();
+        controller.gameObject.SetActive(false);
+    }
+
+    private void HideAttackPathObjectImmediate()
+    {
+        SetShowAttackPathWaypointsActive(false);
+        HideAttackPathControllerImmediate();
+    }
+
+    /// <summary>仅停止并隐藏攻击路径控制器物体，不影响路点标记显隐。</summary>
+    private void HideAttackPathControllerImmediate()
+    {
+        AttackPathController controller = ResolveAttackPathController();
+        if (controller == null)
+        {
+            return;
+        }
+
+        controller.StopPath();
+        if (controller.gameObject.activeSelf)
+        {
+            controller.gameObject.SetActive(false);
+        }
+    }
+
+    /// <summary>统一设置 _showAttackPath 中路点物体的显隐。</summary>
+    private void SetShowAttackPathWaypointsActive(bool active)
+    {
+        if (_showAttackPath == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _showAttackPath.Count; i++)
+        {
+            Transform waypoint = _showAttackPath[i];
+            if (waypoint != null)
+            {
+                waypoint.gameObject.SetActive(active);
+            }
+        }
+    }
+
+    /// <summary>过渡开始前缓存相机世界位姿，供攻击路径 → 车辆时还原。</summary>
+    private void CacheAttackPathCameraPose()
+    {
+        Transform camera = ResolveAttackPathCamera();
+        if (camera == null)
+        {
+            _hasCachedAttackPathCameraPose = false;
+            return;
+        }
+
+        _cachedAttackPathCameraPosition = camera.position;
+        _cachedAttackPathCameraRotation = camera.rotation;
+        _hasCachedAttackPathCameraPose = true;
+    }
+
+    private Transform ResolveAttackPathCamera()
+    {
+        if (_attackPathCamera != null)
+        {
+            return _attackPathCamera;
+        }
+
+        Camera mainCamera = Camera.main;
+        if (mainCamera != null)
+        {
+            _attackPathCamera = mainCamera.transform;
+        }
+
+        return _attackPathCamera;
+    }
+
+    /// <summary>与溶解隐藏并行：相机移动到攻击路径目标点位。</summary>
+    private void JoinAttackPathCameraToTargetTween(Sequence sequence)
+    {
+        Tween cameraTween = BuildAttackPathCameraMoveTween(_attackPathCameraTarget);
+        if (cameraTween != null)
+        {
+            sequence.Join(cameraTween);
+        }
+    }
+
+    /// <summary>与溶解显现并行：相机还原到过渡前缓存位姿。</summary>
+    private void JoinAttackPathCameraRestoreTween(Sequence sequence)
+    {
+        Tween cameraTween = BuildAttackPathCameraRestoreTween();
+        if (cameraTween != null)
+        {
+            sequence.Join(cameraTween);
+        }
+    }
+
+    private Tween BuildAttackPathCameraMoveTween(Transform target)
+    {
+        Transform camera = ResolveAttackPathCamera();
+        if (camera == null || target == null)
+        {
+            return null;
+        }
+
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Join(camera.DOMove(target.position, _attackPathCameraMoveDuration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DORotateQuaternion(target.rotation, _attackPathCameraMoveDuration).SetEase(_attackPathCameraEase));
+        return moveSequence;
+    }
+
+    private Tween BuildAttackPathCameraRestoreTween()
+    {
+        Transform camera = ResolveAttackPathCamera();
+        if (camera == null || !_hasCachedAttackPathCameraPose)
+        {
+            return null;
+        }
+
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Join(camera.DOMove(_cachedAttackPathCameraPosition, _attackPathCameraMoveDuration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DORotateQuaternion(_cachedAttackPathCameraRotation, _attackPathCameraMoveDuration).SetEase(_attackPathCameraEase));
+        return moveSequence;
+    }
+
+    #endregion
+
+    #region 共享：KJ_Car 溶解与序列
+
+    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解隐藏（0→1）。</summary>
+    private void JoinCarHideTween(Sequence sequence)
+    {
+        Tween dissolveTween = BuildKjDissolveHideTween();
+        if (dissolveTween != null)
+        {
+            sequence.Join(dissolveTween);
+        }
+    }
+
+    /// <summary>与当前 Sequence 最后一段并行：KJ_Car 溶解显现（1→0）。</summary>
+    private void JoinCarAppearTween(Sequence sequence)
+    {
+        Tween kjAppearTween = BuildKjDissolveAppearTween();
+        if (kjAppearTween != null)
+        {
+            sequence.Join(kjAppearTween);
+        }
+    }
+
+    private Tween BuildKjDissolveHideTween()
+    {
+        if (_kjDissolve.MaterialCount == 0)
+        {
+            return null;
+        }
+
+        _kjCarRoot.SetActive(true);
+        _kjDissolve.SetDissolveAmount(0f);
+
+        float dissolveAmount = 0f;
+        return DOTween.To(() => dissolveAmount, value =>
+        {
+            dissolveAmount = value;
+            _kjDissolve.SetDissolveAmount(value);
+        }, 1f, _kjDissolveDuration).SetEase(_kjDissolveEase);
+    }
+
+    private Tween BuildKjDissolveAppearTween()
+    {
+        if (_kjDissolve.MaterialCount == 0)
+        {
+            return null;
+        }
+
+        float dissolveAmount = 1f;
+        return DOTween.To(() => dissolveAmount, value =>
+        {
+            dissolveAmount = value;
+            _kjDissolve.SetDissolveAmount(value);
+        }, 0f, _kjDissolveDuration).SetEase(_kjDissolveEase);
+    }
+
+    private void PrepareKjCarDissolve()
+    {
+        // 使用材质实例，避免修改 sharedMaterial 污染 Part_CarLine 等资源
+        _kjDissolve.CollectFrom(_kjCarRoot, isShareMaterial: false);
+        _kjDissolve.SetDissolveNoiseScale(_dissolveNoiseScale);
+        _kjDissolve.SetDissolveAmount(0f);
+    }
+
+    private void ResetCarDragRotation()
+    {
+        ResolveCarDragYawRotate();
+        if (_carDragYawRotate != null)
+        {
+            _carDragYawRotate.ResetRotation();
+        }
+    }
+
+    private void ResolveCarDragYawRotate()
+    {
+        if (_carDragYawRotate != null)
+        {
+            return;
+        }
+
+        Transform carRoot = FindCarRootTransform();
+        if (carRoot != null)
+        {
+            _carDragYawRotate = carRoot.GetComponent<MouseDragYawRotate>();
+            if (_carDragYawRotate == null)
+            {
+                _carDragYawRotate = carRoot.GetComponentInChildren<MouseDragYawRotate>(true);
+            }
+        }
+
+        if (_carDragYawRotate != null)
+        {
+            return;
+        }
+
+        CarModelController carModelController = FindFirstObjectByType<CarModelController>();
+        if (carModelController != null)
+        {
+            _carDragYawRotate = carModelController.carModelRotateController;
+        }
     }
 
     private void ResolveKjCarReference()
@@ -593,9 +974,19 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _sequence.Kill();
         }
 
+        Transform camera = ResolveAttackPathCamera();
+        if (camera != null)
+        {
+            camera.DOKill();
+        }
+
         _sequence = null;
         _isTransitioning = false;
     }
+
+    #endregion
+
+    #region 编辑器
 
 #if UNITY_EDITOR
     [ContextMenu("重新缓存零件开局位姿")]
@@ -615,5 +1006,19 @@ public class VehicleToPartTransitionController : MonoBehaviour
     {
         PlayTransitionReverse();
     }
+
+    [ContextMenu("测试：车辆 → 攻击路径")]
+    private void EditorPlayVehicleToAttackPathTransition()
+    {
+        PlayVehicleToAttackPathTransition();
+    }
+
+    [ContextMenu("测试：攻击路径 → 车辆")]
+    private void EditorPlayAttackPathToVehicleTransition()
+    {
+        PlayAttackPathToVehicleTransition();
+    }
 #endif
+
+    #endregion
 }
