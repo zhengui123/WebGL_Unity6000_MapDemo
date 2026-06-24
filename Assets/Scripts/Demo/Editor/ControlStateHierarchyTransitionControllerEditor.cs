@@ -3,22 +3,23 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// <see cref="ControlStateStartDemo"/> 的 Inspector 扩展：提供 Play 模式下手动触发开局跳转的按钮。
+/// <see cref="ControlStateHierarchyTransitionController"/> 的 Inspector 扩展：提供 Play 模式下手动触发开局跳转的按钮。
 /// </summary>
-[CustomEditor(typeof(ControlStateStartDemo))]
-public class ControlStateStartDemoEditor : Editor
+[CustomEditor(typeof(ControlStateHierarchyTransitionController))]
+public class ControlStateHierarchyTransitionControllerEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
         EditorGUILayout.Space(8f);
 
-        ControlStateStartDemo demo = (ControlStateStartDemo)target;
+        ControlStateHierarchyTransitionController controller =
+            (ControlStateHierarchyTransitionController)target;
         using (new EditorGUI.DisabledScope(!Application.isPlaying))
         {
             if (GUILayout.Button("立即应用开局状态（Play 模式）", GUILayout.Height(28f)))
             {
-                demo.ApplyStartStateNow();
+                controller.ApplyStartStateNow();
             }
         }
 

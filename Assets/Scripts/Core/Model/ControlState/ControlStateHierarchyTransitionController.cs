@@ -3,12 +3,12 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// 编辑器/运行时测试：按 <see cref="GameManager.ControlState"/> 从逻辑当前状态逐步过渡到目标状态。
+/// 操控层级跳转控制器：按 <see cref="GameManager.ControlState"/> 从逻辑当前状态逐步过渡到目标状态。
 /// 主干：地球 → 国家 → 省级 → 车辆；车辆下并列分支：零件 / 攻击路径（互不直连）。
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(200)]
-public class ControlStateStartDemo : MonoBehaviour
+public class ControlStateHierarchyTransitionController : UnitySingle<ControlStateHierarchyTransitionController>
 {
     [Header("开局跳转")]
     [SerializeField] private bool _applyOnPlay = true;
@@ -34,6 +34,11 @@ public class ControlStateStartDemo : MonoBehaviour
 
     private bool _stepDone;
 
+    public override void Awake()
+    {
+        base.Awake();
+    }
+
     private void Start()
     {
         if (!_applyOnPlay)
@@ -48,7 +53,7 @@ public class ControlStateStartDemo : MonoBehaviour
     {
         if (_isBootstrapping)
         {
-            Debug.LogWarning("[ControlStateStartDemo] 正在跳转中，请稍候。");
+            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
             return;
         }
 
@@ -75,7 +80,7 @@ public class ControlStateStartDemo : MonoBehaviour
     {
         if (_isBootstrapping)
         {
-            Debug.LogWarning("[ControlStateStartDemo] 正在跳转中，请稍候。");
+            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
             return false;
         }
 
@@ -124,7 +129,7 @@ public class ControlStateStartDemo : MonoBehaviour
             GameManager manager = GameManager.Instance;
             if (manager == null)
             {
-                Debug.LogWarning("[ControlStateStartDemo] 未找到 GameManager。");
+                Debug.LogWarning("[ControlStateHierarchyTransitionController] 未找到 GameManager。");
                 yield break;
             }
 
@@ -177,7 +182,7 @@ public class ControlStateStartDemo : MonoBehaviour
             if (expectedNext == currentState)
             {
                 Debug.LogWarning(
-                    $"[ControlStateStartDemo] 无法从 {currentState} 向目标 {targetState} 规划下一步，中止。");
+                    $"[ControlStateHierarchyTransitionController] 无法从 {currentState} 向目标 {targetState} 规划下一步，中止。");
                 yield break;
             }
 
@@ -188,20 +193,20 @@ public class ControlStateStartDemo : MonoBehaviour
             if (nextState == currentState)
             {
                 Debug.LogWarning(
-                    $"[ControlStateStartDemo] 过渡后状态未变化：{currentState}，目标 {targetState}，中止。");
+                    $"[ControlStateHierarchyTransitionController] 过渡后状态未变化：{currentState}，目标 {targetState}，中止。");
                 yield break;
             }
 
             if (nextState != expectedNext)
             {
                 Debug.LogWarning(
-                    $"[ControlStateStartDemo] 状态跳变异常：{currentState} → {nextState}，期望 {expectedNext}，中止。");
+                    $"[ControlStateHierarchyTransitionController] 状态跳变异常：{currentState} → {nextState}，期望 {expectedNext}，中止。");
                 yield break;
             }
         }
 
         Debug.LogWarning(
-            $"[ControlStateStartDemo] 超过最大步数 {MaxTransitionSteps}，当前 {GameManagerDemoAccess.GetCurrentState(manager)}，目标 {targetState}。");
+            $"[ControlStateHierarchyTransitionController] 超过最大步数 {MaxTransitionSteps}，当前 {GameManagerDemoAccess.GetCurrentState(manager)}，目标 {targetState}。");
     }
 
     /// <summary>
@@ -372,14 +377,14 @@ public class ControlStateStartDemo : MonoBehaviour
             yield break;
         }
 
-        Debug.LogWarning($"[ControlStateStartDemo] 未定义的过渡边：{from} → {to}");
+        Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未定义的过渡边：{from} → {to}");
     }
 
     private IEnumerator GoToProvinceLevel(string moduleName)
     {
         if (string.IsNullOrWhiteSpace(moduleName))
         {
-            Debug.LogWarning("[ControlStateStartDemo] 未配置省级模块名 _provinceModuleName。");
+            Debug.LogWarning("[ControlStateHierarchyTransitionController] 未配置省级模块名 _provinceModuleName。");
             yield break;
         }
 
@@ -428,7 +433,7 @@ public class ControlStateStartDemo : MonoBehaviour
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ControlStateStartDemo] 未找到 EventManager，跳过 {stepName}。");
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -438,7 +443,7 @@ public class ControlStateStartDemo : MonoBehaviour
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ControlStateStartDemo] {stepName} 启动失败。");
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
             unsubscribe(OnStepDone);
             yield break;
         }
@@ -456,7 +461,7 @@ public class ControlStateStartDemo : MonoBehaviour
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ControlStateStartDemo] 未找到 EventManager，跳过 {stepName}。");
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -466,7 +471,7 @@ public class ControlStateStartDemo : MonoBehaviour
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ControlStateStartDemo] {stepName} 启动失败。");
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
             unsubscribe(OnStepDoneWithName);
             yield break;
         }
@@ -501,7 +506,7 @@ public class ControlStateStartDemo : MonoBehaviour
 
         if (!predicate() && stepName != "等待其它过渡结束")
         {
-            Debug.LogWarning($"[ControlStateStartDemo] {stepName} 超时（{_stepTimeoutSeconds}s）。");
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 超时（{_stepTimeoutSeconds}s）。");
         }
     }
 
@@ -557,6 +562,6 @@ public class ControlStateStartDemo : MonoBehaviour
         GameManager.ControlState actual = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : targetState;
-        Debug.Log($"[ControlStateStartDemo] 跳转结束，目标 {targetState}，当前 {actual}。");
+        Debug.Log($"[ControlStateHierarchyTransitionController] 跳转结束，目标 {targetState}，当前 {actual}。");
     }
 }

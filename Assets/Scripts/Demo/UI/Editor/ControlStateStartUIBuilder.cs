@@ -242,8 +242,6 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_jumpButton").objectReferenceValue = buttonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButton;
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
-        serializedDemo.FindProperty("_controlStateStartDemo").objectReferenceValue =
-            Object.FindFirstObjectByType<ControlStateStartDemo>();
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
 
         return panel;

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 操控状态跳转 UI：绑定下拉、瞬时开关、过渡参数与跳转按钮，调用 <see cref="ControlStateStartDemo"/>。
+/// 操控状态跳转 UI：绑定下拉、瞬时开关、过渡参数与跳转按钮，调用 <see cref="ControlStateHierarchyTransitionController"/>。
 /// </summary>
 [DisallowMultipleComponent]
 public class ControlStateStartUIDemo : MonoBehaviour
@@ -23,7 +23,6 @@ public class ControlStateStartUIDemo : MonoBehaviour
         "攻击路径级 (5)",
     };
 
-    [SerializeField] private ControlStateStartDemo _controlStateStartDemo;
     [SerializeField] private Dropdown _targetStateDropdown;
     [SerializeField] private Toggle _instantTransitionToggle;
     [SerializeField] private InputField _provinceNameInput;
@@ -69,8 +68,9 @@ public class ControlStateStartUIDemo : MonoBehaviour
             return;
         }
 
-        ControlStateStartDemo demo = ResolveDemo();
-        _jumpButton.interactable = demo == null || !demo.IsBootstrapping;
+        ControlStateHierarchyTransitionController controller =
+            ControlStateHierarchyTransitionController.Instance;
+        _jumpButton.interactable = controller == null || !controller.IsBootstrapping;
     }
 
     /// <summary>刷新下拉选项（板块模块名、零件名）。</summary>
@@ -87,7 +87,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
             null);
     }
 
-    /// <summary>将 UI 控件恢复为与 <see cref="ControlStateStartDemo"/> 一致的默认值。</summary>
+    /// <summary>将 UI 控件恢复为与层级跳转控制器一致的默认值。</summary>
     public void ApplyDefaultValues()
     {
         if (_targetStateDropdown != null)
@@ -131,14 +131,15 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
     private void OnJumpButtonClicked()
     {
-        ControlStateStartDemo demo = ResolveDemo();
-        if (demo == null)
+        ControlStateHierarchyTransitionController controller =
+            ControlStateHierarchyTransitionController.Instance;
+        if (controller == null)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 ControlStateStartDemo。");
+            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 ControlStateHierarchyTransitionController。");
             return;
         }
 
-        if (demo.IsBootstrapping)
+        if (controller.IsBootstrapping)
         {
             Debug.LogWarning("[ControlStateStartUIDemo] 正在跳转中，请稍候。");
             return;
@@ -156,7 +157,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
         string provinceModuleName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceModuleNameDropdown);
         string partName = ControlStateStartUIOptionProvider.GetSelectedText(_partNameDropdown);
 
-        bool started = demo.TransitionToState(
+        bool started = controller.TransitionToState(
             useInstant,
             targetState,
             provinceName,
@@ -181,16 +182,6 @@ public class ControlStateStartUIDemo : MonoBehaviour
             _targetStateDropdown.ClearOptions();
             _targetStateDropdown.AddOptions(new List<string>(TargetStateLabels));
         }
-    }
-
-    private ControlStateStartDemo ResolveDemo()
-    {
-        if (_controlStateStartDemo != null)
-        {
-            return _controlStateStartDemo;
-        }
-
-        return FindFirstObjectByType<ControlStateStartDemo>();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()
