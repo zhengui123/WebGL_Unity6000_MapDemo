@@ -69,16 +69,17 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
     private void OnEnable()
     {
         RefreshModuleList();
-        SubscribePlateModeExitEvents();
+        SubscribeCountryExitEvents();
     }
 
     private void OnDisable()
     {
-        UnsubscribePlateModeExitEvents();
+        UnsubscribeCountryExitEvents();
         KillAllModuleEmissionTweens();
     }
 
-    private void SubscribePlateModeExitEvents()
+    /// <summary>退出国家级时取消高亮（进入省级聚焦 / 返回地球）。</summary>
+    private void SubscribeCountryExitEvents()
     {
         EventManager em = EventManager.Instance;
         if (em == null)
@@ -86,11 +87,11 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
             return;
         }
 
-        em.OnPlateToVehicleViewTransitionStarted += HandlePlateModeExit;
-        em.OnTransitionToEarthStarted += HandlePlateModeExit;
+        em.OnPlateMapDisplayFocus += HandleCountryExit;
+        em.OnTransitionToEarthStarted += HandleCountryExit;
     }
 
-    private void UnsubscribePlateModeExitEvents()
+    private void UnsubscribeCountryExitEvents()
     {
         EventManager em = EventManager.Instance;
         if (em == null)
@@ -98,16 +99,16 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
             return;
         }
 
-        em.OnPlateToVehicleViewTransitionStarted -= HandlePlateModeExit;
-        em.OnTransitionToEarthStarted -= HandlePlateModeExit;
+        em.OnPlateMapDisplayFocus -= HandleCountryExit;
+        em.OnTransitionToEarthStarted -= HandleCountryExit;
     }
 
-    private void HandlePlateModeExit(string _)
+    private void HandleCountryExit(string _)
     {
         ClearHighlight();
     }
 
-    private void HandlePlateModeExit()
+    private void HandleCountryExit()
     {
         ClearHighlight();
     }

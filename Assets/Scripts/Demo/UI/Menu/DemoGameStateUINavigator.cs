@@ -8,6 +8,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
 {
     [SerializeField] private GameObject _menuPanel;
     [SerializeField] private GameObject _controlStateJumpPanel;
+    [SerializeField] private GameObject _plateMapHighlightPanel;
 
     private void Awake()
     {
@@ -16,27 +17,30 @@ public class DemoGameStateUINavigator : MonoBehaviour
 
     public void ShowMenu()
     {
-        if (_menuPanel != null)
-        {
-            _menuPanel.SetActive(true);
-        }
-
-        if (_controlStateJumpPanel != null)
-        {
-            _controlStateJumpPanel.SetActive(false);
-        }
+        SetPanelActive(_menuPanel, true);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
     }
 
     public void ShowControlStateJumpPanel()
     {
-        if (_menuPanel != null)
-        {
-            _menuPanel.SetActive(false);
-        }
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, true);
+        SetPanelActive(_plateMapHighlightPanel, false);
+    }
 
-        if (_controlStateJumpPanel != null)
+    public void ShowPlateMapHighlightPanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, true);
+    }
+
+    private static void SetPanelActive(GameObject panel, bool active)
+    {
+        if (panel != null)
         {
-            _controlStateJumpPanel.SetActive(true);
+            panel.SetActive(active);
         }
     }
 }

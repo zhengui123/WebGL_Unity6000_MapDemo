@@ -24,6 +24,34 @@ public static class ControlStateStartUIOptionProvider
         return names;
     }
 
+    /// <summary>从场景 <see cref="PlateMapDisplayModule"/> 收集板块显示名（省市名，用于高亮）。</summary>
+    public static List<string> CollectPlateHighlightNames()
+    {
+        HashSet<string> unique = new HashSet<string>();
+        PlateMapDisplayModule[] modules = Object.FindObjectsByType<PlateMapDisplayModule>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+
+        for (int i = 0; i < modules.Length; i++)
+        {
+            PlateMapDisplayModule module = modules[i];
+            if (module == null)
+            {
+                continue;
+            }
+
+            string name = module.DisplayName;
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                unique.Add(name);
+            }
+        }
+
+        List<string> names = new List<string>(unique);
+        names.Sort();
+        return names;
+    }
+
     /// <summary>从场景 <see cref="PlateMapDisplayModule"/> 收集板块模块名（GameObject 名）。</summary>
     public static List<string> CollectProvinceModuleNames()
     {

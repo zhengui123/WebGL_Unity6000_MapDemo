@@ -16,6 +16,10 @@ public static class ControlStateStartUIBuilder
     private const string UiRootObjectName = "DemoGameStateUIRoot";
     private const string MenuPanelName = "DemoGameStateMenuPanel";
     private const string PanelName = "ControlStateJumpPanel";
+    private const string HighlightPanelName = "PlateMapHighlightPanel";
+    private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
+    private const string PlateMapHighlightUiTitle = "省级高亮";
+    private const string PlateMapHighlightMenuLabel = "省级高亮";
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -25,6 +29,8 @@ public static class ControlStateStartUIBuilder
     private const float FieldWidth = 200f;
     private const float BackButtonHeight = 32f;
     private const float MenuButtonHeight = 40f;
+    private const int DropdownItemLabelFontSize = 12;
+    private const string DropdownItemLabelPath = "Template/Viewport/Content/Item/Item Label";
     private const string ControlStateJumpUiTitle = "界面跳转——跨层级跳转";
 
     private struct PreservedPanelState
@@ -62,13 +68,22 @@ public static class ControlStateStartUIBuilder
             preserved,
             navigator,
             out Button backButton);
+        Font demoUiFont = LoadDemoUiFont();
+        GameObject highlightPanel = CreatePlateMapHighlightPanel(
+            uiRoot.transform,
+            resources,
+            sharedLayout,
+            navigator,
+            demoUiFont);
 
         SerializedObject serializedNavigator = new SerializedObject(navigator);
         serializedNavigator.FindProperty("_menuPanel").objectReferenceValue = menuPanel;
         serializedNavigator.FindProperty("_controlStateJumpPanel").objectReferenceValue = jumpPanel;
+        serializedNavigator.FindProperty("_plateMapHighlightPanel").objectReferenceValue = highlightPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
+        highlightPanel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -102,12 +117,107 @@ public static class ControlStateStartUIBuilder
             entryButtonText.text = ControlStateJumpUiTitle;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject highlightEntryButtonGo = DefaultControls.CreateButton(resources);
+        highlightEntryButtonGo.name = "PlateMapHighlightEntryButton";
+        SetupChildRect(highlightEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text highlightEntryButtonText = highlightEntryButtonGo.GetComponentInChildren<Text>();
+        if (highlightEntryButtonText != null)
+        {
+            highlightEntryButtonText.text = PlateMapHighlightMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedMenu.FindProperty("_controlStateJumpEntryButton").objectReferenceValue =
             entryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_plateMapHighlightEntryButton").objectReferenceValue =
+            highlightEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, LoadDemoUiFont());
+
+        return panel;
+    }
+
+    private static GameObject CreatePlateMapHighlightPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, HighlightPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        List<string> highlightNames = ControlStateStartUIOptionProvider.CollectPlateHighlightNames();
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, PlateMapHighlightUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        int defaultIndex = FindOptionIndex(highlightNames, PlateMapHighlightUIDemo.DefaultHighlightName);
+        Dropdown provinceDropdown = CreateLabeledDropdown(
+            panel.transform,
+            resources,
+            "ProvinceNameDropdown",
+            "省市名字",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            highlightNames,
+            defaultIndex);
+        y -= RowHeight + 12f;
+
+        GameObject highlightButtonGo = DefaultControls.CreateButton(resources);
+        highlightButtonGo.name = "HighlightButton";
+        SetupChildRect(highlightButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text highlightButtonText = highlightButtonGo.GetComponentInChildren<Text>();
+        if (highlightButtonText != null)
+        {
+            highlightButtonText.text = "高亮";
+        }
+        y -= 40f + 8f;
+
+        GameObject clearButtonGo = DefaultControls.CreateButton(resources);
+        clearButtonGo.name = "ClearHighlightButton";
+        SetupChildRect(clearButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text clearButtonText = clearButtonGo.GetComponentInChildren<Text>();
+        if (clearButtonText != null)
+        {
+            clearButtonText.text = "取消高亮";
+        }
+
+        PlateMapHighlightUIDemo uiDemo = panel.AddComponent<PlateMapHighlightUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_provinceNameDropdown").objectReferenceValue = provinceDropdown;
+        serializedDemo.FindProperty("_highlightButton").objectReferenceValue =
+            highlightButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_clearHighlightButton").objectReferenceValue =
+            clearButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
 
         return panel;
     }
@@ -331,6 +441,31 @@ public static class ControlStateStartUIBuilder
         return state;
     }
 
+    private static Font LoadDemoUiFont()
+    {
+        Font font = AssetDatabase.LoadAssetAtPath<Font>(DemoUiFontPath);
+        if (font == null)
+        {
+            Debug.LogWarning($"[ControlStateStartUIBuilder] 未找到字体：{DemoUiFontPath}，将使用 LegacyRuntime.ttf。");
+        }
+
+        return font;
+    }
+
+    private static void ApplyPanelFont(GameObject panel, Font font)
+    {
+        if (panel == null || font == null)
+        {
+            return;
+        }
+
+        Text[] texts = panel.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].font = font;
+        }
+    }
+
     private static DefaultControls.Resources CreateDefaultUiResources()
     {
         return new DefaultControls.Resources
@@ -521,6 +656,7 @@ public static class ControlStateStartUIBuilder
         dropdownGo.name = "Dropdown";
         SetupChildRect(dropdownGo, row.transform, labelWidth + 8f, 0f, fieldWidth, RowHeight);
         Dropdown dropdown = dropdownGo.GetComponent<Dropdown>();
+        ConfigureDropdownItemLabel(dropdown);
         dropdown.ClearOptions();
         if (options == null || options.Count == 0)
         {
@@ -534,6 +670,33 @@ public static class ControlStateStartUIBuilder
 
         dropdown.RefreshShownValue();
         return dropdown;
+    }
+
+    /// <summary>
+    /// 统一设置 Dropdown 模板 Item Label 字号，展开后动态克隆的列表项会沿用该模板。
+    /// </summary>
+    private static void ConfigureDropdownItemLabel(Dropdown dropdown)
+    {
+        if (dropdown == null)
+        {
+            return;
+        }
+
+        Transform itemLabelTransform = dropdown.transform.Find(DropdownItemLabelPath);
+        if (itemLabelTransform == null)
+        {
+            Debug.LogWarning($"[ControlStateStartUIBuilder] 未找到 Dropdown Item Label：{DropdownItemLabelPath}");
+            return;
+        }
+
+        Text itemLabel = itemLabelTransform.GetComponent<Text>();
+        if (itemLabel == null)
+        {
+            Debug.LogWarning("[ControlStateStartUIBuilder] Dropdown Item Label 缺少 Text 组件。");
+            return;
+        }
+
+        itemLabel.fontSize = DropdownItemLabelFontSize;
     }
 
     private static InputField CreateLabeledInputField(
