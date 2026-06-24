@@ -43,6 +43,7 @@ public sealed class TransitionInstantDurationScope : IDisposable
         "_firstMoveDuration",
         "_secondMoveDuration",
         "_kjDissolveDuration",
+        "_attackPathCameraMoveDuration",
         "goEarthAnimTime",
         "showFogAnimTime",
         "showPlateMapAnimTime",

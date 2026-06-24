@@ -66,6 +66,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public Transform ActivePart => _activePart;
     public string LastPartName => _lastPartName;
     public IReadOnlyList<Transform> ShowAttackPath => _showAttackPath;
+    public IReadOnlyList<Transform> ConfiguredPartRoots => _partRoots;
 
     private static VehicleToPartTransitionController _instance;
 
