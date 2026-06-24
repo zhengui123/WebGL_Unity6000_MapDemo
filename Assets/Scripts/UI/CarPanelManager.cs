@@ -26,6 +26,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
         em.OnVehicleToPlateViewTransitionStarted += HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted += HandleVehicleToPartTransitionStarted;
+        em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
     }
 
     private void OnDisable()
@@ -39,6 +40,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
         em.OnVehicleToPlateViewTransitionStarted -= HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted -= HandleVehicleToPartTransitionStarted;
+        em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
     }
 
     public void Update()
@@ -122,6 +124,11 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     }
 
     private void HandleVehicleToPartTransitionStarted(string partName)
+    {
+        CloseCarUI();
+    }
+
+    private void HandleVehicleToAttackPathTransitionStarted()
     {
         CloseCarUI();
     }

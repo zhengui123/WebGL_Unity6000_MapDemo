@@ -179,4 +179,30 @@ public class MapApi : UnitySingle<MapApi>
 
         return controller.PlayTransitionReverse(partName);
     }
+
+    /// <summary>正播：车辆 → 攻击路径过渡。</summary>
+    public bool TransitionVehicleToAttackPath()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 攻击路径过渡。");
+            return false;
+        }
+
+        return controller.PlayVehicleToAttackPathTransition();
+    }
+
+    /// <summary>倒播：攻击路径 → 车辆过渡。</summary>
+    public bool TransitionAttackPathToVehicle()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 车辆过渡。");
+            return false;
+        }
+
+        return controller.PlayAttackPathToVehicleTransition();
+    }
 }

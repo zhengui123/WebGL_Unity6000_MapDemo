@@ -18,7 +18,7 @@ internal static class GameManagerDemoAccess
 
     /// <summary>
     /// 强制设置操控级别，并同步执行点击开关等副作用（与事件驱动路径一致）。
-    /// 用于 PartLevel 等尚无完整过渡链的状态，或倒播前的状态修正。
+    /// 用于尚无完整过渡链的状态对齐，或倒播前的状态修正。
     /// </summary>
     public static void ForceState(GameManager manager, GameManager.ControlState state)
     {

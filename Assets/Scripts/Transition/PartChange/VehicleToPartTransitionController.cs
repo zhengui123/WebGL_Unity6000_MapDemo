@@ -542,6 +542,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         CacheAttackPathCameraPose();
 
         _isTransitioning = true;
+        EventManager.Instance?.TriggerVehicleToAttackPathTransitionStarted();
         _sequence = DOTween.Sequence();
         AppendCarHideOnlyTween(_sequence);
         JoinAttackPathCameraToTargetTween(_sequence);
@@ -667,6 +668,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         controller.gameObject.SetActive(true);
         controller.PlayPath(_showAttackPath);
+        EventManager.Instance?.TriggerVehicleToAttackPathTransitionCompleted();
     }
 
     private void CompleteAttackPathToVehicleTransition()
@@ -678,6 +680,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         {
             _kjCarRoot.SetActive(true);
         }
+
+        EventManager.Instance?.TriggerAttackPathToVehicleTransitionCompleted();
     }
 
     private AttackPathController ResolveAttackPathController()

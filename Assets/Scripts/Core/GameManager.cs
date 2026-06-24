@@ -2,7 +2,7 @@ using UnityEngine;
 using System;
 
 /// <summary>
-/// 操控状态总控（地球/国家/省级/车辆/零部件）。
+/// 操控状态总控（地球/国家/省级/车辆/零部件/攻击路径）。
 /// 负责驱动 <see cref="MapApi"/> 切换与订阅 <see cref="EventManager"/> 事件推进状态。
 /// </summary>
 public class GameManager : UnitySingle<GameManager>
@@ -12,8 +12,9 @@ public class GameManager : UnitySingle<GameManager>
         EarthLevel = 0,   // 初始地球级别
         CountryLevel = 1, // 国家级别
         ProvinceLevel = 2,// 省级
-        VehicleLevel = 3, // 车辆级
-        PartLevel = 4     // 零部件级
+        VehicleLevel = 3,    // 车辆级
+        PartLevel = 4,       // 零部件级
+        AttackPathLevel = 5  // 攻击路径级
     }
 
     [Header("当前操控状态（只读运行时）")]
@@ -52,6 +53,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnVehicleToPlateViewTransitionCompleted += HandleVehicleToPlateViewTransitionCompleted;
         em.OnVehicleToPartTransitionCompleted += HandleVehicleToPartTransitionCompleted;
         em.OnVehicleToPartTransitionReverseCompleted += HandleVehicleToPartTransitionReverseCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted += HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted += HandleAttackPathToVehicleTransitionCompleted;
 
         // 初始：地球级别（默认禁用点击）
         ApplyStateSideEffects(_currentState);
@@ -76,6 +79,8 @@ public class GameManager : UnitySingle<GameManager>
         em.OnVehicleToPlateViewTransitionCompleted -= HandleVehicleToPlateViewTransitionCompleted;
         em.OnVehicleToPartTransitionCompleted -= HandleVehicleToPartTransitionCompleted;
         em.OnVehicleToPartTransitionReverseCompleted -= HandleVehicleToPartTransitionReverseCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted -= HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted -= HandleAttackPathToVehicleTransitionCompleted;
     }
 
 
@@ -158,6 +163,20 @@ public class GameManager : UnitySingle<GameManager>
 
     /// <summary>零件 → 车辆过渡倒播完成：回到车辆级。</summary>
     private void HandleVehicleToPartTransitionReverseCompleted(string partName)
+    {
+        SetState(ControlState.VehicleLevel);
+        ApplyStateSideEffects(ControlState.VehicleLevel);
+    }
+
+    /// <summary>车辆 → 攻击路径过渡完成：进入攻击路径级。</summary>
+    private void HandleVehicleToAttackPathTransitionCompleted()
+    {
+        SetState(ControlState.AttackPathLevel);
+        ApplyStateSideEffects(ControlState.AttackPathLevel);
+    }
+
+    /// <summary>攻击路径 → 车辆过渡倒播完成：回到车辆级。</summary>
+    private void HandleAttackPathToVehicleTransitionCompleted()
     {
         SetState(ControlState.VehicleLevel);
         ApplyStateSideEffects(ControlState.VehicleLevel);

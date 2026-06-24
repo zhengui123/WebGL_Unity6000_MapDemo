@@ -43,6 +43,15 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
     public event Action<string> OnVehicleToPartTransitionReverseCompleted;
 
+    /// <summary>车辆 → 攻击路径过渡开始。</summary>
+    public event Action OnVehicleToAttackPathTransitionStarted;
+
+    /// <summary>车辆 → 攻击路径过渡全部完成。</summary>
+    public event Action OnVehicleToAttackPathTransitionCompleted;
+
+    /// <summary>攻击路径 → 车辆过渡倒播全部完成。</summary>
+    public event Action OnAttackPathToVehicleTransitionCompleted;
+
     #region 板块-车辆过渡动画
     /// <summary>AllPlateMap → GaodeMap 过渡开始（参数为省份名）。</summary>
     public event Action<string> OnPlateToGaodeMapTransitionStarted;
@@ -219,6 +228,21 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerVehicleToPartTransitionReverseCompleted(string partName)
     {
         OnVehicleToPartTransitionReverseCompleted?.Invoke(partName);
+    }
+
+    public void TriggerVehicleToAttackPathTransitionStarted()
+    {
+        OnVehicleToAttackPathTransitionStarted?.Invoke();
+    }
+
+    public void TriggerVehicleToAttackPathTransitionCompleted()
+    {
+        OnVehicleToAttackPathTransitionCompleted?.Invoke();
+    }
+
+    public void TriggerAttackPathToVehicleTransitionCompleted()
+    {
+        OnAttackPathToVehicleTransitionCompleted?.Invoke();
     }
 
     public void TriggerPlateToVehicleViewTransitionStarted(string provinceName)
