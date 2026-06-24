@@ -36,6 +36,11 @@ public class GridLine : MonoBehaviour
     [SerializeField] private float _drawDuration = 0.6f;
     [SerializeField] private AnimationCurve _drawEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Header("虚线样式（视口空间单位）")]
+    [SerializeField] private bool _useDashedLine = true;
+    [SerializeField] private float _dashLength = 0.005f;
+    [SerializeField] private float _gapLength = 0.005f;
+
     [Header("endUI 缩放显隐")]
     [SerializeField] private float _endUIScaleDuration = 0.35f;
     [SerializeField] private AnimationCurve _endUIScaleEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
@@ -426,16 +431,7 @@ public class GridLine : MonoBehaviour
         lineMaterial.SetPass(0);
         GL.LoadOrtho();
         GL.Begin(GL.LINES);
-
-        if (binding.DrawProgress >= 1f)
-        {
-            DrawFullPolyline(start, center, end);
-        }
-        else
-        {
-            DrawPartialPolylineLeftToRight(start, center, end, binding.DrawProgress);
-        }
-
+        DrawPolyline(start, center, end, binding.DrawProgress);
         GL.End();
         GL.PopMatrix();
     }
@@ -453,15 +449,8 @@ public class GridLine : MonoBehaviour
         }
     }
 
-    private static void DrawFullPolyline(Vector2 start, Vector2 center, Vector2 end)
-    {
-        GL.Vertex(start);
-        GL.Vertex(center);
-        GL.Vertex(center);
-        GL.Vertex(end);
-    }
-
-    private static void DrawPartialPolylineLeftToRight(Vector2 start, Vector2 center, Vector2 end, float progress)
+    /// <summary>沿折线路径绘制；progress 为 0~1，按路径总长度从左到右裁剪。</summary>
+    private void DrawPolyline(Vector2 start, Vector2 center, Vector2 end, float progress)
     {
         float firstLength = Vector2.Distance(start, center);
         float secondLength = Vector2.Distance(center, end);
@@ -471,21 +460,60 @@ public class GridLine : MonoBehaviour
             return;
         }
 
-        float visibleLength = progress * totalLength;
-        if (visibleLength <= firstLength)
+        float visibleLength = Mathf.Clamp01(progress) * totalLength;
+        if (visibleLength <= 0f)
         {
-            Vector2 partialEnd = Vector2.Lerp(start, center, visibleLength / firstLength);
-            GL.Vertex(start);
-            GL.Vertex(partialEnd);
             return;
         }
 
+        if (visibleLength <= firstLength)
+        {
+            Vector2 partialEnd = Vector2.Lerp(start, center, visibleLength / firstLength);
+            DrawPathSegment(start, partialEnd);
+            return;
+        }
+
+        DrawPathSegment(start, center);
         float onSecondSegment = visibleLength - firstLength;
         Vector2 partialEndOnSecond = Vector2.Lerp(center, end, onSecondSegment / secondLength);
-        GL.Vertex(start);
-        GL.Vertex(center);
-        GL.Vertex(center);
-        GL.Vertex(partialEndOnSecond);
+        DrawPathSegment(center, partialEndOnSecond);
+    }
+
+    private void DrawPathSegment(Vector2 from, Vector2 to)
+    {
+        if (_useDashedLine)
+        {
+            DrawDashedSegment(from, to, _dashLength, _gapLength);
+            return;
+        }
+
+        GL.Vertex(from);
+        GL.Vertex(to);
+    }
+
+    /// <summary>在视口空间将线段切分为多段短实线，间隔处不绘制。</summary>
+    private static void DrawDashedSegment(Vector2 from, Vector2 to, float dashLength, float gapLength)
+    {
+        dashLength = Mathf.Max(dashLength, 0.0001f);
+        gapLength = Mathf.Max(gapLength, 0f);
+        float patternLength = dashLength + gapLength;
+
+        Vector2 delta = to - from;
+        float length = delta.magnitude;
+        if (length < 0.0001f)
+        {
+            return;
+        }
+
+        Vector2 direction = delta / length;
+        float traveled = 0f;
+        while (traveled < length)
+        {
+            float dashEnd = Mathf.Min(traveled + dashLength, length);
+            GL.Vertex(from + direction * traveled);
+            GL.Vertex(from + direction * dashEnd);
+            traveled += patternLength;
+        }
     }
 
     private Vector2 GetCenterPos(Vector2 start, Vector2 end)
