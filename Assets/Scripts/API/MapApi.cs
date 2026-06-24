@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -204,5 +205,59 @@ public class MapApi : UnitySingle<MapApi>
         }
 
         return controller.PlayAttackPathToVehicleTransition();
+    }
+
+    /// <summary>
+    /// 从当前 GameManager 逻辑操控级别，按邻接图逐步过渡到目标级别。
+    /// 主干：地球 → 国家 → 省级 → 车辆；车辆下并列分支：零件 / 攻击路径（须经车辆级衔接）。
+    /// </summary>
+    /// <param name="targetState">
+    /// 目标操控级别：0 地球级、1 国家级、2 省级、3 车辆级、4 零件级、5 攻击路径级。
+    /// </param>
+    /// <param name="provinceName">
+    /// 省级行政区名称，用于省级 ↔ 车辆 阶段的高德地图聚焦（如「山东」「广东」）。
+    /// 须为 ChinaProvinceMapDatabase 可识别的省名；为 null 使用默认配置。
+    /// </param>
+    /// <param name="provinceModuleName">
+    /// 3D 板块模型模块名（场景中 GameObject 名，如 polySurface3），用于国家 → 省级 的板块聚焦。
+    /// 为 null 使用默认配置。
+    /// </param>
+    /// <param name="partName">
+    /// 车辆零件 GameObject 名，用于车辆 ↔ 零件 过渡；为空或 null 时使用过渡控制器默认/列表首项。
+    /// 为 null 使用默认配置。
+    /// </param>
+    /// </param>
+    /// <param name="useInstantTransition">
+    /// 是否启用瞬时过渡。为 true 时，跳转期间临时将各过渡控制器动画时长置 0，结束后自动恢复，不修改 Inspector 原始配置。
+    /// </param>
+    /// <returns>已成功启动跳转协程返回 true；控制器不存在、正在跳转中或 targetState 无效时返回 false。</returns>
+    public bool TransitionToControlState(
+        int targetState,
+        string provinceName = null,
+        string provinceModuleName = null,
+        string partName = null,
+        bool useInstantTransition = false)
+    {
+        if (!Enum.IsDefined(typeof(GameManager.ControlState), targetState))
+        {
+            Debug.LogWarning($"[MapApi] 无效的 targetState：{targetState}，有效范围为 0~5。");
+            return false;
+        }
+
+        ControlStateHierarchyTransitionController controller =
+            ControlStateHierarchyTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyTransitionController，无法执行层级跳转。");
+            return false;
+        }
+
+        return controller.TransitionToState(
+            useInstantTransition,
+            (GameManager.ControlState)targetState,
+            provinceName,
+            provinceModuleName,
+            partName,
+            false);
     }
 }

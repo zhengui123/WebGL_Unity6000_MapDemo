@@ -25,7 +25,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
     [SerializeField] private Dropdown _targetStateDropdown;
     [SerializeField] private Toggle _instantTransitionToggle;
-    [SerializeField] private InputField _provinceNameInput;
+    [SerializeField] private Dropdown _provinceNameDropdown;
     [SerializeField] private Dropdown _provinceModuleNameDropdown;
     [SerializeField] private Dropdown _partNameDropdown;
     [SerializeField] private Button _jumpButton;
@@ -73,10 +73,14 @@ public class ControlStateStartUIDemo : MonoBehaviour
         _jumpButton.interactable = controller == null || !controller.IsBootstrapping;
     }
 
-    /// <summary>刷新下拉选项（板块模块名、零件名）。</summary>
+    /// <summary>刷新下拉选项（省份名、板块模块名、零件名）。</summary>
     public void RefreshAllDropdownOptions()
     {
         EnsureTargetStateDropdownOptions();
+        ControlStateStartUIOptionProvider.ApplyOptions(
+            _provinceNameDropdown,
+            ControlStateStartUIOptionProvider.CollectProvinceNames(),
+            DefaultProvinceName);
         ControlStateStartUIOptionProvider.ApplyOptions(
             _provinceModuleNameDropdown,
             ControlStateStartUIOptionProvider.CollectProvinceModuleNames(),
@@ -101,10 +105,10 @@ public class ControlStateStartUIDemo : MonoBehaviour
             _instantTransitionToggle.isOn = DefaultUseInstantTransition;
         }
 
-        if (_provinceNameInput != null)
-        {
-            _provinceNameInput.text = DefaultProvinceName;
-        }
+        ControlStateStartUIOptionProvider.ApplyOptions(
+            _provinceNameDropdown,
+            ControlStateStartUIOptionProvider.CollectProvinceNames(),
+            DefaultProvinceName);
 
         ControlStateStartUIOptionProvider.ApplyOptions(
             _provinceModuleNameDropdown,
@@ -153,7 +157,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
         bool useInstant = _instantTransitionToggle != null && _instantTransitionToggle.isOn;
         GameManager.ControlState targetState = (GameManager.ControlState)_targetStateDropdown.value;
-        string provinceName = _provinceNameInput != null ? _provinceNameInput.text : null;
+        string provinceName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
         string provinceModuleName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceModuleNameDropdown);
         string partName = ControlStateStartUIOptionProvider.GetSelectedText(_partNameDropdown);
 

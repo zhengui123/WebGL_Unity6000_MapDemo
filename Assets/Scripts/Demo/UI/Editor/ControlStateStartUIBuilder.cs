@@ -129,6 +129,7 @@ public static class ControlStateStartUIBuilder
         Image panelImage = panel.GetComponent<Image>();
         panelImage.color = new Color(0f, 0f, 0f, 0.55f);
 
+        List<string> provinceNames = ControlStateStartUIOptionProvider.CollectProvinceNames();
         List<string> moduleNames = ControlStateStartUIOptionProvider.CollectProvinceModuleNames();
         List<string> partNames = ControlStateStartUIOptionProvider.CollectPartNames();
 
@@ -184,16 +185,18 @@ public static class ControlStateStartUIBuilder
             preserved.InstantToggleCheckmarkSprite ?? resources.checkmark);
         y -= RowHeight + 4f;
 
-        InputField provinceNameInput = CreateLabeledInputField(
+        int provinceDefaultIndex = FindOptionIndex(provinceNames, ControlStateStartUIDemo.DefaultProvinceName);
+        Dropdown provinceNameDropdown = CreateLabeledDropdown(
             panel.transform,
             resources,
-            "ProvinceNameInput",
+            "ProvinceNameDropdown",
             "省级板块名字",
             12f,
             y,
             LabelWidth,
             FieldWidth,
-            ControlStateStartUIDemo.DefaultProvinceName);
+            provinceNames,
+            provinceDefaultIndex);
         y -= RowHeight + 4f;
 
         int moduleDefaultIndex = FindOptionIndex(moduleNames, ControlStateStartUIDemo.DefaultProvinceModuleName);
@@ -236,7 +239,7 @@ public static class ControlStateStartUIBuilder
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
         serializedDemo.FindProperty("_targetStateDropdown").objectReferenceValue = targetStateDropdown;
         serializedDemo.FindProperty("_instantTransitionToggle").objectReferenceValue = instantToggle;
-        serializedDemo.FindProperty("_provinceNameInput").objectReferenceValue = provinceNameInput;
+        serializedDemo.FindProperty("_provinceNameDropdown").objectReferenceValue = provinceNameDropdown;
         serializedDemo.FindProperty("_provinceModuleNameDropdown").objectReferenceValue = provinceModuleDropdown;
         serializedDemo.FindProperty("_partNameDropdown").objectReferenceValue = partNameDropdown;
         serializedDemo.FindProperty("_jumpButton").objectReferenceValue = buttonGo.GetComponent<Button>();
