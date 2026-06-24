@@ -9,6 +9,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _menuPanel;
     [SerializeField] private GameObject _controlStateJumpPanel;
     [SerializeField] private GameObject _plateMapHighlightPanel;
+    [SerializeField] private GameObject _vehicleHeatmapUpdatePanel;
 
     private void Awake()
     {
@@ -20,6 +21,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_menuPanel, true);
         SetPanelActive(_controlStateJumpPanel, false);
         SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
     }
 
     public void ShowControlStateJumpPanel()
@@ -27,6 +29,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_menuPanel, false);
         SetPanelActive(_controlStateJumpPanel, true);
         SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
     }
 
     public void ShowPlateMapHighlightPanel()
@@ -34,6 +37,15 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_menuPanel, false);
         SetPanelActive(_controlStateJumpPanel, false);
         SetPanelActive(_plateMapHighlightPanel, true);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+    }
+
+    public void ShowVehicleHeatmapUpdatePanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, true);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

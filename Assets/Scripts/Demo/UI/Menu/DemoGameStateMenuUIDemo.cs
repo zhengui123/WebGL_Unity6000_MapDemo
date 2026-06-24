@@ -10,6 +10,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private DemoGameStateUINavigator _navigator;
     [SerializeField] private Button _controlStateJumpEntryButton;
     [SerializeField] private Button _plateMapHighlightEntryButton;
+    [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
 
     private void Awake()
     {
@@ -21,6 +22,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_plateMapHighlightEntryButton != null)
         {
             _plateMapHighlightEntryButton.onClick.AddListener(OnPlateMapHighlightEntryClicked);
+        }
+
+        if (_vehicleHeatmapUpdateEntryButton != null)
+        {
+            _vehicleHeatmapUpdateEntryButton.onClick.AddListener(OnVehicleHeatmapUpdateEntryClicked);
         }
     }
 
@@ -34,6 +40,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_plateMapHighlightEntryButton != null)
         {
             _plateMapHighlightEntryButton.onClick.RemoveListener(OnPlateMapHighlightEntryClicked);
+        }
+
+        if (_vehicleHeatmapUpdateEntryButton != null)
+        {
+            _vehicleHeatmapUpdateEntryButton.onClick.RemoveListener(OnVehicleHeatmapUpdateEntryClicked);
         }
     }
 
@@ -59,6 +70,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowPlateMapHighlightPanel();
+    }
+
+    private void OnVehicleHeatmapUpdateEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowVehicleHeatmapUpdatePanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

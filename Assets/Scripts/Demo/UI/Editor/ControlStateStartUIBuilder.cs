@@ -17,9 +17,12 @@ public static class ControlStateStartUIBuilder
     private const string MenuPanelName = "DemoGameStateMenuPanel";
     private const string PanelName = "ControlStateJumpPanel";
     private const string HighlightPanelName = "PlateMapHighlightPanel";
+    private const string VehicleHeatmapPanelName = "VehicleHeatmapUpdatePanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
+    private const string VehicleHeatmapMenuLabel = "更新车辆热力图";
+    private const string VehicleHeatmapUiTitle = "更新车辆热力图";
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -30,6 +33,7 @@ public static class ControlStateStartUIBuilder
     private const float BackButtonHeight = 32f;
     private const float MenuButtonHeight = 40f;
     private const int DropdownItemLabelFontSize = 12;
+    private const int InputFieldFontSize = 12;
     private const string DropdownItemLabelPath = "Template/Viewport/Content/Item/Item Label";
     private const string ControlStateJumpUiTitle = "界面跳转——跨层级跳转";
 
@@ -75,15 +79,23 @@ public static class ControlStateStartUIBuilder
             sharedLayout,
             navigator,
             demoUiFont);
+        GameObject vehicleHeatmapPanel = CreateVehicleHeatmapUpdatePanel(
+            uiRoot.transform,
+            resources,
+            sharedLayout,
+            navigator,
+            demoUiFont);
 
         SerializedObject serializedNavigator = new SerializedObject(navigator);
         serializedNavigator.FindProperty("_menuPanel").objectReferenceValue = menuPanel;
         serializedNavigator.FindProperty("_controlStateJumpPanel").objectReferenceValue = jumpPanel;
         serializedNavigator.FindProperty("_plateMapHighlightPanel").objectReferenceValue = highlightPanel;
+        serializedNavigator.FindProperty("_vehicleHeatmapUpdatePanel").objectReferenceValue = vehicleHeatmapPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
         highlightPanel.SetActive(false);
+        vehicleHeatmapPanel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -128,6 +140,17 @@ public static class ControlStateStartUIBuilder
             highlightEntryButtonText.text = PlateMapHighlightMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject heatmapEntryButtonGo = DefaultControls.CreateButton(resources);
+        heatmapEntryButtonGo.name = "VehicleHeatmapUpdateEntryButton";
+        SetupChildRect(heatmapEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text heatmapEntryButtonText = heatmapEntryButtonGo.GetComponentInChildren<Text>();
+        if (heatmapEntryButtonText != null)
+        {
+            heatmapEntryButtonText.text = VehicleHeatmapMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -135,9 +158,80 @@ public static class ControlStateStartUIBuilder
             entryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_plateMapHighlightEntryButton").objectReferenceValue =
             highlightEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_vehicleHeatmapUpdateEntryButton").objectReferenceValue =
+            heatmapEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
+
+        return panel;
+    }
+
+    private static GameObject CreateVehicleHeatmapUpdatePanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, VehicleHeatmapPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        PlateMapShandongRandomPointsDemo pointsDemo =
+            Object.FindFirstObjectByType<PlateMapShandongRandomPointsDemo>();
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, VehicleHeatmapUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        InputField pointCountInput = CreateLabeledInputField(
+            panel.transform,
+            resources,
+            "PointCountInput",
+            "点位数量",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            VehicleHeatmapUpdateUIDemo.DefaultPointCountText,
+            InputFieldFontSize);
+        y -= RowHeight + 12f;
+
+        GameObject updateButtonGo = DefaultControls.CreateButton(resources);
+        updateButtonGo.name = "UpdateButton";
+        SetupChildRect(updateButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text updateButtonText = updateButtonGo.GetComponentInChildren<Text>();
+        if (updateButtonText != null)
+        {
+            updateButtonText.text = "更新";
+        }
+
+        VehicleHeatmapUpdateUIDemo uiDemo = panel.AddComponent<VehicleHeatmapUpdateUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_pointCountInput").objectReferenceValue = pointCountInput;
+        serializedDemo.FindProperty("_updateButton").objectReferenceValue =
+            updateButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_pointsDemo").objectReferenceValue = pointsDemo;
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
 
         return panel;
     }
@@ -708,7 +802,8 @@ public static class ControlStateStartUIBuilder
         float y,
         float labelWidth,
         float fieldWidth,
-        string defaultText)
+        string defaultText,
+        int inputFontSize)
     {
         GameObject row = new GameObject(name, typeof(RectTransform));
         row.transform.SetParent(parent, false);
@@ -721,7 +816,26 @@ public static class ControlStateStartUIBuilder
         SetupChildRect(inputGo, row.transform, labelWidth + 8f, 0f, fieldWidth, RowHeight);
         InputField inputField = inputGo.GetComponent<InputField>();
         inputField.text = defaultText;
+        ConfigureInputFieldTextSize(inputField, inputFontSize);
         return inputField;
+    }
+
+    private static void ConfigureInputFieldTextSize(InputField inputField, int fontSize)
+    {
+        if (inputField == null)
+        {
+            return;
+        }
+
+        if (inputField.textComponent != null)
+        {
+            inputField.textComponent.fontSize = fontSize;
+        }
+
+        if (inputField.placeholder is Text placeholderText)
+        {
+            placeholderText.fontSize = fontSize;
+        }
     }
 
     private static void SetupChildRect(GameObject go, Transform parent, float x, float y, float width, float height)

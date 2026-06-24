@@ -103,6 +103,13 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     }
 
 
+    /// <summary>从 UI 输入文本解析点位数量并重新生成热力图数据。</summary>
+    public void UpdateVehicleHeatmapFromInput(string text)
+    {
+        pointCount = int.Parse(text);
+        GenerateRandomVehiclePointsInShandongMenu();
+    }
+
     [ContextMenu("随机生成100个山东省内点位")]
     public void GenerateRandomVehiclePointsInShandongMenu()
     {
