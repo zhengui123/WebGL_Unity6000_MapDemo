@@ -104,6 +104,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         CacheEarthCameraLocalPos();
         BeginSequence();
         ResetFogDensity(0f);
+        EventManager.Instance?.TriggerTransitionToPlateMapStarted();
 
         _transitionSequence.Append(MoveCameraLocal(firstTargetLocalPos, goEarthAnimTime));
         _transitionSequence.Append(AnimateCameraAndFogIn(secondTargetLocalPos, showFogAnimTime));

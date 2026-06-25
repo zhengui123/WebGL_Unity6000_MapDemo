@@ -10,8 +10,14 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>板块模块聚焦相机动画全部播放完毕。</summary>
     public event Action<string> OnPlateMapFocusModuleCompleted;
 
+    /// <summary>板块相机还原动画开始。</summary>
+    public event Action OnPlateMapRestoreCameraStarted;
+
     /// <summary>板块相机还原动画全部播放完毕。</summary>
     public event Action OnPlateMapRestoreCameraCompleted;
+
+    /// <summary>地球 → 板块过渡动画开始。</summary>
+    public event Action OnTransitionToPlateMapStarted;
 
     /// <summary>地球 → 板块过渡动画全部播放完毕。</summary>
     public event Action OnTransitionToPlateMapCompleted;
@@ -40,6 +46,9 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>车辆 → 零件过渡全部完成（参数为零件名）。</summary>
     public event Action<string> OnVehicleToPartTransitionCompleted;
 
+    /// <summary>零件 → 车辆过渡倒播开始（参数为零件名）。</summary>
+    public event Action<string> OnVehicleToPartTransitionReverseStarted;
+
     /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
     public event Action<string> OnVehicleToPartTransitionReverseCompleted;
 
@@ -48,6 +57,9 @@ public class EventManager : UnitySingle<EventManager>
 
     /// <summary>车辆 → 攻击路径过渡全部完成。</summary>
     public event Action OnVehicleToAttackPathTransitionCompleted;
+
+    /// <summary>攻击路径 → 车辆过渡倒播开始。</summary>
+    public event Action OnAttackPathToVehicleTransitionStarted;
 
     /// <summary>攻击路径 → 车辆过渡倒播全部完成。</summary>
     public event Action OnAttackPathToVehicleTransitionCompleted;
@@ -115,9 +127,19 @@ public class EventManager : UnitySingle<EventManager>
         OnPlateMapFocusModuleCompleted?.Invoke(moduleName);
     }
 
+    public void TriggerPlateMapRestoreCameraStarted()
+    {
+        OnPlateMapRestoreCameraStarted?.Invoke();
+    }
+
     public void TriggerPlateMapRestoreCameraCompleted()
     {
         OnPlateMapRestoreCameraCompleted?.Invoke();
+    }
+
+    public void TriggerTransitionToPlateMapStarted()
+    {
+        OnTransitionToPlateMapStarted?.Invoke();
     }
 
     public void TriggerTransitionToPlateMapCompleted()
@@ -225,6 +247,11 @@ public class EventManager : UnitySingle<EventManager>
         OnVehicleToPartTransitionCompleted?.Invoke(partName);
     }
 
+    public void TriggerVehicleToPartTransitionReverseStarted(string partName)
+    {
+        OnVehicleToPartTransitionReverseStarted?.Invoke(partName);
+    }
+
     public void TriggerVehicleToPartTransitionReverseCompleted(string partName)
     {
         OnVehicleToPartTransitionReverseCompleted?.Invoke(partName);
@@ -238,6 +265,11 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerVehicleToAttackPathTransitionCompleted()
     {
         OnVehicleToAttackPathTransitionCompleted?.Invoke();
+    }
+
+    public void TriggerAttackPathToVehicleTransitionStarted()
+    {
+        OnAttackPathToVehicleTransitionStarted?.Invoke();
     }
 
     public void TriggerAttackPathToVehicleTransitionCompleted()

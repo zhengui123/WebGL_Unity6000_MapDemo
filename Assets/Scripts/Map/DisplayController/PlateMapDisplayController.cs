@@ -323,6 +323,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         KillCameraTweens();
         FadeAllModulesForRestore();
+        EventManager.Instance?.TriggerPlateMapRestoreCameraStarted();
         PlayCameraTween(
             _preFocusPose.RigWorldPosition,
             _preFocusPose.RigWorldRotation,

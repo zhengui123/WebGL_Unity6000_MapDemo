@@ -216,7 +216,8 @@ public class MapApi : UnitySingle<MapApi>
     /// </param>
     /// <param name="provinceName">
     /// 省级行政区名称，用于省级 ↔ 车辆 阶段的高德地图聚焦（如「山东」「广东」）。
-    /// 须为 ChinaProvinceMapDatabase 可识别的省名；为 null 使用默认配置。
+    /// 须为已配置的省名；
+    /// 为 null 使用默认配置。
     /// </param>
     /// <param name="provinceModuleName">
     /// 3D 板块模型模块名（场景中 GameObject 名，如 polySurface3），用于国家 → 省级 的板块聚焦。

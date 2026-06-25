@@ -217,6 +217,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
+        EventManager.Instance?.TriggerVehicleToPartTransitionReverseStarted(part.name);
         part.gameObject.SetActive(true);
         _kjCarRoot.SetActive(true);
         _kjDissolve.SetDissolveAmount(1f);
@@ -576,6 +577,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _activePart = null;
 
         _isTransitioning = true;
+        EventManager.Instance?.TriggerAttackPathToVehicleTransitionStarted();
         _kjCarRoot.SetActive(true);
         _kjDissolve.SetDissolveAmount(1f);
 
