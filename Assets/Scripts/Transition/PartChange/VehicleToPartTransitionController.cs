@@ -93,7 +93,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveKjCarReference();
         ResolveAttackPathController();
         CacheAllPartInitialStates();
-        HideAttackPathObjectImmediate();
+        StopAndHideAttackPath();
         ConfigureShowAttackPath(_partRoots);
     }
 
@@ -147,7 +147,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         KillSequence();
-        HideAttackPathObjectImmediate();
+        StopAndHideAttackPath();
         RestoreAllPartsToInitialState();
         ApplyCachedPoseFromInitialState(part);
 
@@ -212,7 +212,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         PrepareKjCarDissolve();
         KillSequence();
-        HideAttackPathObjectImmediate();
+        StopAndHideAttackPath();
         ResetCarDragRotation();
         _isTransitioning = true;
         _activePart = part;
@@ -701,22 +701,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void StopAndHideAttackPath()
     {
         SetShowAttackPathWaypointsActive(false);
-
-        AttackPathController controller = ResolveAttackPathController();
-        if (controller == null)
-        {
-            return;
-        }
-
-        controller.StopPath();
-        controller.gameObject.SetActive(false);
-    }
-
-    private void HideAttackPathObjectImmediate()
-    {
-        SetShowAttackPathWaypointsActive(false);
         HideAttackPathControllerImmediate();
+
     }
+
+
 
     /// <summary>仅停止并隐藏攻击路径控制器物体，不影响路点标记显隐。</summary>
     private void HideAttackPathControllerImmediate()
