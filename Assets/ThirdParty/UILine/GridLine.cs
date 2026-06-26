@@ -36,6 +36,11 @@ public class GridLine : MonoBehaviour
     [SerializeField] private float _drawDuration = 0.6f;
     [SerializeField] private AnimationCurve _drawEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
+    [Header("线条样式")]
+    [SerializeField] private float _lineWidthPixels = 3f;
+    [Tooltip("留空则使用 Camera.main；OnPostRender 仅在该相机上绘制")]
+    [SerializeField] private Camera _drawCamera;
+
     [Header("虚线样式（视口空间单位）")]
     [SerializeField] private bool _useDashedLine = true;
     [SerializeField] private float _dashLength = 0.005f;
@@ -416,24 +421,42 @@ public class GridLine : MonoBehaviour
             return;
         }
 
-        Camera cam = Camera.main;
-        if (cam == null)
+        Camera cam = Camera.current;
+        Camera drawCam = ResolveDrawCamera();
+        if (cam == null || drawCam == null || cam != drawCam)
         {
-            Debug.LogError("[GridLine] Camera.main 为空。");
             return;
         }
 
-        Vector2 start = cam.WorldToViewportPoint(binding.Start3D.position);
-        Vector2 end = cam.ScreenToViewportPoint(binding.EndUI.position);
+        if (!TryGetViewportPoint(drawCam, binding.Start3D, out Vector2 start)
+            || !TryGetViewportPoint(drawCam, binding.EndUI, out Vector2 end))
+        {
+            return;
+        }
+
+        float halfWidth = GetLineHalfWidthViewport(drawCam);
+        start = ClampViewportPoint(start, halfWidth);
+        end = ClampViewportPoint(end, halfWidth);
+
         Vector2 center = GetCenterPos(start, end);
 
         GL.PushMatrix();
         lineMaterial.SetPass(0);
         GL.LoadOrtho();
-        GL.Begin(GL.LINES);
-        DrawPolyline(start, center, end, binding.DrawProgress);
+        GL.Begin(GL.QUADS);
+        DrawPolyline(start, center, end, binding.DrawProgress, drawCam);
         GL.End();
         GL.PopMatrix();
+    }
+
+    private Camera ResolveDrawCamera()
+    {
+        if (_drawCamera != null)
+        {
+            return _drawCamera;
+        }
+
+        return Camera.main;
     }
 
     private void Update()
@@ -450,7 +473,7 @@ public class GridLine : MonoBehaviour
     }
 
     /// <summary>沿折线路径绘制；progress 为 0~1，按路径总长度从左到右裁剪。</summary>
-    private void DrawPolyline(Vector2 start, Vector2 center, Vector2 end, float progress)
+    private void DrawPolyline(Vector2 start, Vector2 center, Vector2 end, float progress, Camera cam)
     {
         float firstLength = Vector2.Distance(start, center);
         float secondLength = Vector2.Distance(center, end);
@@ -469,30 +492,53 @@ public class GridLine : MonoBehaviour
         if (visibleLength <= firstLength)
         {
             Vector2 partialEnd = Vector2.Lerp(start, center, visibleLength / firstLength);
-            DrawPathSegment(start, partialEnd);
+            DrawPathSegment(start, partialEnd, cam);
             return;
         }
 
-        DrawPathSegment(start, center);
+        DrawPathSegment(start, center, cam);
         float onSecondSegment = visibleLength - firstLength;
         Vector2 partialEndOnSecond = Vector2.Lerp(center, end, onSecondSegment / secondLength);
-        DrawPathSegment(center, partialEndOnSecond);
+        DrawPathSegment(center, partialEndOnSecond, cam);
     }
 
-    private void DrawPathSegment(Vector2 from, Vector2 to)
+    private float GetLineHalfWidthViewport(Camera cam)
+    {
+        float pixelHeight = cam != null && cam.pixelHeight > 0 ? cam.pixelHeight : Screen.height;
+        float widthPixels = Mathf.Max(_lineWidthPixels, 1f);
+        return (widthPixels / pixelHeight) * 0.5f;
+    }
+
+    private void DrawSolidSegment(Vector2 from, Vector2 to, Camera cam)
+    {
+        Vector2 delta = to - from;
+        float length = delta.magnitude;
+        if (length < 0.00001f)
+        {
+            return;
+        }
+
+        Vector2 direction = delta / length;
+        Vector2 normal = new Vector2(-direction.y, direction.x) * GetLineHalfWidthViewport(cam);
+        GL.Vertex(from - normal);
+        GL.Vertex(from + normal);
+        GL.Vertex(to + normal);
+        GL.Vertex(to - normal);
+    }
+
+    private void DrawPathSegment(Vector2 from, Vector2 to, Camera cam)
     {
         if (_useDashedLine)
         {
-            DrawDashedSegment(from, to, _dashLength, _gapLength);
+            DrawDashedSegment(from, to, _dashLength, _gapLength, cam);
             return;
         }
 
-        GL.Vertex(from);
-        GL.Vertex(to);
+        DrawSolidSegment(from, to, cam);
     }
 
     /// <summary>在视口空间将线段切分为多段短实线，间隔处不绘制。</summary>
-    private static void DrawDashedSegment(Vector2 from, Vector2 to, float dashLength, float gapLength)
+    private void DrawDashedSegment(Vector2 from, Vector2 to, float dashLength, float gapLength, Camera cam)
     {
         dashLength = Mathf.Max(dashLength, 0.0001f);
         gapLength = Mathf.Max(gapLength, 0f);
@@ -510,10 +556,74 @@ public class GridLine : MonoBehaviour
         while (traveled < length)
         {
             float dashEnd = Mathf.Min(traveled + dashLength, length);
-            GL.Vertex(from + direction * traveled);
-            GL.Vertex(from + direction * dashEnd);
+            Vector2 dashFrom = from + direction * traveled;
+            Vector2 dashTo = from + direction * dashEnd;
+            DrawSolidSegment(dashFrom, dashTo, cam);
             traveled += patternLength;
         }
+    }
+
+    private static Vector2 ScreenPointToViewport(Camera cam, Vector3 screenPoint)
+    {
+        Rect pixelRect = cam.pixelRect;
+        float width = Mathf.Max(pixelRect.width, 1f);
+        float height = Mathf.Max(pixelRect.height, 1f);
+
+        // 高分辨率 / DPI 缩放时，UI 屏幕坐标与相机像素尺寸可能不一致
+        if (Screen.width > 0 && Screen.height > 0)
+        {
+            screenPoint.x *= width / Screen.width;
+            screenPoint.y *= height / Screen.height;
+        }
+
+        return new Vector2(
+            (screenPoint.x - pixelRect.x) / width,
+            (screenPoint.y - pixelRect.y) / height);
+    }
+
+    /// <summary>将 Transform 转为 GL.LoadOrtho 使用的视口坐标（0~1）。</summary>
+    private static bool TryGetViewportPoint(Camera cam, Transform target, out Vector2 viewport)
+    {
+        viewport = default;
+        if (cam == null || target == null)
+        {
+            return false;
+        }
+
+        Vector3 screenPoint;
+        RectTransform rect = target as RectTransform;
+        if (rect != null)
+        {
+            Canvas canvas = rect.GetComponentInParent<Canvas>();
+            if (canvas != null && canvas.renderMode == RenderMode.ScreenSpaceOverlay)
+            {
+                screenPoint = RectTransformUtility.WorldToScreenPoint(null, rect.position);
+            }
+            else
+            {
+                Camera uiCam = canvas != null && canvas.worldCamera != null ? canvas.worldCamera : cam;
+                screenPoint = RectTransformUtility.WorldToScreenPoint(uiCam, rect.position);
+            }
+        }
+        else
+        {
+            screenPoint = cam.WorldToScreenPoint(target.position);
+            if (screenPoint.z < 0f)
+            {
+                return false;
+            }
+        }
+
+        viewport = ScreenPointToViewport(cam, screenPoint);
+        return true;
+    }
+
+    private static Vector2 ClampViewportPoint(Vector2 viewport, float margin)
+    {
+        margin = Mathf.Max(margin, 0.0001f);
+        return new Vector2(
+            Mathf.Clamp(viewport.x, margin, 1f - margin),
+            Mathf.Clamp(viewport.y, margin, 1f - margin));
     }
 
     private Vector2 GetCenterPos(Vector2 start, Vector2 end)

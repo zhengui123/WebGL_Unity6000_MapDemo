@@ -10,6 +10,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _controlStateJumpPanel;
     [SerializeField] private GameObject _plateMapHighlightPanel;
     [SerializeField] private GameObject _vehicleHeatmapUpdatePanel;
+    [SerializeField] private GameObject _carPanelUiPanel;
 
     private void Awake()
     {
@@ -22,6 +23,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_controlStateJumpPanel, false);
         SetPanelActive(_plateMapHighlightPanel, false);
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
     }
 
     public void ShowControlStateJumpPanel()
@@ -30,6 +32,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_controlStateJumpPanel, true);
         SetPanelActive(_plateMapHighlightPanel, false);
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
     }
 
     public void ShowPlateMapHighlightPanel()
@@ -38,6 +41,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_controlStateJumpPanel, false);
         SetPanelActive(_plateMapHighlightPanel, true);
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
     }
 
     public void ShowVehicleHeatmapUpdatePanel()
@@ -46,6 +50,16 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_controlStateJumpPanel, false);
         SetPanelActive(_plateMapHighlightPanel, false);
         SetPanelActive(_vehicleHeatmapUpdatePanel, true);
+        SetPanelActive(_carPanelUiPanel, false);
+    }
+
+    public void ShowCarPanelUiPanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, true);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

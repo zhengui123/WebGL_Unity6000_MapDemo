@@ -18,11 +18,14 @@ public static class ControlStateStartUIBuilder
     private const string PanelName = "ControlStateJumpPanel";
     private const string HighlightPanelName = "PlateMapHighlightPanel";
     private const string VehicleHeatmapPanelName = "VehicleHeatmapUpdatePanel";
+    private const string CarPanelUiPanelName = "CarPanelUIPanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
     private const string VehicleHeatmapMenuLabel = "更新车辆热力图";
     private const string VehicleHeatmapUiTitle = "更新车辆热力图";
+    private const string CarPanelUiMenuLabel = "车辆 UI 连线";
+    private const string CarPanelUiTitle = "车辆 UI 连线";
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -85,17 +88,25 @@ public static class ControlStateStartUIBuilder
             sharedLayout,
             navigator,
             demoUiFont);
+        GameObject carPanelUiPanel = CreateCarPanelUiPanel(
+            uiRoot.transform,
+            resources,
+            sharedLayout,
+            navigator,
+            demoUiFont);
 
         SerializedObject serializedNavigator = new SerializedObject(navigator);
         serializedNavigator.FindProperty("_menuPanel").objectReferenceValue = menuPanel;
         serializedNavigator.FindProperty("_controlStateJumpPanel").objectReferenceValue = jumpPanel;
         serializedNavigator.FindProperty("_plateMapHighlightPanel").objectReferenceValue = highlightPanel;
         serializedNavigator.FindProperty("_vehicleHeatmapUpdatePanel").objectReferenceValue = vehicleHeatmapPanel;
+        serializedNavigator.FindProperty("_carPanelUiPanel").objectReferenceValue = carPanelUiPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
         highlightPanel.SetActive(false);
         vehicleHeatmapPanel.SetActive(false);
+        carPanelUiPanel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -151,6 +162,17 @@ public static class ControlStateStartUIBuilder
             heatmapEntryButtonText.text = VehicleHeatmapMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject carPanelUiEntryButtonGo = DefaultControls.CreateButton(resources);
+        carPanelUiEntryButtonGo.name = "CarPanelUIEntryButton";
+        SetupChildRect(carPanelUiEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text carPanelUiEntryButtonText = carPanelUiEntryButtonGo.GetComponentInChildren<Text>();
+        if (carPanelUiEntryButtonText != null)
+        {
+            carPanelUiEntryButtonText.text = CarPanelUiMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -160,9 +182,86 @@ public static class ControlStateStartUIBuilder
             highlightEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_vehicleHeatmapUpdateEntryButton").objectReferenceValue =
             heatmapEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_carPanelUiEntryButton").objectReferenceValue =
+            carPanelUiEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
+
+        return panel;
+    }
+
+    private static GameObject CreateCarPanelUiPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, CarPanelUiPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, CarPanelUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        InputField start3DNameInput = CreateLabeledInputField(
+            panel.transform,
+            resources,
+            "Start3DObjectNameInput",
+            "起点物体名",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            CarPanelUIDemo.DefaultStart3DObjectName,
+            InputFieldFontSize);
+        y -= RowHeight + 12f;
+
+        GameObject openButtonGo = DefaultControls.CreateButton(resources);
+        openButtonGo.name = "OpenCarUIButton";
+        SetupChildRect(openButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text openButtonText = openButtonGo.GetComponentInChildren<Text>();
+        if (openButtonText != null)
+        {
+            openButtonText.text = "打开车辆 UI";
+        }
+        y -= 40f + 8f;
+
+        GameObject closeButtonGo = DefaultControls.CreateButton(resources);
+        closeButtonGo.name = "CloseCarUIButton";
+        SetupChildRect(closeButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text closeButtonText = closeButtonGo.GetComponentInChildren<Text>();
+        if (closeButtonText != null)
+        {
+            closeButtonText.text = "关闭车辆 UI";
+        }
+
+        CarPanelUIDemo uiDemo = panel.AddComponent<CarPanelUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_start3DObjectNameInput").objectReferenceValue = start3DNameInput;
+        serializedDemo.FindProperty("_openCarUiButton").objectReferenceValue = openButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_closeCarUiButton").objectReferenceValue = closeButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
 
         return panel;
     }
@@ -450,6 +549,8 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButton;
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, LoadDemoUiFont());
 
         return panel;
     }
