@@ -331,6 +331,24 @@ public class AndroidMessage : MonoBehaviour
         }
     }
 
+    /// <summary>Android 调用：进入操控层级下一级（等同双击）。</summary>
+    public void TransitionToNextControlState()
+    {
+        if (!MapApi.Instance.TransitionToNextControlState())
+        {
+            Debug.LogWarning("[AndroidMessage] TransitionToNextControlState 启动失败。");
+        }
+    }
+
+    /// <summary>Android 调用：返回操控层级上一级（等同系统返回键）。</summary>
+    public void TransitionToPreviousControlState()
+    {
+        if (!MapApi.Instance.TransitionToPreviousControlState())
+        {
+            Debug.LogWarning("[AndroidMessage] TransitionToPreviousControlState 启动失败。");
+        }
+    }
+
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;

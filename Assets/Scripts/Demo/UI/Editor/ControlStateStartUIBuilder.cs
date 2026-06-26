@@ -19,6 +19,7 @@ public static class ControlStateStartUIBuilder
     private const string HighlightPanelName = "PlateMapHighlightPanel";
     private const string VehicleHeatmapPanelName = "VehicleHeatmapUpdatePanel";
     private const string CarPanelUiPanelName = "CarPanelUIPanel";
+    private const string PreviousLevelPanelName = "PreviousLevelPanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -26,6 +27,8 @@ public static class ControlStateStartUIBuilder
     private const string VehicleHeatmapUiTitle = "更新车辆热力图";
     private const string CarPanelUiMenuLabel = "车辆 UI 连线";
     private const string CarPanelUiTitle = "车辆 UI 连线";
+    private const string PreviousLevelMenuLabel = "返回上个层级";
+    private const string PreviousLevelUiTitle = "返回上个层级";
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -40,11 +43,46 @@ public static class ControlStateStartUIBuilder
     private const string DropdownItemLabelPath = "Template/Viewport/Content/Item/Item Label";
     private const string ControlStateJumpUiTitle = "界面跳转——跨层级跳转";
 
-    private struct PreservedPanelState
+    private struct PreservedUiState
     {
-        public ControlStateJumpPanelLayout.RectLayoutData Layout;
+        public System.Collections.Generic.Dictionary<string, ControlStateJumpPanelLayout.RectLayoutData> PanelLayouts;
+        public ControlStateJumpPanelLayout.RectLayoutData UiRootLayout;
+        public bool HasUiRootLayout;
         public Sprite InstantToggleCheckmarkSprite;
+
+        public ControlStateJumpPanelLayout.RectLayoutData GetPanelLayout(string panelName)
+        {
+            if (PanelLayouts != null
+                && PanelLayouts.TryGetValue(panelName, out ControlStateJumpPanelLayout.RectLayoutData layout))
+            {
+                return layout;
+            }
+
+            if (PanelLayouts != null
+                && PanelLayouts.TryGetValue(PanelName, out layout))
+            {
+                return layout;
+            }
+
+            if (PanelLayouts != null
+                && PanelLayouts.TryGetValue(MenuPanelName, out layout))
+            {
+                return layout;
+            }
+
+            return ControlStateJumpPanelLayout.CreateDefault();
+        }
     }
+
+    private static readonly string[] PreservedPanelNames =
+    {
+        MenuPanelName,
+        PanelName,
+        HighlightPanelName,
+        VehicleHeatmapPanelName,
+        CarPanelUiPanelName,
+        PreviousLevelPanelName,
+    };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
     public static void CreateControlStateJumpUI()
@@ -55,20 +93,33 @@ public static class ControlStateStartUIBuilder
             return;
         }
 
+        EnsureCanvasScaler(canvas);
         EnsureEventSystem();
 
-        PreservedPanelState preserved = CapturePreservedState(canvas.transform);
+        PreservedUiState preserved = CapturePreservedState(canvas.transform);
         DestroyExistingUi(canvas.transform);
 
         DefaultControls.Resources resources = CreateDefaultUiResources();
-        ControlStateJumpPanelLayout.RectLayoutData sharedLayout = preserved.Layout;
 
         GameObject uiRoot = new GameObject(UiRootObjectName, typeof(RectTransform));
         uiRoot.transform.SetParent(canvas.transform, false);
-        SetupFullStretchRect(uiRoot.GetComponent<RectTransform>());
+        RectTransform uiRootRect = uiRoot.GetComponent<RectTransform>();
+        if (preserved.HasUiRootLayout)
+        {
+            ApplyPanelLayout(uiRootRect, preserved.UiRootLayout);
+        }
+        else
+        {
+            SetupFullStretchRect(uiRootRect);
+        }
+
         DemoGameStateUINavigator navigator = uiRoot.AddComponent<DemoGameStateUINavigator>();
 
-        GameObject menuPanel = CreateMenuPanel(uiRoot.transform, resources, sharedLayout, navigator);
+        GameObject menuPanel = CreateMenuPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(MenuPanelName),
+            navigator);
         GameObject jumpPanel = CreateControlStateJumpPanel(
             uiRoot.transform,
             resources,
@@ -79,20 +130,27 @@ public static class ControlStateStartUIBuilder
         GameObject highlightPanel = CreatePlateMapHighlightPanel(
             uiRoot.transform,
             resources,
-            sharedLayout,
+            preserved.GetPanelLayout(HighlightPanelName),
             navigator,
             demoUiFont);
         GameObject vehicleHeatmapPanel = CreateVehicleHeatmapUpdatePanel(
             uiRoot.transform,
             resources,
-            sharedLayout,
+            preserved.GetPanelLayout(VehicleHeatmapPanelName),
             navigator,
             demoUiFont);
         GameObject carPanelUiPanel = CreateCarPanelUiPanel(
             uiRoot.transform,
             resources,
-            sharedLayout,
+            preserved.GetPanelLayout(CarPanelUiPanelName),
             navigator,
+            demoUiFont);
+        GameObject previousLevelPanel = CreatePreviousLevelPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(PreviousLevelPanelName),
+            navigator,
+            preserved.InstantToggleCheckmarkSprite ?? resources.checkmark,
             demoUiFont);
 
         SerializedObject serializedNavigator = new SerializedObject(navigator);
@@ -101,12 +159,14 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_plateMapHighlightPanel").objectReferenceValue = highlightPanel;
         serializedNavigator.FindProperty("_vehicleHeatmapUpdatePanel").objectReferenceValue = vehicleHeatmapPanel;
         serializedNavigator.FindProperty("_carPanelUiPanel").objectReferenceValue = carPanelUiPanel;
+        serializedNavigator.FindProperty("_previousLevelPanel").objectReferenceValue = previousLevelPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
         highlightPanel.SetActive(false);
         vehicleHeatmapPanel.SetActive(false);
         carPanelUiPanel.SetActive(false);
+        previousLevelPanel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -173,6 +233,17 @@ public static class ControlStateStartUIBuilder
             carPanelUiEntryButtonText.text = CarPanelUiMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject previousLevelEntryButtonGo = DefaultControls.CreateButton(resources);
+        previousLevelEntryButtonGo.name = "PreviousLevelEntryButton";
+        SetupChildRect(previousLevelEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text previousLevelEntryButtonText = previousLevelEntryButtonGo.GetComponentInChildren<Text>();
+        if (previousLevelEntryButtonText != null)
+        {
+            previousLevelEntryButtonText.text = PreviousLevelMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -184,11 +255,117 @@ public static class ControlStateStartUIBuilder
             heatmapEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_carPanelUiEntryButton").objectReferenceValue =
             carPanelUiEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_previousLevelEntryButton").objectReferenceValue =
+            previousLevelEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
 
         return panel;
+    }
+
+    private static GameObject CreatePreviousLevelPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Sprite toggleCheckmarkSprite,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, PreviousLevelPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, PreviousLevelUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        GameObject currentStateLabelGo = CreateLabelObject(
+            panel.transform,
+            "CurrentStateLabel",
+            "当前层级：地球级 (0)",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text currentStateLabel = currentStateLabelGo.GetComponent<Text>();
+        y -= RowHeight + 8f;
+
+        Toggle instantToggle = CreateLabeledToggle(
+            panel.transform,
+            resources,
+            "InstantTransitionToggle",
+            "瞬时跳转",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            ControlStatePreviousLevelUIDemo.DefaultUseInstantTransition);
+        ApplyToggleCheckmarkSprite(instantToggle, toggleCheckmarkSprite);
+        y -= RowHeight + 12f;
+
+        GameObject previousButtonGo = DefaultControls.CreateButton(resources);
+        previousButtonGo.name = "PreviousLevelButton";
+        SetupChildRect(previousButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text previousButtonText = previousButtonGo.GetComponentInChildren<Text>();
+        if (previousButtonText != null)
+        {
+            previousButtonText.text = "返回上一级";
+        }
+
+        ControlStatePreviousLevelUIDemo uiDemo = panel.AddComponent<ControlStatePreviousLevelUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_currentStateLabel").objectReferenceValue = currentStateLabel;
+        serializedDemo.FindProperty("_instantTransitionToggle").objectReferenceValue = instantToggle;
+        serializedDemo.FindProperty("_previousLevelButton").objectReferenceValue =
+            previousButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
+
+        return panel;
+    }
+
+    private static GameObject CreateLabelObject(
+        Transform parent,
+        string name,
+        string text,
+        float x,
+        float y,
+        float width,
+        float height,
+        int fontSize,
+        FontStyle fontStyle)
+    {
+        GameObject labelGo = new GameObject(name, typeof(RectTransform), typeof(Text));
+        labelGo.transform.SetParent(parent, false);
+        SetupChildRect(labelGo, parent, x, y, width, height);
+        Text label = labelGo.GetComponent<Text>();
+        label.text = text;
+        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        label.fontSize = fontSize;
+        label.fontStyle = fontStyle;
+        label.color = Color.white;
+        label.alignment = TextAnchor.MiddleLeft;
+        return labelGo;
     }
 
     private static GameObject CreateCarPanelUiPanel(
@@ -418,13 +595,13 @@ public static class ControlStateStartUIBuilder
     private static GameObject CreateControlStateJumpPanel(
         Transform parent,
         DefaultControls.Resources resources,
-        PreservedPanelState preserved,
+        PreservedUiState preserved,
         DemoGameStateUINavigator navigator,
         out Button backButton)
     {
         GameObject panel = CreatePanel(parent, PanelName);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
-        ApplyPanelLayout(panelRect, preserved.Layout);
+        ApplyPanelLayout(panelRect, preserved.GetPanelLayout(PanelName));
 
         ControlStateJumpPanelLayout layoutComponent = panel.AddComponent<ControlStateJumpPanelLayout>();
         layoutComponent.CaptureFrom(panelRect, preserved.InstantToggleCheckmarkSprite);
@@ -586,54 +763,98 @@ public static class ControlStateStartUIBuilder
         return canvasTransform.Find(PanelName);
     }
 
-    private static PreservedPanelState CapturePreservedState(Transform canvasTransform)
+    private static PreservedUiState CapturePreservedState(Transform canvasTransform)
     {
-        PreservedPanelState state = new PreservedPanelState
+        PreservedUiState state = new PreservedUiState
         {
-            Layout = ControlStateJumpPanelLayout.CreateDefault(),
+            PanelLayouts = new System.Collections.Generic.Dictionary<string, ControlStateJumpPanelLayout.RectLayoutData>(),
             InstantToggleCheckmarkSprite = null,
+            HasUiRootLayout = false,
         };
 
-        Transform existing = FindExistingJumpPanel(canvasTransform);
-        if (existing == null)
+        Transform uiRoot = canvasTransform.Find(UiRootObjectName);
+        if (uiRoot != null)
         {
+            RectTransform uiRootRect = uiRoot as RectTransform;
+            if (uiRootRect != null)
+            {
+                state.UiRootLayout = ControlStateJumpPanelLayout.CaptureFromRectTransform(uiRootRect);
+                state.HasUiRootLayout = true;
+            }
+
+            for (int i = 0; i < PreservedPanelNames.Length; i++)
+            {
+                TryCapturePanelLayout(uiRoot, PreservedPanelNames[i], state.PanelLayouts);
+            }
+
+            CaptureInstantToggleCheckmarkSprite(uiRoot, ref state.InstantToggleCheckmarkSprite);
             return state;
         }
 
-        ControlStateJumpPanelLayout layoutComponent = existing.GetComponent<ControlStateJumpPanelLayout>();
-        if (layoutComponent != null)
+        Transform legacyJumpPanel = FindExistingJumpPanel(canvasTransform);
+        if (legacyJumpPanel != null)
         {
-            state.Layout = layoutComponent.Layout;
-            state.InstantToggleCheckmarkSprite = layoutComponent.InstantToggleCheckmarkSprite;
-        }
-        else
-        {
-            RectTransform rect = existing.GetComponent<RectTransform>();
-            if (rect != null)
-            {
-                state.Layout = new ControlStateJumpPanelLayout.RectLayoutData
-                {
-                    AnchorMin = rect.anchorMin,
-                    AnchorMax = rect.anchorMax,
-                    Pivot = rect.pivot,
-                    AnchoredPosition = rect.anchoredPosition,
-                    SizeDelta = rect.sizeDelta,
-                    LocalScale = rect.localScale,
-                };
-            }
-        }
-
-        Transform checkmark = existing.Find(InstantToggleCheckmarkPath);
-        if (checkmark != null)
-        {
-            Image checkmarkImage = checkmark.GetComponent<Image>();
-            if (checkmarkImage != null && checkmarkImage.sprite != null)
-            {
-                state.InstantToggleCheckmarkSprite = checkmarkImage.sprite;
-            }
+            TryCapturePanelLayout(legacyJumpPanel.parent, legacyJumpPanel.name, state.PanelLayouts);
+            CaptureInstantToggleCheckmarkSprite(legacyJumpPanel, ref state.InstantToggleCheckmarkSprite);
         }
 
         return state;
+    }
+
+    private static void TryCapturePanelLayout(
+        Transform parent,
+        string panelName,
+        System.Collections.Generic.Dictionary<string, ControlStateJumpPanelLayout.RectLayoutData> layouts)
+    {
+        if (parent == null || layouts == null || string.IsNullOrEmpty(panelName))
+        {
+            return;
+        }
+
+        Transform panel = parent.Find(panelName);
+        if (panel == null)
+        {
+            return;
+        }
+
+        ControlStateJumpPanelLayout layoutComponent = panel.GetComponent<ControlStateJumpPanelLayout>();
+        if (layoutComponent != null)
+        {
+            layouts[panelName] = layoutComponent.Layout;
+            return;
+        }
+
+        RectTransform rect = panel.GetComponent<RectTransform>();
+        if (rect != null)
+        {
+            layouts[panelName] = ControlStateJumpPanelLayout.CaptureFromRectTransform(rect);
+        }
+    }
+
+    private static void CaptureInstantToggleCheckmarkSprite(Transform panelRoot, ref Sprite sprite)
+    {
+        if (panelRoot == null)
+        {
+            return;
+        }
+
+        Transform jumpPanel = panelRoot.name == PanelName ? panelRoot : panelRoot.Find(PanelName);
+        if (jumpPanel == null)
+        {
+            return;
+        }
+
+        Transform checkmark = jumpPanel.Find(InstantToggleCheckmarkPath);
+        if (checkmark == null)
+        {
+            return;
+        }
+
+        Image checkmarkImage = checkmark.GetComponent<Image>();
+        if (checkmarkImage != null && checkmarkImage.sprite != null)
+        {
+            sprite = checkmarkImage.sprite;
+        }
     }
 
     private static Font LoadDemoUiFont()
@@ -693,6 +914,25 @@ public static class ControlStateStartUIBuilder
         {
             image.sprite = checkmarkSprite;
         }
+    }
+
+    private static void EnsureCanvasScaler(Canvas canvas)
+    {
+        if (canvas == null)
+        {
+            return;
+        }
+
+        CanvasScaler scaler = canvas.GetComponent<CanvasScaler>();
+        if (scaler == null)
+        {
+            scaler = canvas.gameObject.AddComponent<CanvasScaler>();
+        }
+
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
     }
 
     private static bool TryFindTargetCanvas(out Canvas canvas)

@@ -12,6 +12,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _plateMapHighlightEntryButton;
     [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
     [SerializeField] private Button _carPanelUiEntryButton;
+    [SerializeField] private Button _previousLevelEntryButton;
 
     private void Awake()
     {
@@ -33,6 +34,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_carPanelUiEntryButton != null)
         {
             _carPanelUiEntryButton.onClick.AddListener(OnCarPanelUiEntryClicked);
+        }
+
+        if (_previousLevelEntryButton != null)
+        {
+            _previousLevelEntryButton.onClick.AddListener(OnPreviousLevelEntryClicked);
         }
     }
 
@@ -56,6 +62,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_carPanelUiEntryButton != null)
         {
             _carPanelUiEntryButton.onClick.RemoveListener(OnCarPanelUiEntryClicked);
+        }
+
+        if (_previousLevelEntryButton != null)
+        {
+            _previousLevelEntryButton.onClick.RemoveListener(OnPreviousLevelEntryClicked);
         }
     }
 
@@ -105,6 +116,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowCarPanelUiPanel();
+    }
+
+    private void OnPreviousLevelEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowPreviousLevelPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

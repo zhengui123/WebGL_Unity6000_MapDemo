@@ -261,4 +261,32 @@ public class MapApi : UnitySingle<MapApi>
             partName,
             false);
     }
+
+    /// <summary>进入层级下一级（与双击操作一致）。</summary>
+    public bool TransitionToNextControlState()
+    {
+        ControlStateHierarchyInputNavigation navigation =
+            ControlStateHierarchyInputNavigation.FindFromTransitionController();
+        if (navigation == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
+            return false;
+        }
+
+        return navigation.TryTransitionToNextLevel();
+    }
+
+    /// <summary>返回层级上一级（与 Escape / Android 返回键一致）。</summary>
+    public bool TransitionToPreviousControlState()
+    {
+        ControlStateHierarchyInputNavigation navigation =
+            ControlStateHierarchyInputNavigation.FindFromTransitionController();
+        if (navigation == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
+            return false;
+        }
+
+        return navigation.TryTransitionToPreviousLevel();
+    }
 }

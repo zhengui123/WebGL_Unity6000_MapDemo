@@ -67,7 +67,26 @@ public class ControlStateJumpPanelLayout : MonoBehaviour
             Pivot = new Vector2(0f, 1f),
             AnchoredPosition = new Vector2(16f, -16f),
             SizeDelta = new Vector2(360f, 360f),
-            LocalScale = new Vector3(1.5f, 1.5f, 1.5f),
+            LocalScale = Vector3.one,
+        };
+    }
+
+    /// <summary>从 RectTransform 快照布局数据（编辑器重建 UI 时使用）。</summary>
+    public static RectLayoutData CaptureFromRectTransform(RectTransform rectTransform)
+    {
+        if (rectTransform == null)
+        {
+            return CreateDefault();
+        }
+
+        return new RectLayoutData
+        {
+            AnchorMin = rectTransform.anchorMin,
+            AnchorMax = rectTransform.anchorMax,
+            Pivot = rectTransform.pivot,
+            AnchoredPosition = rectTransform.anchoredPosition,
+            SizeDelta = rectTransform.sizeDelta,
+            LocalScale = rectTransform.localScale,
         };
     }
 }

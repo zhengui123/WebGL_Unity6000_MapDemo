@@ -39,6 +39,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         base.Awake();
     }
 
+ 
+
     private void Start()
     {
         if (!_applyOnPlay)
@@ -58,6 +60,20 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         }
 
         StartCoroutine(BootstrapAfterWarmup(false, _startState));
+    }
+
+    /// <summary>进入层级下一级（委托给输入导航组件）。</summary>
+    public bool TryTransitionToNextLevel()
+    {
+        ControlStateHierarchyInputNavigation navigation = ControlStateHierarchyInputNavigation.FindFromTransitionController();
+        return navigation != null && navigation.TryTransitionToNextLevel();
+    }
+
+    /// <summary>返回层级上一级（委托给输入导航组件）。</summary>
+    public bool TryTransitionToPreviousLevel()
+    {
+        ControlStateHierarchyInputNavigation navigation = ControlStateHierarchyInputNavigation.FindFromTransitionController();
+        return navigation != null && navigation.TryTransitionToPreviousLevel();
     }
 
     /// <summary>
