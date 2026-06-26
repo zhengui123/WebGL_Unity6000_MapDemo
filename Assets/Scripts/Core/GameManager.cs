@@ -86,19 +86,19 @@ public class GameManager : UnitySingle<GameManager>
 
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            SwitchToCountryLevel();
-        }
-        if (Input.GetKeyDown(KeyCode.Backspace))
-        {
-            RestoreToEarthLevel();
-        }
+        // if (Input.GetKeyDown(KeyCode.Space))
+        // {
+        //     SwitchToCountryLevel();
+        // }
+        // if (Input.GetKeyDown(KeyCode.Backspace))
+        // {
+        //     RestoreToEarthLevel();
+        // }
        
-        if (Input.GetKeyDown(KeyCode.Escape) && _currentState == ControlState.ProvinceLevel)
-        {
-            RestoreToCountryLevelFromProvince();
-        }
+        // if (Input.GetKeyDown(KeyCode.Escape) && _currentState == ControlState.ProvinceLevel)
+        // {
+        //     RestoreToCountryLevelFromProvince();
+        // }
     }
 
     #region 状态推进（事件驱动）
