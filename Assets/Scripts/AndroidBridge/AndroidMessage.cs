@@ -35,6 +35,13 @@ public struct ControlStateTransitionNotify
     public int to;
 }
 
+/// <summary>Android → Unity 大屏自动轮播开关。</summary>
+[System.Serializable]
+public struct BigScreenAutoCarouselRequest
+{
+    public bool enabled;
+}
+
 /// <summary>
 /// Unity 与 Android 宿主双向通信。场景内需有名为 AndroidBridge 的物体并挂载本脚本。
 /// </summary>
@@ -346,6 +353,22 @@ public class AndroidMessage : MonoBehaviour
         if (!MapApi.Instance.TransitionToPreviousControlState())
         {
             Debug.LogWarning("[AndroidMessage] TransitionToPreviousControlState 启动失败。");
+        }
+    }
+
+    /// <summary>Android 调用：开启/关闭四个大屏自动轮播。json 示例：{"enabled":true}</summary>
+    public void SetBigScreenAutoCarouselEnabled(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[AndroidMessage] SetBigScreenAutoCarouselEnabled: JSON 为空。");
+            return;
+        }
+
+        BigScreenAutoCarouselRequest request = JsonUtility.FromJson<BigScreenAutoCarouselRequest>(json);
+        if (!MapApi.Instance.SetBigScreenAutoCarouselEnabled(request.enabled))
+        {
+            Debug.LogWarning($"[AndroidMessage] SetBigScreenAutoCarouselEnabled 失败: {json}");
         }
     }
 

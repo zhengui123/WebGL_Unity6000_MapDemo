@@ -20,6 +20,7 @@ public static class ControlStateStartUIBuilder
     private const string VehicleHeatmapPanelName = "VehicleHeatmapUpdatePanel";
     private const string CarPanelUiPanelName = "CarPanelUIPanel";
     private const string PreviousLevelPanelName = "PreviousLevelPanel";
+    private const string BigScreenCarouselPanelName = "BigScreenCarouselPanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -29,6 +30,13 @@ public static class ControlStateStartUIBuilder
     private const string CarPanelUiTitle = "车辆 UI 连线";
     private const string PreviousLevelMenuLabel = "返回上个层级";
     private const string PreviousLevelUiTitle = "返回上个层级";
+    private const string BigScreenCarouselMenuLabel = "大屏自动轮播";
+    private const string BigScreenCarouselUiTitle = "大屏自动轮播";
+    private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
+    private const string FpsDisplayMenuLabel = "显示 FPS";
+    private const string FpsOverlayName = "DemoFpsOverlay";
+    private const int FpsOverlaySortOrder = 100;
+    private const float FpsValueLabelWidth = 96f;
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -82,6 +90,7 @@ public static class ControlStateStartUIBuilder
         VehicleHeatmapPanelName,
         CarPanelUiPanelName,
         PreviousLevelPanelName,
+        BigScreenCarouselPanelName,
     };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
@@ -119,7 +128,8 @@ public static class ControlStateStartUIBuilder
             uiRoot.transform,
             resources,
             preserved.GetPanelLayout(MenuPanelName),
-            navigator);
+            navigator,
+            out Toggle fpsDisplayToggle);
         GameObject jumpPanel = CreateControlStateJumpPanel(
             uiRoot.transform,
             resources,
@@ -152,6 +162,23 @@ public static class ControlStateStartUIBuilder
             navigator,
             preserved.InstantToggleCheckmarkSprite ?? resources.checkmark,
             demoUiFont);
+        GameObject bigScreenCarouselPanel = CreateBigScreenCarouselPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(BigScreenCarouselPanelName),
+            navigator,
+            demoUiFont);
+
+        Text fpsValueLabel = CreateFpsOverlay(
+            uiRoot.transform,
+            preserved.GetPanelLayout(MenuPanelName),
+            demoUiFont);
+
+        DemoMenuFpsDisplay fpsDisplay = uiRoot.AddComponent<DemoMenuFpsDisplay>();
+        SerializedObject serializedFps = new SerializedObject(fpsDisplay);
+        serializedFps.FindProperty("_fpsValueLabel").objectReferenceValue = fpsValueLabel;
+        serializedFps.FindProperty("_showFpsToggle").objectReferenceValue = fpsDisplayToggle;
+        serializedFps.ApplyModifiedPropertiesWithoutUndo();
 
         SerializedObject serializedNavigator = new SerializedObject(navigator);
         serializedNavigator.FindProperty("_menuPanel").objectReferenceValue = menuPanel;
@@ -160,6 +187,7 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_vehicleHeatmapUpdatePanel").objectReferenceValue = vehicleHeatmapPanel;
         serializedNavigator.FindProperty("_carPanelUiPanel").objectReferenceValue = carPanelUiPanel;
         serializedNavigator.FindProperty("_previousLevelPanel").objectReferenceValue = previousLevelPanel;
+        serializedNavigator.FindProperty("_bigScreenCarouselPanel").objectReferenceValue = bigScreenCarouselPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -167,6 +195,7 @@ public static class ControlStateStartUIBuilder
         vehicleHeatmapPanel.SetActive(false);
         carPanelUiPanel.SetActive(false);
         previousLevelPanel.SetActive(false);
+        bigScreenCarouselPanel.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -178,7 +207,8 @@ public static class ControlStateStartUIBuilder
         Transform parent,
         DefaultControls.Resources resources,
         ControlStateJumpPanelLayout.RectLayoutData layout,
-        DemoGameStateUINavigator navigator)
+        DemoGameStateUINavigator navigator,
+        out Toggle fpsDisplayToggle)
     {
         GameObject panel = CreatePanel(parent, MenuPanelName);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
@@ -188,7 +218,21 @@ public static class ControlStateStartUIBuilder
         panelImage.color = new Color(0f, 0f, 0f, 0.55f);
 
         float y = -12f;
-        CreateLabel(panel.transform, "Demo 功能菜单", 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+
+        fpsDisplayToggle = CreateLabeledToggle(
+            panel.transform,
+            resources,
+            FpsDisplayToggleRowName,
+            FpsDisplayMenuLabel,
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            false);
+        ApplyToggleCheckmarkSprite(fpsDisplayToggle, resources.checkmark);
+        y -= RowHeight + 8f;
+
+        CreateLabel(panel.transform, "Demo 功能菜单", 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Normal);
         y -= 28f + 12f;
 
         GameObject entryButtonGo = DefaultControls.CreateButton(resources);
@@ -244,6 +288,17 @@ public static class ControlStateStartUIBuilder
             previousLevelEntryButtonText.text = PreviousLevelMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject bigScreenCarouselEntryButtonGo = DefaultControls.CreateButton(resources);
+        bigScreenCarouselEntryButtonGo.name = "BigScreenCarouselEntryButton";
+        SetupChildRect(bigScreenCarouselEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text bigScreenCarouselEntryButtonText = bigScreenCarouselEntryButtonGo.GetComponentInChildren<Text>();
+        if (bigScreenCarouselEntryButtonText != null)
+        {
+            bigScreenCarouselEntryButtonText.text = BigScreenCarouselMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -257,11 +312,54 @@ public static class ControlStateStartUIBuilder
             carPanelUiEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_previousLevelEntryButton").objectReferenceValue =
             previousLevelEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_bigScreenCarouselEntryButton").objectReferenceValue =
+            bigScreenCarouselEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
+        ApplyPanelTextNormalStyle(panel);
 
         return panel;
+    }
+
+    /// <summary>FPS 文本独立 Overlay，与菜单同区域对齐，排序置于最前。</summary>
+    private static Text CreateFpsOverlay(
+        Transform uiRoot,
+        ControlStateJumpPanelLayout.RectLayoutData menuLayout,
+        Font demoUiFont)
+    {
+        GameObject overlay = new GameObject(FpsOverlayName, typeof(RectTransform));
+        overlay.transform.SetParent(uiRoot, false);
+        ApplyPanelLayout(overlay.GetComponent<RectTransform>(), menuLayout);
+
+        Canvas overlayCanvas = overlay.AddComponent<Canvas>();
+        overlayCanvas.overrideSorting = true;
+        overlayCanvas.sortingOrder = FpsOverlaySortOrder;
+
+        GameObject fpsLabelGo = CreateLabelObject(
+            overlay.transform,
+            "FpsValueLabel",
+            "FPS: --",
+            PanelWidth - 12f - FpsValueLabelWidth,
+            -12f,
+            FpsValueLabelWidth,
+            28f,
+            16,
+            FontStyle.Normal);
+        Text fpsValueLabel = fpsLabelGo.GetComponent<Text>();
+        fpsValueLabel.alignment = TextAnchor.MiddleRight;
+        fpsValueLabel.raycastTarget = false;
+        fpsLabelGo.SetActive(false);
+
+        if (demoUiFont != null)
+        {
+            fpsValueLabel.font = demoUiFont;
+        }
+
+        fpsValueLabel.fontStyle = FontStyle.Normal;
+
+        overlay.transform.SetAsLastSibling();
+        return fpsValueLabel;
     }
 
     private static GameObject CreatePreviousLevelPanel(
@@ -335,6 +433,96 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_instantTransitionToggle").objectReferenceValue = instantToggle;
         serializedDemo.FindProperty("_previousLevelButton").objectReferenceValue =
             previousButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
+
+        return panel;
+    }
+
+    private static GameObject CreateBigScreenCarouselPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, BigScreenCarouselPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, BigScreenCarouselUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        GameObject statusLabelGo = CreateLabelObject(
+            panel.transform,
+            "CarouselStatusLabel",
+            "状态：已关闭",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text statusLabel = statusLabelGo.GetComponent<Text>();
+        y -= RowHeight + 8f;
+
+        GameObject countdownLabelGo = CreateLabelObject(
+            panel.transform,
+            "CarouselCountdownLabel",
+            "下次切换：--",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text countdownLabel = countdownLabelGo.GetComponent<Text>();
+        y -= RowHeight + 12f;
+
+        GameObject enableButtonGo = DefaultControls.CreateButton(resources);
+        enableButtonGo.name = "EnableCarouselButton";
+        SetupChildRect(enableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text enableButtonText = enableButtonGo.GetComponentInChildren<Text>();
+        if (enableButtonText != null)
+        {
+            enableButtonText.text = "开启自动轮播";
+        }
+
+        y -= 48f;
+
+        GameObject disableButtonGo = DefaultControls.CreateButton(resources);
+        disableButtonGo.name = "DisableCarouselButton";
+        SetupChildRect(disableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text disableButtonText = disableButtonGo.GetComponentInChildren<Text>();
+        if (disableButtonText != null)
+        {
+            disableButtonText.text = "关闭自动轮播";
+        }
+
+        DemoBigScreenCarouselUIDemo uiDemo = panel.AddComponent<DemoBigScreenCarouselUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
+        serializedDemo.FindProperty("_countdownLabel").objectReferenceValue = countdownLabel;
+        serializedDemo.FindProperty("_enableButton").objectReferenceValue = enableButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_disableButton").objectReferenceValue = disableButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
@@ -879,6 +1067,20 @@ public static class ControlStateStartUIBuilder
         for (int i = 0; i < texts.Length; i++)
         {
             texts[i].font = font;
+        }
+    }
+
+    private static void ApplyPanelTextNormalStyle(GameObject panel)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        Text[] texts = panel.GetComponentsInChildren<Text>(true);
+        for (int i = 0; i < texts.Length; i++)
+        {
+            texts[i].fontStyle = FontStyle.Normal;
         }
     }
 

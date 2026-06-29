@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -24,6 +26,13 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     [Header("事件")]
     [SerializeField] private bool _logRebuildCompletedAction;
     [SerializeField] private bool _pushViaJsonApi = true;
+
+    [Header("大量数据接入测试")]
+    [SerializeField] private bool _runBulkDataRoundTripTestOnUpdate = true;
+    [Tooltip("清空点位后，等待多少秒再通过 JSON 字符串回灌")]
+    [SerializeField] private float _bulkDataReloadDelayAfterClearSeconds = 2f;
+
+    private Coroutine _bulkDataRoundTripCoroutine;
 
     private PlateMapVehiclePointEvents Hub => PlateMapVehiclePointEvents.Instance;
 
@@ -67,6 +76,12 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         }
 
         hub.VehiclePointsChangedAction -= OnVehiclePointsChangedForLog;
+
+        if (_bulkDataRoundTripCoroutine != null)
+        {
+            StopCoroutine(_bulkDataRoundTripCoroutine);
+            _bulkDataRoundTripCoroutine = null;
+        }
     }
 
     /// <summary>同物体已有 GeoConverter 时，省界过滤统一由其 _useProvinceBoundary 控制。</summary>
@@ -106,8 +121,137 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     /// <summary>从 UI 输入文本解析点位数量并重新生成热力图数据。</summary>
     public void UpdateVehicleHeatmapFromInput(string text)
     {
-        pointCount = int.Parse(text);
+        if (!int.TryParse(text, out int count) || count <= 0)
+        {
+            Debug.LogWarning($"[PlateMapShandongRandomPointsDemo] 无效的点位数量：{text}");
+            return;
+        }
+
+        pointCount = count;
+
+        if (_bulkDataRoundTripCoroutine != null)
+        {
+            StopCoroutine(_bulkDataRoundTripCoroutine);
+        }
+
+        if (_runBulkDataRoundTripTestOnUpdate && Application.isPlaying)
+        {
+            _bulkDataRoundTripCoroutine = StartCoroutine(BulkDataRoundTripTestCoroutine(count));
+            return;
+        }
+
         GenerateRandomVehiclePointsInShandongMenu();
+    }
+
+    private IEnumerator BulkDataRoundTripTestCoroutine(int count)
+    {
+        if (!TryGenerateVehiclePoints(count, out VehicleMapPointData[] points, out string pointsJson))
+        {
+            _bulkDataRoundTripCoroutine = null;
+            yield break;
+        }
+
+        LogPointsJsonOutput(pointsJson, points.Length);
+
+        if (!PushVehiclePointsJson(pointsJson))
+        {
+            Debug.LogError("[PlateMapShandongRandomPointsDemo] 首次推送点位失败。");
+            _bulkDataRoundTripCoroutine = null;
+            yield break;
+        }
+
+        Debug.Log($"[PlateMapShandongRandomPointsDemo] 已推送 {points.Length} 个点位，即将清空。");
+
+        if (!ClearVehiclePoints())
+        {
+            Debug.LogError("[PlateMapShandongRandomPointsDemo] 清空点位失败。");
+            _bulkDataRoundTripCoroutine = null;
+            yield break;
+        }
+
+        Debug.Log("[PlateMapShandongRandomPointsDemo] 点位已清空。");
+
+        float delay = Mathf.Max(0f, _bulkDataReloadDelayAfterClearSeconds);
+        if (delay > 0f)
+        {
+            Debug.Log(
+                $"[PlateMapShandongRandomPointsDemo] 清空后等待 {delay:F1}s，再通过 JSON 字符串回灌。");
+            yield return new WaitForSeconds(delay);
+        }
+
+        if (!ImportVehiclePointsFromJson(pointsJson))
+        {
+            Debug.LogError("[PlateMapShandongRandomPointsDemo] JSON 字符串回灌失败。");
+            _bulkDataRoundTripCoroutine = null;
+            yield break;
+        }
+
+        Debug.Log(
+            $"[PlateMapShandongRandomPointsDemo] 大量数据接入测试完成：清空后延时 {delay:F1}s，已用字符串回灌 {points.Length} 个点位。");
+        _bulkDataRoundTripCoroutine = null;
+    }
+
+    private void LogPointsJsonOutput(string pointsJson, int pointCount)
+    {
+        int length = pointsJson != null ? pointsJson.Length : 0;
+        Debug.Log(
+            $"[PlateMapShandongRandomPointsDemo] 点位 JSON 字符串（{pointCount} 个，{length} 字符）：{pointsJson}");
+    }
+
+    /// <summary>生成点位并序列化为 JSON 字符串。</summary>
+    public bool TryGenerateVehiclePoints(int count, out VehicleMapPointData[] points, out string pointsJson)
+    {
+        points = PlateMapShandongTestPointGenerator.GenerateFiltered(
+            _plateMapName,
+            _provinceFilter,
+            count,
+            _randomSeed,
+            _useProvinceBoundarySampling);
+        pointsJson = null;
+
+        if (points == null || points.Length == 0)
+        {
+            Debug.LogError("[PlateMapShandongRandomPointsDemo] 未生成任何点位。");
+            points = Array.Empty<VehicleMapPointData>();
+            return false;
+        }
+
+        pointsJson = VehicleMapPointJson.ToJson(points);
+        return true;
+    }
+
+    /// <summary>清空当前板块车辆点位。</summary>
+    public bool ClearVehiclePoints()
+    {
+        return PushVehiclePointsJson(VehicleMapPointJson.ToJson(Array.Empty<VehicleMapPointData>()));
+    }
+
+    /// <summary>从 JSON 字符串回灌车辆点位。</summary>
+    public bool ImportVehiclePointsFromJson(string pointsJson)
+    {
+        return PushVehiclePointsJson(pointsJson);
+    }
+
+    private bool PushVehiclePointsJson(string pointsJson)
+    {
+        if (string.IsNullOrWhiteSpace(pointsJson))
+        {
+            Debug.LogWarning("[PlateMapShandongRandomPointsDemo] 点位 JSON 为空。");
+            return false;
+        }
+
+        if (_pushViaJsonApi)
+        {
+            return PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, pointsJson);
+        }
+
+        if (!VehicleMapPointJson.TryParse(pointsJson, out VehicleMapPointData[] points, out string error))
+        {
+            Debug.LogError($"[PlateMapShandongRandomPointsDemo] JSON 解析失败：{error}");
+            return false;
+        }
+
+        return Hub.PublishSetVehiclePoints(_plateMapName, points);
     }
 
     [ContextMenu("随机生成100个山东省内点位")]
@@ -123,22 +267,12 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
             count = _randomGenerateCount;
         }
 
-        VehicleMapPointData[] points = PlateMapShandongTestPointGenerator.GenerateFiltered(
-            _plateMapName,
-            _provinceFilter,
-            count,
-            _randomSeed,
-            _useProvinceBoundarySampling);
-
-        if (points.Length == 0)
+        if (!TryGenerateVehiclePoints(count, out VehicleMapPointData[] points, out string pointsJson))
         {
-            Debug.LogError("[PlateMapShandongRandomPointsDemo] 未生成任何点位。");
             return;
         }
 
-        bool ok = _pushViaJsonApi
-            ? PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, VehicleMapPointJson.ToJson(points))
-            : Hub.PublishSetVehiclePoints(_plateMapName, points);
+        bool ok = PushVehiclePointsJson(pointsJson);
 
 #if UNITY_EDITOR
         if (!Application.isPlaying)

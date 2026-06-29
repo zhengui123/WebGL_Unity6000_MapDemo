@@ -289,4 +289,25 @@ public class MapApi : UnitySingle<MapApi>
 
         return navigation.TryTransitionToPreviousLevel();
     }
+
+    /// <summary>开启或关闭四个大屏自动轮播（默认间隔 2 分钟）。</summary>
+    public bool SetBigScreenAutoCarouselEnabled(bool enabled)
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.SetAutoCarouselEnabled(enabled);
+        return true;
+    }
+
+    /// <summary>是否已开启大屏自动轮播。</summary>
+    public bool IsBigScreenAutoCarouselEnabled()
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        return controller != null && controller.IsAutoCarouselEnabled;
+    }
 }

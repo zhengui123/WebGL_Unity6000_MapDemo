@@ -15,6 +15,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _vehicleHeatmapUpdatePanel;
     [SerializeField] private GameObject _carPanelUiPanel;
     [SerializeField] private GameObject _previousLevelPanel;
+    [SerializeField] private GameObject _bigScreenCarouselPanel;
 
     private void Awake()
     {
@@ -56,6 +57,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
         SetPanelActive(_carPanelUiPanel, false);
         SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
     }
 
     public void ShowControlStateJumpPanel()
@@ -66,6 +68,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
         SetPanelActive(_carPanelUiPanel, false);
         SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
     }
 
     public void ShowPlateMapHighlightPanel()
@@ -76,6 +79,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
         SetPanelActive(_carPanelUiPanel, false);
         SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
     }
 
     public void ShowVehicleHeatmapUpdatePanel()
@@ -86,6 +90,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, true);
         SetPanelActive(_carPanelUiPanel, false);
         SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
     }
 
     public void ShowCarPanelUiPanel()
@@ -96,6 +101,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
         SetPanelActive(_carPanelUiPanel, true);
         SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
     }
 
     public void ShowPreviousLevelPanel()
@@ -106,6 +112,18 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_vehicleHeatmapUpdatePanel, false);
         SetPanelActive(_carPanelUiPanel, false);
         SetPanelActive(_previousLevelPanel, true);
+        SetPanelActive(_bigScreenCarouselPanel, false);
+    }
+
+    public void ShowBigScreenCarouselPanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
+        SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, true);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

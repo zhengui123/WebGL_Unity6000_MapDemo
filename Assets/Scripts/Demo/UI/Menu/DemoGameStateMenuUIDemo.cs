@@ -13,6 +13,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
     [SerializeField] private Button _carPanelUiEntryButton;
     [SerializeField] private Button _previousLevelEntryButton;
+    [SerializeField] private Button _bigScreenCarouselEntryButton;
 
     private void Awake()
     {
@@ -39,6 +40,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_previousLevelEntryButton != null)
         {
             _previousLevelEntryButton.onClick.AddListener(OnPreviousLevelEntryClicked);
+        }
+
+        if (_bigScreenCarouselEntryButton != null)
+        {
+            _bigScreenCarouselEntryButton.onClick.AddListener(OnBigScreenCarouselEntryClicked);
         }
     }
 
@@ -67,6 +73,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_previousLevelEntryButton != null)
         {
             _previousLevelEntryButton.onClick.RemoveListener(OnPreviousLevelEntryClicked);
+        }
+
+        if (_bigScreenCarouselEntryButton != null)
+        {
+            _bigScreenCarouselEntryButton.onClick.RemoveListener(OnBigScreenCarouselEntryClicked);
         }
     }
 
@@ -128,6 +139,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowPreviousLevelPanel();
+    }
+
+    private void OnBigScreenCarouselEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowBigScreenCarouselPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()
