@@ -30,6 +30,16 @@ public class CarModelChangeController : MonoBehaviour
     public bool IsTransitioning => _isTransitioning;
     public bool ShowingKjCar => _showingKjCar;
 
+    /// <summary>KJ_Car 根节点（供零件过渡等模块复用，统一在此 Inspector 配置）。</summary>
+    public GameObject KjCarRoot
+    {
+      get
+      {
+        ResolveReferences();
+        return _kjCarRoot;
+      }
+    }
+
     private static CarModelChangeController _instance;
 
     public static CarModelChangeController Instance

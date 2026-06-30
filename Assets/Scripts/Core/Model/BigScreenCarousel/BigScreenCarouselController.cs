@@ -94,6 +94,13 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
   /// <summary>立即切换到轮播序列中的下一个大屏。</summary>
   public bool TryAdvanceToNextScreen()
   {
+    bool transitionStarted;
+    return TryAdvanceToNextScreen(out transitionStarted);
+  }
+
+  private bool TryAdvanceToNextScreen(out bool hierarchyTransitionStarted)
+  {
+    hierarchyTransitionStarted = false;
     GameManager manager = GameManager.Instance;
     if (manager == null)
     {
@@ -103,7 +110,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
 
     BigScreenCarouselType current = BigScreenCarouselScreenMap.FromControlState(manager.CurrentState);
     BigScreenCarouselType next = BigScreenCarouselScreenMap.GetNext(current);
-    return TryTransitionToScreen(next);
+    return TryTransitionToScreen(next, out hierarchyTransitionStarted);
   }
 
   private void StartCarouselRoutine()
@@ -129,14 +136,15 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
   {
     while (_autoCarouselEnabled)
     {
-      TryAdvanceToNextScreen();
+      bool hierarchyTransitionStarted;
+      TryAdvanceToNextScreen(out hierarchyTransitionStarted);
 
       if (!_autoCarouselEnabled)
       {
         yield break;
       }
 
-      yield return WaitUntilTransitionIdle();
+      yield return WaitUntilTransitionFullyCompleted(hierarchyTransitionStarted);
 
       if (!_autoCarouselEnabled)
       {
@@ -148,7 +156,6 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
       float waitSeconds = Mathf.Max(
         1f,
         isPartCycleWait ? _partCycleWaitSeconds : _levelWaitSeconds);
-        Debug.Log($"currentScreen: {currentScreen}");
       yield return WaitForCountdown(waitSeconds, isPartCycleWait);
     }
   }
@@ -177,18 +184,42 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     return BigScreenCarouselScreenMap.FromControlState(manager.CurrentState);
   }
 
-  private static IEnumerator WaitUntilTransitionIdle()
+  private static IEnumerator WaitUntilTransitionFullyCompleted(bool hierarchyTransitionStarted)
   {
     ControlStateHierarchyTransitionController controller =
       ControlStateHierarchyTransitionController.Instance;
-    while (controller != null && controller.IsBootstrapping)
+    if (controller == null)
+    {
+      yield break;
+    }
+
+    if (hierarchyTransitionStarted)
+    {
+      const float bootstrapStartTimeoutSeconds = 3f;
+      float elapsed = 0f;
+      while (!controller.IsBootstrapping && elapsed < bootstrapStartTimeoutSeconds)
+      {
+        elapsed += Time.unscaledDeltaTime;
+        yield return null;
+      }
+
+      while (controller.IsBootstrapping)
+      {
+        yield return null;
+      }
+    }
+
+    while (ControlStateHierarchyTransitionController.IsAnyTransitionAnimationBusy())
     {
       yield return null;
     }
   }
 
-  private bool TryTransitionToScreen(BigScreenCarouselType screenType)
+  private bool TryTransitionToScreen(
+    BigScreenCarouselType screenType,
+    out bool hierarchyTransitionStarted)
   {
+    hierarchyTransitionStarted = false;
     ControlStateHierarchyTransitionController controller =
       ControlStateHierarchyTransitionController.Instance;
     if (controller == null)
@@ -215,13 +246,13 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
       return true;
     }
 
-    bool started = controller.TransitionToState(_useInstantTransition, targetState);
-    if (started)
+    hierarchyTransitionStarted = controller.TransitionToState(_useInstantTransition, targetState);
+    if (hierarchyTransitionStarted)
     {
       Debug.Log(
         $"[BigScreenCarousel] 轮播切换：{BigScreenCarouselScreenMap.GetDisplayName(screenType)}（{targetState}）。");
     }
 
-    return started;
+    return hierarchyTransitionStarted;
   }
 }

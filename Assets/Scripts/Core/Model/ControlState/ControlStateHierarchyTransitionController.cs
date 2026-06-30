@@ -572,6 +572,9 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         return false;
     }
 
+    /// <summary>各场景过渡控制器是否仍在播放动画。</summary>
+    public static bool IsAnyTransitionAnimationBusy() => IsAnyTransitionBusy();
+
     private static void LogCompleted(GameManager.ControlState targetState)
     {
         GameManager manager = GameManager.Instance;

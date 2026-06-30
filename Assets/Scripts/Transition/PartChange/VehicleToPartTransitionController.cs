@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 车辆 ↔ 零件、车辆 ↔ 攻击路径 过渡控制器。
-/// 零件过渡：零件移动 + KJ_Car 溶解显隐；攻击路径过渡：KJ_Car 溶解后与 AttackPathController 衔接。
+/// 零件过渡：零件移动 + KJ_Car 溶解显隐（KJ_Car 引用统一由 <see cref="CarModelChangeController"/> 配置）。
 /// </summary>
 [DisallowMultipleComponent]
 public class VehicleToPartTransitionController : MonoBehaviour
@@ -17,9 +17,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [Header("目标位姿")]
     [SerializeField] private Transform _firstTarget;
     [SerializeField] private Transform _secondTarget;
-
-    [Header("KJ_Car（留空则自动查找 Model/Car/KJ_Car）")]
-    [SerializeField] private GameObject _kjCarRoot;
 
     [Header("车辆旋转（倒播时重置拖拽旋转）")]
     [SerializeField] private MouseDragYawRotate _carDragYawRotate;
@@ -42,6 +39,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private Ease _attackPathCameraEase = Ease.InOutQuad;
 
     private readonly CarModelDissolveGroup _kjDissolve = new CarModelDissolveGroup();
+    private GameObject _kjCarRoot;
     private readonly Dictionary<int, PartInitialState> _partInitialStates = new Dictionary<int, PartInitialState>();
     private Sequence _sequence;
     private bool _isTransitioning;
@@ -925,22 +923,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
     private void ResolveKjCarReference()
     {
-        if (_kjCarRoot != null)
-        {
-            return;
-        }
-
-        Transform carRoot = FindCarRootTransform();
-        if (carRoot == null)
-        {
-            return;
-        }
-
-        Transform kj = carRoot.Find("KJ_Car");
-        if (kj != null)
-        {
-            _kjCarRoot = kj.gameObject;
-        }
+        CarModelChangeController carModelChange = CarModelChangeController.Instance;
+        _kjCarRoot = carModelChange != null ? carModelChange.KjCarRoot : null;
     }
 
     private static Transform FindCarRootTransform()
