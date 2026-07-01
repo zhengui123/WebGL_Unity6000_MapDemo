@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// 收集车辆根节点下所有带溶解属性的材质实例，并批量写入 Shader 参数。
-/// 不继承 MonoBehaviour，由 CarModelChangeController 持有两个实例分别对应 RealyCar / KJ_Car。
+/// 不继承 MonoBehaviour，由 CarModelDissolveController 持有两个实例分别对应 RealyCar / KJ_Car。
 /// </summary>
 public class CarModelDissolveGroup
 {

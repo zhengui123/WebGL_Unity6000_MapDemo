@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 车辆 ↔ 零件、车辆 ↔ 攻击路径 过渡控制器。
-/// 零件过渡：零件移动 + KJ_Car 溶解显隐（KJ_Car 引用统一由 <see cref="CarModelChangeController"/> 配置）。
+/// 零件过渡：零件移动 + KJ_Car 溶解显隐（KJ_Car 引用统一由 <see cref="CarModelDissolveController"/> 配置）。
 /// </summary>
 [DisallowMultipleComponent]
 public class VehicleToPartTransitionController : MonoBehaviour
@@ -923,8 +923,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
     private void ResolveKjCarReference()
     {
-        CarModelChangeController carModelChange = CarModelChangeController.Instance;
-        _kjCarRoot = carModelChange != null ? carModelChange.KjCarRoot : null;
+        CarModelDissolveController carModelDissolve = CarModelDissolveController.Instance;
+        _kjCarRoot = carModelDissolve != null ? carModelDissolve.KjCarRoot : null;
     }
 
     private static Transform FindCarRootTransform()

@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// 板块地图 → 二维 GaodeMap → 城市模型 两阶段过渡总控。
@@ -10,7 +11,8 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     [Header("过渡控制器（留空则自动查找）")]
     [SerializeField] private PlateToGaodeMapTransitionController _plateTransitionController;
     [SerializeField] private GaodeToCityTransitionController _cityTransitionController;
-    [SerializeField] private CarModelChangeController _carModelChangeController;
+    [FormerlySerializedAs("_carModelChangeController")]
+    [SerializeField] private CarModelDissolveController _carModelDissolveController;
     [SerializeField] private CityHideTransitionController _cityHideTransitionController;
 
     [Header("默认省份（事件未传参时使用）")]
@@ -270,15 +272,15 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         ResolveReferences();
         TryPlayCityHideTransitionParallel(forward: true);
 
-        if (_carModelChangeController == null)
+        if (_carModelDissolveController == null)
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelChangeController，跳过车辆溶解并直接完成正播。");
+            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接完成正播。");
             CompleteForwardOrchestration();
             return;
         }
 
         _carPhase = OrchestratorCarPhase.ForwardEndToKj;
-        if (!_carModelChangeController.SwitchToKjCar())
+        if (!_carModelDissolveController.SwitchToKjCar())
         {
             Debug.LogWarning("[PlateToCityOrchestrator] SwitchToKjCar 未启动，直接完成正播。");
             _carPhase = OrchestratorCarPhase.None;
@@ -292,15 +294,15 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         ResolveReferences();
         TryPlayCityHideTransitionParallel(forward: false);
 
-        if (_carModelChangeController == null)
+        if (_carModelDissolveController == null)
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelChangeController，跳过车辆溶解并直接开始倒播。");
+            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接开始倒播。");
             BeginReverseMapTransitions();
             return;
         }
 
         _carPhase = OrchestratorCarPhase.ReverseStartToRealy;
-        if (!_carModelChangeController.SwitchToRealyCar())
+        if (!_carModelDissolveController.SwitchToRealyCar())
         {
             Debug.LogWarning("[PlateToCityOrchestrator] SwitchToRealyCar 未启动，直接开始倒播。");
             _carPhase = OrchestratorCarPhase.None;
@@ -365,7 +367,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     private bool IsCarTransitionBlocking()
     {
         ResolveReferences();
-        return _carModelChangeController != null && _carModelChangeController.IsTransitioning;
+        return _carModelDissolveController != null && _carModelDissolveController.IsTransitioning;
     }
 
     private bool IsCityHideTransitionBlocking()
@@ -403,9 +405,9 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
             _cityTransitionController = GaodeToCityTransitionController.Instance;
         }
 
-        if (_carModelChangeController == null)
+        if (_carModelDissolveController == null)
         {
-            _carModelChangeController = CarModelChangeController.Instance;
+            _carModelDissolveController = CarModelDissolveController.Instance;
         }
 
         if (_cityHideTransitionController == null)

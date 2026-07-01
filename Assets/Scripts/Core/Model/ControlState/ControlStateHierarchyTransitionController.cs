@@ -551,8 +551,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return true;
         }
 
-        if (CarModelChangeController.Instance != null
-            && CarModelChangeController.Instance.IsTransitioning)
+        if (CarModelDissolveController.Instance != null
+            && CarModelDissolveController.Instance.IsTransitioning)
         {
             return true;
         }

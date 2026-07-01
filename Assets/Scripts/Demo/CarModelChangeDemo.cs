@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 键盘测试车辆溶解切换，需场景中存在 CarModelChangeController。
+/// 键盘测试车辆溶解切换，需场景中存在 CarModelDissolveController。
 /// C：RealyCar → KJ_Car；V：KJ_Car → RealyCar。
 /// </summary>
 public class CarModelChangeDemo : MonoBehaviour
@@ -10,11 +10,11 @@ public class CarModelChangeDemo : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.C))
         {
-            CarModelChangeController.Instance?.SwitchToKjCar();
+            CarModelDissolveController.Instance?.SwitchToKjCar();
         }
         else if (Input.GetKeyDown(KeyCode.V))
         {
-            CarModelChangeController.Instance?.SwitchToRealyCar();
+            CarModelDissolveController.Instance?.SwitchToRealyCar();
         }
     }
 }
