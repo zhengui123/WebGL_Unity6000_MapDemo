@@ -112,9 +112,20 @@ public class GameManager : UnitySingle<GameManager>
 
     private void HandleTransitionToEarthCompleted()
     {
-        // 板块 → 地球过渡完成：进入地球级别
+        RestorePlateDisplayForEarthLevel();
         SetState(ControlState.EarthLevel);
         ApplyStateSideEffects(ControlState.EarthLevel);
+    }
+
+    /// <summary>地球级就绪：板块根可能已隐藏，仍须立刻还原各模块透明度。</summary>
+    private void RestorePlateDisplayForEarthLevel()
+    {
+        if (_plateMapDisplayController == null)
+        {
+            _plateMapDisplayController = PlateMapDisplayController.Instance;
+        }
+
+        _plateMapDisplayController?.RestoreAllModulesAlphaImmediate();
     }
 
     // 省级聚焦开始（相机动动画开始时）

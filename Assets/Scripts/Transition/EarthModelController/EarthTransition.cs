@@ -260,6 +260,9 @@ public class EarthTransition : UnitySingle<EarthTransition>
 
     private static void NotifyTransitionToEarthCompleted()
     {
+        PlateMapDisplayController plateDisplay = PlateMapDisplayController.Instance;
+        plateDisplay?.RestoreAllModulesAlphaImmediate();
+
         EventManager eventManager = EventManager.Instance;
         if (eventManager == null)
         {

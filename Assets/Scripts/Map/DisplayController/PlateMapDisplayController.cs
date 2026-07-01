@@ -76,7 +76,7 @@ public class PlateMapDisplayController : MonoBehaviour
         {
             if (_instance == null)
             {
-                _instance = FindObjectOfType<PlateMapDisplayController>();
+                _instance = FindFirstObjectByType<PlateMapDisplayController>(FindObjectsInactive.Include);
             }
 
             return _instance;
@@ -344,8 +344,29 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 过渡至 GaodeMap 前隐藏板块显示：缓存当前聚焦模块（未聚焦则为 null），再淡出可见板块。
+    /// 地球级跳转完成后立刻还原板块透明度（板块根节点可能已 SetActive(false)，仍可写入材质）。
     /// </summary>
+    public void RestoreAllModulesAlphaImmediate()
+    {
+        KillCameraTweens();
+        _hasPreFocusPose = false;
+        _focusedModule = null;
+        _transitionCachedModule = null;
+
+        PlateMapDisplayModule[] modules = CollectAllModules(forceRefresh: true);
+        if (modules == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < modules.Length; i++)
+        {
+            modules[i]?.KillAlphaTween();
+            modules[i]?.ApplyAlphaImmediate(1f);
+        }
+    }
+
+    /// <summary>过渡至 GaodeMap 前隐藏板块显示：缓存当前聚焦模块（未聚焦则为 null），再淡出可见板块。</summary>
     public void HidePlateDisplayForTransition(float duration, Ease ease)
     {
         _transitionCachedModule = _focusedModule;
@@ -442,16 +463,29 @@ public class PlateMapDisplayController : MonoBehaviour
 
     private void KillAllModuleAlphaTweens()
     {
-        RefreshModuleList();
-        if (_modules == null)
+        PlateMapDisplayModule[] modules = CollectAllModules(forceRefresh: true);
+        if (modules == null)
         {
             return;
         }
 
-        for (int i = 0; i < _modules.Length; i++)
+        for (int i = 0; i < modules.Length; i++)
         {
-            _modules[i]?.KillAlphaTween();
+            modules[i]?.KillAlphaTween();
         }
+    }
+
+    /// <summary>强制从板块根收集模块（包含未激活子物体）。</summary>
+    private PlateMapDisplayModule[] CollectAllModules(bool forceRefresh = false)
+    {
+        if (!forceRefresh && _modules != null && _modules.Length > 0)
+        {
+            return _modules;
+        }
+
+        Transform root = _plateMapRoot != null ? _plateMapRoot : transform;
+        _modules = root.GetComponentsInChildren<PlateMapDisplayModule>(true);
+        return _modules;
     }
 
     private void PlayCameraTween(
