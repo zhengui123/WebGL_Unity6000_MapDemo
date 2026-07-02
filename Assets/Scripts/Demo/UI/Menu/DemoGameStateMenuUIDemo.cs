@@ -14,6 +14,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _carPanelUiEntryButton;
     [SerializeField] private Button _previousLevelEntryButton;
     [SerializeField] private Button _bigScreenCarouselEntryButton;
+    [SerializeField] private Button _httpApiTestEntryButton;
 
     private void Awake()
     {
@@ -45,6 +46,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_bigScreenCarouselEntryButton != null)
         {
             _bigScreenCarouselEntryButton.onClick.AddListener(OnBigScreenCarouselEntryClicked);
+        }
+
+        if (_httpApiTestEntryButton != null)
+        {
+            _httpApiTestEntryButton.onClick.AddListener(OnHttpApiTestEntryClicked);
         }
     }
 
@@ -78,6 +84,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_bigScreenCarouselEntryButton != null)
         {
             _bigScreenCarouselEntryButton.onClick.RemoveListener(OnBigScreenCarouselEntryClicked);
+        }
+
+        if (_httpApiTestEntryButton != null)
+        {
+            _httpApiTestEntryButton.onClick.RemoveListener(OnHttpApiTestEntryClicked);
         }
     }
 
@@ -151,6 +162,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowBigScreenCarouselPanel();
+    }
+
+    private void OnHttpApiTestEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowHttpApiTestPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

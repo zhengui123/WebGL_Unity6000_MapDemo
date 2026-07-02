@@ -21,6 +21,7 @@ public static class ControlStateStartUIBuilder
     private const string CarPanelUiPanelName = "CarPanelUIPanel";
     private const string PreviousLevelPanelName = "PreviousLevelPanel";
     private const string BigScreenCarouselPanelName = "BigScreenCarouselPanel";
+    private const string HttpApiTestPanelName = "HttpApiTestPanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -32,6 +33,8 @@ public static class ControlStateStartUIBuilder
     private const string PreviousLevelUiTitle = "返回上个层级";
     private const string BigScreenCarouselMenuLabel = "大屏自动轮播";
     private const string BigScreenCarouselUiTitle = "大屏自动轮播";
+    private const string HttpApiTestMenuLabel = "接口调用测试";
+    private const string HttpApiTestUiTitle = "接口调用测试";
     private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
     private const string FpsOverlayName = "DemoFpsOverlay";
@@ -48,6 +51,11 @@ public static class ControlStateStartUIBuilder
     private const float MenuButtonHeight = 40f;
     private const int DropdownItemLabelFontSize = 12;
     private const int InputFieldFontSize = 12;
+    private const int HeaderInputFieldFontSize = 10;
+    private const float HttpJsonResultAreaHeight = 220f;
+    private const float HttpJsonCopyAreaHeight = 120f;
+    private const float ResponseLabelMinHeight = 32f;
+    private const float ResponseLabelInitialHeight = 120f;
     private const string DropdownItemLabelPath = "Template/Viewport/Content/Item/Item Label";
     private const string ControlStateJumpUiTitle = "界面跳转——跨层级跳转";
 
@@ -91,6 +99,7 @@ public static class ControlStateStartUIBuilder
         CarPanelUiPanelName,
         PreviousLevelPanelName,
         BigScreenCarouselPanelName,
+        HttpApiTestPanelName,
     };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
@@ -168,6 +177,18 @@ public static class ControlStateStartUIBuilder
             preserved.GetPanelLayout(BigScreenCarouselPanelName),
             navigator,
             demoUiFont);
+        GameObject httpApiTestPanel = CreateHttpApiTestPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(HttpApiTestPanelName),
+            navigator,
+            demoUiFont,
+            out Text httpJsonResultText,
+            out ScrollRect httpJsonResultScroll,
+            out RectTransform httpJsonResultContent,
+            out GameObject httpJsonResultBar,
+            out InputField httpJsonCopyInput,
+            out GameObject httpJsonCopyBar);
 
         Text fpsValueLabel = CreateFpsOverlay(
             uiRoot.transform,
@@ -188,6 +209,7 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_carPanelUiPanel").objectReferenceValue = carPanelUiPanel;
         serializedNavigator.FindProperty("_previousLevelPanel").objectReferenceValue = previousLevelPanel;
         serializedNavigator.FindProperty("_bigScreenCarouselPanel").objectReferenceValue = bigScreenCarouselPanel;
+        serializedNavigator.FindProperty("_httpApiTestPanel").objectReferenceValue = httpApiTestPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -196,6 +218,9 @@ public static class ControlStateStartUIBuilder
         carPanelUiPanel.SetActive(false);
         previousLevelPanel.SetActive(false);
         bigScreenCarouselPanel.SetActive(false);
+        httpApiTestPanel.SetActive(false);
+        httpJsonResultBar.SetActive(false);
+        httpJsonCopyBar.SetActive(false);
 
         Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
         Selection.activeGameObject = uiRoot;
@@ -299,6 +324,17 @@ public static class ControlStateStartUIBuilder
             bigScreenCarouselEntryButtonText.text = BigScreenCarouselMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject httpApiTestEntryButtonGo = DefaultControls.CreateButton(resources);
+        httpApiTestEntryButtonGo.name = "HttpApiTestEntryButton";
+        SetupChildRect(httpApiTestEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text httpApiTestEntryButtonText = httpApiTestEntryButtonGo.GetComponentInChildren<Text>();
+        if (httpApiTestEntryButtonText != null)
+        {
+            httpApiTestEntryButtonText.text = HttpApiTestMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -314,6 +350,8 @@ public static class ControlStateStartUIBuilder
             previousLevelEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_bigScreenCarouselEntryButton").objectReferenceValue =
             bigScreenCarouselEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_httpApiTestEntryButton").objectReferenceValue =
+            httpApiTestEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
@@ -530,6 +568,598 @@ public static class ControlStateStartUIBuilder
         ApplyPanelFont(panel, demoUiFont);
 
         return panel;
+    }
+
+    private static GameObject CreateHttpApiTestPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont,
+        out Text jsonResultText,
+        out ScrollRect jsonResultScroll,
+        out RectTransform jsonResultContent,
+        out GameObject jsonResultBar,
+        out InputField jsonCopyInput,
+        out GameObject jsonCopyBar)
+    {
+        jsonCopyBar = CreateHttpJsonCopyInputBar(
+            parent,
+            resources,
+            demoUiFont,
+            out jsonCopyInput);
+        jsonResultBar = CreateHttpJsonResultBar(
+            parent,
+            resources,
+            demoUiFont,
+            HttpJsonCopyAreaHeight,
+            out jsonResultText,
+            out jsonResultScroll,
+            out jsonResultContent);
+
+        GameObject panel = CreatePanel(parent, HttpApiTestPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+        CreateLabel(panel.transform, HttpApiTestUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        ScrollRect scrollRect = CreateScrollView(
+            panel.transform,
+            12f,
+            y,
+            PanelWidth - 24f,
+            320f,
+            out RectTransform scrollContent);
+        scrollRect.gameObject.name = "FormScrollView";
+        float contentY = -8f;
+
+        CreateLabel(scrollContent, "GET 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        contentY -= 26f;
+
+        InputField getUrlInput = CreateLabeledInputField(
+            scrollContent,
+            resources,
+            "GetUrlInput",
+            "GET 地址",
+            0f,
+            contentY,
+            LabelWidth,
+            FieldWidth,
+            HttpApiTestUIDemo.DefaultGetUrl,
+            InputFieldFontSize);
+        contentY -= RowHeight + 8f;
+
+        GameObject getButtonGo = DefaultControls.CreateButton(resources);
+        getButtonGo.name = "GetButton";
+        SetupChildRect(getButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        Text getButtonText = getButtonGo.GetComponentInChildren<Text>();
+        if (getButtonText != null)
+        {
+            getButtonText.text = "发送 GET";
+        }
+        contentY -= 44f;
+
+        CreateLabel(scrollContent, "POST 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        contentY -= 26f;
+
+        InputField postHostInput = CreateLabeledInputField(
+            scrollContent,
+            resources,
+            "PostHostInput",
+            "主机 IP:端口",
+            0f,
+            contentY,
+            LabelWidth,
+            FieldWidth,
+            HttpApiTestUIDemo.DefaultPostHost,
+            InputFieldFontSize);
+        contentY -= RowHeight + 4f;
+
+        InputField postPathInput = CreateLabeledInputField(
+            scrollContent,
+            resources,
+            "PostPathInput",
+            "POST 路径",
+            0f,
+            contentY,
+            LabelWidth,
+            FieldWidth,
+            HttpApiTestUIDemo.DefaultPostPath,
+            InputFieldFontSize);
+        contentY -= RowHeight + 4f;
+
+        InputField postBodyInput = CreateLabeledMultilineInputField(
+            scrollContent,
+            resources,
+            "PostBodyInput",
+            "POST 请求体",
+            0f,
+            contentY,
+            LabelWidth,
+            FieldWidth,
+            HttpApiTestUIDemo.DefaultPostBody,
+            InputFieldFontSize,
+            56f);
+        if (postBodyInput.placeholder is Text postBodyPlaceholder)
+        {
+            postBodyPlaceholder.text = "留空则由请求头生成 JSON";
+        }
+        contentY -= 60f;
+
+        CreateLabel(scrollContent, "请求头部", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        contentY -= 24f;
+
+        CreateLabel(scrollContent, string.Empty, 0f, contentY, 24f, 20f, 12, FontStyle.Normal);
+        CreateLabel(scrollContent, "请求头", 28f, contentY, 84f, 20f, 12, FontStyle.Normal);
+        CreateLabel(scrollContent, "内容", 116f, contentY, 150f, 20f, 12, FontStyle.Normal);
+        CreateLabel(scrollContent, "操作", PanelWidth - 88f, contentY, 40f, 20f, 12, FontStyle.Normal);
+        contentY -= 24f;
+
+        GameObject headerRowsContainerGo = new GameObject("HeaderRowsContainer", typeof(RectTransform));
+        headerRowsContainerGo.transform.SetParent(scrollContent, false);
+        SetupChildRect(headerRowsContainerGo, scrollContent, 0f, contentY, PanelWidth - 48f, 108f);
+        VerticalLayoutGroup headerLayout = headerRowsContainerGo.AddComponent<VerticalLayoutGroup>();
+        headerLayout.spacing = 4f;
+        headerLayout.childControlWidth = true;
+        headerLayout.childControlHeight = true;
+        headerLayout.childForceExpandHeight = false;
+        contentY -= 112f;
+
+        GameObject headerRowTemplate = CreateHttpHeaderRowTemplate(
+            headerRowsContainerGo.transform,
+            resources,
+            postHostInput);
+        headerRowTemplate.SetActive(false);
+        contentY -= 4f;
+
+        GameObject addHeaderButtonGo = DefaultControls.CreateButton(resources);
+        addHeaderButtonGo.name = "AddHeaderButton";
+        SetupChildRect(addHeaderButtonGo, scrollContent, 0f, contentY, 48f, 32f);
+        Text addHeaderButtonText = addHeaderButtonGo.GetComponentInChildren<Text>();
+        if (addHeaderButtonText != null)
+        {
+            addHeaderButtonText.text = "+";
+            addHeaderButtonText.fontSize = 20;
+        }
+        contentY -= 36f;
+
+        GameObject postButtonGo = DefaultControls.CreateButton(resources);
+        postButtonGo.name = "PostButton";
+        SetupChildRect(postButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        Text postButtonText = postButtonGo.GetComponentInChildren<Text>();
+        if (postButtonText != null)
+        {
+            postButtonText.text = "发送 POST";
+        }
+        contentY -= 44f;
+
+        GameObject stopButtonGo = DefaultControls.CreateButton(resources);
+        stopButtonGo.name = "StopButton";
+        SetupChildRect(stopButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        Text stopButtonText = stopButtonGo.GetComponentInChildren<Text>();
+        if (stopButtonText != null)
+        {
+            stopButtonText.text = "停止请求";
+        }
+        contentY -= 44f;
+
+        Text fallbackResponseLabel = CreateExpandableResponseLabel(
+            scrollContent,
+            0f,
+            contentY,
+            PanelWidth - 48f,
+            ResponseLabelInitialHeight,
+            "等待请求...",
+            11);
+        contentY -= ResponseLabelInitialHeight + 4f;
+
+        float formScrollBaseHeight = Mathf.Abs(contentY) + 16f;
+        scrollContent.sizeDelta = new Vector2(0f, formScrollBaseHeight);
+
+        HttpApiTestUIDemo uiDemo = panel.AddComponent<HttpApiTestUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_getUrlInput").objectReferenceValue = getUrlInput;
+        serializedDemo.FindProperty("_getButton").objectReferenceValue = getButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_postHostInput").objectReferenceValue = postHostInput;
+        serializedDemo.FindProperty("_postPathInput").objectReferenceValue = postPathInput;
+        serializedDemo.FindProperty("_postBodyInput").objectReferenceValue = postBodyInput;
+        serializedDemo.FindProperty("_headerRowsContainer").objectReferenceValue =
+            headerRowsContainerGo.GetComponent<RectTransform>();
+        serializedDemo.FindProperty("_addHeaderButton").objectReferenceValue =
+            addHeaderButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_headerRowTemplate").objectReferenceValue = headerRowTemplate;
+        serializedDemo.FindProperty("_postButton").objectReferenceValue = postButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_stopButton").objectReferenceValue = stopButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_jsonResultBarRoot").objectReferenceValue = jsonResultBar;
+        serializedDemo.FindProperty("_jsonResultText").objectReferenceValue = jsonResultText;
+        serializedDemo.FindProperty("_jsonResultScroll").objectReferenceValue = jsonResultScroll;
+        serializedDemo.FindProperty("_jsonResultContent").objectReferenceValue = jsonResultContent;
+        serializedDemo.FindProperty("_jsonCopyBarRoot").objectReferenceValue = jsonCopyBar;
+        serializedDemo.FindProperty("_jsonCopyInputField").objectReferenceValue = jsonCopyInput;
+        serializedDemo.FindProperty("_fallbackResponseLabel").objectReferenceValue = fallbackResponseLabel;
+        serializedDemo.FindProperty("_formScrollContent").objectReferenceValue = scrollContent;
+        serializedDemo.FindProperty("_formScrollBaseHeight").floatValue = formScrollBaseHeight;
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
+        ApplyPanelFont(jsonResultBar, demoUiFont);
+        ApplyPanelFont(jsonCopyBar, demoUiFont);
+
+        return panel;
+    }
+
+    private static GameObject CreateHttpJsonCopyInputBar(
+        Transform uiRoot,
+        DefaultControls.Resources resources,
+        Font demoUiFont,
+        out InputField copyInputField)
+    {
+        GameObject barRoot = new GameObject("HttpJsonCopyBar", typeof(RectTransform), typeof(Image));
+        barRoot.transform.SetParent(uiRoot, false);
+        barRoot.transform.SetAsLastSibling();
+
+        RectTransform barRect = barRoot.GetComponent<RectTransform>();
+        barRect.anchorMin = new Vector2(0f, 0f);
+        barRect.anchorMax = new Vector2(1f, 0f);
+        barRect.pivot = new Vector2(0.5f, 0f);
+        barRect.anchoredPosition = Vector2.zero;
+        barRect.offsetMin = new Vector2(0f, 0f);
+        barRect.offsetMax = new Vector2(0f, HttpJsonCopyAreaHeight);
+
+        Image barImage = barRoot.GetComponent<Image>();
+        barImage.color = new Color(0f, 0f, 0f, 0.8f);
+
+        CreateLabel(barRoot.transform, "可复制结果（选中后 Ctrl+C）", 16f, -6f, 280f, 22f, 13, FontStyle.Bold);
+
+        GameObject inputGo = DefaultControls.CreateInputField(resources);
+        inputGo.name = "JsonCopyInputField";
+        inputGo.transform.SetParent(barRoot.transform, false);
+        RectTransform inputRect = inputGo.GetComponent<RectTransform>();
+        inputRect.anchorMin = new Vector2(0f, 0f);
+        inputRect.anchorMax = new Vector2(1f, 1f);
+        inputRect.offsetMin = new Vector2(12f, 10f);
+        inputRect.offsetMax = new Vector2(-12f, -28f);
+
+        copyInputField = inputGo.GetComponent<InputField>();
+        copyInputField.text = "等待请求...";
+        copyInputField.lineType = InputField.LineType.MultiLineNewline;
+        copyInputField.readOnly = true;
+        ConfigureInputFieldTextSize(copyInputField, 11);
+
+        if (copyInputField.textComponent != null)
+        {
+            copyInputField.textComponent.color = new Color(0.9f, 0.95f, 0.9f);
+            copyInputField.textComponent.alignment = TextAnchor.UpperLeft;
+            if (demoUiFont != null)
+            {
+                copyInputField.textComponent.font = demoUiFont;
+            }
+        }
+
+        if (copyInputField.placeholder is Text placeholder)
+        {
+            placeholder.text = string.Empty;
+        }
+
+        return barRoot;
+    }
+
+    private static GameObject CreateHttpJsonResultBar(
+        Transform uiRoot,
+        DefaultControls.Resources resources,
+        Font demoUiFont,
+        float bottomOffset,
+        out Text jsonResultText,
+        out ScrollRect jsonResultScroll,
+        out RectTransform jsonResultContent)
+    {
+        GameObject barRoot = new GameObject("HttpJsonResultBar", typeof(RectTransform), typeof(Image));
+        barRoot.transform.SetParent(uiRoot, false);
+        barRoot.transform.SetAsLastSibling();
+
+        RectTransform barRect = barRoot.GetComponent<RectTransform>();
+        barRect.anchorMin = new Vector2(0f, 0f);
+        barRect.anchorMax = new Vector2(1f, 0f);
+        barRect.pivot = new Vector2(0.5f, 0f);
+        barRect.anchoredPosition = Vector2.zero;
+        barRect.offsetMin = new Vector2(0f, bottomOffset);
+        barRect.offsetMax = new Vector2(0f, bottomOffset + HttpJsonResultAreaHeight);
+
+        Image barImage = barRoot.GetComponent<Image>();
+        barImage.color = new Color(0f, 0f, 0f, 0.72f);
+
+        CreateLabel(barRoot.transform, "接口调试结果", 16f, -8f, 240f, 24f, 14, FontStyle.Bold);
+
+        GameObject scrollGo = new GameObject(
+            "JsonResultScrollView",
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(ScrollRect));
+        scrollGo.transform.SetParent(barRoot.transform, false);
+        RectTransform scrollRectTransform = scrollGo.GetComponent<RectTransform>();
+        scrollRectTransform.anchorMin = new Vector2(0f, 0f);
+        scrollRectTransform.anchorMax = new Vector2(1f, 1f);
+        scrollRectTransform.offsetMin = new Vector2(12f, 12f);
+        scrollRectTransform.offsetMax = new Vector2(-12f, -32f);
+
+        Image scrollImage = scrollGo.GetComponent<Image>();
+        scrollImage.color = new Color(0.08f, 0.08f, 0.08f, 0.9f);
+
+        GameObject viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+        viewportGo.transform.SetParent(scrollGo.transform, false);
+        RectTransform viewportRect = viewportGo.GetComponent<RectTransform>();
+        SetupFullStretchRect(viewportRect);
+        Image viewportImage = viewportGo.GetComponent<Image>();
+        viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
+        Mask viewportMask = viewportGo.GetComponent<Mask>();
+        viewportMask.showMaskGraphic = false;
+
+        GameObject contentGo = new GameObject("Content", typeof(RectTransform), typeof(ContentSizeFitter));
+        contentGo.transform.SetParent(viewportGo.transform, false);
+        jsonResultContent = contentGo.GetComponent<RectTransform>();
+        jsonResultContent.anchorMin = new Vector2(0f, 1f);
+        jsonResultContent.anchorMax = new Vector2(1f, 1f);
+        jsonResultContent.pivot = new Vector2(0.5f, 1f);
+        jsonResultContent.anchoredPosition = Vector2.zero;
+        jsonResultContent.sizeDelta = new Vector2(0f, HttpJsonResultAreaHeight);
+
+        ContentSizeFitter contentFitter = contentGo.GetComponent<ContentSizeFitter>();
+        contentFitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        contentFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        GameObject textGo = new GameObject("JsonResultText", typeof(RectTransform), typeof(Text), typeof(ContentSizeFitter));
+        textGo.transform.SetParent(jsonResultContent, false);
+        RectTransform textRect = textGo.GetComponent<RectTransform>();
+        textRect.anchorMin = new Vector2(0f, 1f);
+        textRect.anchorMax = new Vector2(1f, 1f);
+        textRect.pivot = new Vector2(0.5f, 1f);
+        textRect.anchoredPosition = Vector2.zero;
+        textRect.offsetMin = new Vector2(8f, 0f);
+        textRect.offsetMax = new Vector2(-8f, 0f);
+
+        jsonResultText = textGo.GetComponent<Text>();
+        jsonResultText.text = "等待请求...";
+        jsonResultText.font = demoUiFont != null
+            ? demoUiFont
+            : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        jsonResultText.fontSize = 11;
+        jsonResultText.fontStyle = FontStyle.Normal;
+        jsonResultText.color = new Color(0.85f, 0.92f, 0.85f);
+        jsonResultText.alignment = TextAnchor.UpperLeft;
+        jsonResultText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        jsonResultText.verticalOverflow = VerticalWrapMode.Overflow;
+        jsonResultText.raycastTarget = false;
+
+        ContentSizeFitter fitter = textGo.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        jsonResultScroll = scrollGo.GetComponent<ScrollRect>();
+        jsonResultScroll.viewport = viewportRect;
+        jsonResultScroll.content = jsonResultContent;
+        jsonResultScroll.horizontal = false;
+        jsonResultScroll.vertical = true;
+        jsonResultScroll.movementType = ScrollRect.MovementType.Clamped;
+
+        return barRoot;
+    }
+
+    private static GameObject CreateHttpHeaderRowTemplate(
+        Transform parent,
+        DefaultControls.Resources resources,
+        InputField inputTemplate)
+    {
+        GameObject rowGo = new GameObject("HeaderRowTemplate", typeof(RectTransform), typeof(LayoutElement));
+        rowGo.transform.SetParent(parent, false);
+        LayoutElement layoutElement = rowGo.GetComponent<LayoutElement>();
+        layoutElement.preferredHeight = 32f;
+        layoutElement.minHeight = 32f;
+
+        RectTransform rowRect = rowGo.GetComponent<RectTransform>();
+        rowRect.sizeDelta = new Vector2(0f, 32f);
+
+        GameObject toggleGo = DefaultControls.CreateToggle(resources);
+        toggleGo.name = "EnableToggle";
+        toggleGo.transform.SetParent(rowGo.transform, false);
+        RectTransform toggleRect = toggleGo.GetComponent<RectTransform>();
+        toggleRect.anchorMin = new Vector2(0f, 0.5f);
+        toggleRect.anchorMax = new Vector2(0f, 0.5f);
+        toggleRect.pivot = new Vector2(0f, 0.5f);
+        toggleRect.anchoredPosition = new Vector2(0f, 0f);
+        toggleRect.sizeDelta = new Vector2(24f, 24f);
+        Toggle toggle = toggleGo.GetComponent<Toggle>();
+        toggle.isOn = true;
+
+        InputField keyInput = CloneInputFieldForHeaderRow(inputTemplate, rowGo.transform, "KeyInput", 28f, 84f, "请求头");
+        InputField valueInput = CloneInputFieldForHeaderRow(inputTemplate, rowGo.transform, "ValueInput", 116f, 150f, "内容");
+
+        GameObject deleteButtonGo = DefaultControls.CreateButton(resources);
+        deleteButtonGo.name = "DeleteButton";
+        deleteButtonGo.transform.SetParent(rowGo.transform, false);
+        RectTransform deleteRect = deleteButtonGo.GetComponent<RectTransform>();
+        deleteRect.anchorMin = new Vector2(1f, 0.5f);
+        deleteRect.anchorMax = new Vector2(1f, 0.5f);
+        deleteRect.pivot = new Vector2(1f, 0.5f);
+        deleteRect.anchoredPosition = Vector2.zero;
+        deleteRect.sizeDelta = new Vector2(40f, 28f);
+        Text deleteText = deleteButtonGo.GetComponentInChildren<Text>();
+        if (deleteText != null)
+        {
+            deleteText.text = "删除";
+            deleteText.fontSize = 12;
+            deleteText.color = new Color(0.4f, 0.75f, 1f);
+        }
+
+        return rowGo;
+    }
+
+    private static Text CreateExpandableResponseLabel(
+        Transform parent,
+        float x,
+        float y,
+        float width,
+        float minHeight,
+        string text,
+        int fontSize)
+    {
+        GameObject labelGo = new GameObject(
+            "ResponseLabel",
+            typeof(RectTransform),
+            typeof(Text),
+            typeof(ContentSizeFitter));
+        labelGo.transform.SetParent(parent, false);
+
+        RectTransform rect = labelGo.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = new Vector2(x, y);
+        rect.sizeDelta = new Vector2(width, minHeight);
+
+        Text label = labelGo.GetComponent<Text>();
+        label.text = text;
+        label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        label.fontSize = fontSize;
+        label.fontStyle = FontStyle.Normal;
+        label.color = Color.white;
+        label.alignment = TextAnchor.UpperLeft;
+        label.horizontalOverflow = HorizontalWrapMode.Wrap;
+        label.verticalOverflow = VerticalWrapMode.Overflow;
+        label.raycastTarget = false;
+
+        ContentSizeFitter fitter = labelGo.GetComponent<ContentSizeFitter>();
+        fitter.horizontalFit = ContentSizeFitter.FitMode.Unconstrained;
+        fitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        return label;
+    }
+
+    private static InputField CloneInputFieldForHeaderRow(
+        InputField template,
+        Transform parent,
+        string name,
+        float x,
+        float width,
+        string placeholder)
+    {
+        GameObject inputGo = Object.Instantiate(template.gameObject, parent);
+        inputGo.name = name;
+        inputGo.SetActive(true);
+
+        InputField inputField = inputGo.GetComponent<InputField>();
+        inputField.text = string.Empty;
+
+        RectTransform rect = inputGo.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 0.5f);
+        rect.anchorMax = new Vector2(0f, 0.5f);
+        rect.pivot = new Vector2(0f, 0.5f);
+        rect.anchoredPosition = new Vector2(x, 0f);
+        rect.sizeDelta = new Vector2(width, 28f);
+
+        if (inputField.placeholder is Text placeholderText)
+        {
+            placeholderText.text = placeholder;
+        }
+
+        ConfigureInputFieldTextSize(inputField, HeaderInputFieldFontSize);
+        return inputField;
+    }
+
+    private static ScrollRect CreateScrollView(
+        Transform parent,
+        float x,
+        float y,
+        float width,
+        float height,
+        out RectTransform content)
+    {
+        GameObject scrollGo = new GameObject(
+            "ScrollView",
+            typeof(RectTransform),
+            typeof(Image),
+            typeof(ScrollRect));
+        scrollGo.transform.SetParent(parent, false);
+        RectTransform scrollRectTransform = scrollGo.GetComponent<RectTransform>();
+        scrollRectTransform.anchorMin = new Vector2(0f, 1f);
+        scrollRectTransform.anchorMax = new Vector2(0f, 1f);
+        scrollRectTransform.pivot = new Vector2(0f, 1f);
+        scrollRectTransform.anchoredPosition = new Vector2(x, y);
+        scrollRectTransform.sizeDelta = new Vector2(width, height);
+
+        Image scrollImage = scrollGo.GetComponent<Image>();
+        scrollImage.color = new Color(0f, 0f, 0f, 0.15f);
+
+        GameObject viewportGo = new GameObject("Viewport", typeof(RectTransform), typeof(Image), typeof(Mask));
+        viewportGo.transform.SetParent(scrollGo.transform, false);
+        RectTransform viewportRect = viewportGo.GetComponent<RectTransform>();
+        SetupFullStretchRect(viewportRect);
+        Image viewportImage = viewportGo.GetComponent<Image>();
+        viewportImage.color = new Color(1f, 1f, 1f, 0.01f);
+        Mask viewportMask = viewportGo.GetComponent<Mask>();
+        viewportMask.showMaskGraphic = false;
+
+        GameObject contentGo = new GameObject("Content", typeof(RectTransform));
+        contentGo.transform.SetParent(viewportGo.transform, false);
+        content = contentGo.GetComponent<RectTransform>();
+        content.anchorMin = new Vector2(0f, 1f);
+        content.anchorMax = new Vector2(1f, 1f);
+        content.pivot = new Vector2(0.5f, 1f);
+        content.anchoredPosition = Vector2.zero;
+        content.sizeDelta = new Vector2(0f, height);
+
+        ScrollRect scrollRect = scrollGo.GetComponent<ScrollRect>();
+        scrollRect.viewport = viewportRect;
+        scrollRect.content = content;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Clamped;
+        return scrollRect;
+    }
+
+    private static InputField CreateLabeledMultilineInputField(
+        Transform parent,
+        DefaultControls.Resources resources,
+        string name,
+        string labelText,
+        float x,
+        float y,
+        float labelWidth,
+        float fieldWidth,
+        string defaultText,
+        int inputFontSize,
+        float rowHeight)
+    {
+        GameObject row = new GameObject(name, typeof(RectTransform));
+        row.transform.SetParent(parent, false);
+        SetupChildRect(row, parent, x, y, labelWidth + fieldWidth + 8f, rowHeight);
+
+        CreateLabel(row.transform, labelText, 0f, 0f, labelWidth, rowHeight, 14, FontStyle.Normal);
+
+        GameObject inputGo = DefaultControls.CreateInputField(resources);
+        inputGo.name = "InputField";
+        SetupChildRect(inputGo, row.transform, labelWidth + 8f, 0f, fieldWidth, rowHeight);
+        InputField inputField = inputGo.GetComponent<InputField>();
+        inputField.text = defaultText;
+        inputField.lineType = InputField.LineType.MultiLineNewline;
+        ConfigureInputFieldTextSize(inputField, inputFontSize);
+        return inputField;
     }
 
     private static GameObject CreateLabelObject(
