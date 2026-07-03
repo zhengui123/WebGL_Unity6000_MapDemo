@@ -259,16 +259,16 @@ public class HttpServiceDemo : MonoBehaviour
             return;
         }
 
-        _requestHeaders = new[]
+        _requestHeaders = new HttpHeaderEntry[HttpProjectConfig.DefaultHeaders.Count];
+        for (int i = 0; i < HttpProjectConfig.DefaultHeaders.Count; i++)
         {
-            new HttpHeaderEntry
+            (string key, string value) = HttpProjectConfig.DefaultHeaders[i];
+            _requestHeaders[i] = new HttpHeaderEntry
             {
                 enabled = true,
-                key = "Satoken",
-                value = "r5aP7flTO3wHSf9MHxEwAZ35GdSxDM4cu89axMdKKLOxZtfXBQQRgjLI1oRTOicc",
-            },
-            new HttpHeaderEntry { enabled = true, key = "X-Tenant-Id", value = "1" },
-            new HttpHeaderEntry { enabled = true, key = "Sys-Lang", value = "zh-CN" },
-        };
+                key = key,
+                value = value,
+            };
+        }
     }
 }

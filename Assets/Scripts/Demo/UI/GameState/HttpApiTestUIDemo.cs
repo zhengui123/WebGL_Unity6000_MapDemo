@@ -10,16 +10,11 @@ using UnityEngine.UI;
 public class HttpApiTestUIDemo : MonoBehaviour
 {
     public const string DefaultGetUrl = "https://jsonplaceholder.typicode.com/todos/1";
-    public const string DefaultPostHost = "10.60.16.96:38000";
-    public const string DefaultPostPath = "/business/bigScreen/comprehensivePosture/workOrderDisposalOverview";
-    public const string DefaultPostBody = WorkOrderDisposalOverviewRequest.DefaultJson;
+    public const string DefaultPostHost = HttpProjectConfig.ApiHost;
+    public const string DefaultPostPath = HttpProjectConfig.WorkOrderDisposalOverviewPath;
+    public const string DefaultPostBody = ComprehensiveRegionRequest.DefaultJson;
 
-    private static readonly (string Key, string Value)[] DefaultHeaders =
-    {
-        ("Satoken", "r5aP7flTO3wHSf9MHxEwAZ35GdSxDM4cu89axMdKKLOxZtfXBQQRgjLI1oRTOicc"),
-        ("X-Tenant-Id", "1"),
-        ("Sys-Lang", "zh-CN"),
-    };
+    private static IReadOnlyList<(string Key, string Value)> DefaultHeaders => HttpProjectConfig.DefaultHeaders;
 
     [Header("GET")]
     [SerializeField] private InputField _getUrlInput;
@@ -48,8 +43,35 @@ public class HttpApiTestUIDemo : MonoBehaviour
     [SerializeField] private Button _backButton;
     [SerializeField] private DemoGameStateUINavigator _navigator;
 
+    [Header("二/三级界面")]
+    [SerializeField] private GameObject _apiEntryMenuPanel;
+    [SerializeField] private Button _customApiEntryButton;
+    [SerializeField] private Button _vinLocationEntryButton;
+    [SerializeField] private GameObject _formScrollViewRoot;
+    [SerializeField] private GameObject _vinLocationScrollViewRoot;
+    [SerializeField] private Button _customApiListBackButton;
+    [SerializeField] private Button _vinLocationListBackButton;
+
+    [Header("车辆位置接口")]
+    [SerializeField] private InputField _vinStartTimeInput;
+    [SerializeField] private InputField _vinEndTimeInput;
+    [SerializeField] private InputField _vinProvinceInput;
+    [SerializeField] private InputField _vinRegionInput;
+    [SerializeField] private InputField _vinCountryInput;
+    [SerializeField] private Button _vinLocationRequestButton;
+    [SerializeField] private Button _vinLocationStopButton;
+
     private readonly List<HeaderRowEntry> _headerRows = new List<HeaderRowEntry>();
     private string _activeRequestMethod;
+
+    private enum HttpApiTestViewLevel
+    {
+        EntryMenu = 0,
+        CustomApi = 1,
+        VinLocation = 2,
+    }
+
+    private HttpApiTestViewLevel _currentViewLevel = HttpApiTestViewLevel.EntryMenu;
 
     private const int HeaderInputFontSize = 10;
     private const float ResponseLabelInitialHeight = 120f;
@@ -89,10 +111,43 @@ public class HttpApiTestUIDemo : MonoBehaviour
         {
             _backButton.onClick.AddListener(OnBackButtonClicked);
         }
+
+        if (_customApiEntryButton != null)
+        {
+            _customApiEntryButton.onClick.AddListener(OnCustomApiEntryClicked);
+        }
+
+        if (_vinLocationEntryButton != null)
+        {
+            _vinLocationEntryButton.onClick.AddListener(OnVinLocationEntryClicked);
+        }
+
+        if (_customApiListBackButton != null)
+        {
+            _customApiListBackButton.onClick.AddListener(OnApiListBackClicked);
+        }
+
+        if (_vinLocationListBackButton != null)
+        {
+            _vinLocationListBackButton.onClick.AddListener(OnApiListBackClicked);
+        }
+
+        if (_vinLocationRequestButton != null)
+        {
+            _vinLocationRequestButton.onClick.AddListener(OnVinLocationRequestClicked);
+        }
+
+        if (_vinLocationStopButton != null)
+        {
+            _vinLocationStopButton.onClick.AddListener(OnStopButtonClicked);
+        }
     }
 
     private void OnEnable()
     {
+        EnsureThirdLevelViewLayouts();
+        EnsureSubPanelReferences();
+        ShowApiEntryMenu();
         EnsureJsonResultUi();
         if (_jsonResultBarRoot != null)
         {
@@ -120,10 +175,12 @@ public class HttpApiTestUIDemo : MonoBehaviour
 
     private void Start()
     {
+        EnsureSubPanelReferences();
         EnsureJsonResultUi();
         EnsureFallbackResponseLabelFitter();
         ApplyDefaultValues();
         InitializeDefaultHeaderRows();
+        ShowApiEntryMenu();
         RefreshRequestButtons(HttpService.Instance != null && HttpService.Instance.IsRequestInProgress);
     }
 
@@ -153,6 +210,36 @@ public class HttpApiTestUIDemo : MonoBehaviour
         {
             _backButton.onClick.RemoveListener(OnBackButtonClicked);
         }
+
+        if (_customApiEntryButton != null)
+        {
+            _customApiEntryButton.onClick.RemoveListener(OnCustomApiEntryClicked);
+        }
+
+        if (_vinLocationEntryButton != null)
+        {
+            _vinLocationEntryButton.onClick.RemoveListener(OnVinLocationEntryClicked);
+        }
+
+        if (_customApiListBackButton != null)
+        {
+            _customApiListBackButton.onClick.RemoveListener(OnApiListBackClicked);
+        }
+
+        if (_vinLocationListBackButton != null)
+        {
+            _vinLocationListBackButton.onClick.RemoveListener(OnApiListBackClicked);
+        }
+
+        if (_vinLocationRequestButton != null)
+        {
+            _vinLocationRequestButton.onClick.RemoveListener(OnVinLocationRequestClicked);
+        }
+
+        if (_vinLocationStopButton != null)
+        {
+            _vinLocationStopButton.onClick.RemoveListener(OnStopButtonClicked);
+        }
     }
 
     private void ApplyDefaultValues()
@@ -161,15 +248,21 @@ public class HttpApiTestUIDemo : MonoBehaviour
         SetInputText(_postHostInput, DefaultPostHost);
         SetInputText(_postPathInput, DefaultPostPath);
         SetInputText(_postBodyInput, DefaultPostBody);
+        SetInputText(_vinStartTimeInput, HttpProjectConfig.DefaultQueryStartTime);
+        SetInputText(_vinEndTimeInput, BackendDateTimeTool.GetCurrentTimeString());
+        SetInputText(_vinProvinceInput, string.Empty);
+        SetInputText(_vinRegionInput, string.Empty);
+        SetInputText(_vinCountryInput, string.Empty);
         SetJsonResultText("等待请求...");
     }
 
     private void InitializeDefaultHeaderRows()
     {
         ClearHeaderRows();
-        for (int i = 0; i < DefaultHeaders.Length; i++)
+        for (int i = 0; i < DefaultHeaders.Count; i++)
         {
-            AddHeaderRow(DefaultHeaders[i].Key, DefaultHeaders[i].Value);
+            (string key, string value) = DefaultHeaders[i];
+            AddHeaderRow(key, value);
         }
     }
 
@@ -301,6 +394,186 @@ public class HttpApiTestUIDemo : MonoBehaviour
         return button;
     }
 
+    private void OnCustomApiEntryClicked()
+    {
+        ShowCustomApiView();
+    }
+
+    private void OnVinLocationEntryClicked()
+    {
+        ShowVinLocationView();
+    }
+
+    private void OnApiListBackClicked()
+    {
+        ShowApiEntryMenu();
+    }
+
+    private void ShowApiEntryMenu()
+    {
+        _currentViewLevel = HttpApiTestViewLevel.EntryMenu;
+        SetPanelActive(_apiEntryMenuPanel, true);
+        SetPanelActive(_formScrollViewRoot, false);
+        SetPanelActive(_vinLocationScrollViewRoot, false);
+    }
+
+    private void ShowCustomApiView()
+    {
+        _currentViewLevel = HttpApiTestViewLevel.CustomApi;
+        SetPanelActive(_apiEntryMenuPanel, false);
+        SetPanelActive(_formScrollViewRoot, true);
+        SetPanelActive(_vinLocationScrollViewRoot, false);
+    }
+
+    private void ShowVinLocationView()
+    {
+        _currentViewLevel = HttpApiTestViewLevel.VinLocation;
+        SetPanelActive(_apiEntryMenuPanel, false);
+        SetPanelActive(_formScrollViewRoot, false);
+        SetPanelActive(_vinLocationScrollViewRoot, true);
+    }
+
+    private static void SetPanelActive(GameObject panel, bool active)
+    {
+        if (panel != null)
+        {
+            panel.SetActive(active);
+        }
+    }
+
+    private void OnVinLocationRequestClicked()
+    {
+        string startTime = NormalizeOptionalParam(_vinStartTimeInput?.text);
+        string endTime = NormalizeOptionalParam(_vinEndTimeInput?.text);
+        if (string.IsNullOrEmpty(endTime))
+        {
+            endTime = BackendDateTimeTool.GetCurrentTimeString();
+        }
+
+        string province = NormalizeOptionalParam(_vinProvinceInput?.text);
+        string region = NormalizeOptionalParam(_vinRegionInput?.text);
+        string country = NormalizeOptionalParam(_vinCountryInput?.text);
+
+        Dictionary<string, string> headers = HttpProjectConfig.MergeDefaultHeaders();
+
+        _activeRequestMethod = "车辆位置";
+        RefreshRequestButtons(true);
+        SetJsonResultText(
+            "车辆位置 请求中...\n" +
+            $"url={HttpProjectConfig.BuildApiUrl(HttpProjectConfig.LatestVinLocationPath)}\n" +
+            $"startTime={startTime}\n" +
+            $"endTime={endTime}\n" +
+            $"province={province}\n" +
+            $"region={region}\n" +
+            $"country={country}\n" +
+            BuildHeadersPreviewText(headers));
+
+        LatestVinLocationApi.RequestLatestVinLocations(
+            province,
+            region,
+            country,
+            startTime,
+            endTime,
+            OnVinLocationRequestCompleted,
+            headers);
+    }
+
+    private void OnVinLocationRequestCompleted(HttpRequestResult result, LatestVinLocationResponse response)
+    {
+        _activeRequestMethod = null;
+        RefreshRequestButtons(false);
+
+        if (result == null)
+        {
+            SetJsonResultText("车辆位置 失败：结果为空。");
+            return;
+        }
+
+        if (result.IsCancelled)
+        {
+            SetJsonResultText("车辆位置 已停止");
+            return;
+        }
+
+        if (!result.IsSuccess)
+        {
+            string errorText = BuildVinLocationResultText(
+                "车辆位置 失败",
+                0,
+                result.StatusCode,
+                result.Error,
+                result.RawBody);
+            SetJsonResultText(errorText, result.RawBody);
+            return;
+        }
+
+        if (response == null || !response.IsSuccess)
+        {
+            string bizError = response != null ? $"code={response.code}, msg={response.msg}" : "响应解析失败";
+            string errorText = BuildVinLocationResultText(
+                "车辆位置 业务失败",
+                0,
+                result.StatusCode,
+                bizError,
+                result.RawBody);
+            SetJsonResultText(errorText, result.RawBody);
+            return;
+        }
+
+        int vehicleCount = response.data != null ? response.data.Length : 0;
+        string successText = BuildVinLocationResultText(
+            "车辆位置 成功",
+            vehicleCount,
+            result.StatusCode,
+            null,
+            result.RawBody);
+        SetJsonResultText(successText, result.RawBody);
+    }
+
+    private static string BuildVinLocationResultText(
+        string title,
+        int vehicleCount,
+        long statusCode,
+        string error,
+        string rawBody)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine(title);
+        builder.AppendLine($"接收到车辆：{vehicleCount} 辆");
+        builder.AppendLine($"状态码：{statusCode}");
+        if (!string.IsNullOrEmpty(error))
+        {
+            builder.AppendLine($"错误：{error}");
+        }
+
+        builder.AppendLine();
+        builder.AppendLine("JSON：");
+        builder.Append(string.IsNullOrEmpty(rawBody) ? "(空)" : rawBody);
+        return builder.ToString();
+    }
+
+    private static string NormalizeOptionalParam(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim();
+    }
+
+    private static string BuildHeadersPreviewText(Dictionary<string, string> headers)
+    {
+        if (headers == null || headers.Count == 0)
+        {
+            return "请求头：(无)";
+        }
+
+        StringBuilder builder = new StringBuilder();
+        builder.AppendLine("请求头：");
+        foreach (KeyValuePair<string, string> header in headers)
+        {
+            builder.AppendLine($"  {header.Key}: {header.Value}");
+        }
+
+        return builder.ToString().TrimEnd();
+    }
+
     private void OnGetButtonClicked()
     {
         string url = _getUrlInput != null ? _getUrlInput.text.Trim() : DefaultGetUrl;
@@ -313,7 +586,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         Dictionary<string, string> headers = CollectHeaders();
         _activeRequestMethod = "GET";
         RefreshRequestButtons(true);
-        SetJsonResultText($"GET 请求中...\n{url}");
+        SetJsonResultText($"GET 请求中...\n{url}\n{BuildHeadersPreviewText(headers)}");
 
         HttpService.Instance.Get(url, result => OnRequestCompleted("GET", result), headers);
     }
@@ -331,7 +604,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
 
         _activeRequestMethod = "POST";
         RefreshRequestButtons(true);
-        SetJsonResultText($"POST 请求中...\n{url}\n\n提交 JSON：\n{jsonBody}");
+        SetJsonResultText(
+            $"POST 请求中...\n{url}\n\n{BuildHeadersPreviewText(headers)}\n\n提交 JSON：\n{jsonBody}");
 
         HttpService.Instance.Post(url, jsonBody, result => OnRequestCompleted("POST", result), headers);
     }
@@ -471,7 +745,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
 
     private Dictionary<string, string> CollectHeaders()
     {
-        Dictionary<string, string> headers = new Dictionary<string, string>();
+        Dictionary<string, string> uiHeaders = new Dictionary<string, string>();
         for (int i = 0; i < _headerRows.Count; i++)
         {
             HeaderRowEntry row = _headerRows[i];
@@ -492,10 +766,10 @@ public class HttpApiTestUIDemo : MonoBehaviour
             }
 
             string value = row.ValueInput != null ? row.ValueInput.text : string.Empty;
-            headers[key] = value;
+            uiHeaders[key] = value;
         }
 
-        return headers;
+        return HttpProjectConfig.MergeDefaultHeaders(uiHeaders);
     }
 
     private static InputField CloneHeaderInput(InputField template, Transform parent, string name, float x, float width)
@@ -586,6 +860,36 @@ public class HttpApiTestUIDemo : MonoBehaviour
             _stopButton.interactable = isRequesting;
         }
 
+        if (_vinLocationRequestButton != null)
+        {
+            _vinLocationRequestButton.interactable = !isRequesting;
+        }
+
+        if (_vinLocationStopButton != null)
+        {
+            _vinLocationStopButton.interactable = isRequesting;
+        }
+
+        if (_customApiEntryButton != null)
+        {
+            _customApiEntryButton.interactable = !isRequesting;
+        }
+
+        if (_vinLocationEntryButton != null)
+        {
+            _vinLocationEntryButton.interactable = !isRequesting;
+        }
+
+        if (_customApiListBackButton != null)
+        {
+            _customApiListBackButton.interactable = !isRequesting;
+        }
+
+        if (_vinLocationListBackButton != null)
+        {
+            _vinLocationListBackButton.interactable = !isRequesting;
+        }
+
         if (_addHeaderButton != null)
         {
             _addHeaderButton.interactable = !isRequesting;
@@ -647,6 +951,122 @@ public class HttpApiTestUIDemo : MonoBehaviour
         builder.AppendLine("JSON：");
         builder.Append(rawJson);
         return builder.ToString();
+    }
+
+    private void EnsureThirdLevelViewLayouts()
+    {
+        EnsureSubPanelReferences();
+        ApplyThirdLevelLayoutIfNeeded(_formScrollViewRoot);
+        ApplyThirdLevelLayoutIfNeeded(_vinLocationScrollViewRoot);
+    }
+
+    private void ApplyThirdLevelLayoutIfNeeded(GameObject scrollViewRoot)
+    {
+        if (scrollViewRoot == null)
+        {
+            return;
+        }
+
+        RectTransform rect = scrollViewRoot.GetComponent<RectTransform>();
+        if (rect == null || HttpApiTestPanelLayout.IsValidRect(rect))
+        {
+            return;
+        }
+
+        HttpApiTestPanelLayout layout = GetComponent<HttpApiTestPanelLayout>();
+        if (layout != null)
+        {
+            layout.ApplyTo(rect);
+        }
+        else
+        {
+            HttpApiTestPanelLayout.ApplyDefaultFormScrollViewLayout(rect);
+        }
+    }
+
+    private void EnsureSubPanelReferences()
+    {
+        if (_apiEntryMenuPanel == null)
+        {
+            Transform entry = transform.Find("ApiEntryMenuPanel");
+            if (entry != null)
+            {
+                _apiEntryMenuPanel = entry.gameObject;
+            }
+        }
+
+        if (_formScrollViewRoot == null)
+        {
+            Transform formScroll = transform.Find("FormScrollView");
+            if (formScroll != null)
+            {
+                _formScrollViewRoot = formScroll.gameObject;
+            }
+        }
+
+        if (_vinLocationScrollViewRoot == null)
+        {
+            Transform vinScroll = transform.Find("VinLocationScrollView");
+            if (vinScroll != null)
+            {
+                _vinLocationScrollViewRoot = vinScroll.gameObject;
+            }
+        }
+
+        if (_customApiEntryButton == null)
+        {
+            Transform button = transform.Find("ApiEntryMenuPanel/CustomApiEntryButton");
+            if (button == null)
+            {
+                button = transform.Find("CustomApiEntryButton");
+            }
+
+            if (button != null)
+            {
+                _customApiEntryButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_vinLocationEntryButton == null)
+        {
+            Transform button = transform.Find("ApiEntryMenuPanel/VinLocationEntryButton");
+            if (button == null)
+            {
+                button = transform.Find("VinLocationEntryButton");
+            }
+
+            if (button != null)
+            {
+                _vinLocationEntryButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_customApiListBackButton == null && _formScrollViewRoot != null)
+        {
+            Transform button = _formScrollViewRoot.transform.Find("Viewport/Content/CustomApiListBackButton");
+            if (button != null)
+            {
+                _customApiListBackButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_vinLocationListBackButton == null && _vinLocationScrollViewRoot != null)
+        {
+            Transform button = _vinLocationScrollViewRoot.transform.Find("Viewport/Content/VinLocationListBackButton");
+            if (button != null)
+            {
+                _vinLocationListBackButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_formScrollContent == null && _formScrollViewRoot != null)
+        {
+            Transform content = _formScrollViewRoot.transform.Find("Viewport/Content");
+            if (content != null)
+            {
+                _formScrollContent = content.GetComponent<RectTransform>();
+            }
+        }
     }
 
     private void EnsureJsonResultUi()

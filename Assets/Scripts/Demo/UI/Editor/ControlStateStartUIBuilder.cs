@@ -63,19 +63,24 @@ public static class ControlStateStartUIBuilder
     {
         public System.Collections.Generic.Dictionary<string, ControlStateJumpPanelLayout.RectLayoutData> PanelLayouts;
         public ControlStateJumpPanelLayout.RectLayoutData UiRootLayout;
-        public ControlStateJumpPanelLayout.RectLayoutData HttpApiFormScrollViewLayout;
+        public Vector2 HttpApiFormScrollOffsetMin;
+        public Vector2 HttpApiFormScrollOffsetMax;
         public bool HasUiRootLayout;
-        public bool HasHttpApiFormScrollViewLayout;
+        public bool HasHttpApiFormScrollLayout;
         public Sprite InstantToggleCheckmarkSprite;
 
-        public ControlStateJumpPanelLayout.RectLayoutData GetHttpApiFormScrollViewLayout()
+        public void GetFormScrollOffsets(out Vector2 offsetMin, out Vector2 offsetMax)
         {
-            if (HasHttpApiFormScrollViewLayout)
+            if (HasHttpApiFormScrollLayout
+                && HttpApiTestPanelLayout.IsValidOffsets(HttpApiFormScrollOffsetMin, HttpApiFormScrollOffsetMax))
             {
-                return HttpApiFormScrollViewLayout;
+                offsetMin = HttpApiFormScrollOffsetMin;
+                offsetMax = HttpApiFormScrollOffsetMax;
+                return;
             }
 
-            return HttpApiTestPanelLayout.CreateDefaultFormScrollViewLayout();
+            offsetMin = HttpApiTestPanelLayout.DefaultOffsetMin;
+            offsetMax = HttpApiTestPanelLayout.DefaultOffsetMax;
         }
 
         public ControlStateJumpPanelLayout.RectLayoutData GetPanelLayout(string panelName)
@@ -193,7 +198,7 @@ public static class ControlStateStartUIBuilder
             uiRoot.transform,
             resources,
             preserved.GetPanelLayout(HttpApiTestPanelName),
-            preserved.GetHttpApiFormScrollViewLayout(),
+            preserved,
             navigator,
             demoUiFont,
             out Text httpJsonResultText,
@@ -587,7 +592,7 @@ public static class ControlStateStartUIBuilder
         Transform parent,
         DefaultControls.Resources resources,
         ControlStateJumpPanelLayout.RectLayoutData layout,
-        ControlStateJumpPanelLayout.RectLayoutData formScrollViewLayout,
+        PreservedUiState preserved,
         DemoGameStateUINavigator navigator,
         Font demoUiFont,
         out Text jsonResultText,
@@ -630,25 +635,61 @@ public static class ControlStateStartUIBuilder
 
         y -= BackButtonHeight + 8f;
         CreateLabel(panel.transform, HttpApiTestUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
-        y -= 36f;
+
+        preserved.GetFormScrollOffsets(out Vector2 contentOffsetMin, out Vector2 contentOffsetMax);
+
+        GameObject apiEntryMenuGo = new GameObject("ApiEntryMenuPanel", typeof(RectTransform));
+        apiEntryMenuGo.transform.SetParent(panel.transform, false);
+        RectTransform apiEntryMenuRect = apiEntryMenuGo.GetComponent<RectTransform>();
+        HttpApiTestPanelLayout.ApplyFormScrollViewLayout(apiEntryMenuRect, contentOffsetMin, contentOffsetMax);
+
+        float menuY = -8f;
+        GameObject customApiEntryGo = DefaultControls.CreateButton(resources);
+        customApiEntryGo.name = "CustomApiEntryButton";
+        SetupChildRect(customApiEntryGo, apiEntryMenuGo.transform, 0f, menuY, PanelWidth - 24f, MenuButtonHeight);
+        Text customApiEntryText = customApiEntryGo.GetComponentInChildren<Text>();
+        if (customApiEntryText != null)
+        {
+            customApiEntryText.text = "自定义接口调用";
+            customApiEntryText.fontSize = 14;
+        }
+
+        menuY -= MenuButtonHeight + 8f;
+        GameObject vinLocationEntryGo = DefaultControls.CreateButton(resources);
+        vinLocationEntryGo.name = "VinLocationEntryButton";
+        SetupChildRect(vinLocationEntryGo, apiEntryMenuGo.transform, 0f, menuY, PanelWidth - 24f, MenuButtonHeight);
+        Text vinLocationEntryText = vinLocationEntryGo.GetComponentInChildren<Text>();
+        if (vinLocationEntryText != null)
+        {
+            vinLocationEntryText.text = "车辆位置接口调用";
+            vinLocationEntryText.fontSize = 14;
+        }
 
         ScrollRect scrollRect = CreateScrollView(
             panel.transform,
-            formScrollViewLayout.AnchoredPosition.x,
-            formScrollViewLayout.AnchoredPosition.y,
-            formScrollViewLayout.SizeDelta.x,
-            formScrollViewLayout.SizeDelta.y,
+            0f,
+            0f,
+            100f,
+            100f,
             out RectTransform scrollContent);
         scrollRect.gameObject.name = "FormScrollView";
+        scrollRect.gameObject.SetActive(false);
         RectTransform formScrollRect = scrollRect.GetComponent<RectTransform>();
-        ApplyPanelLayout(formScrollRect, formScrollViewLayout);
-        float contentY = -8f;
+        HttpApiTestPanelLayout.ApplyFormScrollViewLayout(formScrollRect, contentOffsetMin, contentOffsetMax);
+        Transform customRoot = scrollContent;
 
-        CreateLabel(scrollContent, "GET 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        float contentY = -8f;
+        GameObject customListBackGo = CreateApiListBackButton(
+            resources,
+            customRoot,
+            "CustomApiListBackButton",
+            ref contentY);
+
+        CreateLabel(customRoot, "GET 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
         contentY -= 26f;
 
         InputField getUrlInput = CreateLabeledInputField(
-            scrollContent,
+            customRoot,
             resources,
             "GetUrlInput",
             "GET 地址",
@@ -662,7 +703,7 @@ public static class ControlStateStartUIBuilder
 
         GameObject getButtonGo = DefaultControls.CreateButton(resources);
         getButtonGo.name = "GetButton";
-        SetupChildRect(getButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        SetupChildRect(getButtonGo, customRoot, 0f, contentY, PanelWidth - 48f, 36f);
         Text getButtonText = getButtonGo.GetComponentInChildren<Text>();
         if (getButtonText != null)
         {
@@ -670,11 +711,11 @@ public static class ControlStateStartUIBuilder
         }
         contentY -= 44f;
 
-        CreateLabel(scrollContent, "POST 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        CreateLabel(customRoot, "POST 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
         contentY -= 26f;
 
         InputField postHostInput = CreateLabeledInputField(
-            scrollContent,
+            customRoot,
             resources,
             "PostHostInput",
             "主机 IP:端口",
@@ -687,7 +728,7 @@ public static class ControlStateStartUIBuilder
         contentY -= RowHeight + 4f;
 
         InputField postPathInput = CreateLabeledInputField(
-            scrollContent,
+            customRoot,
             resources,
             "PostPathInput",
             "POST 路径",
@@ -699,18 +740,18 @@ public static class ControlStateStartUIBuilder
             InputFieldFontSize);
         contentY -= RowHeight + 4f;
 
-        CreateLabel(scrollContent, "请求头部", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        CreateLabel(customRoot, "请求头部", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
         contentY -= 24f;
 
-        CreateLabel(scrollContent, string.Empty, 0f, contentY, 24f, 20f, 12, FontStyle.Normal);
-        CreateLabel(scrollContent, "请求头", 28f, contentY, 84f, 20f, 12, FontStyle.Normal);
-        CreateLabel(scrollContent, "内容", 116f, contentY, 150f, 20f, 12, FontStyle.Normal);
-        CreateLabel(scrollContent, "操作", PanelWidth - 88f, contentY, 40f, 20f, 12, FontStyle.Normal);
+        CreateLabel(customRoot, string.Empty, 0f, contentY, 24f, 20f, 12, FontStyle.Normal);
+        CreateLabel(customRoot, "请求头", 28f, contentY, 84f, 20f, 12, FontStyle.Normal);
+        CreateLabel(customRoot, "内容", 116f, contentY, 150f, 20f, 12, FontStyle.Normal);
+        CreateLabel(customRoot, "操作", PanelWidth - 88f, contentY, 40f, 20f, 12, FontStyle.Normal);
         contentY -= 24f;
 
         GameObject headerRowsContainerGo = new GameObject("HeaderRowsContainer", typeof(RectTransform));
-        headerRowsContainerGo.transform.SetParent(scrollContent, false);
-        SetupChildRect(headerRowsContainerGo, scrollContent, 0f, contentY, PanelWidth - 48f, 108f);
+        headerRowsContainerGo.transform.SetParent(customRoot, false);
+        SetupChildRect(headerRowsContainerGo, customRoot, 0f, contentY, PanelWidth - 48f, 108f);
         VerticalLayoutGroup headerLayout = headerRowsContainerGo.AddComponent<VerticalLayoutGroup>();
         headerLayout.spacing = 4f;
         headerLayout.childControlWidth = true;
@@ -727,7 +768,7 @@ public static class ControlStateStartUIBuilder
 
         GameObject addHeaderButtonGo = DefaultControls.CreateButton(resources);
         addHeaderButtonGo.name = "AddHeaderButton";
-        SetupChildRect(addHeaderButtonGo, scrollContent, 0f, contentY, 48f, 32f);
+        SetupChildRect(addHeaderButtonGo, customRoot, 0f, contentY, 48f, 32f);
         Text addHeaderButtonText = addHeaderButtonGo.GetComponentInChildren<Text>();
         if (addHeaderButtonText != null)
         {
@@ -736,11 +777,11 @@ public static class ControlStateStartUIBuilder
         }
         contentY -= 36f;
 
-        CreateLabel(scrollContent, "请求参数", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        CreateLabel(customRoot, "请求参数", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
         contentY -= 24f;
 
         InputField postBodyInput = CreateLabeledMultilineInputField(
-            scrollContent,
+            customRoot,
             resources,
             "PostBodyInput",
             "JSON",
@@ -759,7 +800,7 @@ public static class ControlStateStartUIBuilder
 
         GameObject postButtonGo = DefaultControls.CreateButton(resources);
         postButtonGo.name = "PostButton";
-        SetupChildRect(postButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        SetupChildRect(postButtonGo, customRoot, 0f, contentY, PanelWidth - 48f, 36f);
         Text postButtonText = postButtonGo.GetComponentInChildren<Text>();
         if (postButtonText != null)
         {
@@ -769,7 +810,7 @@ public static class ControlStateStartUIBuilder
 
         GameObject stopButtonGo = DefaultControls.CreateButton(resources);
         stopButtonGo.name = "StopButton";
-        SetupChildRect(stopButtonGo, scrollContent, 0f, contentY, PanelWidth - 48f, 36f);
+        SetupChildRect(stopButtonGo, customRoot, 0f, contentY, PanelWidth - 48f, 36f);
         Text stopButtonText = stopButtonGo.GetComponentInChildren<Text>();
         if (stopButtonText != null)
         {
@@ -778,7 +819,7 @@ public static class ControlStateStartUIBuilder
         contentY -= 44f;
 
         Text fallbackResponseLabel = CreateExpandableResponseLabel(
-            scrollContent,
+            customRoot,
             0f,
             contentY,
             PanelWidth - 48f,
@@ -786,9 +827,147 @@ public static class ControlStateStartUIBuilder
             "等待请求...",
             11);
         contentY -= ResponseLabelInitialHeight + 4f;
-
         float formScrollBaseHeight = Mathf.Abs(contentY) + 16f;
         scrollContent.sizeDelta = new Vector2(0f, formScrollBaseHeight);
+
+        ScrollRect vinScrollRect = CreateScrollView(
+            panel.transform,
+            0f,
+            0f,
+            100f,
+            100f,
+            out RectTransform vinScrollContent);
+        vinScrollRect.gameObject.name = "VinLocationScrollView";
+        vinScrollRect.gameObject.SetActive(false);
+        RectTransform vinScrollRectTransform = vinScrollRect.GetComponent<RectTransform>();
+        HttpApiTestPanelLayout.ApplyFormScrollViewLayout(vinScrollRectTransform, contentOffsetMin, contentOffsetMax);
+        Transform vinRoot = vinScrollContent;
+
+        float vinContentY = -8f;
+        GameObject vinListBackGo = CreateApiListBackButton(
+            resources,
+            vinRoot,
+            "VinLocationListBackButton",
+            ref vinContentY);
+
+        CreateLabel(
+            vinRoot,
+            HttpProjectConfig.LatestVinLocationPath,
+            0f,
+            vinContentY,
+            PanelWidth - 48f,
+            22f,
+            12,
+            FontStyle.Bold);
+        vinContentY -= 24f;
+
+        InputField vinStartTimeInput = CreateLabeledInputField(
+            vinRoot,
+            resources,
+            "VinStartTimeInput",
+            "开始时间",
+            0f,
+            vinContentY,
+            LabelWidth,
+            FieldWidth,
+            HttpProjectConfig.DefaultQueryStartTime,
+            InputFieldFontSize);
+        if (vinStartTimeInput.placeholder is Text vinStartPlaceholder)
+        {
+            vinStartPlaceholder.text = "可空";
+        }
+        vinContentY -= RowHeight + 4f;
+
+        InputField vinEndTimeInput = CreateLabeledInputField(
+            vinRoot,
+            resources,
+            "VinEndTimeInput",
+            "结束时间",
+            0f,
+            vinContentY,
+            LabelWidth,
+            FieldWidth,
+            BackendDateTimeTool.GetCurrentTimeString(),
+            InputFieldFontSize);
+        if (vinEndTimeInput.placeholder is Text vinEndPlaceholder)
+        {
+            vinEndPlaceholder.text = "可空，默认当前时间";
+        }
+        vinContentY -= RowHeight + 4f;
+
+        InputField vinProvinceInput = CreateLabeledInputField(
+            vinRoot,
+            resources,
+            "VinProvinceInput",
+            "省份",
+            0f,
+            vinContentY,
+            LabelWidth,
+            FieldWidth,
+            string.Empty,
+            InputFieldFontSize);
+        if (vinProvinceInput.placeholder is Text vinProvincePlaceholder)
+        {
+            vinProvincePlaceholder.text = "adcode，可空";
+        }
+        vinContentY -= RowHeight + 4f;
+
+        InputField vinRegionInput = CreateLabeledInputField(
+            vinRoot,
+            resources,
+            "VinRegionInput",
+            "区域",
+            0f,
+            vinContentY,
+            LabelWidth,
+            FieldWidth,
+            string.Empty,
+            InputFieldFontSize);
+        if (vinRegionInput.placeholder is Text vinRegionPlaceholder)
+        {
+            vinRegionPlaceholder.text = "可空";
+        }
+        vinContentY -= RowHeight + 4f;
+
+        InputField vinCountryInput = CreateLabeledInputField(
+            vinRoot,
+            resources,
+            "VinCountryInput",
+            "国家",
+            0f,
+            vinContentY,
+            LabelWidth,
+            FieldWidth,
+            string.Empty,
+            InputFieldFontSize);
+        if (vinCountryInput.placeholder is Text vinCountryPlaceholder)
+        {
+            vinCountryPlaceholder.text = "可空";
+        }
+        vinContentY -= RowHeight + 8f;
+
+        GameObject vinRequestButtonGo = DefaultControls.CreateButton(resources);
+        vinRequestButtonGo.name = "VinLocationRequestButton";
+        SetupChildRect(vinRequestButtonGo, vinRoot, 0f, vinContentY, PanelWidth - 48f, 36f);
+        Text vinRequestButtonText = vinRequestButtonGo.GetComponentInChildren<Text>();
+        if (vinRequestButtonText != null)
+        {
+            vinRequestButtonText.text = "请求车辆位置";
+        }
+        vinContentY -= 44f;
+
+        GameObject vinStopButtonGo = DefaultControls.CreateButton(resources);
+        vinStopButtonGo.name = "VinLocationStopButton";
+        SetupChildRect(vinStopButtonGo, vinRoot, 0f, vinContentY, PanelWidth - 48f, 36f);
+        Text vinStopButtonText = vinStopButtonGo.GetComponentInChildren<Text>();
+        if (vinStopButtonText != null)
+        {
+            vinStopButtonText.text = "停止请求";
+        }
+        vinContentY -= 44f;
+
+        float vinScrollBaseHeight = Mathf.Abs(vinContentY) + 16f;
+        vinScrollContent.sizeDelta = new Vector2(0f, vinScrollBaseHeight);
 
         HttpApiTestUIDemo uiDemo = panel.AddComponent<HttpApiTestUIDemo>();
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
@@ -815,16 +994,57 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_formScrollBaseHeight").floatValue = formScrollBaseHeight;
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.FindProperty("_apiEntryMenuPanel").objectReferenceValue = apiEntryMenuGo;
+        serializedDemo.FindProperty("_customApiEntryButton").objectReferenceValue = customApiEntryGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_vinLocationEntryButton").objectReferenceValue = vinLocationEntryGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_formScrollViewRoot").objectReferenceValue = scrollRect.gameObject;
+        serializedDemo.FindProperty("_vinLocationScrollViewRoot").objectReferenceValue = vinScrollRect.gameObject;
+        serializedDemo.FindProperty("_customApiListBackButton").objectReferenceValue = customListBackGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_vinLocationListBackButton").objectReferenceValue = vinListBackGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_vinStartTimeInput").objectReferenceValue = vinStartTimeInput;
+        serializedDemo.FindProperty("_vinEndTimeInput").objectReferenceValue = vinEndTimeInput;
+        serializedDemo.FindProperty("_vinProvinceInput").objectReferenceValue = vinProvinceInput;
+        serializedDemo.FindProperty("_vinRegionInput").objectReferenceValue = vinRegionInput;
+        serializedDemo.FindProperty("_vinCountryInput").objectReferenceValue = vinCountryInput;
+        serializedDemo.FindProperty("_vinLocationRequestButton").objectReferenceValue =
+            vinRequestButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_vinLocationStopButton").objectReferenceValue =
+            vinStopButtonGo.GetComponent<Button>();
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
 
-        HttpApiTestPanelLayout panelLayout = panel.AddComponent<HttpApiTestPanelLayout>();
-        panelLayout.CaptureFormScrollView(formScrollRect);
+        HttpApiTestPanelLayout layoutComponent = panel.GetComponent<HttpApiTestPanelLayout>();
+        if (layoutComponent == null)
+        {
+            layoutComponent = panel.AddComponent<HttpApiTestPanelLayout>();
+        }
+
+        layoutComponent.CaptureFormScrollView(formScrollRect);
 
         ApplyPanelFont(panel, demoUiFont);
         ApplyPanelFont(jsonResultBar, demoUiFont);
         ApplyPanelFont(jsonCopyBar, demoUiFont);
 
         return panel;
+    }
+
+    private static GameObject CreateApiListBackButton(
+        DefaultControls.Resources resources,
+        Transform parent,
+        string buttonName,
+        ref float contentY)
+    {
+        GameObject backGo = DefaultControls.CreateButton(resources);
+        backGo.name = buttonName;
+        SetupChildRect(backGo, parent, 0f, contentY, PanelWidth - 48f, BackButtonHeight);
+        Text backText = backGo.GetComponentInChildren<Text>();
+        if (backText != null)
+        {
+            backText.text = "返回接口列表";
+            backText.fontSize = 13;
+        }
+
+        contentY -= BackButtonHeight + 8f;
+        return backGo;
     }
 
     private static GameObject CreateHttpJsonCopyInputBar(
@@ -1656,23 +1876,23 @@ public static class ControlStateStartUIBuilder
         }
 
         HttpApiTestPanelLayout layoutComponent = panel.GetComponent<HttpApiTestPanelLayout>();
-        if (layoutComponent != null)
+        if (layoutComponent != null
+            && HttpApiTestPanelLayout.IsValidOffsets(layoutComponent.OffsetMin, layoutComponent.OffsetMax))
         {
-            state.HttpApiFormScrollViewLayout = layoutComponent.FormScrollViewLayout;
-            state.HasHttpApiFormScrollViewLayout = true;
+            state.HttpApiFormScrollOffsetMin = layoutComponent.OffsetMin;
+            state.HttpApiFormScrollOffsetMax = layoutComponent.OffsetMax;
+            state.HasHttpApiFormScrollLayout = true;
             return;
         }
 
         Transform formScrollView = panel.Find("FormScrollView");
         RectTransform formScrollRect = formScrollView as RectTransform;
-        if (formScrollRect == null)
+        if (formScrollRect != null && HttpApiTestPanelLayout.IsValidRect(formScrollRect))
         {
-            return;
+            state.HttpApiFormScrollOffsetMin = formScrollRect.offsetMin;
+            state.HttpApiFormScrollOffsetMax = formScrollRect.offsetMax;
+            state.HasHttpApiFormScrollLayout = true;
         }
-
-        state.HttpApiFormScrollViewLayout =
-            ControlStateJumpPanelLayout.CaptureFromRectTransform(formScrollRect);
-        state.HasHttpApiFormScrollViewLayout = true;
     }
 
     private static void TryCapturePanelLayout(
@@ -2065,6 +2285,16 @@ public static class ControlStateStartUIBuilder
         {
             placeholderText.fontSize = fontSize;
         }
+    }
+
+    private static void SetupHttpApiSubPanelRect(GameObject subPanel, float height)
+    {
+        RectTransform rect = subPanel.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(1f, 1f);
+        rect.pivot = new Vector2(0.5f, 1f);
+        rect.anchoredPosition = Vector2.zero;
+        rect.sizeDelta = new Vector2(0f, Mathf.Max(height, 120f));
     }
 
     private static void SetupChildRect(GameObject go, Transform parent, float x, float y, float width, float height)
