@@ -1,0 +1,244 @@
+{
+  "code": 10000,
+  "msg": "操作成功！",
+  "data": [
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "110000",
+      "secondClass": "北京市",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "120000",
+      "secondClass": "天津市",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "130000",
+      "secondClass": "河北省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "140000",
+      "secondClass": "山西省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "150000",
+      "secondClass": "内蒙古自治区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "210000",
+      "secondClass": "辽宁省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "220000",
+      "secondClass": "吉林省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "230000",
+      "secondClass": "黑龙江省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "310000",
+      "secondClass": "上海市",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "320000",
+      "secondClass": "江苏省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "330000",
+      "secondClass": "浙江省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "340000",
+      "secondClass": "安徽省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "350000",
+      "secondClass": "福建省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "360000",
+      "secondClass": "江西省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "370000",
+      "secondClass": "山东省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "410000",
+      "secondClass": "河南省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "420000",
+      "secondClass": "湖北省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "430000",
+      "secondClass": "湖南省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "440000",
+      "secondClass": "广东省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "450000",
+      "secondClass": "广西壮族自治区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "460000",
+      "secondClass": "海南省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "500000",
+      "secondClass": "重庆市",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "510000",
+      "secondClass": "四川省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "520000",
+      "secondClass": "贵州省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "530000",
+      "secondClass": "云南省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "540000",
+      "secondClass": "西藏自治区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "610000",
+      "secondClass": "陕西省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "620000",
+      "secondClass": "甘肃省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "630000",
+      "secondClass": "青海省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "640000",
+      "secondClass": "宁夏回族自治区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "650000",
+      "secondClass": "新疆维吾尔自治区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "710000",
+      "secondClass": "台湾省",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "810000",
+      "secondClass": "香港特别行政区",
+      "isChina": true
+    },
+    {
+      "firstClassCode": "CHINA",
+      "firstClass": "中国",
+      "secondClassCode": "820000",
+      "secondClass": "澳门特别行政区",
+      "isChina": true
+    }
+  ]
+}

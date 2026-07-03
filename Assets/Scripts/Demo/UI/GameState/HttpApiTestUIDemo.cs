@@ -12,7 +12,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
     public const string DefaultGetUrl = "https://jsonplaceholder.typicode.com/todos/1";
     public const string DefaultPostHost = "10.60.16.96:38000";
     public const string DefaultPostPath = "/business/bigScreen/comprehensivePosture/workOrderDisposalOverview";
-    public const string DefaultPostBody = "";
+    public const string DefaultPostBody = WorkOrderDisposalOverviewRequest.DefaultJson;
 
     private static readonly (string Key, string Value)[] DefaultHeaders =
     {
@@ -327,7 +327,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         }
 
         Dictionary<string, string> headers = CollectHeaders();
-        string jsonBody = BuildPostJsonBody(headers);
+        string jsonBody = BuildPostJsonBody();
 
         _activeRequestMethod = "POST";
         RefreshRequestButtons(true);
@@ -354,7 +354,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
         }
     }
 
-    private string BuildPostJsonBody(Dictionary<string, string> headers)
+    /// <summary>读取 POST 请求参数 JSON；输入框留空时使用 <see cref="DefaultPostBody"/>。</summary>
+    private string BuildPostJsonBody()
     {
         string customBody = _postBodyInput != null ? _postBodyInput.text.Trim() : string.Empty;
         if (!string.IsNullOrEmpty(customBody))
@@ -362,7 +363,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             return customBody;
         }
 
-        return HttpHeadersJson.ToJsonObject(headers);
+        return DefaultPostBody;
     }
 
     private void OnRequestCompleted(string method, HttpRequestResult result)

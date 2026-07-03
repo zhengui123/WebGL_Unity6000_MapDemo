@@ -63,8 +63,20 @@ public static class ControlStateStartUIBuilder
     {
         public System.Collections.Generic.Dictionary<string, ControlStateJumpPanelLayout.RectLayoutData> PanelLayouts;
         public ControlStateJumpPanelLayout.RectLayoutData UiRootLayout;
+        public ControlStateJumpPanelLayout.RectLayoutData HttpApiFormScrollViewLayout;
         public bool HasUiRootLayout;
+        public bool HasHttpApiFormScrollViewLayout;
         public Sprite InstantToggleCheckmarkSprite;
+
+        public ControlStateJumpPanelLayout.RectLayoutData GetHttpApiFormScrollViewLayout()
+        {
+            if (HasHttpApiFormScrollViewLayout)
+            {
+                return HttpApiFormScrollViewLayout;
+            }
+
+            return HttpApiTestPanelLayout.CreateDefaultFormScrollViewLayout();
+        }
 
         public ControlStateJumpPanelLayout.RectLayoutData GetPanelLayout(string panelName)
         {
@@ -181,6 +193,7 @@ public static class ControlStateStartUIBuilder
             uiRoot.transform,
             resources,
             preserved.GetPanelLayout(HttpApiTestPanelName),
+            preserved.GetHttpApiFormScrollViewLayout(),
             navigator,
             demoUiFont,
             out Text httpJsonResultText,
@@ -574,6 +587,7 @@ public static class ControlStateStartUIBuilder
         Transform parent,
         DefaultControls.Resources resources,
         ControlStateJumpPanelLayout.RectLayoutData layout,
+        ControlStateJumpPanelLayout.RectLayoutData formScrollViewLayout,
         DemoGameStateUINavigator navigator,
         Font demoUiFont,
         out Text jsonResultText,
@@ -620,12 +634,14 @@ public static class ControlStateStartUIBuilder
 
         ScrollRect scrollRect = CreateScrollView(
             panel.transform,
-            12f,
-            y,
-            PanelWidth - 24f,
-            320f,
+            formScrollViewLayout.AnchoredPosition.x,
+            formScrollViewLayout.AnchoredPosition.y,
+            formScrollViewLayout.SizeDelta.x,
+            formScrollViewLayout.SizeDelta.y,
             out RectTransform scrollContent);
         scrollRect.gameObject.name = "FormScrollView";
+        RectTransform formScrollRect = scrollRect.GetComponent<RectTransform>();
+        ApplyPanelLayout(formScrollRect, formScrollViewLayout);
         float contentY = -8f;
 
         CreateLabel(scrollContent, "GET 请求", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
@@ -683,24 +699,6 @@ public static class ControlStateStartUIBuilder
             InputFieldFontSize);
         contentY -= RowHeight + 4f;
 
-        InputField postBodyInput = CreateLabeledMultilineInputField(
-            scrollContent,
-            resources,
-            "PostBodyInput",
-            "POST 请求体",
-            0f,
-            contentY,
-            LabelWidth,
-            FieldWidth,
-            HttpApiTestUIDemo.DefaultPostBody,
-            InputFieldFontSize,
-            56f);
-        if (postBodyInput.placeholder is Text postBodyPlaceholder)
-        {
-            postBodyPlaceholder.text = "留空则由请求头生成 JSON";
-        }
-        contentY -= 60f;
-
         CreateLabel(scrollContent, "请求头部", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
         contentY -= 24f;
 
@@ -737,6 +735,27 @@ public static class ControlStateStartUIBuilder
             addHeaderButtonText.fontSize = 20;
         }
         contentY -= 36f;
+
+        CreateLabel(scrollContent, "请求参数", 0f, contentY, PanelWidth - 48f, 22f, 14, FontStyle.Bold);
+        contentY -= 24f;
+
+        InputField postBodyInput = CreateLabeledMultilineInputField(
+            scrollContent,
+            resources,
+            "PostBodyInput",
+            "JSON",
+            0f,
+            contentY,
+            LabelWidth,
+            FieldWidth,
+            HttpApiTestUIDemo.DefaultPostBody,
+            InputFieldFontSize,
+            88f);
+        if (postBodyInput.placeholder is Text postBodyPlaceholder)
+        {
+            postBodyPlaceholder.text = "留空则使用默认请求参数";
+        }
+        contentY -= 92f;
 
         GameObject postButtonGo = DefaultControls.CreateButton(resources);
         postButtonGo.name = "PostButton";
@@ -797,6 +816,9 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        HttpApiTestPanelLayout panelLayout = panel.AddComponent<HttpApiTestPanelLayout>();
+        panelLayout.CaptureFormScrollView(formScrollRect);
 
         ApplyPanelFont(panel, demoUiFont);
         ApplyPanelFont(jsonResultBar, demoUiFont);
@@ -1605,6 +1627,7 @@ public static class ControlStateStartUIBuilder
                 TryCapturePanelLayout(uiRoot, PreservedPanelNames[i], state.PanelLayouts);
             }
 
+            TryCaptureHttpApiFormScrollViewLayout(uiRoot, ref state);
             CaptureInstantToggleCheckmarkSprite(uiRoot, ref state.InstantToggleCheckmarkSprite);
             return state;
         }
@@ -1617,6 +1640,39 @@ public static class ControlStateStartUIBuilder
         }
 
         return state;
+    }
+
+    private static void TryCaptureHttpApiFormScrollViewLayout(Transform uiRoot, ref PreservedUiState state)
+    {
+        if (uiRoot == null)
+        {
+            return;
+        }
+
+        Transform panel = uiRoot.Find(HttpApiTestPanelName);
+        if (panel == null)
+        {
+            return;
+        }
+
+        HttpApiTestPanelLayout layoutComponent = panel.GetComponent<HttpApiTestPanelLayout>();
+        if (layoutComponent != null)
+        {
+            state.HttpApiFormScrollViewLayout = layoutComponent.FormScrollViewLayout;
+            state.HasHttpApiFormScrollViewLayout = true;
+            return;
+        }
+
+        Transform formScrollView = panel.Find("FormScrollView");
+        RectTransform formScrollRect = formScrollView as RectTransform;
+        if (formScrollRect == null)
+        {
+            return;
+        }
+
+        state.HttpApiFormScrollViewLayout =
+            ControlStateJumpPanelLayout.CaptureFromRectTransform(formScrollRect);
+        state.HasHttpApiFormScrollViewLayout = true;
     }
 
     private static void TryCapturePanelLayout(

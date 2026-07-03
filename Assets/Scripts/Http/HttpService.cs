@@ -200,7 +200,15 @@ public class HttpService : UnitySingle<HttpService>
         _activeRequest = request;
         ApplyRequestSettings(request, headers);
 
-        yield return request.SendWebRequest();
+        if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
+        {
+            request.Dispose();
+            _activeRequest = null;
+            TryFinishRequest(HttpRequestResult.Failure(sendError));
+            yield break;
+        }
+
+        yield return operation;
 
         if (_currentRequestGeneration != _requestGeneration)
         {
@@ -229,7 +237,15 @@ public class HttpService : UnitySingle<HttpService>
         _activeRequest = request;
         ApplyRequestSettings(request, headers, setJsonContentType: true);
 
-        yield return request.SendWebRequest();
+        if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
+        {
+            request.Dispose();
+            _activeRequest = null;
+            TryFinishRequest(HttpRequestResult.Failure(sendError));
+            yield break;
+        }
+
+        yield return operation;
 
         if (_currentRequestGeneration != _requestGeneration)
         {
@@ -285,6 +301,39 @@ public class HttpService : UnitySingle<HttpService>
 
         errorMessage = null;
         return true;
+    }
+
+    private static bool TrySendWebRequest(
+        UnityWebRequest request,
+        out UnityWebRequestAsyncOperation operation,
+        out string errorMessage)
+    {
+        operation = null;
+        errorMessage = null;
+
+        try
+        {
+            operation = request.SendWebRequest();
+            return true;
+        }
+        catch (InvalidOperationException exception)
+        {
+            errorMessage = BuildInsecureHttpErrorMessage(exception.Message);
+            return false;
+        }
+    }
+
+    private static string BuildInsecureHttpErrorMessage(string rawMessage)
+    {
+        if (!string.IsNullOrEmpty(rawMessage)
+            && rawMessage.IndexOf("Insecure connection", StringComparison.OrdinalIgnoreCase) >= 0)
+        {
+            return "当前项目禁止 HTTP 明文请求（Insecure connection not allowed）。" +
+                   "请在 Project Settings > Player > Other Settings > Allow downloads over HTTP " +
+                   "设置为 Development Only 或 Always Allowed；若后端支持 HTTPS，请改用 https://。";
+        }
+
+        return string.IsNullOrEmpty(rawMessage) ? "HTTP 请求启动失败。" : rawMessage;
     }
 
     private static HttpRequestResult BuildResult(UnityWebRequest request)
