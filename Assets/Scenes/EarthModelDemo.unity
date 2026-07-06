@@ -13926,6 +13926,54 @@ Transform:
   - {fileID: 1692808922}
   m_Father: {fileID: 720979335}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &224383743
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 224383744}
+  - component: {fileID: 224383745}
+  m_Layer: 0
+  m_Name: WebGLAPI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &224383744
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224383743}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1594526987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &224383745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 224383743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daadf101348a0f747b4c38212ca9a14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WebGLAPI
+  cube: {fileID: 0}
+  rotNum: 1
+  showMessageText: {fileID: 0}
+  lastHostMessage: 
 --- !u!1 &227437319
 GameObject:
   m_ObjectHideFlags: 0
@@ -137501,6 +137549,7 @@ Transform:
   - {fileID: 848007550}
   - {fileID: 526021184}
   - {fileID: 1960983825}
+  - {fileID: 224383744}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1595585423
@@ -172637,7 +172686,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LatestVinLocationApiMockTest
   _responseJson: "{\"code\":10000,\"msg\":\"\u64CD\u4F5C\u6210\u529F\uFF01\",\"data\":[{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"111\",\"vinEncrypt\":\"f0e00a29357e02f427e79ba1efae576c\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"12\",\"vinEncrypt\":\"d1df719fe0aa3f61062c910c081b1cfe2\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"123***\",\"vinEncrypt\":\"ec1651ed0706e3a59de73e4c3a92f05b\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"1\",\"vinEncrypt\":\"040c75501cbb9c00da5e158122214704\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"123******\",\"vinEncrypt\":\"420a510e316e8956d98bee4764a5e00a\"}]}"
-  _runOnStart: 1
+  _runOnStart: 0
   _runKey: 118
 --- !u!4 &2097959179
 Transform:

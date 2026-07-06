@@ -30,6 +30,23 @@ mergeInto(LibraryManager.library, {
         var response = "Processed " + message;
         // 调用Unity的回调函数
         SendMessage('WebGLCommunication', callback, response);
+    },
+
+    // Unity → HTML：按方法名调用 window.parent 或 window 上的同名函数（与 Android MainActivity 对齐）
+    CallHTMLHandler: function(methodName, message) {
+        methodName = UTF8ToString(methodName);
+        message = UTF8ToString(message);
+
+        var targets = [window.parent, window];
+        for (var i = 0; i < targets.length; i++) {
+            var target = targets[i];
+            if (target && typeof target[methodName] === 'function') {
+                target[methodName](message);
+                return;
+            }
+        }
+
+        console.warn('[Unity WebGL] handler not found:', methodName, message);
     }
   
 });
