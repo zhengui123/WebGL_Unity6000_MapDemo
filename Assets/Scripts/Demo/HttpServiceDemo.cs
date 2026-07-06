@@ -210,7 +210,7 @@ public class HttpServiceDemo : MonoBehaviour
             path = "/" + path;
         }
 
-        url = host.Contains("://") ? $"{host}{path}" : $"http://{host}{path}";
+        url = host.Contains("://") ? $"{host}{path}" : $"{HttpProjectConfig.ApiScheme}://{host}{path}";
         return true;
     }
 

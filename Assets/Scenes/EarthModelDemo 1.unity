@@ -52845,7 +52845,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HttpServiceDemo
   _getUrl: https://jsonplaceholder.typicode.com/todos/1
-  _getOnStart: 0
+  _getOnStart: 1
   _postHost: 10.60.16.96:38000
   _postPath: /business/bigScreen/comprehensivePosture/workOrderDisposalOverview
   _postBody: "{\n  \"startTime\": \"\",\n  \"endTime\": \"2026-06-30 23:00:00\",\n 
@@ -63486,8 +63486,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -320.9712}
-  m_SizeDelta: {x: -24, y: 465.9423}
+  m_AnchoredPosition: {x: 0, y: -38}
+  m_SizeDelta: {x: -24, y: -100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1042736787
 MonoBehaviour:
@@ -141923,53 +141923,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1663379848}
   m_CullTransparentMesh: 1
---- !u!1 &1665660929
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1665660931}
-  - component: {fileID: 1665660930}
-  m_Layer: 0
-  m_Name: VinLocationMockTest
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 0
---- !u!114 &1665660930
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1665660929}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 233215ffd6c88464ebb60a071433f72d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LatestVinLocationApiMockTest
-  _responseJson: "{\"code\":10000,\"msg\":\"\u64CD\u4F5C\u6210\u529F\uFF01\",\"data\":[{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"111\",\"vinEncrypt\":\"f0e00a29357e02f427e79ba1efae576c\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"12\",\"vinEncrypt\":\"d1df719fe0aa3f61062c910c081b1cfe2\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"123***\",\"vinEncrypt\":\"ec1651ed0706e3a59de73e4c3a92f05b\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"1\",\"vinEncrypt\":\"040c75501cbb9c00da5e158122214704\"},{\"longitude\":\"120.219191\",\"latitude\":\"30.215549\",\"province\":\"330000\",\"city\":\"330100\",\"district\":\"330108\",\"region\":null,\"country\":null,\"vin\":\"123******\",\"vinEncrypt\":\"420a510e316e8956d98bee4764a5e00a\"}]}"
-  _runOnStart: 1
-  _runKey: 118
---- !u!4 &1665660931
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1665660929}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 234.66362, y: 0.00001, z: 4279.251}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1671738071
 GameObject:
   m_ObjectHideFlags: 0
@@ -142893,7 +142846,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: https://jsonplaceholder.typicod
+  m_Text: https://jsonplaceholder.typic
 --- !u!222 &1683355951
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -144143,8 +144096,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: '{  "startTime": "",  "endTime": "2026-06-30 23:00:00",  "province": "", 
-    "region": "",  "country": ""}'
+  m_Text: '{  "startTime": "",  "endTime"'
 --- !u!222 &1695570022
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -145564,8 +145516,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -310.02686}
-  m_SizeDelta: {x: -24, y: 444.0536}
+  m_AnchoredPosition: {x: 0, y: -38}
+  m_SizeDelta: {x: -24, y: -100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1705706107
 MonoBehaviour:
@@ -159954,7 +159906,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 0, y: -672}
-  m_SizeDelta: {x: 312, y: 15}
+  m_SizeDelta: {x: 312, y: 120}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1888511061
 MonoBehaviour:
@@ -173449,7 +173401,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: /business/bigScreen/comprehe
+  m_Text: /business/bigScreen/compre
 --- !u!222 &2110082914
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -175350,19 +175302,11 @@ PrefabInstance:
       objectReference: {fileID: 314520379}
     - target: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _vehiclePoints.Array.size
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _vehiclePoints.Array.data[0].latitude
-      value: 30.21554946899414
-      objectReference: {fileID: 0}
-    - target: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
-      propertyPath: _vehiclePoints.Array.data[0].longitude
-      value: 120.21919250488281
-      objectReference: {fileID: 0}
-    - target: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
-      propertyPath: _vehiclePoints.Array.data[0].vehicleId
-      value: f0e00a29357e02f427e79ba1efae576c
+      value: 30.215549
       objectReference: {fileID: 0}
     - target: {fileID: 2407045919986893658, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _vehiclePoints.Array.data[0].alertValue
@@ -175370,15 +175314,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _northLatitude
-      value: 31.1825
+      value: 31.183333
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _southLatitude
-      value: 27.0452778
+      value: 27.033333
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _eastAnchor.latitude
-      value: 31.1825
+      value: 31.183333
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _useProvinceBoundary
@@ -175386,11 +175330,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _westAnchor.latitude
-      value: 27.0452778
-      objectReference: {fileID: 0}
-    - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
-      propertyPath: _eastAnchor.longitude
-      value: 122.714
+      value: 27.033333
       objectReference: {fileID: 0}
     - target: {fileID: 6238814874542099929, guid: aefe833c48a41b148a594b46a6f6ebc9, type: 3}
       propertyPath: _westAnchor.longitude
@@ -176986,4 +176926,3 @@ SceneRoots:
   - {fileID: 2008089229}
   - {fileID: 1960983825}
   - {fileID: 855372764}
-  - {fileID: 1665660931}

@@ -38,6 +38,54 @@ public class HttpVehicleLocationRecord
         };
     }
 
+    /// <summary>转为地图车辆点位：vehicleId 对应 vinEncrypt，alertValue 默认 1。</summary>
+    public VehicleMapPointData ToVehicleMapPointData(float alertValue = 1f)
+    {
+        return new VehicleMapPointData
+        {
+            vehicleId = VinEncrypt,
+            longitude = Longitude,
+            latitude = Latitude,
+            alertValue = alertValue,
+        };
+    }
+
+    /// <summary>将接口车辆列表转为地图点位数组（跳过无 vinEncrypt 的项）。</summary>
+    public static VehicleMapPointData[] ToVehicleMapPointArray(LatestVinLocationItem[] items, float alertValue = 1f)
+    {
+        if (items == null || items.Length == 0)
+        {
+            return Array.Empty<VehicleMapPointData>();
+        }
+
+        VehicleMapPointData[] points = new VehicleMapPointData[items.Length];
+        int count = 0;
+        for (int i = 0; i < items.Length; i++)
+        {
+            HttpVehicleLocationRecord record = FromApiItem(items[i]);
+            if (record == null || string.IsNullOrWhiteSpace(record.VinEncrypt))
+            {
+                continue;
+            }
+
+            points[count++] = record.ToVehicleMapPointData(alertValue);
+        }
+
+        if (count == 0)
+        {
+            return Array.Empty<VehicleMapPointData>();
+        }
+
+        if (count == points.Length)
+        {
+            return points;
+        }
+
+        VehicleMapPointData[] trimmed = new VehicleMapPointData[count];
+        Array.Copy(points, trimmed, count);
+        return trimmed;
+    }
+
     private static double ParseCoordinate(string value)
     {
         if (string.IsNullOrWhiteSpace(value))

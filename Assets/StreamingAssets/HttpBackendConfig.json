@@ -1,0 +1,18 @@
+{
+  "apiHost": "10.60.16.96:38000",
+  "useHttps": false,
+  "headers": [
+    {
+      "key": "Satoken",
+      "value": "SNLfzLQJmvgIOBqKkhFG6mxG9S7fs3nJBIKLoJKrDD8Ju4GHaOpM56lo5m8dUj87"
+    },
+    {
+      "key": "X-Tenant-Id",
+      "value": "1"
+    },
+    {
+      "key": "Sys-Lang",
+      "value": "zh-CN"
+    }
+  ]
+}

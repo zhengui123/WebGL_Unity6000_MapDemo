@@ -25,6 +25,19 @@ public class HttpVehicleLocationDataStore : UnitySingle<HttpVehicleLocationDataS
         return MergeItems(response.data);
     }
 
+    /// <summary>清空并以接口响应全量替换本地缓存。</summary>
+    public void ReplaceFromResponse(LatestVinLocationResponse response)
+    {
+        _recordsByVinEncrypt.Clear();
+        if (response?.data != null && response.data.Length > 0)
+        {
+            MergeItems(response.data);
+            return;
+        }
+
+        DataChanged?.Invoke();
+    }
+
     /// <summary>合并车辆列表；返回本次新增或更新的条数。</summary>
     public int MergeItems(LatestVinLocationItem[] items)
     {

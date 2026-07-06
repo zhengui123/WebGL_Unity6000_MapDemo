@@ -171,7 +171,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void ApplySetVehiclePoints(VehicleMapPointData[] points, bool syncNow)
     {
-        _vehiclePoints = points;
+        _vehiclePoints = PlateMapVehiclePointEvents.CloneVehiclePointArray(points);
         Hub.RaiseVehiclePointsChanged(PlateMapKey, _vehiclePoints);
         InvalidateMergeCache();
 
@@ -208,7 +208,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     {
         if (Hub.TryGetCachedVehiclePoints(PlateMapKey, out VehicleMapPointData[] cached))
         {
-            _vehiclePoints = cached;
+            _vehiclePoints = PlateMapVehiclePointEvents.CloneVehiclePointArray(cached);
             InvalidateMergeCache();
         }
     }

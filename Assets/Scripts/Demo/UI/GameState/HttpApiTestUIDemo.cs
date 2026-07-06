@@ -10,7 +10,7 @@ using UnityEngine.UI;
 public class HttpApiTestUIDemo : MonoBehaviour
 {
     public const string DefaultGetUrl = "https://jsonplaceholder.typicode.com/todos/1";
-    public const string DefaultPostHost = HttpProjectConfig.ApiHost;
+    public static string DefaultPostHost => HttpProjectConfig.ApiHost;
     public const string DefaultPostPath = HttpProjectConfig.WorkOrderDisposalOverviewPath;
     public const string DefaultPostBody = ComprehensiveRegionRequest.DefaultJson;
 
@@ -739,7 +739,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             path = "/" + path;
         }
 
-        url = host.Contains("://") ? $"{host}{path}" : $"http://{host}{path}";
+        url = host.Contains("://") ? $"{host}{path}" : $"{HttpProjectConfig.ApiScheme}://{host}{path}";
         return true;
     }
 

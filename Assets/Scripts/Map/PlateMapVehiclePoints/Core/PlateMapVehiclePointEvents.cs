@@ -125,6 +125,12 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     public void RegisterSetVehiclePointsAction(string plateMapName, PlateMapSetVehiclePointsAction action)
     {
         GetOrCreateHandlers(plateMapName).SetVehiclePoints = action;
+
+        // 板块晚于 HTTP 推送注册时，立即用 Hub 缓存覆盖 Inspector 默认值并刷新显示。
+        if (TryGetCachedVehiclePoints(plateMapName, out VehicleMapPointData[] cached))
+        {
+            action.Invoke(CloneVehiclePointArray(cached), true);
+        }
     }
 
     /// <summary>注销点位写入；对应板块无其他回调时移除字典项。</summary>
@@ -248,30 +254,123 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     /// 按板块名推送车辆点位（<see cref="PlateMapAPI.UpdateVehiclePointsFromJson"/> 的最终落点）。
     /// 板块隐藏（AllPlateMap SetActive false）时仍写入 Hub 缓存；显示层由 Controller 在重新启用时刷新。
     /// </summary>
-    /// <returns>写入缓存成功即返回 true（不要求 Controller 当前已注册）。</returns>
+    /// <returns>是否已调用 Controller 的 Set 回调（未注册时仅写入缓存并返回 false）。</returns>
     public bool PublishSetVehiclePoints(string plateMapName, VehicleMapPointData[] points, bool syncNow = true)
     {
-        if (string.IsNullOrWhiteSpace(plateMapName))
+        string resolvedName = ResolvePlateMapNameForVehiclePoints(plateMapName);
+        if (string.IsNullOrWhiteSpace(resolvedName))
         {
             return false;
         }
 
-        SetCachedVehiclePoints(plateMapName, points);
-        RaiseVehiclePointsWillChange(plateMapName, points);
+        VehicleMapPointData[] snapshot = CloneVehiclePointArray(points);
+        SetCachedVehiclePoints(resolvedName, snapshot);
+        RaiseVehiclePointsWillChange(resolvedName, snapshot);
 
-        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null)
+        if (TryGetHandlers(resolvedName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null)
         {
-            handlers.SetVehiclePoints.Invoke(points, syncNow);
+            handlers.SetVehiclePoints.Invoke(snapshot, syncNow);
             return true;
         }
 
-        RaiseVehiclePointsChanged(plateMapName, points);
+        RaiseVehiclePointsChanged(resolvedName, snapshot);
         if (syncNow)
         {
-            MarkPendingDisplayRefresh(plateMapName);
+            MarkPendingDisplayRefresh(resolvedName);
         }
 
-        return true;
+        return false;
+    }
+
+    /// <summary>
+    /// 解析可写入车辆点位的板块名：优先 preferred → Hub.plateMapName → 已注册列表 → 常见别名 → 任意已注册 Controller。
+    /// </summary>
+    public string ResolvePlateMapNameForVehiclePoints(string preferredName)
+    {
+        if (!string.IsNullOrWhiteSpace(preferredName))
+        {
+            string trimmed = preferredName.Trim();
+            if (HasActiveSetVehiclePointsHandler(trimmed))
+            {
+                return trimmed;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(plateMapName) && HasActiveSetVehiclePointsHandler(plateMapName))
+        {
+            return plateMapName;
+        }
+
+        for (int i = plateMapNameList.Count - 1; i >= 0; i--)
+        {
+            string name = plateMapNameList[i];
+            if (!string.IsNullOrWhiteSpace(name) && HasActiveSetVehiclePointsHandler(name))
+            {
+                return name;
+            }
+        }
+
+        if (TryResolvePlateMapNameFromFallbacks(out string fallbackName))
+        {
+            return fallbackName;
+        }
+
+        foreach (KeyValuePair<string, PlateHandlers> entry in _plates)
+        {
+            if (entry.Value.SetVehiclePoints != null)
+            {
+                return entry.Key;
+            }
+        }
+
+        return string.IsNullOrWhiteSpace(preferredName) ? null : preferredName.Trim();
+    }
+
+    public bool HasActiveSetVehiclePointsHandler(string plateMapName)
+    {
+        return TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null;
+    }
+
+    public static VehicleMapPointData[] CloneVehiclePointArray(VehicleMapPointData[] source)
+    {
+        if (source == null || source.Length == 0)
+        {
+            return Array.Empty<VehicleMapPointData>();
+        }
+
+        VehicleMapPointData[] copy = new VehicleMapPointData[source.Length];
+        Array.Copy(source, copy, source.Length);
+        return copy;
+    }
+
+    private static bool TryResolvePlateMapNameFromFallbacks(out string plateMapName)
+    {
+        PlateMapVehiclePointEvents hub = Instance;
+        if (hub == null)
+        {
+            plateMapName = null;
+            return false;
+        }
+
+        string[] fallbacks =
+        {
+            HttpProjectConfig.DefaultPlateMapName,
+            "sd_map",
+            "sd_map (1)",
+        };
+
+        for (int i = 0; i < fallbacks.Length; i++)
+        {
+            string candidate = fallbacks[i];
+            if (!string.IsNullOrWhiteSpace(candidate) && hub.HasActiveSetVehiclePointsHandler(candidate))
+            {
+                plateMapName = candidate;
+                return true;
+            }
+        }
+
+        plateMapName = null;
+        return false;
     }
 
     /// <summary>请求指定板块按当前过滤规则重建 GPU 显示（不修改源数据）。</summary>
@@ -406,7 +505,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             return;
         }
 
-        _vehiclePointsCache[plateMapName] = points;
+        _vehiclePointsCache[plateMapName] = CloneVehiclePointArray(points);
     }
 
     /// <summary>Controller 首次注册时，若 Hub 尚无缓存则用 Inspector 初始数据填充。</summary>
