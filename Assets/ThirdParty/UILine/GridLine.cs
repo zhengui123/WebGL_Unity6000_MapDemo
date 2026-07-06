@@ -11,12 +11,15 @@ public class GridLine : MonoBehaviour
         [Tooltip("三维物体名称，作为字典 Key；留空则使用 start3D 的 GameObject 名称")]
         public string start3DObjectName;
         public Transform start3D;
+        [Tooltip("连线起点 UI 图（RectTransform），留空则不显示；运行时跟随 start3D 屏幕坐标")]
+        public Transform startUI;
         public Transform endUI;
     }
 
     private class GridLineBinding
     {
         public Transform Start3D;
+        public Transform StartUI;
         public Transform EndUI;
         public Vector3 EndUINormalScale;
         public float DrawProgress;
@@ -184,6 +187,7 @@ public class GridLine : MonoBehaviour
             GridLineBinding binding = new GridLineBinding
             {
                 Start3D = data.start3D,
+                StartUI = data.startUI,
                 EndUI = data.endUI,
                 DrawProgress = 0f
             };
@@ -287,18 +291,26 @@ public class GridLine : MonoBehaviour
         binding.EndUI.gameObject.SetActive(true);
         SetEndUIScaleFactor(binding, 0f);
         binding.DrawProgress = 0f;
+        SetStartUIVisible(binding, true);
+        UpdateStartUIPosition(binding);
     }
 
     private static void HideBinding(GridLineBinding binding)
     {
-        if (binding == null || binding.EndUI == null)
+        if (binding == null)
         {
             return;
         }
 
         binding.DrawProgress = 0f;
-        binding.EndUI.localScale = binding.EndUINormalScale * 0f;
-        binding.EndUI.gameObject.SetActive(false);
+
+        if (binding.EndUI != null)
+        {
+            binding.EndUI.localScale = binding.EndUINormalScale * 0f;
+            binding.EndUI.gameObject.SetActive(false);
+        }
+
+        SetStartUIVisible(binding, false);
     }
 
     private IEnumerator PlayDrawSequence(GridLineBinding binding, Action onComplete)
@@ -459,6 +471,21 @@ public class GridLine : MonoBehaviour
         return Camera.main;
     }
 
+    private void LateUpdate()
+    {
+        if (string.IsNullOrEmpty(_activeStart3DName))
+        {
+            return;
+        }
+
+        if (!TryGetBinding(_activeStart3DName, out GridLineBinding binding) || !IsBindingVisible(binding))
+        {
+            return;
+        }
+
+        UpdateStartUIPosition(binding);
+    }
+
     private void Update()
     {
         if (Input.GetMouseButtonDown(1))
@@ -470,6 +497,86 @@ public class GridLine : MonoBehaviour
         {
             isShowGridLine = false;
         }
+    }
+
+    private void UpdateStartUIPosition(GridLineBinding binding)
+    {
+        if (binding == null || binding.StartUI == null || binding.Start3D == null)
+        {
+            return;
+        }
+
+        Camera cam = ResolveDrawCamera();
+        if (cam == null)
+        {
+            return;
+        }
+
+        TrySetUIPositionFromWorld(binding.StartUI, binding.Start3D.position, cam);
+    }
+
+    private static void SetStartUIVisible(GridLineBinding binding, bool visible)
+    {
+        if (binding?.StartUI == null)
+        {
+            return;
+        }
+
+        binding.StartUI.gameObject.SetActive(visible);
+    }
+
+    /// <summary>将世界坐标换算为屏幕坐标，并写入 UI RectTransform 的 anchoredPosition。</summary>
+    private static bool TrySetUIPositionFromWorld(Transform uiTransform, Vector3 worldPosition, Camera worldCamera)
+    {
+        if (uiTransform == null || worldCamera == null)
+        {
+            return false;
+        }
+
+        Vector3 screenPoint = worldCamera.WorldToScreenPoint(worldPosition);
+        if (screenPoint.z < 0f)
+        {
+            uiTransform.gameObject.SetActive(false);
+            return false;
+        }
+
+        RectTransform rect = uiTransform as RectTransform;
+        if (rect == null)
+        {
+            uiTransform.position = screenPoint;
+            return true;
+        }
+
+        RectTransform parentRect = rect.parent as RectTransform;
+        if (parentRect == null)
+        {
+            rect.position = screenPoint;
+            return true;
+        }
+
+        Canvas canvas = rect.GetComponentInParent<Canvas>();
+        Camera uiCamera = null;
+        if (canvas != null && canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            uiCamera = canvas.worldCamera != null ? canvas.worldCamera : worldCamera;
+        }
+
+        if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRect,
+                screenPoint,
+                uiCamera,
+                out Vector2 localPoint))
+        {
+            return false;
+        }
+
+        rect.anchoredPosition = localPoint;
+        if (!rect.gameObject.activeSelf)
+        {
+            rect.gameObject.SetActive(true);
+        }
+
+        return true;
     }
 
     /// <summary>沿折线路径绘制；progress 为 0~1，按路径总长度从左到右裁剪。</summary>

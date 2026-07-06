@@ -15,21 +15,27 @@ public class UnitySingle<T> : MonoBehaviour where T : UnitySingle<T>
         {
             if (instance == null)
             {
-                string className = typeof(T).Name;
-                GameObject obj = GameObject.Find(className);
-                if (obj == null)
-                {
-                    obj = new GameObject(className);
-                    instance = obj.AddComponent<T>();
-                }
+                // 优先按组件在场景中查找，避免 GameObject 名称与类名不一致时误创建空实例。
+                instance = FindFirstObjectByType<T>(FindObjectsInactive.Include);
 
-                instance = obj.GetComponent<T>();
                 if (instance == null)
                 {
+                    string className = typeof(T).Name;
+                    GameObject obj = GameObject.Find(className);
+                    if (obj != null)
+                    {
+                        instance = obj.GetComponent<T>();
+                    }
+                }
+
+                if (instance == null)
+                {
+                    string className = typeof(T).Name;
+                    GameObject obj = new GameObject(className);
                     instance = obj.AddComponent<T>();
                 }
             }
-            
+
             return instance;
         }
     }
@@ -38,7 +44,7 @@ public class UnitySingle<T> : MonoBehaviour where T : UnitySingle<T>
     {
         if (instance != null && instance != this)
         {
-            Debug.LogWarning("[EventManager] 场景中存在多个实例，将销毁重复对象。");
+            Debug.LogWarning($"[{typeof(T).Name}] 场景中存在多个实例，将销毁重复对象：{gameObject.name}");
             Destroy(gameObject);
             return;
         }

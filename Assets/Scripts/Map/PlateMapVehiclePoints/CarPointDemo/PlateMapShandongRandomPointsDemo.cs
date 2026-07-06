@@ -54,11 +54,11 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     public InputField inputText;
     public void Update()
     {
-        if(Input.GetKeyDown(KeyCode.M))
-        {
-          pointCount = int.Parse(inputText.text);
-            GenerateRandomVehiclePointsInShandongMenu();
-        }
+        // if(Input.GetKeyDown(KeyCode.M))
+        // {
+        //   pointCount = int.Parse(inputText.text);
+        //     GenerateRandomVehiclePointsInShandongMenu();
+        // }
         
     }
 

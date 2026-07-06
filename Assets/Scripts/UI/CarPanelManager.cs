@@ -9,10 +9,19 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private string _currentStart3DObjectName;
 
-    public void Awake()
+    public override void Awake()
     {
-        CarPanel.SetActive(false);
-        gridLine.enabled = false;
+        base.Awake();
+
+        if (CarPanel != null)
+        {
+            CarPanel.SetActive(false);
+        }
+
+        if (gridLine != null)
+        {
+            gridLine.enabled = false;
+        }
     }
 
     private void OnEnable()
@@ -58,11 +67,22 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     public void OpenCarPanel()
     {
+        if (CarPanel == null)
+        {
+            Debug.LogError("[CarPanelManager] CarPanel 未赋值。");
+            return;
+        }
+
         CarPanel.SetActive(true);
     }
 
     public void CloseCarPanel()
     {
+        if (CarPanel == null)
+        {
+            return;
+        }
+
         CarPanel.SetActive(false);
     }
 
@@ -77,6 +97,18 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         if (string.IsNullOrEmpty(start3DObjectName))
         {
             start3DObjectName = _defaultStart3DObjectName;
+        }
+
+        if (CarPanel == null)
+        {
+            Debug.LogError("[CarPanelManager] CarPanel 未赋值，请使用场景中已配置的 CarPanelManager（如 UI_CarPanelManager）。");
+            return false;
+        }
+
+        if (gridLine == null)
+        {
+            Debug.LogError("[CarPanelManager] GridLine 未赋值，请在 Inspector 中绑定 gridLine。");
+            return false;
         }
 
         CarPanel.SetActive(true);
@@ -147,7 +179,11 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private void SetPanelInactive()
     {
-        CarPanel.SetActive(false);
+        if (CarPanel != null)
+        {
+            CarPanel.SetActive(false);
+        }
+
         if (gridLine != null)
         {
             gridLine.enabled = false;
