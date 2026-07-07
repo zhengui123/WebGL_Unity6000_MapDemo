@@ -16,8 +16,6 @@ public class WebGLAPI : MonoBehaviour
     public static WebGLAPI Instance { get; private set; }
 
     [Header("Demo（可选）")]
-    [SerializeField] private GameObject cube;
-    [SerializeField] private float rotNum = 1f;
     [SerializeField] private Text showMessageText;
 
     [SerializeField] private string lastHostMessage = "";
@@ -333,52 +331,13 @@ public class WebGLAPI : MonoBehaviour
 
     private void Update()
     {
-        if (cube == null)
-        {
-            return;
-        }
+       
 
-        if (Input.GetKey(KeyCode.A))
-        {
-            CubeRot(rotNum);
-        }
     }
 
-    public void CubeLeft()
-    {
-        CubeRot(10f);
-    }
+   
 
-    public void CubeRight()
-    {
-        CubeRot(-10f);
-    }
-
-    public void CubeRotApi(string num)
-    {
-        num = StringTool.Base64ToString(num);
-        try
-        {
-            CubeRot(float.Parse(num));
-        }
-        catch (Exception e)
-        {
-            Debug.LogWarning("[WebGLAPI] CubeRotApi 解析失败：" + e.Message);
-        }
-    }
-
-    public void CubeRot(float num)
-    {
-        if (cube == null)
-        {
-            return;
-        }
-
-        Vector3 euler = cube.transform.localRotation.eulerAngles;
-        euler.y += num;
-        cube.transform.localRotation = Quaternion.Euler(euler);
-    }
-
+    
     public void ShowMessage(string msg)
     {
         msg = StringTool.Base64ToString(msg);

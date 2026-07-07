@@ -28,7 +28,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
     }
 
     [Header("引用（可留空，按名称查找）")]
-    [SerializeField] private MapController _mapController;
+    //[SerializeField] private MapController _mapController;
 
     [SerializeField] private CameraController _cameraZoomController;
 
@@ -120,18 +120,18 @@ public class EarthPlateMapSwitcher : MonoBehaviour
 
     private void OnEnable()
     {
-        if (_mapController != null)
-        {
-            _mapController.OnArrivedChina += HandleArrivedChina;
-        }
+        // if (_mapController != null)
+        // {
+        //     _mapController.OnArrivedChina += HandleArrivedChina;
+        // }
     }
 
     private void OnDisable()
     {
-        if (_mapController != null)
-        {
-            _mapController.OnArrivedChina -= HandleArrivedChina;
-        }
+        // if (_mapController != null)
+        // {
+        //     _mapController.OnArrivedChina -= HandleArrivedChina;
+        // }
     }
 
     private void LateUpdate()
@@ -274,20 +274,20 @@ public class EarthPlateMapSwitcher : MonoBehaviour
             return _cameraZoomController.CurrentCameraLocalY;
         }
 
-        if (_mapController != null)
-        {
-            return _mapController.GetCameraLocalDistanceY();
-        }
+        // if (_mapController != null)
+        // {
+        //     return _mapController.GetCameraLocalDistanceY();
+        // }
 
         return float.MaxValue;
     }
 
     private void ResolveReferences()
     {
-        if (_mapController == null)
-        {
-            _mapController = FindObjectOfType<MapController>();
-        }
+        // if (_mapController == null)
+        // {
+        //     _mapController = FindObjectOfType<MapController>();
+        // }
 
         if (_cameraZoomController == null)
         {
