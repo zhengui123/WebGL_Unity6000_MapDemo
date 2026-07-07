@@ -264,6 +264,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                     : GameManager.ControlState.VehicleLevel;
 
             case GameManager.ControlState.AttackPathLevel:
+                if (target == GameManager.ControlState.PartLevel)
+                {
+                    return GameManager.ControlState.PartLevel;
+                }
+
                 return target == GameManager.ControlState.AttackPathLevel
                     ? current
                     : GameManager.ControlState.VehicleLevel;
@@ -378,6 +383,13 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         }
 
         if (from == GameManager.ControlState.AttackPathLevel
+            && to == GameManager.ControlState.PartLevel)
+        {
+            yield return GoToPartLevelFromAttackPath(_partName);
+            yield break;
+        }
+
+        if (from == GameManager.ControlState.AttackPathLevel
             && to == GameManager.ControlState.VehicleLevel)
         {
             yield return WaitForVoidEvent(
@@ -461,6 +473,16 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             "车辆 → 攻击路径");
     }
 
+    private IEnumerator GoToPartLevelFromAttackPath(string partName)
+    {
+        string key = string.IsNullOrWhiteSpace(partName) ? null : partName.Trim();
+        yield return WaitForBoolStringStringEvent(
+            h => EventManager.Instance.OnAttackPathToPartTransitionCompleted += h,
+            h => EventManager.Instance.OnAttackPathToPartTransitionCompleted -= h,
+            () => MapApi.Instance.TransitionAttackPathToPart(key, _partId),
+            string.IsNullOrEmpty(key) ? "攻击路径 → 零件（默认）" : $"攻击路径 → 零件 {key}");
+    }
+
     /// <summary>零部件 → 车辆倒播时使用的零件名：优先当前激活零件，其次上次正播记录。</summary>
     private static string ResolveActivePartNameForVehicleReverse()
     {
@@ -536,12 +558,45 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         unsubscribe(OnStepDoneWithName);
     }
 
+    private IEnumerator WaitForBoolStringStringEvent(
+        Action<Action<string, string>> subscribe,
+        Action<Action<string, string>> unsubscribe,
+        Func<bool> tryStart,
+        string stepName)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            yield break;
+        }
+
+        _stepDone = false;
+        subscribe(OnStepDoneWithNameAndId);
+        yield return WaitUntilControllersIdle();
+
+        if (!tryStart())
+        {
+            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            unsubscribe(OnStepDoneWithNameAndId);
+            yield break;
+        }
+
+        yield return WaitUntil(() => _stepDone, stepName);
+        unsubscribe(OnStepDoneWithNameAndId);
+    }
+
     private void OnStepDone()
     {
         _stepDone = true;
     }
 
     private void OnStepDoneWithName(string _)
+    {
+        _stepDone = true;
+    }
+
+    private void OnStepDoneWithNameAndId(string _, string __)
     {
         _stepDone = true;
     }

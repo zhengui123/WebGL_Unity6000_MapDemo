@@ -55,6 +55,7 @@ public class GameManager : UnitySingle<GameManager>
         em.OnVehicleToPartTransitionReverseCompleted += HandleVehicleToPartTransitionReverseCompleted;
         em.OnVehicleToAttackPathTransitionCompleted += HandleVehicleToAttackPathTransitionCompleted;
         em.OnAttackPathToVehicleTransitionCompleted += HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted += HandleAttackPathToPartTransitionCompleted;
 
         // 初始：地球级别（默认禁用点击）
         ApplyStateSideEffects(_currentState);
@@ -81,6 +82,7 @@ public class GameManager : UnitySingle<GameManager>
         em.OnVehicleToPartTransitionReverseCompleted -= HandleVehicleToPartTransitionReverseCompleted;
         em.OnVehicleToAttackPathTransitionCompleted -= HandleVehicleToAttackPathTransitionCompleted;
         em.OnAttackPathToVehicleTransitionCompleted -= HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted -= HandleAttackPathToPartTransitionCompleted;
     }
 
 
@@ -191,6 +193,13 @@ public class GameManager : UnitySingle<GameManager>
     {
         SetState(ControlState.VehicleLevel);
         ApplyStateSideEffects(ControlState.VehicleLevel);
+    }
+
+    /// <summary>攻击路径 → 零件过渡完成：进入零部件级。</summary>
+    private void HandleAttackPathToPartTransitionCompleted(string _, string __)
+    {
+        SetState(ControlState.PartLevel);
+        ApplyStateSideEffects(ControlState.PartLevel);
     }
 
     #endregion

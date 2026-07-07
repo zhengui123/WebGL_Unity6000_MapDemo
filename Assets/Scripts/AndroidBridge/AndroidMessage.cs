@@ -165,6 +165,7 @@ public class AndroidMessage : MonoBehaviour
         em.OnPartToPartTransitionStarted += HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
+        em.OnAttackPathToPartTransitionStarted += HandleAttackPathToPartTransitionStarted;
     }
 
     private void UnsubscribeControlStateEvents()
@@ -186,6 +187,7 @@ public class AndroidMessage : MonoBehaviour
         em.OnPartToPartTransitionStarted -= HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
+        em.OnAttackPathToPartTransitionStarted -= HandleAttackPathToPartTransitionStarted;
     }
 
     private void NotifyControlStateTransition(GameManager.ControlState from, GameManager.ControlState to)
@@ -260,6 +262,15 @@ public class AndroidMessage : MonoBehaviour
     private void HandleAttackPathToVehicleTransitionStarted()
     {
         NotifyControlStateTransition(GameManager.ControlState.AttackPathLevel, GameManager.ControlState.VehicleLevel);
+    }
+
+    // 5 → 4
+    private void HandleAttackPathToPartTransitionStarted(string _, string partId)
+    {
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.AttackPathLevel,
+            (int)GameManager.ControlState.PartLevel,
+            partId);
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)

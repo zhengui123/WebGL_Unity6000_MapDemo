@@ -128,6 +128,7 @@ public class WebGLAPI : MonoBehaviour
         em.OnPartToPartTransitionStarted += HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
+        em.OnAttackPathToPartTransitionStarted += HandleAttackPathToPartTransitionStarted;
     }
 
     private void UnsubscribeControlStateEvents()
@@ -149,6 +150,7 @@ public class WebGLAPI : MonoBehaviour
         em.OnPartToPartTransitionStarted -= HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
+        em.OnAttackPathToPartTransitionStarted -= HandleAttackPathToPartTransitionStarted;
     }
 
     private void NotifyControlStateTransition(GameManager.ControlState from, GameManager.ControlState to)
@@ -212,6 +214,14 @@ public class WebGLAPI : MonoBehaviour
     private void HandleAttackPathToVehicleTransitionStarted()
     {
         NotifyControlStateTransition(GameManager.ControlState.AttackPathLevel, GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandleAttackPathToPartTransitionStarted(string _, string partId)
+    {
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.AttackPathLevel,
+            (int)GameManager.ControlState.PartLevel,
+            partId);
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)

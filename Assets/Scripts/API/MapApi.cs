@@ -207,6 +207,19 @@ public class MapApi : UnitySingle<MapApi>
         return controller.PlayAttackPathToVehicleTransition();
     }
 
+    /// <summary>正播：攻击路径 → 零件过渡（直接隐藏攻击路径并播放两段零件动画）。</summary>
+    public bool TransitionAttackPathToPart(string partName = null, string partId = null)
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 零件过渡。");
+            return false;
+        }
+
+        return controller.PlayAttackPathToPartTransition(partName, partId);
+    }
+
     /// <summary>
     /// 从当前 GameManager 逻辑操控级别，按邻接图逐步过渡到目标级别。
     /// 主干：地球 → 国家 → 省级 → 车辆；车辆下并列分支：零件 / 攻击路径（须经车辆级衔接）。
@@ -263,6 +276,13 @@ public class MapApi : UnitySingle<MapApi>
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
             return TransitionVehicleToPart(partName, partId);
+        }
+
+        if (manager != null
+            && manager.CurrentState == GameManager.ControlState.AttackPathLevel
+            && targetState == (int)GameManager.ControlState.PartLevel)
+        {
+            return TransitionAttackPathToPart(partName, partId);
         }
 
         return controller.TransitionToState(
