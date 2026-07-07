@@ -11,8 +11,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
 {
     #region 字段与属性
 
-    [Header("零件列表（按 GameObject 名称查找；名称为空时使用第一个）")]
-    [SerializeField] private List<Transform> _partRoots = new List<Transform>();
+    [System.Serializable]
+    public struct PartBindingData
+    {
+        [Tooltip("业务零部件ID；留空时运行时自动回填为 partRoot.name")]
+        public string partId;
+        public Transform partRoot;
+    }
+
+    [Header("零件列表（按 partId 查找；ID 为空时自动使用 GameObject 名称）")]
+    [SerializeField] private List<PartBindingData> _partRoots = new List<PartBindingData>();
 
     [Header("目标位姿")]
     [SerializeField] private Transform _firstTarget;
@@ -45,6 +53,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private bool _isTransitioning;
     private Transform _activePart;
     private string _lastPartName;
+    private string _lastPartId;
     private Vector3 _cachedPartLocalPosition;
     private Quaternion _cachedPartLocalRotation;
     private Vector3 _cachedPartLocalScale;
@@ -63,8 +72,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public bool IsTransitioning => _isTransitioning;
     public Transform ActivePart => _activePart;
     public string LastPartName => _lastPartName;
+    public string LastPartId => _lastPartId;
     public IReadOnlyList<Transform> ShowAttackPath => _showAttackPath;
-    public IReadOnlyList<Transform> ConfiguredPartRoots => _partRoots;
+    public IReadOnlyList<PartBindingData> ConfiguredPartRoots => _partRoots;
 
     private static VehicleToPartTransitionController _instance;
 
@@ -88,11 +98,12 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void Awake()
     {
         _instance = this;
+        NormalizePartBindings();
         ResolveKjCarReference();
         ResolveAttackPathController();
         CacheAllPartInitialStates();
         StopAndHideAttackPath();
-        ConfigureShowAttackPath(_partRoots);
+        ConfigureShowAttackPath(CollectPartTransforms());
     }
 
     private void OnDestroy()
@@ -111,8 +122,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 播放车辆 → 零件过渡。
     /// </summary>
-    /// <param name="partName">零件 GameObject 名称；null 或空字符串时使用列表第一项。</param>
-    public bool PlayTransition(string partName = null)
+    /// <param name="partName">零件ID；null 或空字符串时使用列表第一项。</param>
+    public bool PlayTransition(string partName = null, string partId = null)
     {
         if (_isTransitioning)
         {
@@ -128,6 +139,19 @@ public class VehicleToPartTransitionController : MonoBehaviour
         {
             Debug.LogError("[VehicleToPart] 未配置第一或第二目标 Transform。");
             return false;
+        }
+
+        string normalizedPartId = NormalizePartId(partId, part);
+        if (IsPartLevel() && _activePart == part)
+        {
+            _lastPartName = part.name;
+            _lastPartId = normalizedPartId;
+            return true;
+        }
+
+        if (ShouldPlayPartToPartTransition(part))
+        {
+            return PlayPartToPartTransition(part, normalizedPartId);
         }
 
         ResolveKjCarReference();
@@ -152,6 +176,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
+        _lastPartId = normalizedPartId;
         EventManager.Instance?.TriggerVehicleToPartTransitionStarted(_lastPartName);
         part.gameObject.SetActive(true);
 
@@ -166,7 +191,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 倒播车辆 → 零件过渡：零件第二目标 → 第一目标 → 初始位姿，KJ_Car 溶解显现。
     /// </summary>
-    /// <param name="partName">零件名称；为空时使用上次正播记录的零件。</param>
+    /// <param name="partName">零件ID；为空时使用上次正播记录的零件ID。</param>
     public bool PlayTransitionReverse(string partName = null)
     {
         if (_isTransitioning)
@@ -176,12 +201,12 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (string.IsNullOrEmpty(partName))
         {
-            partName = _lastPartName;
+            partName = _lastPartId;
         }
 
         if (string.IsNullOrEmpty(partName) || !TryResolvePart(partName, out Transform part))
         {
-            Debug.LogError("[VehicleToPart] 倒播失败：未指定零件或找不到对应零件。");
+            Debug.LogError("[VehicleToPart] 倒播失败：未指定零件ID或找不到对应零件。");
             return false;
         }
 
@@ -215,6 +240,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
+        _lastPartId = ResolvePartIdByTransform(part);
         EventManager.Instance?.TriggerVehicleToPartTransitionReverseStarted(part.name);
         part.gameObject.SetActive(true);
         _kjCarRoot.SetActive(true);
@@ -227,7 +253,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return true;
     }
 
-    /// <summary>按名称在缓存列表中查找零件；名称为空时返回第一个有效项。</summary>
+    /// <summary>按 partId 在缓存列表中查找零件；partId 为空时返回第一个有效项。</summary>
     public bool TryResolvePart(string partName, out Transform part)
     {
         part = null;
@@ -250,15 +276,17 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         for (int i = 0; i < _partRoots.Count; i++)
         {
-            Transform candidate = _partRoots[i];
-            if (candidate != null && candidate.name == partName)
+            PartBindingData binding = _partRoots[i];
+            Transform candidate = binding.partRoot;
+            string candidateId = NormalizePartId(binding.partId, candidate);
+            if (candidate != null && candidateId == partName)
             {
                 part = candidate;
                 return true;
             }
         }
 
-        Debug.LogError($"[VehicleToPart] 未在列表中找到名为「{partName}」的零件。");
+        Debug.LogError($"[VehicleToPart] 未在列表中找到 id 为「{partName}」的零件。");
         return false;
     }
 
@@ -284,6 +312,88 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         _sequence.OnComplete(CompleteReverseTransition);
     }
+
+    #region 零件→零件切换（旧零件倒播 + 新零件正播）
+
+    /// <summary>
+    /// 判定是否走零件→零件切换：
+    /// 当前必须在 PartLevel，且已有激活零件，且目标零件与当前零件不同。
+    /// </summary>
+    private bool ShouldPlayPartToPartTransition(Transform targetPart)
+    {
+        if (targetPart == null || _activePart == null)
+        {
+            return false;
+        }
+
+        if (_activePart == targetPart)
+        {
+            return false;
+        }
+
+        return IsPartLevel();
+    }
+
+    /// <summary>
+    /// 执行零件→零件切换（严格串行）：
+    /// 1) 旧零件 second->first->初始位姿（等价倒播）
+    /// 2) 新零件 初始位姿->first->second（正播）
+    /// </summary>
+    private bool PlayPartToPartTransition(Transform targetPart, string targetPartId)
+    {
+        if (_activePart == null)
+        {
+            return false;
+        }
+
+        Transform oldPart = _activePart;
+        ApplyCachedPoseFromInitialState(oldPart);
+        Vector3 oldInitialPosition = _cachedPartLocalPosition;
+        Quaternion oldInitialRotation = _cachedPartLocalRotation;
+        Vector3 oldInitialScale = _cachedPartLocalScale;
+
+        if (TryGetPartInitialState(targetPart, out PartInitialState targetInitialState))
+        {
+            targetPart.localPosition = targetInitialState.LocalPosition;
+            targetPart.localRotation = targetInitialState.LocalRotation;
+            targetPart.localScale = targetInitialState.LocalScale;
+        }
+
+        KillSequence();
+        StopAndHideAttackPath();
+
+        // StopAndHideAttackPath 会统一隐藏 _showAttackPath 中物体（当前也包含零件），
+        // 因此必须在它之后再激活参与切换的两个零件，避免切换时“全部消失”。
+        oldPart.gameObject.SetActive(true);
+        targetPart.gameObject.SetActive(false);
+
+        _isTransitioning = true;
+        _activePart = targetPart;
+        _lastPartName = targetPart.name;
+        _lastPartId = targetPartId;
+        EventManager.Instance?.TriggerPartToPartTransitionStarted(_lastPartName, _lastPartId);
+
+        _sequence = DOTween.Sequence();
+        AppendMoveToTarget(_sequence, oldPart, _firstTarget, _secondMoveDuration);
+        AppendMoveToPose(_sequence, oldPart, oldInitialPosition, oldInitialRotation, oldInitialScale, _firstMoveDuration);
+        _sequence.AppendCallback(() =>
+        {
+            oldPart.gameObject.SetActive(false);
+            targetPart.gameObject.SetActive(true);
+        });
+        AppendMoveToTarget(_sequence, targetPart, _firstTarget, _firstMoveDuration);
+        AppendMoveToTarget(_sequence, targetPart, _secondTarget, _secondMoveDuration);
+        _sequence.OnComplete(CompletePartToPartTransition);
+        return true;
+    }
+
+    private void CompletePartToPartTransition()
+    {
+        _isTransitioning = false;
+        EventManager.Instance?.TriggerPartToPartTransitionCompleted(_lastPartName ?? string.Empty, _lastPartId ?? string.Empty);
+    }
+
+    #endregion
 
     private void AppendMoveToTarget(Sequence sequence, Transform part, Transform target, float duration)
     {
@@ -324,6 +434,44 @@ public class VehicleToPartTransitionController : MonoBehaviour
         moveSequence.Join(part.DOLocalMove(_cachedPartLocalPosition, duration).SetEase(_moveEase));
         moveSequence.Join(part.DOLocalRotateQuaternion(_cachedPartLocalRotation, duration).SetEase(_moveEase));
         moveSequence.Join(part.DOScale(_cachedPartLocalScale, duration).SetEase(_moveEase));
+        return moveSequence;
+    }
+
+    private void AppendMoveToPose(
+        Sequence sequence,
+        Transform part,
+        Vector3 localPosition,
+        Quaternion localRotation,
+        Vector3 localScale,
+        float duration)
+    {
+        Tween moveTween = BuildMoveTweenToPose(part, localPosition, localRotation, localScale, duration);
+        if (moveTween != null)
+        {
+            sequence.Append(moveTween);
+        }
+        else
+        {
+            sequence.AppendInterval(duration);
+        }
+    }
+
+    private Tween BuildMoveTweenToPose(
+        Transform part,
+        Vector3 localPosition,
+        Quaternion localRotation,
+        Vector3 localScale,
+        float duration)
+    {
+        if (part == null)
+        {
+            return null;
+        }
+
+        Sequence moveSequence = DOTween.Sequence();
+        moveSequence.Join(part.DOLocalMove(localPosition, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DOLocalRotateQuaternion(localRotation, duration).SetEase(_moveEase));
+        moveSequence.Join(part.DOScale(localScale, duration).SetEase(_moveEase));
         return moveSequence;
     }
 
@@ -383,7 +531,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         for (int i = 0; i < _partRoots.Count; i++)
         {
-            Transform part = _partRoots[i];
+            Transform part = _partRoots[i].partRoot;
             if (part == null)
             {
                 continue;
@@ -411,7 +559,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         for (int i = 0; i < _partRoots.Count; i++)
         {
-            Transform part = _partRoots[i];
+            Transform part = _partRoots[i].partRoot;
             if (part == null || !_partInitialStates.TryGetValue(part.GetInstanceID(), out PartInitialState state))
             {
                 continue;
@@ -465,13 +613,87 @@ public class VehicleToPartTransitionController : MonoBehaviour
     {
         for (int i = 0; i < _partRoots.Count; i++)
         {
-            if (_partRoots[i] != null)
+            Transform part = _partRoots[i].partRoot;
+            if (part != null)
             {
-                return _partRoots[i];
+                return part;
             }
         }
 
         return null;
+    }
+
+    private static string NormalizePartId(string partId, Transform part)
+    {
+        if (!string.IsNullOrWhiteSpace(partId))
+        {
+            return partId.Trim();
+        }
+
+        return part != null ? part.name : string.Empty;
+    }
+
+    private string ResolvePartIdByTransform(Transform part)
+    {
+        if (part == null || _partRoots == null)
+        {
+            return string.Empty;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == part)
+            {
+                return NormalizePartId(binding.partId, part);
+            }
+        }
+
+        return part.name;
+    }
+
+    private List<Transform> CollectPartTransforms()
+    {
+        List<Transform> parts = new List<Transform>(_partRoots.Count);
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            Transform part = _partRoots[i].partRoot;
+            if (part != null)
+            {
+                parts.Add(part);
+            }
+        }
+
+        return parts;
+    }
+
+    private void NormalizePartBindings()
+    {
+        if (_partRoots == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == null)
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(binding.partId))
+            {
+                binding.partId = binding.partRoot.name;
+                _partRoots[i] = binding;
+            }
+        }
+    }
+
+    private static bool IsPartLevel()
+    {
+        GameManager manager = GameManager.Instance;
+        return manager != null && manager.CurrentState == GameManager.ControlState.PartLevel;
     }
 
     #endregion

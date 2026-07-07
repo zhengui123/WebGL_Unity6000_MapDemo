@@ -22,6 +22,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     [SerializeField] private string _provinceName = "山东";
     [SerializeField] private string _provinceModuleName = "polySurface3";
     [SerializeField] private string _partName;
+    [SerializeField] private string _partId;
 
     [Header("启动时机")]
     [SerializeField] private int _warmupFrames = 2;
@@ -84,6 +85,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <param name="provinceName">省份名；为 null 时沿用 Inspector 配置。</param>
     /// <param name="provinceModuleName">省级模块名；为 null 时沿用 Inspector 配置。</param>
     /// <param name="partName">零件名；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
+    /// <param name="partId">业务零部件ID；仅零件 → 零件切换时生效。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
     /// <returns>已启动跳转返回 true；正在跳转中返回 false。</returns>
     public bool TransitionToState(
@@ -92,6 +94,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         string provinceName = null,
         string provinceModuleName = null,
         string partName = null,
+        string partId = null,
         bool ensureEarthBaseline = false)
     {
         if (_isBootstrapping)
@@ -110,7 +113,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         string partNameForTransition = currentState == GameManager.ControlState.PartLevel
             ? null
             : partName;
-        ApplyOptionalTransitionParameters(provinceName, provinceModuleName, partNameForTransition);
+        ApplyOptionalTransitionParameters(provinceName, provinceModuleName, partNameForTransition, partId);
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
     }
@@ -118,7 +121,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private void ApplyOptionalTransitionParameters(
         string provinceName,
         string provinceModuleName,
-        string partName)
+        string partName,
+        string partId)
     {
         if (provinceName != null)
         {
@@ -133,6 +137,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (partName != null)
         {
             _partName = partName;
+        }
+
+        if (partId != null)
+        {
+            _partId = partId;
         }
     }
 
@@ -439,7 +448,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionVehicleToPart(key),
+            () => MapApi.Instance.TransitionVehicleToPart(key, _partId),
             string.IsNullOrEmpty(key) ? "车辆 → 零件（默认）" : $"车辆 → 零件 {key}");
     }
 

@@ -155,7 +155,7 @@ public class MapApi : UnitySingle<MapApi>
 
     /// <summary>正播：车辆 → 零件过渡。</summary>
     /// <param name="partName">零件 GameObject 名；为空时使用过渡控制器列表第一项。</param>
-    public bool TransitionVehicleToPart(string partName = null)
+    public bool TransitionVehicleToPart(string partName = null, string partId = null)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -164,7 +164,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayTransition(partName);
+        return controller.PlayTransition(partName, partId);
     }
 
     /// <summary>倒播：零件 → 车辆过渡。</summary>
@@ -227,6 +227,9 @@ public class MapApi : UnitySingle<MapApi>
     /// 车辆零件 GameObject 名，用于车辆 ↔ 零件 过渡；为空或 null 时使用过渡控制器默认/列表首项。
     /// 为 null 使用默认配置。
     /// </param>
+    /// <param name="partId">
+    /// 业务零部件ID。仅当当前已在零件级且触发零件 → 零件切换时生效；其它场景忽略。
+    /// </param>
     /// </param>
     /// <param name="useInstantTransition">
     /// 是否启用瞬时过渡。为 true 时，跳转期间临时将各过渡控制器动画时长置 0，结束后自动恢复，不修改 Inspector 原始配置。
@@ -237,6 +240,7 @@ public class MapApi : UnitySingle<MapApi>
         string provinceName = null,
         string provinceModuleName = null,
         string partName = null,
+        string partId = null,
         bool useInstantTransition = false)
     {
         if (!Enum.IsDefined(typeof(GameManager.ControlState), targetState))
@@ -253,12 +257,21 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
+        GameManager manager = GameManager.Instance;
+        if (manager != null
+            && manager.CurrentState == GameManager.ControlState.PartLevel
+            && targetState == (int)GameManager.ControlState.PartLevel)
+        {
+            return TransitionVehicleToPart(partName, partId);
+        }
+
         return controller.TransitionToState(
             useInstantTransition,
             (GameManager.ControlState)targetState,
             provinceName,
             provinceModuleName,
             partName,
+            partId,
             false);
     }
 

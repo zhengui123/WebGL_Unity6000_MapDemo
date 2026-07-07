@@ -52,6 +52,12 @@ public class EventManager : UnitySingle<EventManager>
     /// <summary>零件 → 车辆过渡倒播全部完成（参数为零件名）。</summary>
     public event Action<string> OnVehicleToPartTransitionReverseCompleted;
 
+    /// <summary>零件 → 零件切换开始（参数：零件名、零件ID）。</summary>
+    public event Action<string, string> OnPartToPartTransitionStarted;
+
+    /// <summary>零件 → 零件切换全部完成（参数：零件名、零件ID）。</summary>
+    public event Action<string, string> OnPartToPartTransitionCompleted;
+
     /// <summary>车辆 → 攻击路径过渡开始。</summary>
     public event Action OnVehicleToAttackPathTransitionStarted;
 
@@ -255,6 +261,16 @@ public class EventManager : UnitySingle<EventManager>
     public void TriggerVehicleToPartTransitionReverseCompleted(string partName)
     {
         OnVehicleToPartTransitionReverseCompleted?.Invoke(partName);
+    }
+
+    public void TriggerPartToPartTransitionStarted(string partName, string partId)
+    {
+        OnPartToPartTransitionStarted?.Invoke(partName, partId);
+    }
+
+    public void TriggerPartToPartTransitionCompleted(string partName, string partId)
+    {
+        OnPartToPartTransitionCompleted?.Invoke(partName, partId);
     }
 
     public void TriggerVehicleToAttackPathTransitionStarted()

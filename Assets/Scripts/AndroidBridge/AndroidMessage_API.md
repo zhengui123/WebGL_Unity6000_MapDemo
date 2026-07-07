@@ -45,6 +45,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 | `provinceName` | string | 否 | 省名，如「山东」；省略或 `""` 表示使用 Unity 默认 |
 | `provinceModuleName` | string | 否 | 省级 3D 板块对象名 |
 | `partName` | string | 否 | 车辆零件对象名 |
+| `partId` | string | 否 | 业务零部件 ID，仅零件→零件切换时生效 |
 | `useInstantTransition` | bool | 否 | 是否跳过过渡动画；省略为 `false` |
 
 ### 调用示例
@@ -103,11 +104,12 @@ Unity 在**场景层级过渡刚开始**（动画尚未结束）时调用，用�
 |------|------|------|
 | `from` | int | 起始级别 0~5 |
 | `to` | int | 目标级别 0~5 |
+| `partId` | string | 业务零部件 ID；仅零件→零件切换 (`from=4,to=4`) 时有效，其它场景为空字符串 |
 
 示例：
 
 ```json
-{"from":1,"to":2}
+{"from":1,"to":2,"partId":""}
 ```
 
 表示从**国家级**进入**省级**的过渡已开始。

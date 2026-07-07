@@ -135,15 +135,15 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
     private void OnJumpButtonClicked()
     {
-        ControlStateHierarchyTransitionController controller =
-            ControlStateHierarchyTransitionController.Instance;
-        if (controller == null)
+        if (MapApi.Instance == null)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 ControlStateHierarchyTransitionController。");
+            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 MapApi。");
             return;
         }
 
-        if (controller.IsBootstrapping)
+        ControlStateHierarchyTransitionController controller =
+            ControlStateHierarchyTransitionController.Instance;
+        if (controller != null && controller.IsBootstrapping)
         {
             Debug.LogWarning("[ControlStateStartUIDemo] 正在跳转中，请稍候。");
             return;
@@ -159,14 +159,15 @@ public class ControlStateStartUIDemo : MonoBehaviour
         GameManager.ControlState targetState = (GameManager.ControlState)_targetStateDropdown.value;
         string provinceName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
         string provinceModuleName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceModuleNameDropdown);
-        string partName = ControlStateStartUIOptionProvider.GetSelectedText(_partNameDropdown);
+        string selectedPartId = ControlStateStartUIOptionProvider.GetSelectedPartId(_partNameDropdown);
 
-        bool started = controller.TransitionToState(
-            useInstant,
-            targetState,
+        bool started = MapApi.Instance.TransitionToControlState(
+            (int)targetState,
             provinceName,
             provinceModuleName,
-            partName);
+            selectedPartId,
+            selectedPartId,
+            useInstant);
 
         if (!started)
         {

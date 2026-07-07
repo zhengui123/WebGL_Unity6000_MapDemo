@@ -6,6 +6,13 @@ using UnityEngine.UI;
 /// </summary>
 public static class ControlStateStartUIOptionProvider
 {
+    private struct PartOption
+    {
+        public string PartName;
+        public string PartId;
+    }
+
+    private static readonly List<PartOption> CachedPartOptions = new List<PartOption>();
     /// <summary>从 <see cref="ChinaProvinceMapDatabase"/> 获取全部省级名称。</summary>
     public static List<string> CollectProvinceNames()
     {
@@ -83,35 +90,29 @@ public static class ControlStateStartUIOptionProvider
     /// <summary>从 <see cref="VehicleToPartTransitionController"/> 零件列表收集零件名。</summary>
     public static List<string> CollectPartNames()
     {
+        RebuildPartOptionsCache();
         List<string> names = new List<string>();
-        VehicleToPartTransitionController controller =
-            Object.FindFirstObjectByType<VehicleToPartTransitionController>();
-        if (controller == null)
+        for (int i = 0; i < CachedPartOptions.Count; i++)
         {
-            return names;
+            names.Add(CachedPartOptions[i].PartName);
         }
-
-        IReadOnlyList<Transform> partRoots = controller.ConfiguredPartRoots;
-        if (partRoots == null)
-        {
-            return names;
-        }
-
-        HashSet<string> unique = new HashSet<string>();
-        for (int i = 0; i < partRoots.Count; i++)
-        {
-            Transform part = partRoots[i];
-            if (part == null)
-            {
-                continue;
-            }
-
-            unique.Add(part.name);
-        }
-
-        names.AddRange(unique);
-        names.Sort();
         return names;
+    }
+
+    /// <summary>读取零件下拉当前项对应的 partId；无有效项时返回 null。</summary>
+    public static string GetSelectedPartId(Dropdown dropdown)
+    {
+        if (dropdown == null || dropdown.options == null || dropdown.options.Count == 0)
+        {
+            return null;
+        }
+
+        if (dropdown.value < 0 || dropdown.value >= CachedPartOptions.Count)
+        {
+            return null;
+        }
+
+        return CachedPartOptions[dropdown.value].PartId;
     }
 
     /// <summary>将名称列表写入 Dropdown，并尽量选中 defaultValue。</summary>
@@ -164,5 +165,40 @@ public static class ControlStateStartUIOptionProvider
         }
 
         return text;
+    }
+
+    private static void RebuildPartOptionsCache()
+    {
+        CachedPartOptions.Clear();
+        VehicleToPartTransitionController controller =
+            Object.FindFirstObjectByType<VehicleToPartTransitionController>();
+        if (controller == null)
+        {
+            return;
+        }
+
+        IReadOnlyList<VehicleToPartTransitionController.PartBindingData> bindings = controller.ConfiguredPartRoots;
+        if (bindings == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < bindings.Count; i++)
+        {
+            VehicleToPartTransitionController.PartBindingData binding = bindings[i];
+            if (binding.partRoot == null)
+            {
+                continue;
+            }
+
+            string partId = string.IsNullOrWhiteSpace(binding.partId)
+                ? binding.partRoot.name
+                : binding.partId.Trim();
+            CachedPartOptions.Add(new PartOption
+            {
+                PartName = binding.partRoot.name,
+                PartId = partId
+            });
+        }
     }
 }

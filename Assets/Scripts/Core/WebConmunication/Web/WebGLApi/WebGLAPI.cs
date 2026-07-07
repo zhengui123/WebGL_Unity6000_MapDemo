@@ -72,7 +72,7 @@ public class WebGLAPI : MonoBehaviour
     }
 
     /// <summary>通知宿主操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
-    public void CallAndroidControlStateTransition(int fromState, int toState)
+    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null)
     {
         if (!TryValidateControlState(fromState, nameof(CallAndroidControlStateTransition)) ||
             !TryValidateControlState(toState, nameof(CallAndroidControlStateTransition)))
@@ -84,6 +84,7 @@ public class WebGLAPI : MonoBehaviour
         {
             from = fromState,
             to = toState,
+            partId = partId ?? string.Empty,
         });
         CallHost("onUnityControlStateTransition", json);
     }
@@ -124,6 +125,7 @@ public class WebGLAPI : MonoBehaviour
         em.OnVehicleToPlateViewTransitionStarted += HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted += HandleVehicleToPartTransitionStarted;
         em.OnVehicleToPartTransitionReverseStarted += HandleVehicleToPartTransitionReverseStarted;
+        em.OnPartToPartTransitionStarted += HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
     }
@@ -144,6 +146,7 @@ public class WebGLAPI : MonoBehaviour
         em.OnVehicleToPlateViewTransitionStarted -= HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted -= HandleVehicleToPartTransitionStarted;
         em.OnVehicleToPartTransitionReverseStarted -= HandleVehicleToPartTransitionReverseStarted;
+        em.OnPartToPartTransitionStarted -= HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
     }
@@ -191,6 +194,14 @@ public class WebGLAPI : MonoBehaviour
     private void HandleVehicleToPartTransitionReverseStarted(string _)
     {
         NotifyControlStateTransition(GameManager.ControlState.PartLevel, GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandlePartToPartTransitionStarted(string _, string partId)
+    {
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.PartLevel,
+            (int)GameManager.ControlState.PartLevel,
+            partId);
     }
 
     private void HandleVehicleToAttackPathTransitionStarted()
@@ -251,6 +262,7 @@ public class WebGLAPI : MonoBehaviour
     /// provinceName(string, 可选) 省名，如「山东」；
     /// provinceModuleName(string, 可选) 省级 3D 板块 GameObject 名；
     /// partName(string, 可选) 车辆零件 GameObject 名；
+    /// partId(string, 可选) 业务零部件ID，仅零件 → 零件切换时生效；
     /// useInstantTransition(bool, 可选) 是否跳过过渡动画，默认 false。
     ///
     /// JSON 示例 1 — 跳到省级并指定省名与板块：
@@ -260,7 +272,7 @@ public class WebGLAPI : MonoBehaviour
     /// {"targetState":3}
     ///
     /// JSON 示例 3 — 跳到零件级：
-    /// {"targetState":4,"partName":"Group1575"}
+    /// {"targetState":4,"partName":"Group1575","partId":"PART-1575"}
     ///
     /// HTML 调用示例：
     /// unityInstance.SendMessage('WebGLAPI', 'TransitionToControlState',
@@ -280,6 +292,7 @@ public class WebGLAPI : MonoBehaviour
             NormalizeOptionalString(request.provinceName),
             NormalizeOptionalString(request.provinceModuleName),
             NormalizeOptionalString(request.partName),
+            NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 
         if (!ok)

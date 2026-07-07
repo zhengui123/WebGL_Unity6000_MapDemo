@@ -18,6 +18,9 @@ public struct TransitionToControlStateRequest
     /// <summary>（可空）车辆零件 GameObject 名。</summary>
     public string partName;
 
+    /// <summary>（可空）业务零部件ID；仅零件 → 零件切换时生效。</summary>
+    public string partId;
+
     /// <summary>（可空）是否瞬时过渡（各过渡动画时长临时置 0）。</summary>
     public bool useInstantTransition;
 }
@@ -33,6 +36,9 @@ public struct ControlStateTransitionNotify
 
     /// <summary>目标操控级别：0~5。</summary>
     public int to;
+
+    /// <summary>（可空）业务零部件ID；仅零件 → 零件切换通知时有值。</summary>
+    public string partId;
 }
 
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
@@ -99,7 +105,7 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>通知 Android 操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
-    public void CallAndroidControlStateTransition(int fromState, int toState)
+    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null)
     {
         if (!TryValidateControlState(fromState, nameof(CallAndroidControlStateTransition)) ||
             !TryValidateControlState(toState, nameof(CallAndroidControlStateTransition)))
@@ -111,6 +117,7 @@ public class AndroidMessage : MonoBehaviour
         {
             from = fromState,
             to = toState,
+            partId = partId ?? string.Empty,
         });
         CallActivity("onUnityControlStateTransition", json);
     }
@@ -155,6 +162,7 @@ public class AndroidMessage : MonoBehaviour
         em.OnVehicleToPlateViewTransitionStarted += HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted += HandleVehicleToPartTransitionStarted;
         em.OnVehicleToPartTransitionReverseStarted += HandleVehicleToPartTransitionReverseStarted;
+        em.OnPartToPartTransitionStarted += HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
     }
@@ -175,6 +183,7 @@ public class AndroidMessage : MonoBehaviour
         em.OnVehicleToPlateViewTransitionStarted -= HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted -= HandleVehicleToPartTransitionStarted;
         em.OnVehicleToPartTransitionReverseStarted -= HandleVehicleToPartTransitionReverseStarted;
+        em.OnPartToPartTransitionStarted -= HandlePartToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
     }
@@ -230,6 +239,15 @@ public class AndroidMessage : MonoBehaviour
     private void HandleVehicleToPartTransitionReverseStarted(string _)
     {
         NotifyControlStateTransition(GameManager.ControlState.PartLevel, GameManager.ControlState.VehicleLevel);
+    }
+
+    // 4 → 4
+    private void HandlePartToPartTransitionStarted(string _, string partId)
+    {
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.PartLevel,
+            (int)GameManager.ControlState.PartLevel,
+            partId);
     }
 
     // 3 → 5
@@ -330,6 +348,7 @@ public class AndroidMessage : MonoBehaviour
             NormalizeOptionalString(request.provinceName),
             NormalizeOptionalString(request.provinceModuleName),
             NormalizeOptionalString(request.partName),
+            NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 
         if (!ok)
