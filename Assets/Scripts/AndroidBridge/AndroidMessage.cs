@@ -15,10 +15,7 @@ public struct TransitionToControlStateRequest
     /// <summary>（可空）3D 板块模块名（场景中 GameObject 名）。</summary>
     public string provinceModuleName;
 
-    /// <summary>（可空）车辆零件 GameObject 名。</summary>
-    public string partName;
-
-    /// <summary>（可空）业务零部件ID；仅零件 → 零件切换时生效。</summary>
+    /// <summary>（可空）业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件。</summary>
     public string partId;
 
     /// <summary>（可空）是否瞬时过渡（各过渡动画时长临时置 0）。</summary>
@@ -343,7 +340,7 @@ public class AndroidMessage : MonoBehaviour
     /// UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
     /// </summary>
     /// <param name="json">
-    /// 示例：{"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3","partName":"","useInstantTransition":false}
+    /// 示例：{"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3","useInstantTransition":false}
     /// </param>
     public void TransitionToControlState(string json)
     {
@@ -358,7 +355,6 @@ public class AndroidMessage : MonoBehaviour
             request.targetState,
             NormalizeOptionalString(request.provinceName),
             NormalizeOptionalString(request.provinceModuleName),
-            NormalizeOptionalString(request.partName),
             NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 

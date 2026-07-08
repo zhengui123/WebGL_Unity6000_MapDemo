@@ -166,7 +166,6 @@ public class ControlStateStartUIDemo : MonoBehaviour
             provinceName,
             provinceModuleName,
             selectedPartId,
-            selectedPartId,
             useInstant);
 
         if (!started)

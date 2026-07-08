@@ -21,7 +21,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     [Header("过渡参数（与正式流程一致）")]
     [SerializeField] private string _provinceName = "山东";
     [SerializeField] private string _provinceModuleName = "polySurface3";
-    [SerializeField] private string _partName;
     [SerializeField] private string _partId;
 
     [Header("启动时机")]
@@ -84,8 +83,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <param name="targetState">目标操控级别。</param>
     /// <param name="provinceName">省份名；为 null 时沿用 Inspector 配置。</param>
     /// <param name="provinceModuleName">省级模块名；为 null 时沿用 Inspector 配置。</param>
-    /// <param name="partName">零件名；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
-    /// <param name="partId">业务零部件ID；仅零件 → 零件切换时生效。</param>
+    /// <param name="partId">业务零部件 ID；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
     /// <returns>已启动跳转返回 true；正在跳转中返回 false。</returns>
     public bool TransitionToState(
@@ -93,7 +91,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         GameManager.ControlState targetState,
         string provinceName = null,
         string provinceModuleName = null,
-        string partName = null,
         string partId = null,
         bool ensureEarthBaseline = false)
     {
@@ -109,11 +106,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         GameManager.ControlState currentState = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : GameManager.ControlState.EarthLevel;
-        // 零部件 → 车辆倒播：忽略外部 partName，仅按当前场景中的激活零件还原。
-        string partNameForTransition = currentState == GameManager.ControlState.PartLevel
+        // 零部件 → 车辆倒播：忽略外部 partId，仅按当前场景中的激活零件还原。
+        string partIdForTransition = currentState == GameManager.ControlState.PartLevel
             ? null
-            : partName;
-        ApplyOptionalTransitionParameters(provinceName, provinceModuleName, partNameForTransition, partId);
+            : partId;
+        ApplyOptionalTransitionParameters(provinceName, provinceModuleName, partIdForTransition);
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
     }
@@ -121,7 +118,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private void ApplyOptionalTransitionParameters(
         string provinceName,
         string provinceModuleName,
-        string partName,
         string partId)
     {
         if (provinceName != null)
@@ -132,11 +128,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (provinceModuleName != null)
         {
             _provinceModuleName = provinceModuleName;
-        }
-
-        if (partName != null)
-        {
-            _partName = partName;
         }
 
         if (partId != null)
@@ -346,7 +337,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (from == GameManager.ControlState.VehicleLevel
             && to == GameManager.ControlState.PartLevel)
         {
-            yield return GoToPartLevel(_partName);
+            yield return GoToPartLevel();
             yield break;
         }
 
@@ -371,21 +362,21 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (from == GameManager.ControlState.PartLevel
             && to == GameManager.ControlState.VehicleLevel)
         {
-            string activePartName = ResolveActivePartNameForVehicleReverse();
+            string activePartId = ResolveActivePartIdForVehicleReverse();
             yield return WaitForBoolStringEvent(
                 h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted += h,
                 h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted -= h,
-                () => MapApi.Instance.TransitionPartToVehicle(activePartName),
-                string.IsNullOrEmpty(activePartName)
+                () => MapApi.Instance.TransitionPartToVehicle(activePartId),
+                string.IsNullOrEmpty(activePartId)
                     ? "零件 → 车辆倒播（当前零件）"
-                    : $"零件 → 车辆倒播（当前零件 {activePartName}）");
+                    : $"零件 → 车辆倒播（当前零件 {activePartId}）");
             yield break;
         }
 
         if (from == GameManager.ControlState.AttackPathLevel
             && to == GameManager.ControlState.PartLevel)
         {
-            yield return GoToPartLevelFromAttackPath(_partName);
+            yield return GoToPartLevelFromAttackPath();
             yield break;
         }
 
@@ -454,13 +445,13 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             "板块聚焦 → 城市 → 车辆");
     }
 
-    private IEnumerator GoToPartLevel(string partName)
+    private IEnumerator GoToPartLevel()
     {
-        string key = string.IsNullOrWhiteSpace(partName) ? null : partName.Trim();
+        string key = string.IsNullOrWhiteSpace(_partId) ? null : _partId.Trim();
         yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionVehicleToPart(key, _partId),
+            () => MapApi.Instance.TransitionVehicleToPart(key),
             string.IsNullOrEmpty(key) ? "车辆 → 零件（默认）" : $"车辆 → 零件 {key}");
     }
 
@@ -473,18 +464,18 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             "车辆 → 攻击路径");
     }
 
-    private IEnumerator GoToPartLevelFromAttackPath(string partName)
+    private IEnumerator GoToPartLevelFromAttackPath()
     {
-        string key = string.IsNullOrWhiteSpace(partName) ? null : partName.Trim();
+        string key = string.IsNullOrWhiteSpace(_partId) ? null : _partId.Trim();
         yield return WaitForBoolStringStringEvent(
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted += h,
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionAttackPathToPart(key, _partId),
+            () => MapApi.Instance.TransitionAttackPathToPart(key),
             string.IsNullOrEmpty(key) ? "攻击路径 → 零件（默认）" : $"攻击路径 → 零件 {key}");
     }
 
-    /// <summary>零部件 → 车辆倒播时使用的零件名：优先当前激活零件，其次上次正播记录。</summary>
-    private static string ResolveActivePartNameForVehicleReverse()
+    /// <summary>零部件 → 车辆倒播时使用的零件 ID：优先上次正播记录。</summary>
+    private static string ResolveActivePartIdForVehicleReverse()
     {
         VehicleToPartTransitionController partController = VehicleToPartTransitionController.Instance;
         if (partController == null)
@@ -492,14 +483,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return null;
         }
 
-        Transform activePart = partController.ActivePart;
-        if (activePart != null)
-        {
-            return activePart.name;
-        }
-
-        string lastPartName = partController.LastPartName;
-        return string.IsNullOrEmpty(lastPartName) ? null : lastPartName;
+        string lastPartId = partController.LastPartId;
+        return string.IsNullOrEmpty(lastPartId) ? null : lastPartId;
     }
 
     private IEnumerator WaitForVoidEvent(

@@ -154,8 +154,8 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>正播：车辆 → 零件过渡。</summary>
-    /// <param name="partName">零件 GameObject 名；为空时使用过渡控制器列表第一项。</param>
-    public bool TransitionVehicleToPart(string partName = null, string partId = null)
+    /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
+    public bool TransitionVehicleToPart(string partId = null)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -164,12 +164,12 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayTransition(partName, partId);
+        return controller.PlayTransition(partId);
     }
 
     /// <summary>倒播：零件 → 车辆过渡。</summary>
-    /// <param name="partName">零件名；为空时使用上次正播记录的零件。</param>
-    public bool TransitionPartToVehicle(string partName = null)
+    /// <param name="partId">业务零部件 ID；为空时使用上次正播记录的零件 ID。</param>
+    public bool TransitionPartToVehicle(string partId = null)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -178,7 +178,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayTransitionReverse(partName);
+        return controller.PlayTransitionReverse(partId);
     }
 
     /// <summary>正播：车辆 → 攻击路径过渡。</summary>
@@ -208,7 +208,8 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>正播：攻击路径 → 零件过渡（直接隐藏攻击路径并播放两段零件动画）。</summary>
-    public bool TransitionAttackPathToPart(string partName = null, string partId = null)
+    /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
+    public bool TransitionAttackPathToPart(string partId = null)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -217,7 +218,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayAttackPathToPartTransition(partName, partId);
+        return controller.PlayAttackPathToPartTransition(partId);
     }
 
     /// <summary>
@@ -236,13 +237,8 @@ public class MapApi : UnitySingle<MapApi>
     /// 3D 板块模型模块名（场景中 GameObject 名，如 polySurface3），用于国家 → 省级 的板块聚焦。
     /// 为 null 使用默认配置。
     /// </param>
-    /// <param name="partName">
-    /// 车辆零件 GameObject 名，用于车辆 ↔ 零件 过渡；为空或 null 时使用过渡控制器默认/列表首项。
-    /// 为 null 使用默认配置。
-    /// </param>
     /// <param name="partId">
-    /// 业务零部件ID。仅当当前已在零件级且触发零件 → 零件切换时生效；其它场景忽略。
-    /// </param>
+    /// 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；为空或 null 时使用过渡控制器默认/列表首项。
     /// </param>
     /// <param name="useInstantTransition">
     /// 是否启用瞬时过渡。为 true 时，跳转期间临时将各过渡控制器动画时长置 0，结束后自动恢复，不修改 Inspector 原始配置。
@@ -252,7 +248,6 @@ public class MapApi : UnitySingle<MapApi>
         int targetState,
         string provinceName = null,
         string provinceModuleName = null,
-        string partName = null,
         string partId = null,
         bool useInstantTransition = false)
     {
@@ -275,14 +270,14 @@ public class MapApi : UnitySingle<MapApi>
             && manager.CurrentState == GameManager.ControlState.PartLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            return TransitionVehicleToPart(partName, partId);
+            return TransitionVehicleToPart(partId);
         }
 
         if (manager != null
             && manager.CurrentState == GameManager.ControlState.AttackPathLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            return TransitionAttackPathToPart(partName, partId);
+            return TransitionAttackPathToPart(partId);
         }
 
         return controller.TransitionToState(
@@ -290,7 +285,6 @@ public class MapApi : UnitySingle<MapApi>
             (GameManager.ControlState)targetState,
             provinceName,
             provinceModuleName,
-            partName,
             partId,
             false);
     }

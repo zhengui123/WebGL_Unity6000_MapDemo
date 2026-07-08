@@ -44,8 +44,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 | `targetState` | int | 是 | 目标级别 0~5 |
 | `provinceName` | string | 否 | 省名，如「山东」；省略或 `""` 表示使用 Unity 默认 |
 | `provinceModuleName` | string | 否 | 省级 3D 板块对象名 |
-| `partName` | string | 否 | 车辆零件对象名 |
-| `partId` | string | 否 | 业务零部件 ID，仅零件→零件切换时生效 |
+| `partId` | string | 否 | 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件 |
 | `useInstantTransition` | bool | 否 | 是否跳过过渡动画；省略为 `false` |
 
 ### 调用示例
@@ -74,7 +73,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 ```java
 String json = "{"
     + "\"targetState\":4,"
-    + "\"partName\":\"Group1575\","
+    + "\"partId\":\"PART-1575\","
     + "\"useInstantTransition\":true"
     + "}";
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);

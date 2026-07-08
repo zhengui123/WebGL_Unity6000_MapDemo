@@ -126,15 +126,15 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 播放车辆 → 零件过渡。
     /// </summary>
-    /// <param name="partName">零件ID；null 或空字符串时使用列表第一项。</param>
-    public bool PlayTransition(string partName = null, string partId = null)
+    /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
+    public bool PlayTransition(string partId = null)
     {
         if (_isTransitioning)
         {
             return false;
         }
 
-        if (!TryResolvePart(partName, out Transform part))
+        if (!TryResolvePart(partId, out Transform part))
         {
             return false;
         }
@@ -200,20 +200,20 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 倒播车辆 → 零件过渡：零件第二目标 → 第一目标 → 初始位姿，KJ_Car 溶解显现。
     /// </summary>
-    /// <param name="partName">零件ID；为空时使用上次正播记录的零件ID。</param>
-    public bool PlayTransitionReverse(string partName = null)
+    /// <param name="partId">业务零部件 ID；为空时使用上次正播记录的零件 ID。</param>
+    public bool PlayTransitionReverse(string partId = null)
     {
         if (_isTransitioning)
         {
             return false;
         }
 
-        if (string.IsNullOrEmpty(partName))
+        if (string.IsNullOrEmpty(partId))
         {
-            partName = _lastPartId;
+            partId = _lastPartId;
         }
 
-        if (string.IsNullOrEmpty(partName) || !TryResolvePart(partName, out Transform part))
+        if (string.IsNullOrEmpty(partId) || !TryResolvePart(partId, out Transform part))
         {
             Debug.LogError("[VehicleToPart] 倒播失败：未指定零件ID或找不到对应零件。");
             return false;
@@ -263,7 +263,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>按 partId 在缓存列表中查找零件；partId 为空时返回第一个有效项。</summary>
-    public bool TryResolvePart(string partName, out Transform part)
+    public bool TryResolvePart(string partId, out Transform part)
     {
         part = null;
         if (_partRoots == null || _partRoots.Count == 0)
@@ -272,7 +272,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return false;
         }
 
-        if (string.IsNullOrEmpty(partName))
+        if (string.IsNullOrEmpty(partId))
         {
             part = FindFirstValidPart();
             if (part == null)
@@ -288,14 +288,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
             PartBindingData binding = _partRoots[i];
             Transform candidate = binding.partRoot;
             string candidateId = NormalizePartId(binding.partId, candidate);
-            if (candidate != null && candidateId == partName)
+            if (candidate != null && candidateId == partId)
             {
                 part = candidate;
                 return true;
             }
         }
 
-        Debug.LogError($"[VehicleToPart] 未在列表中找到 id 为「{partName}」的零件。");
+        Debug.LogError($"[VehicleToPart] 未在列表中找到 id 为「{partId}」的零件。");
         return false;
     }
 
@@ -718,14 +718,15 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 攻击路径 → 零件：先隐藏攻击路径，再播放“车辆 → 零件”两段零件动画（不经过车辆界面）。
     /// </summary>
-    public bool PlayAttackPathToPartTransition(string partName = null, string partId = null)
+    /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
+    public bool PlayAttackPathToPartTransition(string partId = null)
     {
         if (_isTransitioning)
         {
             return false;
         }
 
-        if (!TryResolvePart(partName, out Transform part))
+        if (!TryResolvePart(partId, out Transform part))
         {
             return false;
         }

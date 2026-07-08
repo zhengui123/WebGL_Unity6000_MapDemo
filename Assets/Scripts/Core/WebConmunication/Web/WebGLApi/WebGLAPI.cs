@@ -271,8 +271,7 @@ public class WebGLAPI : MonoBehaviour
     /// targetState(int, 必填) 目标级别 0~5：0 地球、1 国家、2 省级、3 车辆、4 零件、5 攻击路径；
     /// provinceName(string, 可选) 省名，如「山东」；
     /// provinceModuleName(string, 可选) 省级 3D 板块 GameObject 名；
-    /// partName(string, 可选) 车辆零件 GameObject 名；
-    /// partId(string, 可选) 业务零部件ID，仅零件 → 零件切换时生效；
+    /// partId(string, 可选) 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；
     /// useInstantTransition(bool, 可选) 是否跳过过渡动画，默认 false。
     ///
     /// JSON 示例 1 — 跳到省级并指定省名与板块：
@@ -282,7 +281,7 @@ public class WebGLAPI : MonoBehaviour
     /// {"targetState":3}
     ///
     /// JSON 示例 3 — 跳到零件级：
-    /// {"targetState":4,"partName":"Group1575","partId":"PART-1575"}
+    /// {"targetState":4,"partId":"PART-1575"}
     ///
     /// HTML 调用示例：
     /// unityInstance.SendMessage('WebGLAPI', 'TransitionToControlState',
@@ -301,7 +300,6 @@ public class WebGLAPI : MonoBehaviour
             request.targetState,
             NormalizeOptionalString(request.provinceName),
             NormalizeOptionalString(request.provinceModuleName),
-            NormalizeOptionalString(request.partName),
             NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 
