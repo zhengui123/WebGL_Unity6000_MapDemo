@@ -87,31 +87,48 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 
 ---
 
-## 二、Unity 回调 Android：级别跳转开始通知
+## 二、Unity 回调 Android / WebGL：级别跳转通知
 
-### 需在 MainActivity 实现的方法
+### 需在 MainActivity / 宿主页面实现的方法
 
 ```java
 public void onUnityControlStateTransition(String json) { }
 ```
 
-Unity 在**场景层级过渡刚开始**（动画尚未结束）时调用，用于 Android 提前切换 UI、展示 Loading 或埋点。
+```javascript
+function onUnityControlStateTransition(json) { }
+```
+
+同一回调承载两类通知，通过 `from` 区分：
+
+| `from` | 含义 |
+|--------|------|
+| `0~5` | 过渡**开始**（动画尚未结束） |
+| `-1` | 过渡**完成**（目标级别已加载就绪） |
 
 ### 回调 JSON 字段
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
-| `from` | int | 起始级别 0~5 |
-| `to` | int | 目标级别 0~5 |
-| `partId` | string | 业务零部件 ID；仅零件→零件 (`from=4,to=4`) 与攻击路径→零件 (`from=5,to=4`) 时有效，其它场景为空字符串 |
+| `from` | int | 起始级别 `0~5`；完成通知时为 `-1` |
+| `to` | int | 目标级别 `0~5` |
+| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它场景为空字符串 |
 
-示例：
+**过渡开始示例：**
 
 ```json
 {"from":1,"to":2,"partId":""}
 ```
 
 表示从**国家级**进入**省级**的过渡已开始。
+
+**过渡完成示例：**
+
+```json
+{"from":-1,"to":4,"partId":"PART-1575"}
+```
+
+表示**零件级**过渡已完成并可交互。
 
 ### 接收示例
 
@@ -121,13 +138,18 @@ public void onUnityControlStateTransition(String json) {
         JSONObject obj = new JSONObject(json);
         int from = obj.getInt("from");
         int to = obj.getInt("to");
-        Log.d("UnityBridge", "transition start: " + from + " -> " + to);
-        // 根据 from / to 更新原生界面
+        String partId = obj.optString("partId", "");
+        if (from == -1) {
+            Log.d("UnityBridge", "transition completed, level=" + to + ", partId=" + partId);
+            // 根据 to / partId 隐藏 Loading、刷新原生界面
+        } else {
+            Log.d("UnityBridge", "transition start: " + from + " -> " + to);
+            // 根据 from / to 展示 Loading
+        }
     } catch (JSONException e) {
         Log.e("UnityBridge", "invalid transition json: " + json, e);
     }
 }
-
 ```
 
 
@@ -137,39 +159,39 @@ public void onUnityControlStateTransition(String json) {
 
 ## 三、会触发 `onUnityControlStateTransition` 的场景
 
+### 过渡开始（`from` 为 0~5）
 
-
-以下为 Unity 侧可能发起的跳转；**仅在过渡开始时**回调一次。
-
-
+以下为 Unity 侧可能发起的跳转；在对应过渡**开始时**回调一次。
 
 | from → to | 场景说明 |
-
 |-----------|----------|
-
 | 0 → 1 | 地球 → 国家（进入板块地图） |
-
 | 1 → 0 | 国家 → 地球（返回地球视图） |
-
 | 1 → 2 | 国家 → 省级（开始聚焦某省模块） |
-
 | 2 → 1 | 省级 → 国家（相机还原到国家视图） |
-
 | 2 → 3 | 省级 → 车辆（进入车辆视图） |
-
 | 3 → 2 | 车辆 → 省级（返回省级视图） |
-
 | 3 → 4 | 车辆 → 零件 |
-
 | 4 → 3 | 零件 → 车辆 |
-
+| 4 → 4 | 零件 → 零件切换 |
 | 3 → 5 | 车辆 → 攻击路径 |
-
 | 5 → 3 | 攻击路径 → 车辆 |
+| 5 → 4 | 攻击路径 → 零件 |
 
+### 过渡完成（`from` 为 -1）
 
+在对应过渡动画结束、目标级别就绪后回调一次；`to` 为已就绪级别。
 
-> 同一对用户操作只会在**开始跳转**时收到通知，不会在动画结束时再次回调。
+| to | 场景说明 | partId |
+|----|----------|--------|
+| 0 | 地球级就绪 | 空 |
+| 1 | 国家级就绪 | 空 |
+| 2 | 省级就绪 | 空 |
+| 3 | 车辆级就绪 | 空 |
+| 4 | 零件级就绪 | 进入/切换/攻击路径→零件时可有值 |
+| 5 | 攻击路径级就绪 | 空 |
+
+> 跨多级跳转（如国家 → 零件）时，每一级过渡完成都会分别回调一次 `from=-1`。
 
 
 

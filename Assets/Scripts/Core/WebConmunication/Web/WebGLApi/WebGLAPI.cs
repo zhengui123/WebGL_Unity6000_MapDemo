@@ -86,6 +86,30 @@ public class WebGLAPI : MonoBehaviour
             to = toState,
             partId = partId ?? string.Empty,
         });
+#if UNITY_WEBGL && !UNITY_EDITOR
+        // Editor 下 CallHost 已有 mock 日志，避免重复输出。
+        Debug.Log($"[WebGLAPI] 操控级别过渡开始: {fromState} → {toState}, json={json}");
+#endif
+        CallHost("onUnityControlStateTransition", json);
+    }
+
+    /// <summary>通知宿主操控级别过渡完成：from=-1，to 为已就绪级别（JSON）。</summary>
+    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null)
+    {
+        if (!TryValidateControlState(toState, nameof(CallAndroidControlStateTransitionCompleted)))
+        {
+            return;
+        }
+
+        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
+        {
+            from = AndroidMessage.ControlStateTransitionCompletedFrom,
+            to = toState,
+            partId = partId ?? string.Empty,
+        });
+#if UNITY_WEBGL && !UNITY_EDITOR
+        Debug.Log($"[WebGLAPI] 操控级别过渡完成: to={toState}, json={json}");
+#endif
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -129,6 +153,19 @@ public class WebGLAPI : MonoBehaviour
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
         em.OnAttackPathToPartTransitionStarted += HandleAttackPathToPartTransitionStarted;
+
+        em.OnTransitionToPlateMapCompleted += HandleTransitionToPlateMapCompleted;
+        em.OnTransitionToEarthCompleted += HandleTransitionToEarthCompleted;
+        em.OnPlateMapFocusModuleCompleted += HandlePlateMapFocusModuleCompleted;
+        em.OnPlateMapRestoreCameraCompleted += HandlePlateMapRestoreCameraCompleted;
+        em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted += HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted += HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted += HandleVehicleToPartTransitionReverseCompleted;
+        em.OnPartToPartTransitionCompleted += HandlePartToPartTransitionCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted += HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted += HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted += HandleAttackPathToPartTransitionCompleted;
     }
 
     private void UnsubscribeControlStateEvents()
@@ -151,6 +188,19 @@ public class WebGLAPI : MonoBehaviour
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
         em.OnAttackPathToPartTransitionStarted -= HandleAttackPathToPartTransitionStarted;
+
+        em.OnTransitionToPlateMapCompleted -= HandleTransitionToPlateMapCompleted;
+        em.OnTransitionToEarthCompleted -= HandleTransitionToEarthCompleted;
+        em.OnPlateMapFocusModuleCompleted -= HandlePlateMapFocusModuleCompleted;
+        em.OnPlateMapRestoreCameraCompleted -= HandlePlateMapRestoreCameraCompleted;
+        em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted -= HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted -= HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted -= HandleVehicleToPartTransitionReverseCompleted;
+        em.OnPartToPartTransitionCompleted -= HandlePartToPartTransitionCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted -= HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted -= HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted -= HandleAttackPathToPartTransitionCompleted;
     }
 
     private void NotifyControlStateTransition(GameManager.ControlState from, GameManager.ControlState to)
@@ -222,6 +272,83 @@ public class WebGLAPI : MonoBehaviour
             (int)GameManager.ControlState.AttackPathLevel,
             (int)GameManager.ControlState.PartLevel,
             partId);
+    }
+
+    private void NotifyControlStateTransitionCompleted(GameManager.ControlState to, string partId = null)
+    {
+        CallAndroidControlStateTransitionCompleted((int)to, partId);
+    }
+
+    private void HandleTransitionToPlateMapCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.CountryLevel);
+    }
+
+    private void HandleTransitionToEarthCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.EarthLevel);
+    }
+
+    private void HandlePlateMapFocusModuleCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.ProvinceLevel);
+    }
+
+    private void HandlePlateMapRestoreCameraCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.CountryLevel);
+    }
+
+    private void HandlePlateToVehicleViewTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandleVehicleToPlateViewTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.ProvinceLevel);
+    }
+
+    private void HandleVehicleToPartTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, ResolveCurrentPartId());
+    }
+
+    private void HandleVehicleToPartTransitionReverseCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandlePartToPartTransitionCompleted(string _, string partId)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+    }
+
+    private void HandleVehicleToAttackPathTransitionCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.AttackPathLevel);
+    }
+
+    private void HandleAttackPathToVehicleTransitionCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandleAttackPathToPartTransitionCompleted(string _, string partId)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+    }
+
+    private static string ResolveCurrentPartId()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            return null;
+        }
+
+        string partId = controller.LastPartId;
+        return string.IsNullOrEmpty(partId) ? null : partId;
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)

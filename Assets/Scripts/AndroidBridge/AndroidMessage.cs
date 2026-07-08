@@ -28,13 +28,13 @@ public struct TransitionToControlStateRequest
 [System.Serializable]
 public struct ControlStateTransitionNotify
 {
-    /// <summary>起始操控级别：0~5。</summary>
+    /// <summary>起始操控级别：0~5；过渡完成通知时为 -1。</summary>
     public int from;
 
     /// <summary>目标操控级别：0~5。</summary>
     public int to;
 
-    /// <summary>（可空）业务零部件ID；仅零件 → 零件切换通知时有值。</summary>
+    /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
     public string partId;
 }
 
@@ -51,6 +51,9 @@ public struct BigScreenAutoCarouselRequest
 public class AndroidMessage : MonoBehaviour
 {
     public const string BridgeObjectName = "AndroidBridge";
+
+    /// <summary>操控级别过渡完成通知时 <see cref="ControlStateTransitionNotify.from"/> 的约定值。</summary>
+    public const int ControlStateTransitionCompletedFrom = -1;
 
     public static AndroidMessage Instance { get; private set; }
 
@@ -116,6 +119,25 @@ public class AndroidMessage : MonoBehaviour
             to = toState,
             partId = partId ?? string.Empty,
         });
+        Debug.Log($"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, json={json}");
+        CallActivity("onUnityControlStateTransition", json);
+    }
+
+    /// <summary>通知 Android 操控级别过渡完成：from=-1，to 为已就绪级别（JSON）。</summary>
+    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null)
+    {
+        if (!TryValidateControlState(toState, nameof(CallAndroidControlStateTransitionCompleted)))
+        {
+            return;
+        }
+
+        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
+        {
+            from = ControlStateTransitionCompletedFrom,
+            to = toState,
+            partId = partId ?? string.Empty,
+        });
+        Debug.Log($"[AndroidMessage] 操控级别过渡完成: to={toState}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -163,6 +185,19 @@ public class AndroidMessage : MonoBehaviour
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted += HandleAttackPathToVehicleTransitionStarted;
         em.OnAttackPathToPartTransitionStarted += HandleAttackPathToPartTransitionStarted;
+
+        em.OnTransitionToPlateMapCompleted += HandleTransitionToPlateMapCompleted;
+        em.OnTransitionToEarthCompleted += HandleTransitionToEarthCompleted;
+        em.OnPlateMapFocusModuleCompleted += HandlePlateMapFocusModuleCompleted;
+        em.OnPlateMapRestoreCameraCompleted += HandlePlateMapRestoreCameraCompleted;
+        em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted += HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted += HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted += HandleVehicleToPartTransitionReverseCompleted;
+        em.OnPartToPartTransitionCompleted += HandlePartToPartTransitionCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted += HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted += HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted += HandleAttackPathToPartTransitionCompleted;
     }
 
     private void UnsubscribeControlStateEvents()
@@ -185,6 +220,19 @@ public class AndroidMessage : MonoBehaviour
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
         em.OnAttackPathToVehicleTransitionStarted -= HandleAttackPathToVehicleTransitionStarted;
         em.OnAttackPathToPartTransitionStarted -= HandleAttackPathToPartTransitionStarted;
+
+        em.OnTransitionToPlateMapCompleted -= HandleTransitionToPlateMapCompleted;
+        em.OnTransitionToEarthCompleted -= HandleTransitionToEarthCompleted;
+        em.OnPlateMapFocusModuleCompleted -= HandlePlateMapFocusModuleCompleted;
+        em.OnPlateMapRestoreCameraCompleted -= HandlePlateMapRestoreCameraCompleted;
+        em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPlateViewTransitionCompleted -= HandleVehicleToPlateViewTransitionCompleted;
+        em.OnVehicleToPartTransitionCompleted -= HandleVehicleToPartTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted -= HandleVehicleToPartTransitionReverseCompleted;
+        em.OnPartToPartTransitionCompleted -= HandlePartToPartTransitionCompleted;
+        em.OnVehicleToAttackPathTransitionCompleted -= HandleVehicleToAttackPathTransitionCompleted;
+        em.OnAttackPathToVehicleTransitionCompleted -= HandleAttackPathToVehicleTransitionCompleted;
+        em.OnAttackPathToPartTransitionCompleted -= HandleAttackPathToPartTransitionCompleted;
     }
 
     private void NotifyControlStateTransition(GameManager.ControlState from, GameManager.ControlState to)
@@ -268,6 +316,83 @@ public class AndroidMessage : MonoBehaviour
             (int)GameManager.ControlState.AttackPathLevel,
             (int)GameManager.ControlState.PartLevel,
             partId);
+    }
+
+    private void NotifyControlStateTransitionCompleted(GameManager.ControlState to, string partId = null)
+    {
+        CallAndroidControlStateTransitionCompleted((int)to, partId);
+    }
+
+    private void HandleTransitionToPlateMapCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.CountryLevel);
+    }
+
+    private void HandleTransitionToEarthCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.EarthLevel);
+    }
+
+    private void HandlePlateMapFocusModuleCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.ProvinceLevel);
+    }
+
+    private void HandlePlateMapRestoreCameraCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.CountryLevel);
+    }
+
+    private void HandlePlateToVehicleViewTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandleVehicleToPlateViewTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.ProvinceLevel);
+    }
+
+    private void HandleVehicleToPartTransitionCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, ResolveCurrentPartId());
+    }
+
+    private void HandleVehicleToPartTransitionReverseCompleted(string _)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandlePartToPartTransitionCompleted(string _, string partId)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+    }
+
+    private void HandleVehicleToAttackPathTransitionCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.AttackPathLevel);
+    }
+
+    private void HandleAttackPathToVehicleTransitionCompleted()
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.VehicleLevel);
+    }
+
+    private void HandleAttackPathToPartTransitionCompleted(string _, string partId)
+    {
+        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+    }
+
+    private static string ResolveCurrentPartId()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            return null;
+        }
+
+        string partId = controller.LastPartId;
+        return string.IsNullOrEmpty(partId) ? null : partId;
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)
