@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<!--
+  Unity WebGL 父页面（免 npm，Vue 3 CDN）
+
+  用法：
+  1. 将 Unity WebGL Build 与本文档放在同一 HTTP 目录（勿用 file://）
+  2. 修改下方 unityBuildUrl 为 Build 的 index.html 路径
+  3. Unity Build 的 index.html 须设置 window.unityInstance = instance
+  4. 收到 onUnityWebGLReady 后再点击左侧按钮调用 Unity
+
+  通信协议详见：WebGL_Iframe_API.md（API）/ WebGL_Vue_Communication.md（架构）
+  父 → Unity：postMessage { source:"webgl-unity-parent", method, arg }
+  Unity → 父：postMessage { source:"unity-webgl", method, message }
+-->
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unity 地图 WebGL 父页面（免 npm）</title>
+  <!-- Vue 3 运行时（生产版），无需 npm / Vite -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>  <style>
+    html, body, #app { margin: 0; height: 100%; }
+    .unity-embed-page {
+      display: flex; flex-direction: column; height: 100vh;
+      background: #0f1419; color: #e8edf2;
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      gap: 16px; padding: 12px 16px;
+      border-bottom: 1px solid #2a3441; background: #151b24;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 12px; }
+    .toolbar-left h1 { margin: 0; font-size: 18px; font-weight: 600; }
+    .status {
+      padding: 4px 10px; border-radius: 999px; font-size: 12px;
+      background: #3a2a1a; color: #ffb86c;
+    }
+    .status.ready { background: #1a3a2a; color: #7dffb3; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .url-input {
+      width: min(420px, 50vw); margin-left: 8px; padding: 6px 8px;
+      border: 1px solid #3a4555; border-radius: 6px;
+      background: #0f1419; color: inherit;
+    }
+    button {
+      padding: 8px 12px; border: 1px solid #3a5568; border-radius: 6px;
+      background: #1e2a38; color: inherit; cursor: pointer;
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .hint {
+      padding: 8px 16px; font-size: 12px; color: #9fb0c3;
+      background: #121820; border-bottom: 1px solid #2a3441;
+    }
+    .main { display: flex; flex: 1; min-height: 0; }
+    .panel {
+      width: 320px; padding: 12px; overflow: auto;
+      border-right: 1px solid #2a3441; background: #121820;
+    }
+    .panel section { margin-bottom: 20px; }
+    .panel h2 { margin: 0 0 10px; font-size: 14px; color: #9fb0c3; }
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    label { display: block; margin-bottom: 8px; font-size: 12px; color: #9fb0c3; }
+    label input[type='text'] {
+      display: block; width: 100%; margin-top: 4px; padding: 6px 8px;
+      border: 1px solid #3a4555; border-radius: 6px;
+      background: #0f1419; color: inherit; box-sizing: border-box;
+    }
+    .checkbox { display: flex; align-items: center; gap: 8px; }
+    .last-callback {
+      margin: 0; padding: 8px; border-radius: 6px;
+      background: #0f1419; font-size: 13px; word-break: break-all;
+    }
+    .iframe-wrap { flex: 1; min-width: 0; background: #000; }
+    .unity-frame { width: 100%; height: 100%; border: 0; }
+    .log-panel {
+      height: 180px; border-top: 1px solid #2a3441; background: #10151c;
+      display: flex; flex-direction: column;
+    }
+    .log-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 12px; border-bottom: 1px solid #2a3441;
+    }
+    .log-header h2 { margin: 0; font-size: 13px; color: #9fb0c3; }
+    .log-list {
+      flex: 1; margin: 0; padding: 8px 12px; overflow: auto;
+      list-style: none; font-family: ui-monospace, monospace; font-size: 12px;
+    }
+    .log-list li {
+      display: grid; grid-template-columns: 72px 88px 180px 1fr;
+      gap: 8px; padding: 4px 0; border-bottom: 1px solid #1c2430;
+    }
+    .log-time { color: #6f8196; }
+    .log-dir { color: #7dffb3; }
+    .log-method { color: #8ec8ff; }
+    .log-payload { color: #c5d0db; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="unity-embed-page">
+      <!-- 顶栏：Unity 就绪状态 + Build 地址配置 -->
+      <header class="toolbar">
+        <div class="toolbar-left">
+          <h1>Unity 地图 WebGL 父页面</h1>
+          <span class="status" :class="{ ready: unityReady }">
+            {{ unityReady ? 'Unity 已就绪' : '等待 Unity 加载…' }}
+          </span>
+        </div>
+        <div class="toolbar-right">
+          <label>
+            构建地址
+            <input v-model="unityBuildUrl" type="text" class="url-input" />
+          </label>
+          <button type="button" @click="reloadIframe">重新加载</button>
+        </div>
+      </header>
+
+      <p class="hint">
+        本页无需 npm，双击或用浏览器打开即可。请将「构建地址」改为 Unity WebGL 的 index.html；
+        若 iframe 空白，请用本地 HTTP 服务打开（Unity WebGL 通常不支持 file:// 直接加载）。
+      </p>
+
+      <div class="main">
+        <!-- 左侧：调用 Unity 的测试按钮（对应 WebGLAPI.cs 公共方法） -->
+        <aside class="panel">
+          <!-- TransitionToControlState：targetState 0~5 -->
+          <section>
+            <h2>层级跳转</h2>
+            <div class="btn-grid">
+              <button
+                v-for="item in controlStateButtons"
+                :key="item.state"
+                type="button"
+                :disabled="!unityReady"
+                @click="jumpToState(item.state)"
+              >{{ item.label }}</button>
+            </div>
+          </section>
+
+          <!-- TransitionToControlState 可选 JSON 字段：provinceName / provinceModuleName / partId -->
+          <section>
+            <h2>省级 / 零件参数</h2>
+            <label>省名<input v-model="provinceName" placeholder="山东" /></label>
+            <label>板块名<input v-model="provinceModuleName" placeholder="polySurface3" /></label>
+            <label>零件 ID（Group01/02/03）<input v-model="partId" placeholder="Group01" /></label>
+            <label class="checkbox">
+              <input v-model="useInstantTransition" type="checkbox" />跳过过渡动画
+            </label>
+            <div class="btn-row">
+              <button type="button" :disabled="!unityReady" @click="jumpToProvince">跳到省级</button>
+              <button type="button" :disabled="!unityReady" @click="jumpToPart">跳到零件级</button>
+            </div>
+          </section>
+
+          <!-- TransitionToNext/PreviousControlState、SetBigScreenAutoCarouselEnabled -->
+          <section>
+            <h2>其它接口</h2>
+            <div class="btn-row">
+              <button type="button" :disabled="!unityReady" @click="transitionToNextControlState">下一级</button>
+              <button type="button" :disabled="!unityReady" @click="transitionToPreviousControlState">上一级</button>
+            </div>
+            <div class="btn-row">
+              <button type="button" :disabled="!unityReady" @click="setBigScreenAutoCarouselEnabled(true)">开启大屏轮播</button>
+              <button type="button" :disabled="!unityReady" @click="setBigScreenAutoCarouselEnabled(false)">关闭大屏轮播</button>
+            </div>
+          </section>
+
+          <!-- Unity → 父页面回调的最近一次展示（handlers 写入） -->
+          <section>
+            <h2>最近 Unity 回调</h2>
+            <p class="last-callback">{{ lastCallbackText || '暂无' }}</p>
+          </section>
+        </aside>
+
+        <!-- Unity WebGL 嵌入区；Communication.jslib 在 iframe 内监听 postMessage -->
+        <div class="iframe-wrap">
+          <iframe
+            ref="unityIframe"
+            :key="iframeKey"
+            :src="unityBuildUrl"
+            class="unity-frame"
+            title="Unity WebGL"
+            allow="fullscreen"
+          ></iframe>
+        </div>
+      </div>
+
+      <!-- 双向通信日志（与浏览器控制台 [UnityBridge] 同步） -->
+      <footer class="log-panel">
+        <div class="log-header">
+          <h2>通信日志</h2>
+          <button type="button" @click="clearLogs">清空</button>
+        </div>
+        <ul class="log-list">
+          <li v-for="(item, index) in messageLog" :key="index">
+            <span class="log-time">{{ item.time }}</span>
+            <span class="log-dir">{{ item.direction }}</span>
+            <span class="log-method">{{ item.method }}</span>
+            <span class="log-payload">{{ item.payload }}</span>
+          </li>
+        </ul>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, ref, onMounted, onUnmounted } = Vue;
+
+    // ---------- postMessage 协议常量（须与 WebGLAPI.cs / Communication.jslib 一致） ----------
+    const SOURCE_UNITY = 'unity-webgl';           // Unity → 父页面
+    const SOURCE_PARENT = 'webgl-unity-parent';   // 父页面 → Unity
+    const HOST_READY_METHOD = 'onUnityWebGLReady'; // Unity 桥接就绪，此后可 callUnity
+    const CONTROL_STATE_LABELS = { 0: '地球', 1: '国家', 2: '省级', 3: '车辆', 4: '零件', 5: '攻击路径' };
+
+    /**
+     * iframe 双向通信封装（等价于 Vite 版 useUnityIframeBridge.js）
+     * @param {import('vue').Ref} iframeRef - iframe DOM 引用
+     * @param {object} options.handlers - Unity 回调，key 为 method 名（如 onUnityControlStateTransition）
+     */
+    function useUnityIframeBridge(iframeRef, options = {}) {
+      const { handlers = {}, enableLog = true } = options;
+      const unityReady = ref(false);
+      const messageLog = ref([]);
+
+      function pushLog(direction, method, payload = '') {
+        // 页面底部日志面板 + 控制台
+        messageLog.value.unshift({
+          time: new Date().toLocaleTimeString(),
+          direction, method, payload,
+        });
+        if (messageLog.value.length > 200) messageLog.value.length = 200;
+        if (enableLog) {
+          const suffix = payload ? ' | ' + payload : '';
+          console.log('[UnityBridge] ' + direction + ' | ' + method + suffix);
+        }
+      }
+
+      /** 监听 Unity iframe 发来的 postMessage（source 必须为 unity-webgl） */
+      function onWindowMessage(event) {
+        const data = event.data;
+        if (!data || data.source !== SOURCE_UNITY || typeof data.method !== 'string') return;
+        const { method, message = '' } = data;
+        pushLog('← Unity', method, message);
+        // 就绪信号：WebGLAPI.NotifyHostReady → onUnityWebGLReady
+        if (method === HOST_READY_METHOD) { unityReady.value = true; return; }
+        // 业务回调：method 名对应 WebGLAPI.CallHost 第一个参数
+        if (typeof handlers[method] === 'function') handlers[method](message);
+      }
+
+      /**
+       * 父页面 → Unity 统一入口
+       * jslib 转发为：unityInstance.SendMessage('WebGLAPI', method, arg)
+       */
+      function callUnity(method, arg = '') {
+        const win = iframeRef.value?.contentWindow;
+        if (!win) { console.warn('[UnityBridge] iframe 未就绪'); return false; }
+        const payload = arg ?? '';
+        pushLog('→ Unity', method, payload);
+        win.postMessage({ source: SOURCE_PARENT, method, arg: payload }, '*');
+        return true;
+      }
+
+      /** 解析 onUnityControlStateTransition JSON；from=-1 表示过渡完成 */
+      function formatControlStateTransition(json) {
+        try {
+          const data = JSON.parse(json);
+          const fromLabel = data.from === -1 ? '过渡完成' : (CONTROL_STATE_LABELS[data.from] ?? data.from);
+          const toLabel = CONTROL_STATE_LABELS[data.to] ?? data.to;
+          const part = data.partId ? '，零件=' + data.partId : '';
+          return fromLabel + ' → ' + toLabel + part;
+        } catch { return json; }
+      }
+
+      onMounted(() => {
+        window.addEventListener('message', onWindowMessage);
+        pushLog('系统', '监听 message', '等待 Unity iframe 就绪');
+      });
+      onUnmounted(() => window.removeEventListener('message', onWindowMessage));
+
+      return {
+        unityReady, messageLog, formatControlStateTransition,
+        // 以下 method 名须与 WebGLAPI.cs public 方法名完全一致（区分大小写）
+        transitionToControlState: (p) => callUnity('TransitionToControlState', typeof p === 'string' ? p : JSON.stringify(p)),
+        transitionToNextControlState: () => callUnity('TransitionToNextControlState', ''),
+        transitionToPreviousControlState: () => callUnity('TransitionToPreviousControlState', ''),
+        setBigScreenAutoCarouselEnabled: (enabled) => callUnity('SetBigScreenAutoCarouselEnabled', JSON.stringify({ enabled })),
+      };
+    }
+
+    createApp({
+      setup() {
+        // Unity Build 的 index.html 地址（同目录可写 index.html 或 ./unity-build/index.html）
+        const unityBuildUrl = ref('index.html');
+        const iframeKey = ref(0);       // 变更 key 强制 iframe 重新加载
+        const unityIframe = ref(null);  // iframe DOM，供 callUnity 取 contentWindow
+
+        // TransitionToControlState 可选参数（targetState=2 用省名/板块，targetState=4 用 partId）
+        const provinceName = ref('山东');
+        const provinceModuleName = ref('polySurface3');
+        const partId = ref('Group01');  // 有效值：Group01、Group02、Group03
+        const useInstantTransition = ref(false);
+        const lastCallbackText = ref('');
+
+        // 操控级别 0~5，见 GameManager.ControlState
+        const controlStateButtons = [
+          { state: 0, label: '地球 (0)' }, { state: 1, label: '国家 (1)' },
+          { state: 2, label: '省级 (2)' }, { state: 3, label: '车辆 (3)' },
+          { state: 4, label: '零件 (4)' }, { state: 5, label: '攻击路径 (5)' },
+        ];
+
+        // 注册 Unity → 父页面回调（新增回调在此 handlers 增加同名 key）
+        const {
+          unityReady, messageLog, formatControlStateTransition,
+          transitionToControlState, transitionToNextControlState,
+          transitionToPreviousControlState, setBigScreenAutoCarouselEnabled,
+        } = useUnityIframeBridge(unityIframe, {
+          handlers: {
+            // 级别过渡开始/完成；message 为 ControlStateTransitionNotify JSON
+            onUnityControlStateTransition(json) { lastCallbackText.value = formatControlStateTransition(json); },
+          },
+        });
+
+        /** 组装 TransitionToControlState 请求体（字段名须与 TransitionToControlStateRequest 一致） */
+        function buildPayload(targetState) {
+          const payload = { targetState };
+          if (targetState === 2) {
+            if (provinceName.value) payload.provinceName = provinceName.value;
+            if (provinceModuleName.value) payload.provinceModuleName = provinceModuleName.value;
+          }
+          if (targetState === 4 && partId.value) payload.partId = partId.value;
+          if (useInstantTransition.value) payload.useInstantTransition = true;
+          return payload;
+        }
+
+        return {
+          unityReady, messageLog, unityBuildUrl, iframeKey, unityIframe,
+          provinceName, provinceModuleName, partId, useInstantTransition,
+          lastCallbackText, controlStateButtons,
+          transitionToNextControlState, transitionToPreviousControlState, setBigScreenAutoCarouselEnabled,
+          jumpToState: (s) => transitionToControlState(buildPayload(s)),
+          jumpToProvince: () => transitionToControlState(buildPayload(2)),
+          jumpToPart: () => transitionToControlState(buildPayload(4)),
+          reloadIframe() { unityReady.value = false; iframeKey.value++; lastCallbackText.value = ''; },
+          clearLogs() { messageLog.value.length = 0; },
+        };
+      },
+    }).mount('#app');
+  </script>
+</body>
+</html>

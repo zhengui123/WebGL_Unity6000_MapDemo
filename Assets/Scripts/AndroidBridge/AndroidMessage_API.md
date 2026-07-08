@@ -113,11 +113,12 @@ function onUnityControlStateTransition(json) { }
 | `from` | int | 起始级别 `0~5`；完成通知时为 `-1` |
 | `to` | int | 目标级别 `0~5` |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它场景为空字符串 |
+| `status` | int | **（预留）** 大屏跳转状态：`0` 普通跳转、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
 
 **过渡开始示例：**
 
 ```json
-{"from":1,"to":2,"partId":""}
+{"from":1,"to":2,"partId":"","status":0}
 ```
 
 表示从**国家级**进入**省级**的过渡已开始。
@@ -125,7 +126,7 @@ function onUnityControlStateTransition(json) { }
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"partId":"PART-1575"}
+{"from":-1,"to":4,"partId":"Group01","status":0}
 ```
 
 表示**零件级**过渡已完成并可交互。
@@ -139,6 +140,7 @@ public void onUnityControlStateTransition(String json) {
         int from = obj.getInt("from");
         int to = obj.getInt("to");
         String partId = obj.optString("partId", "");
+        int status = obj.optInt("status", 0); // 预留：大屏状态
         if (from == -1) {
             Log.d("UnityBridge", "transition completed, level=" + to + ", partId=" + partId);
             // 根据 to / partId 隐藏 Loading、刷新原生界面
@@ -229,9 +231,72 @@ public void onUnityControlStateTransition(String json) {
 
 ---
 
+## 五、WebGL 跨域 iframe 嵌入（Vue 父页面）
 
+Unity 打包产物作为 `<iframe src=".../index.html">` 嵌入前端时，**仅使用 `postMessage`**，不直接调用 `parent` 上的函数。
 
-## 五、联调建议
+### 消息协议
+
+| 方向 | `source` | 字段 | 说明 |
+|------|----------|------|------|
+| Unity → 父页面 | `unity-webgl` | `method`, `message` | 与 Android 回调方法名一致，如 `onUnityControlStateTransition` |
+| 父页面 → Unity | `webgl-unity-parent` | `method`, `arg` | `method` 对应 `WebGLAPI` 公共方法，如 `TransitionToControlState` |
+
+就绪通知：Unity 启动后发送 `{ source:"unity-webgl", method:"onUnityWebGLReady", message:"" }`。
+
+### iframe 内 index.html（Build 后合并）
+
+```javascript
+var unityInstance = null;
+createUnityInstance(canvas, config, onProgress).then((instance) => {
+  unityInstance = instance;
+  window.unityInstance = instance; // jslib 依赖此全局变量
+});
+```
+
+参考：`Assets/Plugins/Web/WebJs/WebGLEmbedIframe.sample.html`
+
+### Vue 父页面示例
+
+完整 API 见：**`Assets/Plugins/Web/WebJs/vue-parent-demo/WebGL_Iframe_API.md`**
+
+免 npm 单文件：`vue-parent-demo/vue-parent-standalone.html`
+
+```javascript
+// composables/useUnityIframeBridge.js — 见 Assets/Plugins/Web/WebJs/vue-parent-embed.sample.js
+iframeRef.value.contentWindow.postMessage({
+  source: 'webgl-unity-parent',
+  method: 'TransitionToControlState',
+  arg: JSON.stringify({ targetState: 4, partId: 'Group01' })
+}, '*');
+
+window.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.source !== 'unity-webgl') return;
+  if (data.method === 'onUnityControlStateTransition') {
+    const { from, to, partId } = JSON.parse(data.message);
+    // from=-1 表示过渡完成；0~5 表示过渡开始
+  }
+});
+```
+
+### WebGL 与 Android API 对齐
+
+| 父页面 → Unity `method` | `arg` | 说明 |
+|-------------------------|-------|------|
+| `TransitionToControlState` | JSON | 同 Android `TransitionToControlState` |
+| `TransitionToNextControlState` | `""` | 下一级 |
+| `TransitionToPreviousControlState` | `""` | 上一级 |
+| `SetBigScreenAutoCarouselEnabled` | `{"enabled":true}` | 大屏轮播 |
+
+| Unity → 父页面 `method` | `message` | 说明 |
+|-------------------------|-----------|------|
+| `onUnityWebGLReady` | `""` | 桥接就绪 |
+| `onUnityControlStateTransition` | JSON | 同 Android；`from=-1` 为完成通知 |
+
+---
+
+## 六、联调建议
 
 
 

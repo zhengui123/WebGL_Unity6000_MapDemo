@@ -23,6 +23,22 @@ public struct TransitionToControlStateRequest
 }
 
 /// <summary>
+/// 大屏跳转状态（<see cref="ControlStateTransitionNotify.status"/> 取值）。
+/// 表示本次层级过渡由何种大屏业务场景触发，与操控级别、轮播态势类型无关。
+/// </summary>
+public enum BigScreenStatus
+{
+    /// <summary>普通跳转（默认状态，包含未区分触发源的常规跳转）。</summary>
+    NormalNavigation = 0,
+
+    /// <summary>信息跳转（宿主或用户主动查看信息触发的跳转）。</summary>
+    InformationNavigation = 1,
+
+    /// <summary>威胁下钻（威胁态势联动下钻）。</summary>
+    ThreatDrillDown = 2,
+}
+
+/// <summary>
 /// Unity → Android 操控级别跳转通知（JSON 字段名需与此一致）。
 /// </summary>
 [System.Serializable]
@@ -36,6 +52,13 @@ public struct ControlStateTransitionNotify
 
     /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
     public string partId;
+
+    /// <summary>
+    /// 大屏跳转状态，取值见 <see cref="BigScreenStatus"/>：
+    /// 0 普通跳转、1 信息跳转、2 威胁下钻。
+    /// 当前为预留字段，Unity 暂统一回传 0，后续按实际触发源填充。
+    /// </summary>
+    public int status;
 }
 
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
@@ -118,6 +141,7 @@ public class AndroidMessage : MonoBehaviour
             from = fromState,
             to = toState,
             partId = partId ?? string.Empty,
+            status = ResolveNotifyBigScreenStatus(),
         });
         Debug.Log($"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
@@ -136,6 +160,7 @@ public class AndroidMessage : MonoBehaviour
             from = ControlStateTransitionCompletedFrom,
             to = toState,
             partId = partId ?? string.Empty,
+            status = ResolveNotifyBigScreenStatus(),
         });
         Debug.Log($"[AndroidMessage] 操控级别过渡完成: to={toState}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
@@ -393,6 +418,13 @@ public class AndroidMessage : MonoBehaviour
 
         string partId = controller.LastPartId;
         return string.IsNullOrEmpty(partId) ? null : partId;
+    }
+
+    /// <summary>过渡通知 JSON 中的大屏跳转状态（<see cref="BigScreenStatus"/>）；预留，暂回传 0。</summary>
+    private static int ResolveNotifyBigScreenStatus()
+    {
+        // TODO: 按过渡触发源区分 NormalNavigation / InformationNavigation / ThreatDrillDown
+        return (int)BigScreenStatus.NormalNavigation;
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)

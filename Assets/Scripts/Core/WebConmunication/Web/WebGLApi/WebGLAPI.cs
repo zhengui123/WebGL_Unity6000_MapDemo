@@ -4,19 +4,31 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// WebGL 宿主页面与 Unity 双向通信，公开方法与 <see cref="AndroidMessage"/> 对齐。
-/// HTML 通过 unityInstance.SendMessage("WebGLAPI", methodName, arg) 调用。
-/// 注意：须在 createUnityInstance().then 回调内赋值 unityInstance 后再调用；
-/// 参考 Assets/Plugins/Web/WebJs/WebGLEmbedSample.html。
+/// WebGL 宿主页面与 Unity 双向通信（跨域 iframe 嵌入模式），公开方法与 <see cref="AndroidMessage"/> 对齐。
+/// <para>Unity → 父页面：postMessage { source:"unity-webgl", method, message }。</para>
+/// <para>父页面 → Unity：postMessage { source:"webgl-unity-parent", method, arg }，由 jslib 转发 SendMessage("WebGLAPI", ...)。</para>
+/// <para>参考 Assets/Plugins/Web/WebJs/vue-parent-demo/ 与 WebGLEmbedIframe.sample.html。</para>
 /// </summary>
 public class WebGLAPI : MonoBehaviour
 {
     public const string BridgeObjectName = "WebGLAPI";
 
+    /// <summary>Unity → 父页面 postMessage 的 source 字段。</summary>
+    public const string PostMessageSourceUnity = "unity-webgl";
+
+    /// <summary>父页面 → Unity postMessage 的 source 字段。</summary>
+    public const string PostMessageSourceParent = "webgl-unity-parent";
+
+    /// <summary>Unity 桥接就绪通知（父页面收到后可安全 callUnity）。</summary>
+    public const string HostReadyMethodName = "onUnityWebGLReady";
+
     public static WebGLAPI Instance { get; private set; }
 
     [Header("Demo（可选）")]
     [SerializeField] private Text showMessageText;
+
+    [Header("通信日志")]
+    [SerializeField] private bool _enableCommunicationLog = true;
 
     [SerializeField] private string lastHostMessage = "";
 
@@ -27,6 +39,12 @@ public class WebGLAPI : MonoBehaviour
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void CallHTMLHandler(string methodName, string message);
+
+    [DllImport("__Internal")]
+    private static extern void InitIframePostMessageBridge();
+
+    [DllImport("__Internal")]
+    private static extern void FlushIframePendingMessages();
 #endif
 
     private void Awake()
@@ -42,6 +60,46 @@ public class WebGLAPI : MonoBehaviour
         {
             gameObject.name = BridgeObjectName;
         }
+
+#if UNITY_WEBGL && !UNITY_EDITOR
+        LogCommunication("系统", "InitIframePostMessageBridge", "初始化 iframe postMessage 桥接");
+        InitIframePostMessageBridge();
+#endif
+    }
+
+    private void Start()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        NotifyHostReady();
+#else
+        LogCommunication("系统", "Editor", "非 WebGL 运行环境，通信接口仅输出 mock 日志");
+#endif
+    }
+
+    /// <summary>通知父页面 Unity iframe 桥接已就绪，并冲刷排队中的父页面消息。</summary>
+    public void NotifyHostReady()
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        FlushIframePendingMessages();
+#endif
+        LogCommunication("→ Host", HostReadyMethodName, string.Empty);
+        CallHost(HostReadyMethodName, string.Empty);
+    }
+
+    private void LogCommunication(string direction, string method, string payload)
+    {
+        if (!_enableCommunicationLog)
+        {
+            return;
+        }
+
+        if (string.IsNullOrEmpty(payload))
+        {
+            Debug.Log($"[WebGLAPI] {direction} | {method}");
+            return;
+        }
+
+        Debug.Log($"[WebGLAPI] {direction} | {method} | {payload}");
     }
 
     private void OnEnable()
@@ -56,20 +114,20 @@ public class WebGLAPI : MonoBehaviour
 
     #region Unity → HTML（对应 MainActivity / 父页面 JS 回调）
 
-    public void CallAndroidShowToast(string message)
-    {
-        CallHost("onUnityShowToast", message ?? string.Empty);
-    }
+    // public void CallAndroidShowToast(string message)
+    // {
+    //     CallHost("onUnityShowToast", message ?? string.Empty);
+    // }
 
-    public void CallAndroidUpdateNativeTitle(string message)
-    {
-        CallHost("onUnityUpdateNativeTitle", message ?? string.Empty);
-    }
+    // public void CallAndroidUpdateNativeTitle(string message)
+    // {
+    //     CallHost("onUnityUpdateNativeTitle", message ?? string.Empty);
+    // }
 
-    public void CallAndroidRequestDataSync(string message)
-    {
-        CallHost("onUnityRequestDataSync", message ?? string.Empty);
-    }
+    // public void CallAndroidRequestDataSync(string message)
+    // {
+    //     CallHost("onUnityRequestDataSync", message ?? string.Empty);
+    // }
 
     /// <summary>通知宿主操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
     public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null)
@@ -85,11 +143,9 @@ public class WebGLAPI : MonoBehaviour
             from = fromState,
             to = toState,
             partId = partId ?? string.Empty,
+            status = ResolveNotifyBigScreenStatus(),
         });
-#if UNITY_WEBGL && !UNITY_EDITOR
-        // Editor 下 CallHost 已有 mock 日志，避免重复输出。
-        Debug.Log($"[WebGLAPI] 操控级别过渡开始: {fromState} → {toState}, json={json}");
-#endif
+        LogCommunication("→ Host", "onUnityControlStateTransition", $"开始 {fromState}→{toState} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -106,15 +162,20 @@ public class WebGLAPI : MonoBehaviour
             from = AndroidMessage.ControlStateTransitionCompletedFrom,
             to = toState,
             partId = partId ?? string.Empty,
+            status = ResolveNotifyBigScreenStatus(),
         });
-#if UNITY_WEBGL && !UNITY_EDITOR
-        Debug.Log($"[WebGLAPI] 操控级别过渡完成: to={toState}, json={json}");
-#endif
+        LogCommunication("→ Host", "onUnityControlStateTransition", $"完成 to={toState} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
     private void CallHost(string method, string arg)
     {
+        if (method != HostReadyMethodName
+            && method != "onUnityControlStateTransition")
+        {
+            LogCommunication("→ Host", method, arg);
+        }
+
 #if UNITY_WEBGL && !UNITY_EDITOR
         try
         {
@@ -124,8 +185,6 @@ public class WebGLAPI : MonoBehaviour
         {
             Debug.LogError($"[WebGLAPI] {method} failed: {e}");
         }
-#else
-        Debug.Log($"[WebGLAPI] Editor mock {method}: {arg}");
 #endif
     }
 
@@ -351,6 +410,13 @@ public class WebGLAPI : MonoBehaviour
         return string.IsNullOrEmpty(partId) ? null : partId;
     }
 
+    /// <summary>过渡通知 JSON 中的大屏跳转状态（<see cref="BigScreenStatus"/>）；预留，暂回传 0。</summary>
+    private static int ResolveNotifyBigScreenStatus()
+    {
+        // TODO: 按过渡触发源区分 NormalNavigation / InformationNavigation / ThreatDrillDown
+        return (int)BigScreenStatus.NormalNavigation;
+    }
+
     private static bool TryValidateControlState(int controlState, string callerName)
     {
         if (Enum.IsDefined(typeof(GameManager.ControlState), controlState))
@@ -366,32 +432,13 @@ public class WebGLAPI : MonoBehaviour
 
     #region HTML → Unity（SendMessage，方法名与 AndroidMessage 一致）
 
-    public void OnAndroidNotifyA(string message)
-    {
-        HandleFromHost("A", message);
-    }
 
-    public void OnAndroidNotifyB(string message)
-    {
-        HandleFromHost("B", message);
-    }
-
-    public void OnDataSyncResult(string message)
-    {
-        HandleFromHost("SyncResult", message);
-    }
-
-    private void HandleFromHost(string channel, string message)
-    {
-        lastHostMessage = $"[{channel}] {message}";
-        Debug.Log("[WebGLAPI] " + lastHostMessage);
-        OnHostMessageReceived?.Invoke(lastHostMessage);
-    }
+    
 
 
     /// <summary>
-    /// 宿主调用：按 JSON 参数执行层级跳转。
-    /// unityInstance.SendMessage("WebGLAPI", "TransitionToControlState", json);
+    /// 宿主（Vue 父页面）调用：按 JSON 参数执行层级跳转。
+    /// 跨域 iframe：父页面 postMessage({ source:"webgl-unity-parent", method:"TransitionToControlState", arg: json })。
     /// </summary>
     /// <param name="json">
     /// 字段（区分大小写）：
@@ -410,12 +457,14 @@ public class WebGLAPI : MonoBehaviour
     /// JSON 示例 3 — 跳到零件级：
     /// {"targetState":4,"partId":"PART-1575"}
     ///
-    /// HTML 调用示例：
+    /// HTML 调用示例（同域调试，跨域请用 postMessage）：
     /// unityInstance.SendMessage('WebGLAPI', 'TransitionToControlState',
     ///   '{"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3"}');
     /// </param>
     public void TransitionToControlState(string json)
     {
+        LogCommunication("← Host", nameof(TransitionToControlState), json);
+
         if (string.IsNullOrWhiteSpace(json))
         {
             Debug.LogWarning("[WebGLAPI] TransitionToControlState: JSON 为空。");
@@ -433,28 +482,43 @@ public class WebGLAPI : MonoBehaviour
         if (!ok)
         {
             Debug.LogWarning($"[WebGLAPI] TransitionToControlState 启动失败: {json}");
+            return;
         }
+
+        LogCommunication("← Host", nameof(TransitionToControlState), "已接受并启动");
     }
 
     public void TransitionToNextControlState()
     {
+        LogCommunication("← Host", nameof(TransitionToNextControlState), string.Empty);
+
         if (!MapApi.Instance.TransitionToNextControlState())
         {
             Debug.LogWarning("[WebGLAPI] TransitionToNextControlState 启动失败。");
+            return;
         }
+
+        LogCommunication("← Host", nameof(TransitionToNextControlState), "已接受并启动");
     }
 
     public void TransitionToPreviousControlState()
     {
+        LogCommunication("← Host", nameof(TransitionToPreviousControlState), string.Empty);
+
         if (!MapApi.Instance.TransitionToPreviousControlState())
         {
             Debug.LogWarning("[WebGLAPI] TransitionToPreviousControlState 启动失败。");
+            return;
         }
+
+        LogCommunication("← Host", nameof(TransitionToPreviousControlState), "已接受并启动");
     }
 
     /// <summary>宿主调用：开启/关闭四个大屏自动轮播。json 示例：{"enabled":true}</summary>
     public void SetBigScreenAutoCarouselEnabled(string json)
     {
+        LogCommunication("← Host", nameof(SetBigScreenAutoCarouselEnabled), json);
+
         if (string.IsNullOrWhiteSpace(json))
         {
             Debug.LogWarning("[WebGLAPI] SetBigScreenAutoCarouselEnabled: JSON 为空。");
@@ -465,7 +529,10 @@ public class WebGLAPI : MonoBehaviour
         if (!MapApi.Instance.SetBigScreenAutoCarouselEnabled(request.enabled))
         {
             Debug.LogWarning($"[WebGLAPI] SetBigScreenAutoCarouselEnabled 失败: {json}");
+            return;
         }
+
+        LogCommunication("← Host", nameof(SetBigScreenAutoCarouselEnabled), $"enabled={request.enabled}");
     }
 
     private static string NormalizeOptionalString(string value)
@@ -477,30 +544,6 @@ public class WebGLAPI : MonoBehaviour
 
     #region Demo（历史测试接口，可保留兼容）
 
-    private void Update()
-    {
-       
-
-    }
-
-   
-
-    
-    public void ShowMessage(string msg)
-    {
-        msg = StringTool.Base64ToString(msg);
-        Debug.Log("[WebGLAPI] " + msg);
-        if (showMessageText != null)
-        {
-            showMessageText.text = msg;
-        }
-    }
-
-    [Obsolete("请使用 jslib CallHTMLHandler / CallAndroidShowToast 等接口向宿主发消息。")]
-    public void SendMessageToJavaScript(string message)
-    {
-        CallHost("receiveMessageFromUnity", message ?? string.Empty);
-    }
 
     #endregion
 }
