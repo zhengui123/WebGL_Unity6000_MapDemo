@@ -33,6 +33,8 @@ public static class VehicleHeatmapApi
             requestBody,
             (result, response) =>
             {
+                LogResponseJson(result, response);
+
                 if (result != null && result.IsSuccess && response != null && response.IsSuccess)
                 {
                     ApplySuccessfulResponse(response);
@@ -109,5 +111,33 @@ public static class VehicleHeatmapApi
         }
 
         Debug.Log($"[VehicleHeatmapApi] 已同步 {points.Length} 个车辆点位到「{plateMapName}」并刷新显示。");
+    }
+
+    private static void LogResponseJson(HttpRequestResult result, LatestVinLocationResponse response)
+    {
+        if (result == null)
+        {
+            Debug.LogWarning("[VehicleHeatmapApi] 请求结果为空。");
+            return;
+        }
+
+        string body = string.IsNullOrEmpty(result.RawBody) ? "(空)" : result.RawBody;
+        if (result.IsCancelled)
+        {
+            Debug.Log("[VehicleHeatmapApi] 请求已取消。");
+            return;
+        }
+
+        if (!result.IsSuccess)
+        {
+            Debug.LogWarning(
+                $"[VehicleHeatmapApi] 请求失败，状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{body}");
+            return;
+        }
+
+        int count = response?.data != null ? response.data.Length : 0;
+        bool bizOk = response != null && response.IsSuccess;
+        Debug.Log(
+            $"[VehicleHeatmapApi] 请求成功，状态码={result.StatusCode}，业务成功={bizOk}，车辆数={count}\n响应 JSON：\n{body}");
     }
 }

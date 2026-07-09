@@ -87,16 +87,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 666929123081273267}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c724e84831409004d8e91fd915fcd656, type: 3}
+  m_Script: {fileID: 11500000, guid: 6398501375950f74bbe4cccab10c24d7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MessageListPanel
+  m_EditorClassIdentifier: Assembly-CSharp::GJPanel
   _titleText: {fileID: 4544250248710502814}
-  _stateText: {fileID: 0}
-  _messageTexts:
-  - {fileID: 8258244367007943780}
-  _stateIcon: {fileID: 0}
-  _protectedIcon: {fileID: 0}
-  _unprotectedIcon: {fileID: 0}
+  _eventNameText: {fileID: 832731856155352783}
+  _riskNameText: {fileID: 5747747775132116008}
+  _happenTimeText: {fileID: 4754665326651774243}
+  _vinText: {fileID: 4857087106961256013}
+  _partTypeText: {fileID: 2133299969965211436}
+  _vehicleInfoText: {fileID: 7799371282592909425}
+  _hideOnAwake: 0
+  _requestOnStart: 0
 --- !u!1 &721477164642922117
 GameObject:
   m_ObjectHideFlags: 0

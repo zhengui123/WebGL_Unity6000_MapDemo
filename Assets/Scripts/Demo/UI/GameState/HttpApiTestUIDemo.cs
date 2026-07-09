@@ -737,6 +737,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
         SetJsonResultText(successText, result.RawBody);
         Debug.Log($"[HttpApiTestUIDemo] {method} 成功，状态码={result.StatusCode}");
 
+        TryApplyBasicEventResponseToGJPanel(result.RawBody);
+
         if (method == "GET")
         {
             TryLogParsedGetResponse(result.RawBody);
@@ -758,6 +760,22 @@ public class HttpApiTestUIDemo : MonoBehaviour
         builder.Append(string.IsNullOrEmpty(rawBody) ? "(空)" : rawBody);
 
         return builder.ToString();
+    }
+
+    private static void TryApplyBasicEventResponseToGJPanel(string rawBody)
+    {
+        if (!BasicEventPageApi.TryParseResponse(rawBody, out BasicEventPageResponse response, out _))
+        {
+            return;
+        }
+
+        GJPanel panel = GJPanel.Instance;
+        if (panel == null)
+        {
+            return;
+        }
+
+        panel.ApplyResponse(response, showPanelOnSuccess: true);
     }
 
     private static void TryLogParsedGetResponse(string rawBody)
