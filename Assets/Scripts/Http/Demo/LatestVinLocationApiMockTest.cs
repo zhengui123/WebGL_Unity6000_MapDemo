@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// 不发起 HTTP 请求，使用固定 JSON 模拟 <see cref="LatestVinLocationApi"/> 成功返回并同步地图车辆点位。
+/// 不发起 HTTP 请求，使用固定 JSON 模拟 <see cref="VehicleHeatmapApi"/> 成功返回并同步地图车辆点位。
 /// </summary>
 [DisallowMultipleComponent]
 public class LatestVinLocationApiMockTest : MonoBehaviour
@@ -43,7 +43,7 @@ public class LatestVinLocationApiMockTest : MonoBehaviour
     [ContextMenu("模拟车辆位置接口成功响应")]
     public void ApplyMockResponse()
     {
-        if (!LatestVinLocationApi.TryApplySuccessfulResponseFromJson(_responseJson, out string error))
+        if (!VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(_responseJson, out string error))
         {
             Debug.LogError($"[LatestVinLocationApiMockTest] 模拟失败：{error}");
             return;

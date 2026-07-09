@@ -527,7 +527,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             $"country={country}\n" +
             BuildHeadersPreviewText(headers));
 
-        LatestVinLocationApi.RequestLatestVinLocations(
+        VehicleHeatmapApi.Request(
             province,
             region,
             country,

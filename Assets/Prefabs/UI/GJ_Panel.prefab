@@ -817,7 +817,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "TBox-\u5B89\u5168\u4E8B\u60011111111t"
+  m_Text: "\u544A\u8B66\u4E8B\u4EF6"
 --- !u!1 &6030471655893528309
 GameObject:
   m_ObjectHideFlags: 0
