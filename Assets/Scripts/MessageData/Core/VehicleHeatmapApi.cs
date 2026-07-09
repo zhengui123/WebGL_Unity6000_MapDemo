@@ -4,15 +4,16 @@ using UnityEngine;
 
 /// <summary>
 /// 车辆热力图接口：综合区域态势 - 事件范围内车辆最新位置（latestVinLocation）。
-/// province 为空表示全国；每个 vin 取 process_time 最新。
+/// province 为省级 adcode 字符串，空表示全国；每个 vin 取 process_time 最新。
 /// </summary>
 public static class VehicleHeatmapApi
 {
     /// <summary>
-    /// 请求车辆最新位置；成功且 code=10000 时自动写入 <see cref="HttpVehicleLocationDataStore"/> 并刷新地图热力点。
+    /// 请求车辆最新位置；成功且 code=10000 时自动写入缓存并刷新地图热力点。
+    /// <paramref name="provinceCode"/> 为省级 adcode 字符串，空或 "0" 表示全国板块。
     /// </summary>
     public static void Request(
-        string province,
+        string provinceCode,
         string region,
         string country,
         string startTime,
@@ -21,7 +22,7 @@ public static class VehicleHeatmapApi
         Dictionary<string, string> additionalHeaders = null)
     {
         ComprehensiveRegionRequest requestBody = ComprehensiveRegionRequest.Create(
-            province,
+            provinceCode,
             region,
             country,
             startTime,
@@ -37,7 +38,7 @@ public static class VehicleHeatmapApi
 
                 if (result != null && result.IsSuccess && response != null && response.IsSuccess)
                 {
-                    ApplySuccessfulResponse(response);
+                    ApplySuccessfulResponse(response, provinceCode);
                 }
 
                 onCompleted?.Invoke(result, response);
@@ -51,7 +52,7 @@ public static class VehicleHeatmapApi
         Dictionary<string, string> additionalHeaders = null)
     {
         Request(
-            province: string.Empty,
+            provinceCode: string.Empty,
             region: string.Empty,
             country: string.Empty,
             startTime: null,
@@ -63,7 +64,7 @@ public static class VehicleHeatmapApi
     /// <summary>
     /// 解析模拟 JSON 并执行接口成功后的车辆点位同步（不发起 HTTP 请求）。
     /// </summary>
-    public static bool TryApplySuccessfulResponseFromJson(string json, out string errorMessage)
+    public static bool TryApplySuccessfulResponseFromJson(string json, string provinceCode, out string errorMessage)
     {
         errorMessage = null;
         if (!HttpJsonParser.TryParse(json, out LatestVinLocationResponse response, out string parseError))
@@ -78,12 +79,12 @@ public static class VehicleHeatmapApi
             return false;
         }
 
-        ApplySuccessfulResponse(response);
+        ApplySuccessfulResponse(response, provinceCode);
         return true;
     }
 
     /// <summary>接口成功（code=10000）后的统一处理：写入缓存并刷新地图车辆点位。</summary>
-    public static void ApplySuccessfulResponse(LatestVinLocationResponse response)
+    public static void ApplySuccessfulResponse(LatestVinLocationResponse response, string provinceCode = null)
     {
         if (response == null || !response.IsSuccess)
         {
@@ -91,26 +92,41 @@ public static class VehicleHeatmapApi
             return;
         }
 
-        ApplyResponseToVehicleMap(response);
+        string resolvedCode = ResolveProvinceCodeForMap(provinceCode);
+        ApplyResponseToVehicleMap(response, resolvedCode);
     }
 
-    private static void ApplyResponseToVehicleMap(LatestVinLocationResponse response)
+    private static string ResolveProvinceCodeForMap(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return HttpProjectConfig.DefaultProvinceCode;
+        }
+
+        if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceCode, out string normalized))
+        {
+            return normalized;
+        }
+
+        return HttpProjectConfig.DefaultProvinceCode;
+    }
+
+    private static void ApplyResponseToVehicleMap(LatestVinLocationResponse response, string provinceCode)
     {
         HttpVehicleLocationDataStore.Instance.ReplaceFromResponse(response);
 
         VehicleMapPointData[] points = HttpVehicleLocationRecord.ToVehicleMapPointArray(response?.data, alertValue: 1f);
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        string plateMapName = hub.ResolvePlateMapNameForVehiclePoints(HttpProjectConfig.DefaultPlateMapName);
-        bool controllerUpdated = hub.PublishSetVehiclePoints(plateMapName, points, syncNow: true);
+        bool controllerUpdated = PlateMapAPI.Instance.UpdateVehiclePoints(provinceCode, points, syncNow: true);
 
         if (!controllerUpdated)
         {
+            PlateMapAPI.Instance.TryResolvePlateMapName(provinceCode, out string plateMapName);
             Debug.LogWarning(
-                $"[VehicleHeatmapApi] 车辆点位已缓存到「{plateMapName}」，但 Controller 未注册；板块启用后将自动同步并刷新。");
+                $"[VehicleHeatmapApi] 车辆点位已缓存到 provinceCode={provinceCode}（{plateMapName}），但 Controller 未注册；板块启用后将自动同步。");
             return;
         }
 
-        Debug.Log($"[VehicleHeatmapApi] 已同步 {points.Length} 个车辆点位到「{plateMapName}」并刷新显示。");
+        Debug.Log($"[VehicleHeatmapApi] 已同步 {points.Length} 个车辆点位到 provinceCode={provinceCode} 并刷新显示。");
     }
 
     private static void LogResponseJson(HttpRequestResult result, LatestVinLocationResponse response)

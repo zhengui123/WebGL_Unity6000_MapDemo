@@ -1311,7 +1311,6 @@ Transform:
   - {fileID: 3949990970524593895}
   - {fileID: 4636049407056406958}
   - {fileID: 161072650922349199}
-  - {fileID: 3613757013794722752}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!114 &6238814874542099929
@@ -1326,34 +1325,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345602, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _provinceCode: 370000
   _mapRoot: {fileID: 1390008880049182587}
   _westAnchor:
     marker: {fileID: 4636049407056406958}
     longitude: 114.819
-    latitude: 35.245506286621094
+    latitude: 34.377
   _eastAnchor:
     marker: {fileID: 3949990970524593895}
     longitude: 122.714
-    latitude: 37.536861419677734
+    latitude: 38.401
   _autoBindWestEastByLocalX: 0
-  _syncAnchorLatitudeFromMarkerZ: 1
-  _autoLatitudeBoundsFromMesh: 1
-  _southLatitude: 34.377
-  _northLatitude: 38.401
-  _manualSouthLocalZ: 0
-  _manualNorthLocalZ: 0
-  _useProvinceBoundary: 1
-  _provinceFilter:
-    _shandongBoundaryJson: {fileID: 4900000, guid: d5b642c3e08805140b07f5686c7ba998, type: 3}
-    _strictProvinceBoundary: 1
-    _randomMaxAttemptsPerPoint: 512
-    _useGeoConverterBounds: 1
-    _fallbackWestLongitude: 114.819
-    _fallbackEastLongitude: 122.714
-    _fallbackSouthLatitude: 34.377
-    _fallbackNorthLatitude: 38.401
-    _randomBoundsInset: 0.02
-  _plateMapKeyOverride: 
 --- !u!114 &2407045919986893658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1771,6 +1753,7 @@ MonoBehaviour:
     alertValue: 0.5322687
   _enableProximityMerge: 0
   _mergeDistanceLocal: 0.002
+  _mergeUseAveragePosition: 0
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
@@ -2438,52 +2421,6 @@ MonoBehaviour:
   _displayName: 
   _focusCameraLocalY: 650
   _autoAddMeshColliderIfMissing: 1
---- !u!1 &8834864016279040771
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4340656499485448819}
-  - component: {fileID: 8658843227455815}
-  m_Layer: 0
-  m_Name: PoiDemo
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4340656499485448819
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8834864016279040771}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -1, z: -0, w: 0}
-  m_LocalPosition: {x: 0.06883257, y: -0.032495108, z: 0.040194586}
-  m_LocalScale: {x: 0.00006666667, y: 0.00006666667, z: 0.00006666667}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 3613757013794722752}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8658843227455815
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8834864016279040771}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2e0a57cda6abbd148995d102c9b556d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::POI_Demo
-  poiManager: {fileID: 2883049771518188807}
-  plateMapVehiclePointController: {fileID: 2407045919986893658}
 --- !u!1 &8875564760726512463
 GameObject:
   m_ObjectHideFlags: 0
@@ -2621,56 +2558,3 @@ MonoBehaviour:
   _displayName: 
   _focusCameraLocalY: 650
   _autoAddMeshColliderIfMissing: 1
---- !u!1 &9050650871865920975
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3613757013794722752}
-  - component: {fileID: 2883049771518188807}
-  m_Layer: 0
-  m_Name: PoiCManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3613757013794722752
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9050650871865920975}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.0028, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 4340656499485448819}
-  m_Father: {fileID: 1390008880049182587}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2883049771518188807
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9050650871865920975}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c7b0b1092ba3e047bfc57aae4c72816, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::POI_Manager
-  poiData:
-    type: 0
-    obj: {fileID: 524913973072024973, guid: a8e74f25384eb8d4f8877027b11d68e6, type: 3}
-    x: 0
-    y: 0
-    localPosition: {x: 0, y: 0, z: 0}
-  _waitForGeoConverterReady: 1
-  poiList: []

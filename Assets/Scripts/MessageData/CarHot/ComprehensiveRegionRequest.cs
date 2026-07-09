@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 
 /// <summary>
-/// 综合区域态势通用请求体（province 为空表示全国/全部）。
+/// 综合区域态势通用请求体（province 为省级 adcode 字符串，空表示全国/不限）。
 /// </summary>
 [Serializable]
 public class ComprehensiveRegionRequest

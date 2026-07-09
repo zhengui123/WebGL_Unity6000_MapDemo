@@ -10,6 +10,7 @@ using UnityEngine.UI;
 public class PlateMapShandongRandomPointsDemo : MonoBehaviour
 {
     [Header("目标板块")]
+    [SerializeField] private string _provinceCode = "370000";
     [SerializeField] private string _plateMapName = "sd_map (1)";
 
     [Header("省界与采样")]
@@ -242,7 +243,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
 
         if (_pushViaJsonApi)
         {
-            return PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, pointsJson);
+            return PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_provinceCode, pointsJson);
         }
 
         if (!VehicleMapPointJson.TryParse(pointsJson, out VehicleMapPointData[] points, out string error))

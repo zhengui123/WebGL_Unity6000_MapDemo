@@ -20,6 +20,9 @@ public class LatestVinLocationApiMockTest : MonoBehaviour
     [TextArea(6, 14)]
     [SerializeField] private string _responseJson = SampleResponseJson;
 
+    [Tooltip("热力图绘制目标省级 code")]
+    [SerializeField] private string _provinceCode = "330000";
+
     [Header("触发")]
     [SerializeField] private bool _runOnStart;
     [SerializeField] private KeyCode _runKey = KeyCode.V;
@@ -43,7 +46,7 @@ public class LatestVinLocationApiMockTest : MonoBehaviour
     [ContextMenu("模拟车辆位置接口成功响应")]
     public void ApplyMockResponse()
     {
-        if (!VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(_responseJson, out string error))
+        if (!VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(_responseJson, _provinceCode, out string error))
         {
             Debug.LogError($"[LatestVinLocationApiMockTest] 模拟失败：{error}");
             return;

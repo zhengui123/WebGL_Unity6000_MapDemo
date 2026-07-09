@@ -84,7 +84,13 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>HTTP 车辆点位默认同步目标板块（与场景 sd_map 根节点名称一致）。</summary>
+    /// <summary>HTTP 车辆点位默认同步目标省级 code（"0"=全国）。</summary>
+
+    public const string DefaultProvinceCode = "0";
+
+
+
+    /// <summary>HTTP 车辆点位默认同步目标板块（与场景 sd_map 根节点名称一致，兼容旧逻辑）。</summary>
 
     public const string DefaultPlateMapName = "sd_map";
 

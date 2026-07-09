@@ -39,14 +39,13 @@ public delegate void PlateMapGetProvinceBoundsAction(
 /// 解耦「数据写入 / 地理转换 / 显示过滤」：各板块组件在 <c>OnEnable</c> 注册、<c>OnDisable</c> 注销，
 /// 外部通过 <see cref="PlateMapAPI"/> 或 <see cref="PublishSetVehiclePoints"/> 按名称推送数据。
 /// </para>
-/// <para>字典 key 统一为板块地图根物体的 <c>gameObject.name</c>（如 <c>sd_map (1)</c>）。</para>
+/// <para>字典 key 统一为板块地图根物体的 <c>gameObject.name</c>；业务侧推荐通过 <see cref="PlateMapAPI"/> 按 provinceCode 调用。</para>
 /// </summary>
 /// <remarks>
 /// 典型注册方：
 /// <list type="bullet">
 /// <item><see cref="PlateMapVehiclePointController"/> — Set / Get 点位</item>
-/// <item><see cref="PlateMapGeoConverter"/> — 经纬度转换四件套</item>
-/// <item><see cref="PlateMapShandongRandomPointsDemo"/> — ShouldInclude 省界过滤</item>
+/// <item><see cref="PlateMapGeoConverter"/> — 经纬度转换四件套 + provinceCode 映射</item>
 /// </list>
 /// </remarks>
 [DisallowMultipleComponent]
@@ -96,6 +95,9 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             GetProvinceBounds == null;
     }
 
+    /// <summary>当前默认 provinceCode（业务可设置；POI 旧接口回退用）。</summary>
+    public string activeProvinceCode = HttpProjectConfig.DefaultProvinceCode;
+
     /// <summary>板块名</summary>
     public string plateMapName;
 
@@ -103,6 +105,9 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
 
     /// <summary>板块名 → 该板块已注册的回调集合。</summary>
     private readonly Dictionary<string, PlateHandlers> _plates = new();
+
+    /// <summary>省级 adcode（string，"0"=全国）→ 场景板块 GameObject 名称。</summary>
+    private readonly Dictionary<string, string> _provinceCodeToPlateMapName = new();
 
     /// <summary>板块隐藏时仍保留的车辆点位数据源（Controller 未注册 Set 回调时由 Hub 持有）。</summary>
     private readonly Dictionary<string, VehicleMapPointData[]> _vehiclePointsCache = new();
@@ -120,6 +125,50 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     public event Action<string> RebuildStartedAction;
 
     #region 注册 / 注销（板块名为 gameObject.name）
+
+    /// <summary>注册 provinceCode 与场景板块名的映射（由 <see cref="PlateMapGeoConverter"/> 调用）。</summary>
+    public void RegisterProvinceCodeMapping(string provinceCode, string plateMapName)
+    {
+        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceCode, out string normalizedCode) ||
+            string.IsNullOrWhiteSpace(plateMapName))
+        {
+            return;
+        }
+
+        _provinceCodeToPlateMapName[normalizedCode] = plateMapName.Trim();
+    }
+
+    /// <summary>注销 provinceCode 映射。</summary>
+    public void UnregisterProvinceCodeMapping(string provinceCode, string plateMapName)
+    {
+        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceCode, out string normalizedCode))
+        {
+            return;
+        }
+
+        if (_provinceCodeToPlateMapName.TryGetValue(normalizedCode, out string registeredName) &&
+            registeredName == plateMapName.Trim())
+        {
+            _provinceCodeToPlateMapName.Remove(normalizedCode);
+        }
+    }
+
+    /// <summary>按 provinceCode 解析场景板块名；未注册时返回 null。</summary>
+    public string ResolvePlateMapNameByProvinceCode(string provinceCode)
+    {
+        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceCode, out string normalizedCode))
+        {
+            return null;
+        }
+
+        if (_provinceCodeToPlateMapName.TryGetValue(normalizedCode, out string plateMapName) &&
+            !string.IsNullOrWhiteSpace(plateMapName))
+        {
+            return plateMapName;
+        }
+
+        return null;
+    }
 
     /// <summary>注册点位写入回调；同一板块重复注册会覆盖上一次。</summary>
     public void RegisterSetVehiclePointsAction(string plateMapName, PlateMapSetVehiclePointsAction action)
@@ -254,6 +303,19 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     /// 按板块名推送车辆点位（<see cref="PlateMapAPI.UpdateVehiclePointsFromJson"/> 的最终落点）。
     /// 板块隐藏（AllPlateMap SetActive false）时仍写入 Hub 缓存；显示层由 Controller 在重新启用时刷新。
     /// </summary>
+    /// <summary>按 provinceCode 推送车辆点位到对应场景板块。</summary>
+    public bool PublishSetVehiclePointsByProvinceCode(string provinceCode, VehicleMapPointData[] points, bool syncNow = true)
+    {
+        string plateMapName = ResolvePlateMapNameByProvinceCode(provinceCode);
+        if (string.IsNullOrWhiteSpace(plateMapName))
+        {
+            Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册 provinceCode={provinceCode} 的场景板块。");
+            return false;
+        }
+
+        return PublishSetVehiclePoints(plateMapName, points, syncNow);
+    }
+
     /// <returns>是否已调用 Controller 的 Set 回调（未注册时仅写入缓存并返回 false）。</returns>
     public bool PublishSetVehiclePoints(string plateMapName, VehicleMapPointData[] points, bool syncNow = true)
     {
@@ -354,6 +416,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
 
         string[] fallbacks =
         {
+            Instance.ResolvePlateMapNameByProvinceCode(HttpProjectConfig.DefaultProvinceCode),
             HttpProjectConfig.DefaultPlateMapName,
             "sd_map",
             "sd_map (1)",

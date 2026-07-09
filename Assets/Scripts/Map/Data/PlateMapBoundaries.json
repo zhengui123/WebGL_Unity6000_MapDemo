@@ -1,0 +1,284 @@
+{
+  "entries": [
+    {
+      "provinceCode": "0",
+      "provinceName": "中国",
+      "westLongitude": 73.502,
+      "eastLongitude": 135.095,
+      "southLatitude": 18.159,
+      "northLatitude": 53.558
+    },
+    {
+      "provinceCode": "110000",
+      "provinceName": "北京市",
+      "westLongitude": 115.417,
+      "eastLongitude": 117.508,
+      "southLatitude": 39.442,
+      "northLatitude": 41.058
+    },
+    {
+      "provinceCode": "120000",
+      "provinceName": "天津市",
+      "westLongitude": 116.708,
+      "eastLongitude": 118.065,
+      "southLatitude": 38.556,
+      "northLatitude": 40.253
+    },
+    {
+      "provinceCode": "130000",
+      "provinceName": "河北省",
+      "westLongitude": 113.465,
+      "eastLongitude": 119.848,
+      "southLatitude": 36.048,
+      "northLatitude": 42.619
+    },
+    {
+      "provinceCode": "140000",
+      "provinceName": "山西省",
+      "westLongitude": 110.230,
+      "eastLongitude": 114.583,
+      "southLatitude": 34.581,
+      "northLatitude": 40.737
+    },
+    {
+      "provinceCode": "150000",
+      "provinceName": "内蒙古自治区",
+      "westLongitude": 97.172,
+      "eastLongitude": 126.067,
+      "southLatitude": 37.406,
+      "northLatitude": 53.334
+    },
+    {
+      "provinceCode": "210000",
+      "provinceName": "辽宁省",
+      "westLongitude": 118.845,
+      "eastLongitude": 125.791,
+      "southLatitude": 38.722,
+      "northLatitude": 43.490
+    },
+    {
+      "provinceCode": "220000",
+      "provinceName": "吉林省",
+      "westLongitude": 121.384,
+      "eastLongitude": 131.318,
+      "southLatitude": 40.866,
+      "northLatitude": 46.304
+    },
+    {
+      "provinceCode": "230000",
+      "provinceName": "黑龙江省",
+      "westLongitude": 121.184,
+      "eastLongitude": 135.095,
+      "southLatitude": 43.426,
+      "northLatitude": 53.558
+    },
+    {
+      "provinceCode": "310000",
+      "provinceName": "上海市",
+      "westLongitude": 120.856,
+      "eastLongitude": 122.118,
+      "southLatitude": 30.675,
+      "northLatitude": 31.872
+    },
+    {
+      "provinceCode": "320000",
+      "provinceName": "江苏省",
+      "westLongitude": 116.362,
+      "eastLongitude": 121.991,
+      "southLatitude": 30.757,
+      "northLatitude": 35.124
+    },
+    {
+      "provinceCode": "330000",
+      "provinceName": "浙江省",
+      "westLongitude": 118.028,
+      "eastLongitude": 123.161,
+      "southLatitude": 27.041,
+      "northLatitude": 31.183
+    },
+    {
+      "provinceCode": "340000",
+      "provinceName": "安徽省",
+      "westLongitude": 114.892,
+      "eastLongitude": 119.649,
+      "southLatitude": 29.395,
+      "northLatitude": 34.654
+    },
+    {
+      "provinceCode": "350000",
+      "provinceName": "福建省",
+      "westLongitude": 115.852,
+      "eastLongitude": 120.427,
+      "southLatitude": 23.528,
+      "northLatitude": 28.312
+    },
+    {
+      "provinceCode": "360000",
+      "provinceName": "江西省",
+      "westLongitude": 113.578,
+      "eastLongitude": 118.485,
+      "southLatitude": 24.486,
+      "northLatitude": 30.045
+    },
+    {
+      "provinceCode": "370000",
+      "provinceName": "山东省",
+      "westLongitude": 114.819,
+      "eastLongitude": 122.714,
+      "southLatitude": 34.377,
+      "northLatitude": 38.401
+    },
+    {
+      "provinceCode": "410000",
+      "provinceName": "河南省",
+      "westLongitude": 110.360,
+      "eastLongitude": 116.652,
+      "southLatitude": 31.382,
+      "northLatitude": 36.366
+    },
+    {
+      "provinceCode": "420000",
+      "provinceName": "湖北省",
+      "westLongitude": 108.367,
+      "eastLongitude": 116.135,
+      "southLatitude": 29.029,
+      "northLatitude": 33.276
+    },
+    {
+      "provinceCode": "430000",
+      "provinceName": "湖南省",
+      "westLongitude": 108.791,
+      "eastLongitude": 114.255,
+      "southLatitude": 24.636,
+      "northLatitude": 30.128
+    },
+    {
+      "provinceCode": "440000",
+      "provinceName": "广东省",
+      "westLongitude": 109.655,
+      "eastLongitude": 117.191,
+      "southLatitude": 20.212,
+      "northLatitude": 25.516
+    },
+    {
+      "provinceCode": "450000",
+      "provinceName": "广西壮族自治区",
+      "westLongitude": 104.446,
+      "eastLongitude": 112.061,
+      "southLatitude": 20.898,
+      "northLatitude": 26.385
+    },
+    {
+      "provinceCode": "460000",
+      "provinceName": "海南省",
+      "westLongitude": 108.619,
+      "eastLongitude": 111.046,
+      "southLatitude": 18.157,
+      "northLatitude": 20.174
+    },
+    {
+      "provinceCode": "500000",
+      "provinceName": "重庆市",
+      "westLongitude": 105.289,
+      "eastLongitude": 110.201,
+      "southLatitude": 28.164,
+      "northLatitude": 32.204
+    },
+    {
+      "provinceCode": "510000",
+      "provinceName": "四川省",
+      "westLongitude": 97.348,
+      "eastLongitude": 108.546,
+      "southLatitude": 26.045,
+      "northLatitude": 34.313
+    },
+    {
+      "provinceCode": "520000",
+      "provinceName": "贵州省",
+      "westLongitude": 103.595,
+      "eastLongitude": 109.597,
+      "southLatitude": 24.618,
+      "northLatitude": 29.221
+    },
+    {
+      "provinceCode": "530000",
+      "provinceName": "云南省",
+      "westLongitude": 97.528,
+      "eastLongitude": 106.195,
+      "southLatitude": 21.142,
+      "northLatitude": 29.225
+    },
+    {
+      "provinceCode": "540000",
+      "provinceName": "西藏自治区",
+      "westLongitude": 78.395,
+      "eastLongitude": 99.118,
+      "southLatitude": 26.855,
+      "northLatitude": 36.483
+    },
+    {
+      "provinceCode": "610000",
+      "provinceName": "陕西省",
+      "westLongitude": 105.492,
+      "eastLongitude": 111.247,
+      "southLatitude": 31.705,
+      "northLatitude": 39.587
+    },
+    {
+      "provinceCode": "620000",
+      "provinceName": "甘肃省",
+      "westLongitude": 92.339,
+      "eastLongitude": 108.712,
+      "southLatitude": 32.594,
+      "northLatitude": 42.795
+    },
+    {
+      "provinceCode": "630000",
+      "provinceName": "青海省",
+      "westLongitude": 89.404,
+      "eastLongitude": 103.070,
+      "southLatitude": 31.598,
+      "northLatitude": 39.191
+    },
+    {
+      "provinceCode": "640000",
+      "provinceName": "宁夏回族自治区",
+      "westLongitude": 104.287,
+      "eastLongitude": 107.659,
+      "southLatitude": 35.238,
+      "northLatitude": 39.381
+    },
+    {
+      "provinceCode": "650000",
+      "provinceName": "新疆维吾尔自治区",
+      "westLongitude": 73.502,
+      "eastLongitude": 96.386,
+      "southLatitude": 34.334,
+      "northLatitude": 49.183
+    },
+    {
+      "provinceCode": "710000",
+      "provinceName": "台湾省",
+      "westLongitude": 119.279,
+      "eastLongitude": 124.585,
+      "southLatitude": 21.897,
+      "northLatitude": 25.300
+    },
+    {
+      "provinceCode": "810000",
+      "provinceName": "香港特别行政区",
+      "westLongitude": 113.760,
+      "eastLongitude": 114.510,
+      "southLatitude": 22.153,
+      "northLatitude": 22.561
+    },
+    {
+      "provinceCode": "820000",
+      "provinceName": "澳门特别行政区",
+      "westLongitude": 113.520,
+      "eastLongitude": 113.620,
+      "southLatitude": 22.106,
+      "northLatitude": 22.217
+    }
+  ]
+}

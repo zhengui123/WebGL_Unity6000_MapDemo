@@ -28,7 +28,7 @@ public static class LatestVinLocationApi
 
     public static bool TryApplySuccessfulResponseFromJson(string json, out string errorMessage)
     {
-        return VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(json, out errorMessage);
+        return VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(json, null, out errorMessage);
     }
 
     public static void ApplySuccessfulResponse(LatestVinLocationResponse response)

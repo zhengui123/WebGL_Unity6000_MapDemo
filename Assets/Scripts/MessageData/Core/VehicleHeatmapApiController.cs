@@ -14,7 +14,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     [SerializeField] private bool _requestImmediatelyOnStart = true;
 
     [Header("查询参数")]
-    [SerializeField] private string _province = string.Empty;
+    [SerializeField] private string _provinceCode = "0";
     [SerializeField] private string _region = string.Empty;
     [SerializeField] private string _country = string.Empty;
     [SerializeField] private string _startTime = string.Empty;
@@ -98,7 +98,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         string endTime = ResolveEndTime();
 
         VehicleHeatmapApi.Request(
-            _province,
+            _provinceCode,
             _region,
             _country,
             _startTime,

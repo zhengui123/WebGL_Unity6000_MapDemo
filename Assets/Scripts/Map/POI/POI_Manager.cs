@@ -1,76 +1,118 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
 public class POI_Manager : UnitySingle<POI_Manager>
 {
+    [System.Serializable]
+    private struct PoiTypeConfig
+    {
+        public POIType type;
+        public GameObject prefab;
+        public bool usePrefabScale;
+        public Vector3 customScale;
+    }
+
+    [Header("类型配置")]
+    [Tooltip("旧接口未传类型时使用的默认类型。")]
+    [SerializeField] private POIType _defaultPoiType = POIType.yellow;
+    [Tooltip("按 POIType 配置不同预制体。")]
+    [SerializeField] private List<PoiTypeConfig> _poiTypeConfigs = new List<PoiTypeConfig>();
+    [Tooltip("兼容旧配置：当类型表未命中时使用。")]
     [SerializeField] private POIData poiData;
 
     [Header("生成")]
-    public Vector3 scale => poiData.obj.transform.localScale;
+    public Vector3 scale => poiData != null && poiData.obj != null ? poiData.obj.transform.localScale : Vector3.one;
 
     [Tooltip("延迟结束后若地理转换未就绪，则每帧等待直至可转换")]
     [SerializeField] private bool _waitForGeoConverterReady = true;
-
     public List<POIData> poiList = new List<POIData>();
-
-    private void Start()
+    
+    /// <summary>在指定省级 code 对应板块上生成默认类型 POI。</summary>
+    public void SpawnPoi(string provinceCode, double longitude, double latitude)
     {
-       
+        SpawnPoi(provinceCode, _defaultPoiType, longitude, latitude);
     }
 
-    /// <summary>立即在经纬度处生成 POI。</summary>
-    public void SpawnPoi(double x, double y)
+    /// <summary>在指定省级 code 对应板块上生成指定类型 POI。</summary>
+    public void SpawnPoi(string provinceCode, POIType type, double longitude, double latitude)
     {
-        if (poiData?.obj == null)
+        if (!TryResolvePoiPrefab(type, out GameObject prefab, out Vector3 targetScale))
         {
-            Debug.LogWarning("[POI_Manager] poiData 或预制体未配置。");
+            Debug.LogWarning($"[POI_Manager] 未找到类型 {type} 对应 POI 预制体。");
             return;
         }
 
-        if (!TryGetMapLocalPosition(x, y, out Vector3 localPos))
+        if (!TryGetMapLocalPosition(provinceCode, longitude, latitude, out Vector3 localPos))
         {
             return;
         }
 
-        GameObject obj = Instantiate(poiData.obj);
+        if (!PlateMapAPI.Instance.TryResolvePlateMapName(provinceCode, out string plateMapName))
+        {
+            return;
+        }
+
+        Transform plateRoot = ResolvePlateRootTransform(plateMapName);
+        GameObject obj = Instantiate(prefab);
         Quaternion desiredWorldRotation = obj.transform.rotation;
-        //Transform mapRoot = ResolveMapRootTransform();
-        obj.transform.SetParent(transform, false);
+        obj.transform.SetParent(plateRoot, false);
         obj.transform.localPosition = localPos;
-        obj.transform.localScale = scale;
-        // sd_map 根节点常带 Z180°，若仅用预制体局部旋转会导致标牌上下倒置；保持生成前世界朝向
+        obj.transform.localScale = targetScale;
         obj.transform.rotation = desiredWorldRotation;
 
-        AddPOI(new POIData(poiData.type, obj, x, y, localPos));
+        AddPOI(new POIData(type, obj, longitude, latitude, localPos));
     }
 
-    /// <summary>延迟若干秒后生成 POI；<paramref name="delaySeconds"/> 小于 0 时使用 Inspector 默认值。</summary>
-    public void SpawnPoiDelayed(double x, double y)
+    /// <summary>兼容旧调用：使用 Hub 当前活动 code + 默认类型（不推荐）。</summary>
+    public void SpawnPoi(double longitude, double latitude)
     {
-        StartCoroutine(SpawnPoiDelayedRoutine(x, y));
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null || string.IsNullOrEmpty(hub.activeProvinceCode))
+        {
+            Debug.LogWarning("[POI_Manager] 旧接口 SpawnPoi(lon,lat) 缺少活动 provinceCode，请改用 SpawnPoi(provinceCode, lon, lat)。");
+            return;
+        }
+
+        SpawnPoi(hub.activeProvinceCode, _defaultPoiType, longitude, latitude);
     }
 
-    private IEnumerator SpawnPoiDelayedRoutine(double x, double y)
+    /// <summary>延迟生成默认类型 POI。</summary>
+    public void SpawnPoiDelayed(string provinceCode, double longitude, double latitude)
+    {
+        StartCoroutine(SpawnPoiDelayedRoutine(provinceCode, _defaultPoiType, longitude, latitude));
+    }
+
+    /// <summary>延迟生成指定类型 POI。</summary>
+    public void SpawnPoiDelayed(string provinceCode, POIType type, double longitude, double latitude)
+    {
+        StartCoroutine(SpawnPoiDelayedRoutine(provinceCode, type, longitude, latitude));
+    }
+
+    /// <summary>兼容旧调用：使用 Hub 当前活动 code + 默认类型（不推荐）。</summary>
+    public void SpawnPoiDelayed(double longitude, double latitude)
+    {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null || string.IsNullOrEmpty(hub.activeProvinceCode))
+        {
+            Debug.LogWarning("[POI_Manager] 旧接口 SpawnPoiDelayed(lon,lat) 缺少活动 provinceCode，请改用 SpawnPoiDelayed(provinceCode, lon, lat)。");
+            return;
+        }
+
+        SpawnPoiDelayed(hub.activeProvinceCode, _defaultPoiType, longitude, latitude);
+    }
+
+    private IEnumerator SpawnPoiDelayedRoutine(string provinceCode, POIType type, double longitude, double latitude)
     {
         if (_waitForGeoConverterReady)
         {
-            yield return WaitUntilGeoConverterReady();
+            yield return WaitUntilGeoConverterReady(provinceCode);
         }
-
-        SpawnPoi(x, y);
+        SpawnPoi(provinceCode, type, longitude, latitude);
     }
 
-    private IEnumerator WaitUntilGeoConverterReady()
+    private IEnumerator WaitUntilGeoConverterReady(string provinceCode)
     {
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub == null)
-        {
-            yield break;
-        }
-
-        string plateMapName = hub.plateMapName;
-        while (!hub.InvokeIsGeoConverterReady(plateMapName))
+        while (!PlateMapAPI.Instance.IsGeoConverterReady(provinceCode))
         {
             yield return null;
         }
@@ -81,41 +123,96 @@ public class POI_Manager : UnitySingle<POI_Manager>
         poiList.Add(data);
     }
 
-    public Vector3 GetWorldPosition(double x, double y)
+    /// <summary>删除指定类型的全部 POI。</summary>
+    public void RemoveAllPoiByType(POIType type)
     {
-        TryGetMapLocalPosition(x, y, out Vector3 localPosition);
-        return localPosition;
-    }
-
-    private bool TryGetMapLocalPosition(double longitude, double latitude, out Vector3 localPosition)
-    {
-        localPosition = Vector3.zero;
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub == null)
+        for (int i = poiList.Count - 1; i >= 0; i--)
         {
-            return false;
-        }
-
-        return hub.InvokeTryLongitudeLatitudeToLocal(hub.plateMapName, longitude, latitude, out localPosition);
-    }
-
-    /// <summary>车辆点位与 mesh 共用 sd_map 根节点局部坐标。</summary>
-    private Transform ResolveMapRootTransform()
-    {
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub != null && !string.IsNullOrEmpty(hub.plateMapName))
-        {
-            PlateMapGeoConverter[] converters = FindObjectsByType<PlateMapGeoConverter>(
-                FindObjectsInactive.Include, FindObjectsSortMode.None);
-            for (int i = 0; i < converters.Length; i++)
+            POIData data = poiList[i];
+            if (data == null || data.type != type)
             {
-                if (converters[i].gameObject.name == hub.plateMapName)
-                {
-                    return converters[i].transform;
-                }
+                continue;
+            }
+
+            if (data.obj != null)
+            {
+                Destroy(data.obj);
+            }
+
+            poiList.RemoveAt(i);
+        }
+    }
+
+    /// <summary>删除全部 POI。</summary>
+    public void RemoveAllPoi()
+    {
+        for (int i = poiList.Count - 1; i >= 0; i--)
+        {
+            POIData data = poiList[i];
+            if (data?.obj != null)
+            {
+                Destroy(data.obj);
             }
         }
 
+        poiList.Clear();
+    }
+
+    public Vector3 GetWorldPosition(string provinceCode, double longitude, double latitude)
+    {
+        TryGetMapLocalPosition(provinceCode, longitude, latitude, out Vector3 localPosition);
+        if (!PlateMapAPI.Instance.TryResolvePlateMapName(provinceCode, out string plateMapName))
+        {
+            return localPosition;
+        }
+        Transform plateRoot = ResolvePlateRootTransform(plateMapName);
+        return plateRoot.TransformPoint(localPosition);
+    }
+
+    private bool TryGetMapLocalPosition(string provinceCode, double longitude, double latitude, out Vector3 localPosition)
+    {
+        return PlateMapAPI.Instance.TryLongitudeLatitudeToLocal(provinceCode, longitude, latitude, out localPosition);
+    }
+
+    private bool TryResolvePoiPrefab(POIType type, out GameObject prefab, out Vector3 targetScale)
+    {
+        for (int i = 0; i < _poiTypeConfigs.Count; i++)
+        {
+            PoiTypeConfig cfg = _poiTypeConfigs[i];
+            if (cfg.type != type || cfg.prefab == null)
+            {
+                continue;
+            }
+
+            prefab = cfg.prefab;
+            targetScale = cfg.usePrefabScale ? cfg.prefab.transform.localScale : cfg.customScale;
+            return true;
+        }
+
+        if (poiData != null && poiData.obj != null)
+        {
+            prefab = poiData.obj;
+            targetScale = poiData.obj.transform.localScale;
+            return true;
+        }
+
+        prefab = null;
+        targetScale = Vector3.one;
+        return false;
+    }
+
+    private Transform ResolvePlateRootTransform(string plateMapName)
+    {
+        PlateMapGeoConverter[] converters = FindObjectsByType<PlateMapGeoConverter>(
+            FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < converters.Length; i++)
+        {
+            if (converters[i].gameObject.name == plateMapName ||
+                converters[i].transform.name == plateMapName)
+            {
+                return converters[i].transform;
+            }
+        }
         return transform;
     }
 }

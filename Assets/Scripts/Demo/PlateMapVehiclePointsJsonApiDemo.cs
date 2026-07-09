@@ -8,7 +8,7 @@ using UnityEngine;
 public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePointsJsonApiDemo>
 {
     [Header("目标板块")]
-    [SerializeField] private string _plateMapName = "sd_map (1)";
+    [SerializeField] private string _provinceCode = "370000";
 
     [Header("测试数据生成")]
     [SerializeField] private PlateMapShandongProvincePointFilter _provinceFilter = new PlateMapShandongProvincePointFilter();
@@ -32,8 +32,13 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
     [ContextMenu("生成测试JSON并推送API")]
     public void GenerateTestJsonAndPushApi()
     {
+        if (!PlateMapAPI.Instance.TryResolvePlateMapName(_provinceCode, out string plateMapName))
+        {
+            plateMapName = _provinceCode;
+        }
+
         VehicleMapPointData[] points = PlateMapShandongTestPointGenerator.GenerateFiltered(
-            _plateMapName, _provinceFilter, _randomGenerateCount, _randomSeed);
+            plateMapName, _provinceFilter, _randomGenerateCount, _randomSeed);
 
         if (points.Length == 0)
         {
@@ -48,9 +53,9 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
         TryExportJsonToAssets(json);
 #endif
 
-        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, json);
+        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_provinceCode, json);
         Debug.Log(ok
-            ? $"[PlateMapVehiclePointsJsonApiDemo] 已推送到 {_plateMapName}，{points.Length} 个点。"
+            ? $"[PlateMapVehiclePointsJsonApiDemo] 已推送到 provinceCode={_provinceCode}，{points.Length} 个点。"
             : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
     }
 
@@ -63,8 +68,8 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
             return;
         }
 
-        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_plateMapName, _sampleJsonAsset.text);
-        Debug.Log(ok ? $"[PlateMapVehiclePointsJsonApiDemo] 样本 JSON 已推送到 {_plateMapName}。" : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
+        bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_provinceCode, _sampleJsonAsset.text);
+        Debug.Log(ok ? $"[PlateMapVehiclePointsJsonApiDemo] 样本 JSON 已推送到 provinceCode={_provinceCode}。" : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
     }
 
     private static void LogJsonPreview(string json)
