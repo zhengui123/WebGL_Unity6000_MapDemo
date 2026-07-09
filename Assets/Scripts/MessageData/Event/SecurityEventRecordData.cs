@@ -24,6 +24,24 @@ public class SecurityEventRecordData
     public string attack_status;
     public string longitude;
     public string latitude;
+    public string name;
+    public string level;
+    public string happen_time;
+    public string version;
+
+    /// <summary>尝试解析经纬度（record_data 中为字符串）。</summary>
+    public bool TryGetLongitudeLatitude(out double longitudeValue, out double latitudeValue)
+    {
+        longitudeValue = 0d;
+        latitudeValue = 0d;
+        if (string.IsNullOrWhiteSpace(longitude) || string.IsNullOrWhiteSpace(latitude))
+        {
+            return false;
+        }
+
+        return double.TryParse(longitude.Trim(), out longitudeValue)
+            && double.TryParse(latitude.Trim(), out latitudeValue);
+    }
 
     public string BuildBrandSeriesModelDisplay(string emptyPlaceholder = "-")
     {

@@ -94,11 +94,47 @@ public static class SecurityEventDetailApi
             return false;
         }
 
+        if (response.data != null)
+        {
+            ApplyRecordData(response.data);
+        }
+
+        return true;
+    }
+
+    /// <summary>解析并附加 data.record_data 结构化数据。</summary>
+    public static bool ApplyRecordData(SecurityEventDetailData data)
+    {
+        if (data == null)
+        {
+            return false;
+        }
+
+        if (!data.TryApplyRecordData(out string errorMessage))
+        {
+            Debug.LogWarning($"[SecurityEventDetailApi] record_data 解析失败：{errorMessage}");
+            return false;
+        }
+
+        if (data.TryGetRecordLongitudeLatitude(out double longitude, out double latitude))
+        {
+            Debug.Log($"[SecurityEventDetailApi] record_data 经纬度：longitude={longitude}, latitude={latitude}");
+        }
+        else
+        {
+            Debug.LogWarning("[SecurityEventDetailApi] record_data 中未包含有效经纬度。");
+        }
+
         return true;
     }
 
     private static void RaiseRequestCompleted(HttpRequestResult result, SecurityEventDetailResponse response)
     {
+        if (result != null && result.IsSuccess && response != null && response.IsSuccess && response.data != null)
+        {
+            ApplyRecordData(response.data);
+        }
+
         RequestCompleted?.Invoke(result, response);
     }
 

@@ -39,6 +39,31 @@ public class SecurityEventDetailData
     public string metri_tag_pk_id;
     public string saasInnerEventType;
 
+    /// <summary>由 <see cref="record_data"/> 解析得到的结构化数据（请求成功后填充）。</summary>
+    public SecurityEventRecordData ParsedRecordData { get; private set; }
+
+    /// <summary>解析 record_data 并写入 <see cref="ParsedRecordData"/>。</summary>
+    public bool TryApplyRecordData(out string errorMessage)
+    {
+        if (!TryParseRecordData(out SecurityEventRecordData record, out errorMessage))
+        {
+            ParsedRecordData = null;
+            return false;
+        }
+
+        ParsedRecordData = record;
+        return true;
+    }
+
+    /// <summary>从已解析的 record_data 获取经纬度。</summary>
+    public bool TryGetRecordLongitudeLatitude(out double longitude, out double latitude)
+    {
+        longitude = 0d;
+        latitude = 0d;
+        return ParsedRecordData != null
+            && ParsedRecordData.TryGetLongitudeLatitude(out longitude, out latitude);
+    }
+
     /// <summary>面板：事件名称 + 等级，如「攻防演练-攻击成功 高[10]」。</summary>
     public string BuildEventNameDisplay()
     {
