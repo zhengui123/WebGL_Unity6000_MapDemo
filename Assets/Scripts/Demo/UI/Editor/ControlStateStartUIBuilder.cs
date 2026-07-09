@@ -707,7 +707,7 @@ public static class ControlStateStartUIBuilder
         Text httpsPresetButtonText = httpsPresetButtonGo.GetComponentInChildren<Text>();
         if (httpsPresetButtonText != null)
         {
-            httpsPresetButtonText.text = "预设：HTTPS 测试 getBasicEventPage";
+            httpsPresetButtonText.text = "预设：HTTPS 测试 getSecurityEventDetail";
             httpsPresetButtonText.fontSize = 12;
         }
         contentY -= 36f;

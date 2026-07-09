@@ -78,9 +78,9 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>HTTPS 测试环境事件分页接口路径。</summary>
+    /// <summary>HTTPS 测试环境告警详情接口路径。</summary>
 
-    public const string EventQueryPath = "/api/business/event/getBasicEventPage";
+    public const string SecurityEventDetailPath = "/api/business/event/getSecurityEventDetail";
 
 
 
@@ -96,9 +96,9 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>HTTPS 测试环境 getBasicEventPage 完整 URL。</summary>
+    /// <summary>HTTPS 测试环境 getSecurityEventDetail 完整 URL。</summary>
 
-    public static string DefaultHttpsTestEventQueryUrl => BuildHttpsTestApiUrl(EventQueryPath);
+    public static string DefaultHttpsTestSecurityEventDetailUrl => BuildHttpsTestApiUrl(SecurityEventDetailPath);
 
 
 

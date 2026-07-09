@@ -1,10 +1,10 @@
 using System;
 
 /// <summary>
-/// 告警事件 recordData 原始 JSON 结构（字段按后端实际返回可增补）。
+/// 告警事件 record_data 原始 JSON 结构。
 /// </summary>
 [Serializable]
-public class BasicEventRecordData
+public class SecurityEventRecordData
 {
     public string vin;
     public string source_ip;
@@ -21,6 +21,9 @@ public class BasicEventRecordData
     public string part_id;
     public string ids_name;
     public string ids_type;
+    public string attack_status;
+    public string longitude;
+    public string latitude;
 
     public string BuildBrandSeriesModelDisplay(string emptyPlaceholder = "-")
     {

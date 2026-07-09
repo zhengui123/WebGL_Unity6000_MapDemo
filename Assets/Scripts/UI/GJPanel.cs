@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 告警面板（UI/Canvas/GJ_Panel）：显示首条告警事件字段，支持显隐与接口联动。
+/// 告警面板（UI/Canvas/GJ_Panel）：仅负责显隐与字段赋值，不发起 HTTP 请求。
 /// </summary>
 [DisallowMultipleComponent]
 public class GJPanel : MonoBehaviour
@@ -25,11 +24,9 @@ public class GJPanel : MonoBehaviour
 
     [Header("启动行为")]
     [SerializeField] private bool _hideOnAwake = true;
-    [SerializeField] private bool _requestOnStart;
 
-    private BasicEventItem _currentEvent;
+    private SecurityEventDetailData _currentEvent;
 
-    /// <summary>场景内告警面板实例（含未激活对象）。</summary>
     public static GJPanel Instance
     {
         get
@@ -44,8 +41,7 @@ public class GJPanel : MonoBehaviour
         }
     }
 
-    /// <summary>当前展示的事件数据。</summary>
-    public BasicEventItem CurrentEvent => _currentEvent;
+    public SecurityEventDetailData CurrentEvent => _currentEvent;
 
     private void Awake()
     {
@@ -73,37 +69,24 @@ public class GJPanel : MonoBehaviour
         }
     }
 
-    private void Start()
-    {
-        if (_requestOnStart)
-        {
-            RequestAndShowFirstEvent();
-        }
-    }
-
-    /// <summary>显示告警面板。</summary>
     public void ShowPanel()
     {
         gameObject.SetActive(true);
     }
 
-    /// <summary>隐藏告警面板。</summary>
     public void HidePanel()
     {
         gameObject.SetActive(false);
     }
 
-    /// <summary>面板是否处于激活显示状态。</summary>
     public bool IsVisible => gameObject.activeSelf;
 
-    /// <summary>设置标题文本。</summary>
     public void SetTitle(string title)
     {
         EnsureReferences();
         SetText(_titleText, string.IsNullOrEmpty(title) ? DefaultTitle : title);
     }
 
-    /// <summary>按字段名动态修改面板内容。</summary>
     public void SetFieldValues(
         string eventName = null,
         string riskName = null,
@@ -121,61 +104,35 @@ public class GJPanel : MonoBehaviour
         if (vehicleInfo != null) SetText(_vehicleInfoText, vehicleInfo);
     }
 
-    /// <summary>使用告警事件对象刷新全部字段。</summary>
-    public void SetEventData(BasicEventItem item)
+    public void SetEventData(SecurityEventDetailData data)
     {
-        _currentEvent = item;
-        if (item == null)
+        _currentEvent = data;
+        if (data == null)
         {
             SetFieldValues("-", "-", "-", "-", "-", "-");
             return;
         }
 
         SetFieldValues(
-            item.BuildEventNameDisplay(),
-            item.riskTypeName,
-            item.happenTime,
-            item.vin,
-            item.partTypeName,
-            item.BuildVehicleInfoDisplay());
+            data.BuildEventNameDisplay(),
+            data.risk_type_name,
+            data.happen_time,
+            data.vin,
+            data.part_type_name,
+            data.BuildVehicleInfoDisplay());
     }
 
-    /// <summary>请求告警事件列表并展示首条数据。</summary>
-    public void RequestAndShowFirstEvent(
-        int pageNo = 1,
-        int pageSize = 10,
-        string startTime = null,
-        string endTime = null,
-        Dictionary<string, string> additionalHeaders = null,
-        bool showPanelOnSuccess = true)
+    /// <summary>使用响应 data 赋值并显示面板。</summary>
+    public bool ApplyDetailData(SecurityEventDetailData data, bool showPanel = true)
     {
-        BasicEventPageApi.RequestFirstEvent(
-            pageNo,
-            pageSize,
-            startTime,
-            endTime,
-            (result, item) => OnFirstEventLoaded(result, item, showPanelOnSuccess),
-            additionalHeaders);
-    }
-
-    /// <summary>使用接口响应刷新面板（取 list 第一条）。</summary>
-    public bool ApplyResponse(BasicEventPageResponse response, bool showPanelOnSuccess = true)
-    {
-        if (response == null || !response.IsSuccess)
+        if (data == null)
         {
-            Debug.LogWarning("[GJPanel] 响应为空或业务失败，未刷新面板。");
+            Debug.LogWarning("[GJPanel] data 为空，未刷新面板。");
             return false;
         }
 
-        BasicEventItem first = response.GetFirstEvent();
-        if (first == null)
-        {
-            Debug.LogWarning("[GJPanel] 告警列表为空，未刷新面板。");
-            return false;
-        }
-
-        SetEventData(first);
-        if (showPanelOnSuccess)
+        SetEventData(data);
+        if (showPanel)
         {
             ShowPanel();
         }
@@ -183,77 +140,27 @@ public class GJPanel : MonoBehaviour
         return true;
     }
 
-    private void OnFirstEventLoaded(HttpRequestResult result, BasicEventItem item, bool showPanelOnSuccess)
+    /// <summary>使用完整响应赋值并显示面板。</summary>
+    public bool ApplyResponse(SecurityEventDetailResponse response, bool showPanel = true)
     {
-        if (result == null)
+        if (response == null || !response.IsSuccess || response.data == null)
         {
-            Debug.LogWarning("[GJPanel] 告警请求结果为空。");
-            return;
+            Debug.LogWarning("[GJPanel] 响应为空或业务失败，未刷新面板。");
+            return false;
         }
 
-        if (result.IsCancelled)
-        {
-            Debug.Log("[GJPanel] 告警请求已取消。");
-            return;
-        }
-
-        if (!result.IsSuccess)
-        {
-            Debug.LogWarning($"[GJPanel] 告警请求失败：{result.Error}");
-            return;
-        }
-
-        if (item == null)
-        {
-            Debug.LogWarning("[GJPanel] 告警列表无数据。");
-            return;
-        }
-
-        SetEventData(item);
-        if (showPanelOnSuccess)
-        {
-            ShowPanel();
-        }
-
-        Debug.Log($"[GJPanel] 已展示首条告警：{item.eventName} / {item.vin}");
+        return ApplyDetailData(response.data, showPanel);
     }
 
     private void EnsureReferences()
     {
-        if (_titleText == null)
-        {
-            _titleText = FindText("TitleText");
-        }
-
-        if (_eventNameText == null)
-        {
-            _eventNameText = FindText("MessageList/EventName/EventText");
-        }
-
-        if (_riskNameText == null)
-        {
-            _riskNameText = FindText("MessageList/FXName/FXText");
-        }
-
-        if (_happenTimeText == null)
-        {
-            _happenTimeText = FindText("MessageList/TimeName/TimeText");
-        }
-
-        if (_vinText == null)
-        {
-            _vinText = FindText("MessageList/VinName/VinText");
-        }
-
-        if (_partTypeText == null)
-        {
-            _partTypeText = FindText("MessageList/LJName/LJText");
-        }
-
-        if (_vehicleInfoText == null)
-        {
-            _vehicleInfoText = FindText("MessageList/PPName/PPText");
-        }
+        if (_titleText == null) _titleText = FindText("TitleText");
+        if (_eventNameText == null) _eventNameText = FindText("MessageList/EventName/EventText");
+        if (_riskNameText == null) _riskNameText = FindText("MessageList/FXName/FXText");
+        if (_happenTimeText == null) _happenTimeText = FindText("MessageList/TimeName/TimeText");
+        if (_vinText == null) _vinText = FindText("MessageList/VinName/VinText");
+        if (_partTypeText == null) _partTypeText = FindText("MessageList/LJName/LJText");
+        if (_vehicleInfoText == null) _vehicleInfoText = FindText("MessageList/PPName/PPText");
     }
 
     private Text FindText(string path)

@@ -9,11 +9,12 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class HttpApiTestUIDemo : MonoBehaviour
 {
-    public static string DefaultGetUrl => HttpProjectConfig.DefaultHttpsTestEventQueryUrl;
+    public static string DefaultGetUrl => HttpProjectConfig.DefaultHttpsTestSecurityEventDetailUrl;
     public static string DefaultPostHost => HttpProjectConfig.ApiHost;
     public const string DefaultPostPath = HttpProjectConfig.WorkOrderDisposalOverviewPath;
     public static string DefaultHttpsTestPostHost => HttpProjectConfig.HttpsTestApiHost;
-    public const string DefaultHttpsTestPostPath = HttpProjectConfig.EventQueryPath;
+    public const string DefaultHttpsTestPostPath = HttpProjectConfig.SecurityEventDetailPath;
+    public const string DefaultHttpsTestPostBody = SecurityEventDetailRequest.DefaultJson;
     public const string DefaultPostBody = ComprehensiveRegionRequest.DefaultJson;
 
     private static IReadOnlyList<(string Key, string Value)> DefaultHeaders => HttpProjectConfig.DefaultHeaders;
@@ -298,13 +299,14 @@ public class HttpApiTestUIDemo : MonoBehaviour
         SetInputText(_postBodyInput, DefaultPostBody);
     }
 
-    /// <summary>一键切换 GET/POST 为 HTTPS 测试环境（getBasicEventPage）。</summary>
+    /// <summary>一键切换 GET/POST 为 HTTPS 测试环境（getSecurityEventDetail）。</summary>
     public void ApplyHttpsTestPreset()
     {
         ApplyHttpsTestGetDefaults();
         SetInputText(_postHostInput, DefaultHttpsTestPostHost);
         SetInputText(_postPathInput, DefaultHttpsTestPostPath);
-        SetJsonResultText("已切换为 HTTPS 测试环境（GET/POST getBasicEventPage）");
+        SetInputText(_postBodyInput, DefaultHttpsTestPostBody);
+        SetJsonResultText("已切换为 HTTPS 测试环境（getSecurityEventDetail）");
     }
 
     /// <summary>一键切换 GET/POST 为内网 HTTP 业务接口。</summary>
@@ -737,7 +739,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         SetJsonResultText(successText, result.RawBody);
         Debug.Log($"[HttpApiTestUIDemo] {method} 成功，状态码={result.StatusCode}");
 
-        TryApplyBasicEventResponseToGJPanel(result.RawBody);
+        TryApplySecurityEventDetailToGJPanel(result.RawBody);
 
         if (method == "GET")
         {
@@ -762,9 +764,9 @@ public class HttpApiTestUIDemo : MonoBehaviour
         return builder.ToString();
     }
 
-    private static void TryApplyBasicEventResponseToGJPanel(string rawBody)
+    private static void TryApplySecurityEventDetailToGJPanel(string rawBody)
     {
-        if (!BasicEventPageApi.TryParseResponse(rawBody, out BasicEventPageResponse response, out _))
+        if (!SecurityEventDetailApi.TryParseResponse(rawBody, out SecurityEventDetailResponse response, out _))
         {
             return;
         }
@@ -775,7 +777,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             return;
         }
 
-        panel.ApplyResponse(response, showPanelOnSuccess: true);
+        panel.ApplyResponse(response, showPanel: true);
     }
 
     private static void TryLogParsedGetResponse(string rawBody)

@@ -34143,6 +34143,10 @@ MonoBehaviour:
   _panel: {fileID: 0}
   _runOnStart: 0
   _requestKey: 103
+  _eventId: ee8d2bc64cbf4bfbb33b875a717c416a
+  _processStartTime: 2026-06-26 16:13:30
+  _processEndTime: 2026-06-26 16:13:30
+  _passwd: 0
 --- !u!1 &520907969
 GameObject:
   m_ObjectHideFlags: 0
@@ -167315,7 +167319,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2008089228
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177485,7 +177489,6 @@ MonoBehaviour:
   _partTypeText: {fileID: 0}
   _vehicleInfoText: {fileID: 0}
   _hideOnAwake: 1
-  _requestOnStart: 0
 --- !u!4 &9027001341514865913
 Transform:
   m_ObjectHideFlags: 0
