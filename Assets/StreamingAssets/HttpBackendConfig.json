@@ -1,6 +1,8 @@
 {
   "apiHost": "10.60.16.96:38000",
   "useHttps": false,
+  "httpsTestApiHost": "metritag.vsoc.saas.test.press.com:10778",
+  "skipSslCertificateValidation": true,
   "headers": [
     {
       "key": "Satoken",

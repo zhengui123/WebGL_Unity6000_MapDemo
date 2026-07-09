@@ -9,8 +9,17 @@ public class HttpBackendConfigFile
     /// <summary>主机地址（IP:端口 或 域名:端口，不含协议）。</summary>
     public string apiHost;
 
-    /// <summary>是否使用 HTTPS；false 为 HTTP。</summary>
+    /// <summary>是否使用 HTTPS。</summary>
     public bool useHttps;
+
+    /// <summary>
+    /// 是否跳过 HTTPS 证书校验（仅开发/内网调试）。
+    /// 用于自签名证书、用 IP 访问但证书 CN 为域名等场景。
+    /// </summary>
+    public bool skipSslCertificateValidation;
+
+    /// <summary>HTTPS 测试环境主机（域名:端口，不含协议）。</summary>
+    public string httpsTestApiHost;
 
     /// <summary>默认请求头列表。</summary>
     public HttpBackendHeaderEntry[] headers;

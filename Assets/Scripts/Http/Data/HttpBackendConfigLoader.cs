@@ -69,9 +69,19 @@ public static class HttpBackendConfigLoader
     {
         string apiHost = string.IsNullOrWhiteSpace(file.apiHost) ? defaults.ApiHost : file.apiHost.Trim();
         bool useHttps = file.useHttps;
+        bool skipSsl = file.skipSslCertificateValidation;
+        string httpsTestHost = string.IsNullOrWhiteSpace(file.httpsTestApiHost)
+            ? defaults.HttpsTestApiHost
+            : file.httpsTestApiHost.Trim();
         List<(string Key, string Value)> headers = BuildHeaders(file.headers, defaults.HeaderEntries);
 
-        return new HttpBackendResolvedConfig(apiHost, useHttps, headers, loadedFromFile: true);
+        return new HttpBackendResolvedConfig(
+            apiHost,
+            useHttps,
+            skipSsl,
+            httpsTestHost,
+            headers,
+            loadedFromFile: true);
     }
 
     private static List<(string Key, string Value)> BuildHeaders(
@@ -122,6 +132,8 @@ public sealed class HttpBackendResolvedConfig
 {
     public string ApiHost { get; }
     public bool UseHttps { get; }
+    public bool SkipSslCertificateValidation { get; }
+    public string HttpsTestApiHost { get; }
     public string ApiScheme => UseHttps ? "https" : "http";
     public IReadOnlyList<(string Key, string Value)> HeaderEntries { get; }
     public bool LoadedFromFile { get; }
@@ -129,11 +141,15 @@ public sealed class HttpBackendResolvedConfig
     public HttpBackendResolvedConfig(
         string apiHost,
         bool useHttps,
+        bool skipSslCertificateValidation,
+        string httpsTestApiHost,
         List<(string Key, string Value)> headerEntries,
         bool loadedFromFile)
     {
         ApiHost = apiHost;
         UseHttps = useHttps;
+        SkipSslCertificateValidation = skipSslCertificateValidation;
+        HttpsTestApiHost = httpsTestApiHost;
         HeaderEntries = headerEntries;
         LoadedFromFile = loadedFromFile;
     }
@@ -144,12 +160,16 @@ public sealed class HttpBackendResolvedConfig
         return new HttpBackendResolvedConfig(
             DefaultApiHost,
             DefaultUseHttps,
+            DefaultSkipSslCertificateValidation,
+            DefaultHttpsTestApiHost,
             new List<(string Key, string Value)>(DefaultHeaderEntries),
             loadedFromFile: false);
     }
 
     public const string DefaultApiHost = "10.60.16.96:38000";
     public const bool DefaultUseHttps = false;
+    public const bool DefaultSkipSslCertificateValidation = true;
+    public const string DefaultHttpsTestApiHost = "metritag.vsoc.saas.test.press.com:10778";
 
     private static readonly (string Key, string Value)[] DefaultHeaderEntries =
     {

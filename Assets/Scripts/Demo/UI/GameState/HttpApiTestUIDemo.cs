@@ -9,9 +9,11 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class HttpApiTestUIDemo : MonoBehaviour
 {
-    public const string DefaultGetUrl = "https://jsonplaceholder.typicode.com/todos/1";
+    public static string DefaultGetUrl => HttpProjectConfig.DefaultHttpsTestEventQueryUrl;
     public static string DefaultPostHost => HttpProjectConfig.ApiHost;
     public const string DefaultPostPath = HttpProjectConfig.WorkOrderDisposalOverviewPath;
+    public static string DefaultHttpsTestPostHost => HttpProjectConfig.HttpsTestApiHost;
+    public const string DefaultHttpsTestPostPath = HttpProjectConfig.EventQueryPath;
     public const string DefaultPostBody = ComprehensiveRegionRequest.DefaultJson;
 
     private static IReadOnlyList<(string Key, string Value)> DefaultHeaders => HttpProjectConfig.DefaultHeaders;
@@ -19,6 +21,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
     [Header("GET")]
     [SerializeField] private InputField _getUrlInput;
     [SerializeField] private Button _getButton;
+    [SerializeField] private Button _applyHttpsTestPresetButton;
+    [SerializeField] private Button _applyInternalHttpPresetButton;
 
     [Header("POST")]
     [SerializeField] private InputField _postHostInput;
@@ -176,6 +180,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
     private void Start()
     {
         EnsureSubPanelReferences();
+        BindPresetButtonsIfNeeded();
         EnsureJsonResultUi();
         EnsureFallbackResponseLabelFitter();
         ApplyDefaultValues();
@@ -184,11 +189,36 @@ public class HttpApiTestUIDemo : MonoBehaviour
         RefreshRequestButtons(HttpService.Instance != null && HttpService.Instance.IsRequestInProgress);
     }
 
+    private void BindPresetButtonsIfNeeded()
+    {
+        if (_applyHttpsTestPresetButton != null)
+        {
+            _applyHttpsTestPresetButton.onClick.RemoveListener(ApplyHttpsTestPreset);
+            _applyHttpsTestPresetButton.onClick.AddListener(ApplyHttpsTestPreset);
+        }
+
+        if (_applyInternalHttpPresetButton != null)
+        {
+            _applyInternalHttpPresetButton.onClick.RemoveListener(ApplyInternalHttpPreset);
+            _applyInternalHttpPresetButton.onClick.AddListener(ApplyInternalHttpPreset);
+        }
+    }
+
     private void OnDestroy()
     {
         if (_getButton != null)
         {
             _getButton.onClick.RemoveListener(OnGetButtonClicked);
+        }
+
+        if (_applyHttpsTestPresetButton != null)
+        {
+            _applyHttpsTestPresetButton.onClick.RemoveListener(ApplyHttpsTestPreset);
+        }
+
+        if (_applyInternalHttpPresetButton != null)
+        {
+            _applyInternalHttpPresetButton.onClick.RemoveListener(ApplyInternalHttpPreset);
         }
 
         if (_postButton != null)
@@ -244,16 +274,45 @@ public class HttpApiTestUIDemo : MonoBehaviour
 
     private void ApplyDefaultValues()
     {
-        SetInputText(_getUrlInput, DefaultGetUrl);
-        SetInputText(_postHostInput, DefaultPostHost);
-        SetInputText(_postPathInput, DefaultPostPath);
-        SetInputText(_postBodyInput, DefaultPostBody);
+        ApplyHttpsTestGetDefaults();
+        ApplyInternalHttpPostDefaults();
         SetInputText(_vinStartTimeInput, HttpProjectConfig.DefaultQueryStartTime);
         SetInputText(_vinEndTimeInput, BackendDateTimeTool.GetCurrentTimeString());
         SetInputText(_vinProvinceInput, string.Empty);
         SetInputText(_vinRegionInput, string.Empty);
         SetInputText(_vinCountryInput, string.Empty);
         SetJsonResultText("等待请求...");
+    }
+
+    /// <summary>应用 HTTPS 测试环境 GET 默认地址。</summary>
+    public void ApplyHttpsTestGetDefaults()
+    {
+        SetInputText(_getUrlInput, DefaultGetUrl);
+    }
+
+    /// <summary>应用内网 HTTP POST 默认主机与路径。</summary>
+    public void ApplyInternalHttpPostDefaults()
+    {
+        SetInputText(_postHostInput, DefaultPostHost);
+        SetInputText(_postPathInput, DefaultPostPath);
+        SetInputText(_postBodyInput, DefaultPostBody);
+    }
+
+    /// <summary>一键切换 GET/POST 为 HTTPS 测试环境（getBasicEventPage）。</summary>
+    public void ApplyHttpsTestPreset()
+    {
+        ApplyHttpsTestGetDefaults();
+        SetInputText(_postHostInput, DefaultHttpsTestPostHost);
+        SetInputText(_postPathInput, DefaultHttpsTestPostPath);
+        SetJsonResultText("已切换为 HTTPS 测试环境（GET/POST getBasicEventPage）");
+    }
+
+    /// <summary>一键切换 GET/POST 为内网 HTTP 业务接口。</summary>
+    public void ApplyInternalHttpPreset()
+    {
+        SetInputText(_getUrlInput, HttpProjectConfig.BuildApiUrl(HttpProjectConfig.WorkOrderDisposalOverviewPath));
+        ApplyInternalHttpPostDefaults();
+        SetJsonResultText("已切换为内网 HTTP 业务接口");
     }
 
     private void InitializeDefaultHeaderRows()
@@ -739,7 +798,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             path = "/" + path;
         }
 
-        url = host.Contains("://") ? $"{host}{path}" : $"{HttpProjectConfig.ApiScheme}://{host}{path}";
+        url = HttpProjectConfig.BuildUrlForHost(host, path);
         return true;
     }
 
@@ -1065,6 +1124,24 @@ public class HttpApiTestUIDemo : MonoBehaviour
             if (content != null)
             {
                 _formScrollContent = content.GetComponent<RectTransform>();
+            }
+        }
+
+        if (_applyHttpsTestPresetButton == null && _formScrollContent != null)
+        {
+            Transform button = _formScrollContent.Find("ApplyHttpsTestPresetButton");
+            if (button != null)
+            {
+                _applyHttpsTestPresetButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_applyInternalHttpPresetButton == null && _formScrollContent != null)
+        {
+            Transform button = _formScrollContent.Find("ApplyInternalHttpPresetButton");
+            if (button != null)
+            {
+                _applyInternalHttpPresetButton = button.GetComponent<Button>();
             }
         }
     }

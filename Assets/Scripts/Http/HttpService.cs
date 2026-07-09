@@ -198,7 +198,7 @@ public class HttpService : UnitySingle<HttpService>
 
         UnityWebRequest request = UnityWebRequest.Get(url);
         _activeRequest = request;
-        ApplyRequestSettings(request, headers);
+        ApplyRequestSettings(request, url, headers);
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
@@ -235,7 +235,7 @@ public class HttpService : UnitySingle<HttpService>
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         _activeRequest = request;
-        ApplyRequestSettings(request, headers, setJsonContentType: true);
+        ApplyRequestSettings(request, url, headers, setJsonContentType: true);
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
@@ -261,10 +261,16 @@ public class HttpService : UnitySingle<HttpService>
 
     private void ApplyRequestSettings(
         UnityWebRequest request,
+        string url,
         Dictionary<string, string> headers,
         bool setJsonContentType = false)
     {
         request.timeout = Mathf.Max(1, Mathf.RoundToInt(_timeoutSeconds));
+
+        if (ShouldBypassSslValidation(url))
+        {
+            request.certificateHandler = new DevBypassCertificateHandler();
+        }
 
         if (setJsonContentType)
         {
@@ -283,6 +289,17 @@ public class HttpService : UnitySingle<HttpService>
                 request.SetRequestHeader(header.Key, header.Value ?? string.Empty);
             }
         }
+    }
+
+    private static bool ShouldBypassSslValidation(string url)
+    {
+        if (!HttpProjectConfig.SkipSslCertificateValidation)
+        {
+            return false;
+        }
+
+        return !string.IsNullOrEmpty(url)
+            && url.StartsWith("https://", StringComparison.OrdinalIgnoreCase);
     }
 
     private static bool TryValidateUrl(string url, out string errorMessage)
@@ -351,9 +368,36 @@ public class HttpService : UnitySingle<HttpService>
         if (isNetworkError)
         {
             string error = string.IsNullOrEmpty(request.error) ? "HTTP 请求失败" : request.error;
-            return HttpRequestResult.Failure(error, statusCode, body);
+            return HttpRequestResult.Failure(EnhanceSslErrorMessage(error), statusCode, body);
         }
 
         return HttpRequestResult.Success(statusCode, body);
+    }
+
+    private static string EnhanceSslErrorMessage(string error)
+    {
+        if (string.IsNullOrEmpty(error))
+        {
+            return error;
+        }
+
+        bool isSslError = error.IndexOf("SSL", StringComparison.OrdinalIgnoreCase) >= 0
+            || error.IndexOf("certificate", StringComparison.OrdinalIgnoreCase) >= 0
+            || error.IndexOf("Cert verify", StringComparison.OrdinalIgnoreCase) >= 0
+            || error.IndexOf("UnityTls", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        if (!isSslError)
+        {
+            return error;
+        }
+
+        return error +
+               "\n\n【SSL 证书校验失败】常见原因：" +
+               "\n1. 用 IP 访问 HTTPS，但证书 CN/SAN 只签了域名（Curl 60 / UnityTls 7）" +
+               "\n2. 自签名或企业内网证书未被信任" +
+               "\n解决：" +
+               "\n- 内网测试优先用 http://（HttpBackendConfig.json 中 useHttps: false）" +
+               "\n- 或改用证书对应的域名访问" +
+               "\n- 仅开发环境可在 HttpBackendConfig.json 设置 skipSslCertificateValidation: true";
     }
 }

@@ -699,7 +699,29 @@ public static class ControlStateStartUIBuilder
             FieldWidth,
             HttpApiTestUIDemo.DefaultGetUrl,
             InputFieldFontSize);
-        contentY -= RowHeight + 8f;
+        contentY -= RowHeight + 4f;
+
+        GameObject httpsPresetButtonGo = DefaultControls.CreateButton(resources);
+        httpsPresetButtonGo.name = "ApplyHttpsTestPresetButton";
+        SetupChildRect(httpsPresetButtonGo, customRoot, 0f, contentY, PanelWidth - 48f, 32f);
+        Text httpsPresetButtonText = httpsPresetButtonGo.GetComponentInChildren<Text>();
+        if (httpsPresetButtonText != null)
+        {
+            httpsPresetButtonText.text = "预设：HTTPS 测试 getBasicEventPage";
+            httpsPresetButtonText.fontSize = 12;
+        }
+        contentY -= 36f;
+
+        GameObject httpPresetButtonGo = DefaultControls.CreateButton(resources);
+        httpPresetButtonGo.name = "ApplyInternalHttpPresetButton";
+        SetupChildRect(httpPresetButtonGo, customRoot, 0f, contentY, PanelWidth - 48f, 32f);
+        Text httpPresetButtonText = httpPresetButtonGo.GetComponentInChildren<Text>();
+        if (httpPresetButtonText != null)
+        {
+            httpPresetButtonText.text = "预设：内网 HTTP 业务接口";
+            httpPresetButtonText.fontSize = 12;
+        }
+        contentY -= 36f;
 
         GameObject getButtonGo = DefaultControls.CreateButton(resources);
         getButtonGo.name = "GetButton";
@@ -973,6 +995,10 @@ public static class ControlStateStartUIBuilder
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
         serializedDemo.FindProperty("_getUrlInput").objectReferenceValue = getUrlInput;
         serializedDemo.FindProperty("_getButton").objectReferenceValue = getButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_applyHttpsTestPresetButton").objectReferenceValue =
+            httpsPresetButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_applyInternalHttpPresetButton").objectReferenceValue =
+            httpPresetButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_postHostInput").objectReferenceValue = postHostInput;
         serializedDemo.FindProperty("_postPathInput").objectReferenceValue = postPathInput;
         serializedDemo.FindProperty("_postBodyInput").objectReferenceValue = postBodyInput;
