@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
 public class POI_Manager : UnitySingle<POI_Manager>
 {
     [System.Serializable]
@@ -13,25 +14,14 @@ public class POI_Manager : UnitySingle<POI_Manager>
     }
 
     [Header("类型配置")]
-    [Tooltip("旧接口未传类型时使用的默认类型。")]
-    [SerializeField] private POIType _defaultPoiType = POIType.yellow;
     [Tooltip("按 POIType 配置不同预制体。")]
     [SerializeField] private List<PoiTypeConfig> _poiTypeConfigs = new List<PoiTypeConfig>();
-    [Tooltip("兼容旧配置：当类型表未命中时使用。")]
-    [SerializeField] private POIData poiData;
 
     [Header("生成")]
-    public Vector3 scale => poiData != null && poiData.obj != null ? poiData.obj.transform.localScale : Vector3.one;
-
     [Tooltip("延迟结束后若地理转换未就绪，则每帧等待直至可转换")]
     [SerializeField] private bool _waitForGeoConverterReady = true;
+
     public List<POIData> poiList = new List<POIData>();
-    
-    /// <summary>在指定省级 code 对应板块上生成默认类型 POI。</summary>
-    public void SpawnPoi(string provinceCode, double longitude, double latitude)
-    {
-        SpawnPoi(provinceCode, _defaultPoiType, longitude, latitude);
-    }
 
     /// <summary>在指定省级 code 对应板块上生成指定类型 POI。</summary>
     public void SpawnPoi(string provinceCode, POIType type, double longitude, double latitude)
@@ -63,42 +53,10 @@ public class POI_Manager : UnitySingle<POI_Manager>
         AddPOI(new POIData(type, obj, longitude, latitude, localPos));
     }
 
-    /// <summary>兼容旧调用：使用 Hub 当前活动 code + 默认类型（不推荐）。</summary>
-    public void SpawnPoi(double longitude, double latitude)
-    {
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub == null || string.IsNullOrEmpty(hub.activeProvinceCode))
-        {
-            Debug.LogWarning("[POI_Manager] 旧接口 SpawnPoi(lon,lat) 缺少活动 provinceCode，请改用 SpawnPoi(provinceCode, lon, lat)。");
-            return;
-        }
-
-        SpawnPoi(hub.activeProvinceCode, _defaultPoiType, longitude, latitude);
-    }
-
-    /// <summary>延迟生成默认类型 POI。</summary>
-    public void SpawnPoiDelayed(string provinceCode, double longitude, double latitude)
-    {
-        StartCoroutine(SpawnPoiDelayedRoutine(provinceCode, _defaultPoiType, longitude, latitude));
-    }
-
     /// <summary>延迟生成指定类型 POI。</summary>
     public void SpawnPoiDelayed(string provinceCode, POIType type, double longitude, double latitude)
     {
         StartCoroutine(SpawnPoiDelayedRoutine(provinceCode, type, longitude, latitude));
-    }
-
-    /// <summary>兼容旧调用：使用 Hub 当前活动 code + 默认类型（不推荐）。</summary>
-    public void SpawnPoiDelayed(double longitude, double latitude)
-    {
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub == null || string.IsNullOrEmpty(hub.activeProvinceCode))
-        {
-            Debug.LogWarning("[POI_Manager] 旧接口 SpawnPoiDelayed(lon,lat) 缺少活动 provinceCode，请改用 SpawnPoiDelayed(provinceCode, lon, lat)。");
-            return;
-        }
-
-        SpawnPoiDelayed(hub.activeProvinceCode, _defaultPoiType, longitude, latitude);
     }
 
     private IEnumerator SpawnPoiDelayedRoutine(string provinceCode, POIType type, double longitude, double latitude)
@@ -107,6 +65,7 @@ public class POI_Manager : UnitySingle<POI_Manager>
         {
             yield return WaitUntilGeoConverterReady(provinceCode);
         }
+
         SpawnPoi(provinceCode, type, longitude, latitude);
     }
 
@@ -165,6 +124,7 @@ public class POI_Manager : UnitySingle<POI_Manager>
         {
             return localPosition;
         }
+
         Transform plateRoot = ResolvePlateRootTransform(plateMapName);
         return plateRoot.TransformPoint(localPosition);
     }
@@ -189,13 +149,6 @@ public class POI_Manager : UnitySingle<POI_Manager>
             return true;
         }
 
-        if (poiData != null && poiData.obj != null)
-        {
-            prefab = poiData.obj;
-            targetScale = poiData.obj.transform.localScale;
-            return true;
-        }
-
         prefab = null;
         targetScale = Vector3.one;
         return false;
@@ -213,6 +166,7 @@ public class POI_Manager : UnitySingle<POI_Manager>
                 return converters[i].transform;
             }
         }
+
         return transform;
     }
 }

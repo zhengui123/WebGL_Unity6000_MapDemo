@@ -157,6 +157,23 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
 
         TryFindMarkersByName();
+
+        if (!TryComputeMeshLocalBounds(out float meshMinX, out float meshMaxX, out float meshMinZ, out float meshMaxZ))
+        {
+            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」无法从网格计算 XZ 范围。");
+            return;
+        }
+
+        AssignSouthNorthLocalZFromMeshExtents(meshMinZ, meshMaxZ);
+
+        if (Math.Abs(_northLocalZ - _southLocalZ) < 1e-6f)
+        {
+            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」纬度方向局部 Z 范围无效。");
+            return;
+        }
+
+        EnsureWestEastMarkers(meshMinX, meshMaxX);
+
         if (_autoBindWestEastByLocalX)
         {
             BindWestEastByLocalX();
@@ -174,20 +191,6 @@ public class PlateMapGeoConverter : MonoBehaviour
             return;
         }
 
-        if (!TryComputeMeshLocalBounds(out _, out _, out float meshMinZ, out float meshMaxZ))
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」无法从网格计算 Z 范围。");
-            return;
-        }
-
-        AssignSouthNorthLocalZFromMeshExtents(meshMinZ, meshMaxZ);
-
-        if (Math.Abs(_northLocalZ - _southLocalZ) < 1e-6f)
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」纬度方向局部 Z 范围无效。");
-            return;
-        }
-
         _westAnchor.latitude = _southLatitude;
         _eastAnchor.latitude = _northLatitude;
         _isReady = true;
@@ -201,6 +204,52 @@ public class PlateMapGeoConverter : MonoBehaviour
             $"局部Z朝向北分量={localNorth.z:F4}");
 
         RefreshVehiclePointsDisplayIfPlaying();
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            UnityEditor.EditorUtility.SetDirty(this);
+        }
+#endif
+    }
+
+    /// <summary>
+    /// Marker 为空时，在板块 mesh 外接矩形左下（西/南）与右上（东/北）创建 Left / Right 子物体。
+    /// 本模型局部 X 向西增大：西缘取较大 X，东缘取较小 X。
+    /// </summary>
+    private void EnsureWestEastMarkers(float meshMinX, float meshMaxX)
+    {
+        float westLocalX = Mathf.Max(meshMinX, meshMaxX);
+        float eastLocalX = Mathf.Min(meshMinX, meshMaxX);
+
+        if (_westAnchor.marker == null)
+        {
+            _westAnchor.marker = CreateMarkerChild("Left", new Vector3(westLocalX, 0f, _southLocalZ));
+        }
+
+        if (_eastAnchor.marker == null)
+        {
+            _eastAnchor.marker = CreateMarkerChild("Right", new Vector3(eastLocalX, 0f, _northLocalZ));
+        }
+    }
+
+    private Transform CreateMarkerChild(string markerName, Vector3 localPosition)
+    {
+        var markerObject = new GameObject(markerName);
+        markerObject.transform.SetParent(_mapRoot, false);
+        markerObject.transform.localPosition = localPosition;
+        markerObject.transform.localRotation = Quaternion.identity;
+        markerObject.transform.localScale = Vector3.one;
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+        {
+            UnityEditor.Undo.RegisterCreatedObjectUndo(markerObject, $"Create {markerName}");
+            UnityEditor.EditorUtility.SetDirty(_mapRoot.gameObject);
+        }
+#endif
+
+        return markerObject.transform;
     }
 
     private bool TryApplyBoundaryFromDatabase()
