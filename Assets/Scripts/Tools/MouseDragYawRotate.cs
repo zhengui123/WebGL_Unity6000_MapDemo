@@ -60,8 +60,14 @@ public class MouseDragYawRotate : MonoBehaviour
         EndDrag();
     }
 
+    //同步测试
+    // public bool isOpenMouse = true;
     private void Update()
     {
+        //同步测试    
+        // if(!isOpenMouse)
+        // return;
+
         if (Input.GetMouseButtonDown(0))
         {
             TryBeginDrag();
@@ -274,6 +280,17 @@ public class MouseDragYawRotate : MonoBehaviour
         _lastNotifiedYaw = normalizedYaw;
         Debug.Log($"[MouseDragYawRotate] Yaw 变化: {normalizedYaw:F1}°, isDragging={isDragging}");
         OnYawAngleChanged?.Invoke(normalizedYaw, isDragging);
+
+        //同步测试
+        // if(!isOpenMouse)
+        //         return;
+        // string json = JsonUtility.ToJson(new SetCarYawRotationRequest
+        // {
+        //     yawAngle = yawAngle,
+        //     instant = isDragging,
+        // });
+        // Debug.Log($"[DemoAndroidBridgeApiUIDemo] 模拟 Android 调用 SetCarYawRotation: {json}");
+        // AndroidMessage.Instance.SetCarYawRotation(json);
     }
 
     private Quaternion GetCurrentRotation()
