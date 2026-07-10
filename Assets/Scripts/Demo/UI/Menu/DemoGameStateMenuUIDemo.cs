@@ -16,6 +16,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _bigScreenCarouselEntryButton;
     [SerializeField] private Button _httpApiTestEntryButton;
     [SerializeField] private Button _androidBridgeApiEntryButton;
+    [SerializeField] private Button _threatHighRiskSecurityEventEntryButton;
 
     private void Awake()
     {
@@ -57,6 +58,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_androidBridgeApiEntryButton != null)
         {
             _androidBridgeApiEntryButton.onClick.AddListener(OnAndroidBridgeApiEntryClicked);
+        }
+
+        if (_threatHighRiskSecurityEventEntryButton != null)
+        {
+            _threatHighRiskSecurityEventEntryButton.onClick.AddListener(OnThreatHighRiskSecurityEventEntryClicked);
         }
     }
 
@@ -100,6 +106,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_androidBridgeApiEntryButton != null)
         {
             _androidBridgeApiEntryButton.onClick.RemoveListener(OnAndroidBridgeApiEntryClicked);
+        }
+
+        if (_threatHighRiskSecurityEventEntryButton != null)
+        {
+            _threatHighRiskSecurityEventEntryButton.onClick.RemoveListener(OnThreatHighRiskSecurityEventEntryClicked);
         }
     }
 
@@ -197,6 +208,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowAndroidBridgeApiPanel();
+    }
+
+    private void OnThreatHighRiskSecurityEventEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowThreatHighRiskSecurityEventPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

@@ -18,6 +18,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _bigScreenCarouselPanel;
     [SerializeField] private GameObject _httpApiTestPanel;
     [SerializeField] private GameObject _androidBridgeApiPanel;
+    [SerializeField] private GameObject _threatHighRiskSecurityEventPanel;
 
     private void Awake()
     {
@@ -62,6 +63,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowControlStateJumpPanel()
@@ -75,6 +77,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowPlateMapHighlightPanel()
@@ -88,6 +91,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowVehicleHeatmapUpdatePanel()
@@ -101,6 +105,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowCarPanelUiPanel()
@@ -114,6 +119,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowPreviousLevelPanel()
@@ -127,6 +133,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowBigScreenCarouselPanel()
@@ -140,6 +147,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, true);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowHttpApiTestPanel()
@@ -153,6 +161,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, true);
         SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
     }
 
     public void ShowAndroidBridgeApiPanel()
@@ -166,6 +175,21 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
         SetPanelActive(_androidBridgeApiPanel, true);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+    }
+
+    public void ShowThreatHighRiskSecurityEventPanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
+        SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
+        SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, true);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

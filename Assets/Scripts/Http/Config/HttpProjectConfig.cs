@@ -78,6 +78,14 @@ public static class HttpProjectConfig
 
 
 
+    /// <summary>高危安全事件（威胁态势）接口路径。</summary>
+
+    public const string HighRiskSecurityEventPath =
+
+        "/business/bigScreen/comprehensivePosture/highRiskSecurityEvent";
+
+
+
     /// <summary>HTTPS 测试环境告警详情接口路径。</summary>
 
     public const string SecurityEventDetailPath = "/api/business/event/getSecurityEventDetail";

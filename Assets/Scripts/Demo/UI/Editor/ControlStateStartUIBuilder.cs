@@ -23,6 +23,7 @@ public static class ControlStateStartUIBuilder
     private const string BigScreenCarouselPanelName = "BigScreenCarouselPanel";
     private const string HttpApiTestPanelName = "HttpApiTestPanel";
     private const string AndroidBridgeApiPanelName = "AndroidBridgeApiPanel";
+    private const string ThreatHighRiskSecurityEventPanelName = ThreatHighRiskSecurityEventUIDemoBuilder.PanelName;
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -38,6 +39,8 @@ public static class ControlStateStartUIBuilder
     private const string HttpApiTestUiTitle = "接口调用测试";
     private const string AndroidBridgeApiMenuLabel = "Android 桥接 API";
     private const string AndroidBridgeApiUiTitle = "Android 桥接 API";
+    private const string ThreatHighRiskSecurityEventMenuLabel = ThreatHighRiskSecurityEventUIDemoBuilder.MenuLabel;
+    private const string ThreatHighRiskSecurityEventUiTitle = ThreatHighRiskSecurityEventUIDemoBuilder.UiTitle;
     private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
     private const string FpsOverlayName = "DemoFpsOverlay";
@@ -121,6 +124,7 @@ public static class ControlStateStartUIBuilder
         BigScreenCarouselPanelName,
         HttpApiTestPanelName,
         AndroidBridgeApiPanelName,
+        ThreatHighRiskSecurityEventPanelName,
     };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
@@ -217,6 +221,12 @@ public static class ControlStateStartUIBuilder
             preserved.GetPanelLayout(AndroidBridgeApiPanelName),
             navigator,
             demoUiFont);
+        GameObject threatHighRiskSecurityEventPanel = ThreatHighRiskSecurityEventUIDemoBuilder.CreatePanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(ThreatHighRiskSecurityEventPanelName),
+            navigator,
+            demoUiFont);
 
         Text fpsValueLabel = CreateFpsOverlay(
             uiRoot.transform,
@@ -239,6 +249,8 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_bigScreenCarouselPanel").objectReferenceValue = bigScreenCarouselPanel;
         serializedNavigator.FindProperty("_httpApiTestPanel").objectReferenceValue = httpApiTestPanel;
         serializedNavigator.FindProperty("_androidBridgeApiPanel").objectReferenceValue = androidBridgeApiPanel;
+        serializedNavigator.FindProperty("_threatHighRiskSecurityEventPanel").objectReferenceValue =
+            threatHighRiskSecurityEventPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -249,6 +261,7 @@ public static class ControlStateStartUIBuilder
         bigScreenCarouselPanel.SetActive(false);
         httpApiTestPanel.SetActive(false);
         androidBridgeApiPanel.SetActive(false);
+        threatHighRiskSecurityEventPanel.SetActive(false);
         httpJsonResultBar.SetActive(false);
         httpJsonCopyBar.SetActive(false);
 
@@ -376,6 +389,18 @@ public static class ControlStateStartUIBuilder
             androidBridgeApiEntryButtonText.text = AndroidBridgeApiMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject threatHighRiskSecurityEventEntryButtonGo = DefaultControls.CreateButton(resources);
+        threatHighRiskSecurityEventEntryButtonGo.name = "ThreatHighRiskSecurityEventEntryButton";
+        SetupChildRect(threatHighRiskSecurityEventEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text threatHighRiskSecurityEventEntryButtonText =
+            threatHighRiskSecurityEventEntryButtonGo.GetComponentInChildren<Text>();
+        if (threatHighRiskSecurityEventEntryButtonText != null)
+        {
+            threatHighRiskSecurityEventEntryButtonText.text = ThreatHighRiskSecurityEventMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -395,6 +420,8 @@ public static class ControlStateStartUIBuilder
             httpApiTestEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_androidBridgeApiEntryButton").objectReferenceValue =
             androidBridgeApiEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_threatHighRiskSecurityEventEntryButton").objectReferenceValue =
+            threatHighRiskSecurityEventEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
