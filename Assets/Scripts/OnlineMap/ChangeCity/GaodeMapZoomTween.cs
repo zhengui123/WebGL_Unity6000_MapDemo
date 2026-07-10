@@ -20,7 +20,7 @@ public static class GaodeMapZoomTween
         {
             map.floatZoom = targetZoom;
             map.RedrawImmediately();
-            return null;
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
         }
 
         return DOTween.To(() => current, value =>

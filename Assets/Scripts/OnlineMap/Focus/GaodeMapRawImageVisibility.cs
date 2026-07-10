@@ -53,7 +53,8 @@ public class GaodeMapRawImageVisibility : MonoBehaviour
         {
             _currentAlpha = 1f;
             ApplyAlpha(1f);
-            return null;
+            // 返回可加入 Sequence 的占位 Tween，避免瞬时过渡时序列为空导致 OnComplete 不触发
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
         }
 
         _alphaTween = DOTween.To(() => _currentAlpha, ApplyAlpha, 1f, duration)
@@ -73,7 +74,7 @@ public class GaodeMapRawImageVisibility : MonoBehaviour
         if (duration <= 0f)
         {
             HideImmediate();
-            return null;
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
         }
 
         _alphaTween = DOTween.To(() => _currentAlpha, ApplyAlpha, 0f, duration)

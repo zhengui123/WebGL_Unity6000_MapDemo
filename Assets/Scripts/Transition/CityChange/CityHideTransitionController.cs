@@ -77,6 +77,7 @@ public class CityHideTransitionController : MonoBehaviour
         _sequence = DOTween.Sequence();
         AppendForwardOverlayPhase(_sequence);
         _sequence.OnComplete(CompleteHideTransition);
+        ForceCompleteSequenceIfInstant();
         return true;
     }
 
@@ -95,7 +96,21 @@ public class CityHideTransitionController : MonoBehaviour
         _sequence = DOTween.Sequence();
         AppendReverseOverlayPhase(_sequence);
         _sequence.OnComplete(CompleteReverseTransition);
+        ForceCompleteSequenceIfInstant();
         return true;
+    }
+
+    private void ForceCompleteSequenceIfInstant()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        if (_hideDuration <= 0f)
+        {
+            _sequence.Complete(withCallbacks: true);
+        }
     }
 
     private bool TryBeginTransition()

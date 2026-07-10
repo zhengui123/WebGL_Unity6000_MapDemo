@@ -143,6 +143,11 @@ public class CarModelDissolveController : MonoBehaviour
         }, 0f, _transitionDuration).SetEase(_transitionEase));
 
         _sequence.OnComplete(() => CompleteTransition(showKjCar, hideRoot, appearGroup));
+        if (_transitionDuration <= 0f)
+        {
+            _sequence.Complete(withCallbacks: true);
+        }
+
         return true;
     }
 

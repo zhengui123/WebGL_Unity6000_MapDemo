@@ -181,6 +181,7 @@ public class GaodeToCityTransitionController : MonoBehaviour
         _sequence.AppendCallback(CompleteOverlayPhase);
         _sequence.Append(TweenToFocusPose(_activeFocusPose));
         _sequence.OnComplete(CompleteTransition);
+        ForceCompleteSequenceIfInstant();
         return true;
     }
 
@@ -233,7 +234,25 @@ public class GaodeToCityTransitionController : MonoBehaviour
         }
 
         _sequence.OnComplete(CompleteTransitionReverse);
+        ForceCompleteSequenceIfInstant();
         return true;
+    }
+
+    /// <summary>瞬时过渡时强制完成 Sequence，确保 OnComplete 与后续阶段能衔接。</summary>
+    private void ForceCompleteSequenceIfInstant()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        if (_zoomDuration <= 0f
+            && _scanlineDuration <= 0f
+            && _rawImageHideDuration <= 0f
+            && _cameraDollyDuration <= 0f)
+        {
+            _sequence.Complete(withCallbacks: true);
+        }
     }
 
     private CityCameraPoseSettings GetCurrentFocusPose()

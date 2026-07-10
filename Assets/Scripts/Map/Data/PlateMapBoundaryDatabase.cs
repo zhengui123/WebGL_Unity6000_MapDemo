@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 板块地图边界数据查询：从 PlateMapBoundaries.json 加载各省及全国外接矩形。
+/// 板块地图边界数据查询：从 Resources/PlateMapBoundaries.json 加载各省及全国外接矩形。
 /// provinceCode 为 string；"0" 表示全国整体大板块，其余与 GaodeProvinceAdcode 一致。
 /// </summary>
 public static class PlateMapBoundaryDatabase
 {
-    private const string ConfigAssetPath = "Assets/Scripts/Map/Data/PlateMapBoundaries.json";
+    private const string ResourcesConfigName = "PlateMapBoundaries";
+    private const string ConfigDisplayPath = "Assets/Resources/PlateMapBoundaries.json";
 
     private static readonly Dictionary<string, PlateMapBoundaryData> Lookup = BuildLookup();
 
@@ -67,7 +68,7 @@ public static class PlateMapBoundaryDatabase
         string json = LoadConfigJsonText();
         if (!TryParseResponse(json, out PlateMapBoundaryResponse response))
         {
-            Debug.LogError($"[PlateMapBoundaryDatabase] 无法加载配置：{ConfigAssetPath}");
+            Debug.LogError($"[PlateMapBoundaryDatabase] 无法加载配置：{ConfigDisplayPath}");
             return lookup;
         }
 
@@ -114,14 +115,7 @@ public static class PlateMapBoundaryDatabase
 
     private static string LoadConfigJsonText()
     {
-#if UNITY_EDITOR
-        TextAsset asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(ConfigAssetPath);
-        if (asset != null && !string.IsNullOrWhiteSpace(asset.text))
-        {
-            return asset.text;
-        }
-#endif
-        TextAsset resourcesAsset = Resources.Load<TextAsset>("PlateMapBoundaries");
-        return resourcesAsset != null ? resourcesAsset.text : null;
+        TextAsset asset = Resources.Load<TextAsset>(ResourcesConfigName);
+        return asset != null ? asset.text : null;
     }
 }

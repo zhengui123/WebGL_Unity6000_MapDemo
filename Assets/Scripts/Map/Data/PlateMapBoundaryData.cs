@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// 板块地图边界配置（与 PlateMapBoundaries.json 结构一致）。
+/// 板块地图边界配置（与 Resources/PlateMapBoundaries.json 结构一致）。
 /// provinceCode 为高德省级 adcode 字符串；"0" 表示全国整体大板块。
 /// </summary>
 [Serializable]

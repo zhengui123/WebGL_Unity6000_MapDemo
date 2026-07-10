@@ -119,6 +119,14 @@ public class PlateToGaodeMapScanlineOverlay : MonoBehaviour
             return null;
         }
 
+        if (duration <= 0f)
+        {
+            SetVisible(true);
+            ApplyVisualSettings();
+            SetProgressImmediate(to);
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
+        }
+
         float current = from;
         _progressTween = DOTween.To(
             () => current,

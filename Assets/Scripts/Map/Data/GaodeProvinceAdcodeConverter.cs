@@ -4,11 +4,12 @@ using UnityEngine;
 
 /// <summary>
 /// 中国省级行政区中文名与高德地图 adcode 互转。
-/// 配置见 GaodeProvinceAdcode.json（接口响应格式），运行时从 TextAsset 加载。
+/// 配置见 Resources/GaodeProvinceAdcode.json（接口响应格式）。
 /// </summary>
 public static class GaodeProvinceAdcodeConverter
 {
-    private const string ConfigAssetPath = "Assets/Scripts/Map/Data/GaodeProvinceAdcode.json";
+    private const string ResourcesConfigName = "GaodeProvinceAdcode";
+    private const string ConfigDisplayPath = "Assets/Resources/GaodeProvinceAdcode.json";
 
     private static readonly (string ShortName, string FullName, string Adcode)[] Provinces = LoadProvinces();
     private static readonly Dictionary<string, string> NameToAdcode = BuildNameToAdcodeLookup();
@@ -93,7 +94,7 @@ public static class GaodeProvinceAdcodeConverter
         string json = LoadConfigJsonText();
         if (!TryParseResponse(json, out GaodeProvinceAdcodeResponse response))
         {
-            Debug.LogError($"[GaodeProvinceAdcodeConverter] 无法加载配置：{ConfigAssetPath}");
+            Debug.LogError($"[GaodeProvinceAdcodeConverter] 无法加载配置：{ConfigDisplayPath}");
             return Array.Empty<(string, string, string)>();
         }
 
@@ -117,15 +118,8 @@ public static class GaodeProvinceAdcodeConverter
 
     private static string LoadConfigJsonText()
     {
-#if UNITY_EDITOR
-        TextAsset asset = UnityEditor.AssetDatabase.LoadAssetAtPath<TextAsset>(ConfigAssetPath);
-        if (asset != null && !string.IsNullOrWhiteSpace(asset.text))
-        {
-            return asset.text;
-        }
-#endif
-        TextAsset resourcesAsset = Resources.Load<TextAsset>("GaodeProvinceAdcode");
-        return resourcesAsset != null ? resourcesAsset.text : null;
+        TextAsset asset = Resources.Load<TextAsset>(ResourcesConfigName);
+        return asset != null ? asset.text : null;
     }
 
     private static string ResolveShortName(string fullName)

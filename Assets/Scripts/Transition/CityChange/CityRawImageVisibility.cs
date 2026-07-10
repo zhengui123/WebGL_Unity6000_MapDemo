@@ -73,7 +73,7 @@ public class CityRawImageVisibility : MonoBehaviour
         if (duration <= 0f)
         {
             ShowImmediate();
-            return null;
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
         }
 
         _alphaTween = DOTween.To(() => _currentAlpha, ApplyAlpha, 1f, duration)
@@ -93,7 +93,7 @@ public class CityRawImageVisibility : MonoBehaviour
         if (duration <= 0f)
         {
             HideImmediate();
-            return null;
+            return DOTween.Sequence().AppendCallback(() => { }).SetAutoKill(true);
         }
 
         _alphaTween = DOTween.To(() => _currentAlpha, ApplyAlpha, 0f, duration)

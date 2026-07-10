@@ -127,6 +127,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
 
         _sequence.OnComplete(CompleteTransition);
+        ForceCompleteSequenceIfInstant();
         EventManager.Instance?.TriggerPlateToGaodeMapTransitionStarted(_activeProvinceName);
         return true;
     }
@@ -190,8 +191,25 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
 
         _sequence.OnComplete(CompleteTransitionReverse);
+        ForceCompleteSequenceIfInstant();
         EventManager.Instance?.TriggerGaodeMapToPlateTransitionStarted(_activeProvinceName);
         return true;
+    }
+
+    /// <summary>
+    /// 瞬时过渡（时长被置 0）时 DOTween Sequence 可能不推进，强制完成以触发 OnComplete。
+    /// </summary>
+    private void ForceCompleteSequenceIfInstant()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        if (_transitionDuration <= 0f && _gaodeFadeDuration <= 0f)
+        {
+            _sequence.Complete(withCallbacks: true);
+        }
     }
 
     private void PrepareGaodeMapView(string provinceName)
@@ -259,6 +277,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     {
         if (_plateMapDisplayController == null)
         {
+            Debug.LogWarning("[PlateToGaodeMapTransition] 未找到 PlateMapDisplayController，板块淡出将跳过。");
             return;
         }
 
