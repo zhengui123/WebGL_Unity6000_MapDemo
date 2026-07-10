@@ -576,22 +576,112 @@ public static class ControlStateStartUIBuilder
             14,
             FontStyle.Normal);
         Text countdownLabel = countdownLabelGo.GetComponent<Text>();
-        y -= RowHeight + 12f;
+        y -= RowHeight + 8f;
+
+        GameObject playbackStateLabelGo = CreateLabelObject(
+            panel.transform,
+            "PlaybackStateLabel",
+            "播放状态：默认状态",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text playbackStateLabel = playbackStateLabelGo.GetComponent<Text>();
+        y -= RowHeight + 8f;
+
+        float presetButtonWidth = (PanelWidth - 24f - 8f) / 3f;
+
+        GameObject defaultPlaybackButtonGo = DefaultControls.CreateButton(resources);
+        defaultPlaybackButtonGo.name = "SetDefaultPlaybackStateButton";
+        SetupChildRect(defaultPlaybackButtonGo, panel.transform, 12f, y, presetButtonWidth, 32f);
+        Text defaultPlaybackButtonText = defaultPlaybackButtonGo.GetComponentInChildren<Text>();
+        if (defaultPlaybackButtonText != null)
+        {
+            defaultPlaybackButtonText.text = "默认";
+        }
+
+        GameObject alertPlaybackButtonGo = DefaultControls.CreateButton(resources);
+        alertPlaybackButtonGo.name = "SetAlertPlaybackStateButton";
+        SetupChildRect(alertPlaybackButtonGo, panel.transform, 12f + presetButtonWidth + 4f, y, presetButtonWidth, 32f);
+        Text alertPlaybackButtonText = alertPlaybackButtonGo.GetComponentInChildren<Text>();
+        if (alertPlaybackButtonText != null)
+        {
+            alertPlaybackButtonText.text = "告警定位";
+        }
+
+        GameObject threatPlaybackButtonGo = DefaultControls.CreateButton(resources);
+        threatPlaybackButtonGo.name = "SetThreatPlaybackStateButton";
+        SetupChildRect(threatPlaybackButtonGo, panel.transform, 12f + (presetButtonWidth + 4f) * 2f, y, presetButtonWidth, 32f);
+        Text threatPlaybackButtonText = threatPlaybackButtonGo.GetComponentInChildren<Text>();
+        if (threatPlaybackButtonText != null)
+        {
+            threatPlaybackButtonText.text = "威胁";
+        }
+
+        y -= 40f;
+
+        InputField delayedStartInput = CreateLabeledInputField(
+            panel.transform,
+            resources,
+            "DelayedStartSecondsInputRow",
+            "延时(秒)",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            DemoBigScreenCarouselUIDemo.DefaultDelayedStartSeconds,
+            InputFieldFontSize);
+        y -= RowHeight + 8f;
+
+        float halfButtonWidth = (PanelWidth - 24f - 8f) * 0.5f;
+
+        GameObject enableDelayedFeatureButtonGo = DefaultControls.CreateButton(resources);
+        enableDelayedFeatureButtonGo.name = "EnableDelayedFeatureButton";
+        SetupChildRect(enableDelayedFeatureButtonGo, panel.transform, 12f, y, halfButtonWidth, 36f);
+        Text enableDelayedFeatureButtonText = enableDelayedFeatureButtonGo.GetComponentInChildren<Text>();
+        if (enableDelayedFeatureButtonText != null)
+        {
+            enableDelayedFeatureButtonText.text = "开启延时判定";
+        }
+
+        GameObject disableDelayedFeatureButtonGo = DefaultControls.CreateButton(resources);
+        disableDelayedFeatureButtonGo.name = "DisableDelayedFeatureButton";
+        SetupChildRect(disableDelayedFeatureButtonGo, panel.transform, 12f + halfButtonWidth + 8f, y, halfButtonWidth, 36f);
+        Text disableDelayedFeatureButtonText = disableDelayedFeatureButtonGo.GetComponentInChildren<Text>();
+        if (disableDelayedFeatureButtonText != null)
+        {
+            disableDelayedFeatureButtonText.text = "关闭延时判定";
+        }
+
+        y -= 44f;
 
         GameObject enableButtonGo = DefaultControls.CreateButton(resources);
         enableButtonGo.name = "EnableCarouselButton";
-        SetupChildRect(enableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        SetupChildRect(enableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 36f);
         Text enableButtonText = enableButtonGo.GetComponentInChildren<Text>();
         if (enableButtonText != null)
         {
-            enableButtonText.text = "开启自动轮播";
+            enableButtonText.text = "立即开启自动轮播（跳过延时）";
         }
 
-        y -= 48f;
+        y -= 44f;
+
+        GameObject simulateWebGlButtonGo = DefaultControls.CreateButton(resources);
+        simulateWebGlButtonGo.name = "SimulateWebGlCommunicationButton";
+        SetupChildRect(simulateWebGlButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 36f);
+        Text simulateWebGlButtonText = simulateWebGlButtonGo.GetComponentInChildren<Text>();
+        if (simulateWebGlButtonText != null)
+        {
+            simulateWebGlButtonText.text = "模拟 WebGL 通信";
+        }
+
+        y -= 44f;
 
         GameObject disableButtonGo = DefaultControls.CreateButton(resources);
         disableButtonGo.name = "DisableCarouselButton";
-        SetupChildRect(disableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        SetupChildRect(disableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 36f);
         Text disableButtonText = disableButtonGo.GetComponentInChildren<Text>();
         if (disableButtonText != null)
         {
@@ -602,8 +692,22 @@ public static class ControlStateStartUIBuilder
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
         serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
         serializedDemo.FindProperty("_countdownLabel").objectReferenceValue = countdownLabel;
+        serializedDemo.FindProperty("_playbackStateLabel").objectReferenceValue = playbackStateLabel;
+        serializedDemo.FindProperty("_delayedStartInput").objectReferenceValue = delayedStartInput;
+        serializedDemo.FindProperty("_enableDelayedFeatureButton").objectReferenceValue =
+            enableDelayedFeatureButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_disableDelayedFeatureButton").objectReferenceValue =
+            disableDelayedFeatureButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_enableButton").objectReferenceValue = enableButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_disableButton").objectReferenceValue = disableButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_simulateWebGlCommunicationButton").objectReferenceValue =
+            simulateWebGlButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setDefaultPlaybackStateButton").objectReferenceValue =
+            defaultPlaybackButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setAlertPlaybackStateButton").objectReferenceValue =
+            alertPlaybackButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setThreatPlaybackStateButton").objectReferenceValue =
+            threatPlaybackButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();

@@ -17,8 +17,24 @@ public class GameManager : UnitySingle<GameManager>
         AttackPathLevel = 5  // 攻击路径级
     }
 
+    /// <summary>大屏业务播放状态（与操控级别独立）。</summary>
+    public enum BigScreenPlaybackState
+    {
+        /// <summary>默认状态（自动轮播等常规展示）。</summary>
+        Default = 0,
+
+        /// <summary>告警定位状态（事件驱动地图聚焦）。</summary>
+        AlertPositioning = 1,
+
+        /// <summary>威胁状态（威胁钻取联动）。</summary>
+        Threat = 2,
+    }
+
     [Header("当前操控状态（只读运行时）")]
     [SerializeField] private ControlState _currentState = ControlState.EarthLevel;
+
+    [Header("当前大屏播放状态（只读运行时）")]
+    [SerializeField] private BigScreenPlaybackState _currentPlaybackState = BigScreenPlaybackState.Default;
 
     [Header("引用（可留空，运行时查找）")]
     [SerializeField] private PlateMapDisplayController _plateMapDisplayController;
@@ -31,6 +47,11 @@ public class GameManager : UnitySingle<GameManager>
     [SerializeField] private bool _disableClickWhenFocusingProvince = true;
 
     public ControlState CurrentState => _currentState;
+
+    public BigScreenPlaybackState CurrentPlaybackState => _currentPlaybackState;
+
+    /// <summary>大屏播放状态变化时触发。</summary>
+    public event Action<BigScreenPlaybackState> OnPlaybackStateChanged;
 
     private void Awake()
     {
@@ -251,6 +272,38 @@ public class GameManager : UnitySingle<GameManager>
         }
 
         MapApi.Instance.RestorePlateMapCamera();
+    }
+
+    #endregion
+
+    #region 大屏播放状态
+
+    /// <summary>切换大屏业务播放状态。</summary>
+    public void SetPlaybackState(BigScreenPlaybackState newState)
+    {
+        if (_currentPlaybackState == newState)
+        {
+            return;
+        }
+
+        _currentPlaybackState = newState;
+        Debug.Log($"[GameManager] 大屏播放状态 → {newState}");
+        OnPlaybackStateChanged?.Invoke(newState);
+    }
+
+    public static string GetPlaybackStateDisplayName(BigScreenPlaybackState state)
+    {
+        switch (state)
+        {
+            case BigScreenPlaybackState.Default:
+                return "默认状态";
+            case BigScreenPlaybackState.AlertPositioning:
+                return "告警定位状态";
+            case BigScreenPlaybackState.Threat:
+                return "威胁状态";
+            default:
+                return state.ToString();
+        }
     }
 
     #endregion

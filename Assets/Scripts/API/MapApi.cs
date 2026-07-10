@@ -317,8 +317,8 @@ public class MapApi : UnitySingle<MapApi>
         return navigation.TryTransitionToPreviousLevel();
     }
 
-    /// <summary>开启或关闭四个大屏自动轮播（默认间隔 2 分钟）。</summary>
-    public bool SetBigScreenAutoCarouselEnabled(bool enabled)
+    /// <summary>开启或关闭四个大屏自动轮播；若延时功能开启则走延时判定。</summary>
+    public bool SetBigScreenAutoCarouselEnabled(bool enabled, bool bypassDelayedStart = false)
     {
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
@@ -327,7 +327,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        controller.SetAutoCarouselEnabled(enabled);
+        controller.SetAutoCarouselEnabled(enabled, bypassDelayedStart);
         return true;
     }
 
@@ -336,5 +336,82 @@ public class MapApi : UnitySingle<MapApi>
     {
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         return controller != null && controller.IsAutoCarouselEnabled;
+    }
+
+    /// <summary>是否已启用延时开轮播判定功能。</summary>
+    public bool IsBigScreenDelayedStartFeatureEnabled()
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        return controller != null && controller.IsDelayedStartFeatureEnabled;
+    }
+
+    /// <summary>开启或关闭延时开轮播判定功能。</summary>
+    public bool SetBigScreenDelayedStartFeatureEnabled(bool enabled)
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.SetDelayedStartFeatureEnabled(enabled);
+        return true;
+    }
+
+    /// <summary>设置延时开轮播默认等待秒数。</summary>
+    public bool SetBigScreenDelayedStartSeconds(float delaySeconds)
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.DefaultDelayedStartSeconds = delaySeconds;
+        return true;
+    }
+
+    /// <summary>延时指定秒数后开启大屏自动轮播。</summary>
+    public bool ScheduleBigScreenAutoCarouselStart(float delaySeconds)
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.ScheduleAutoCarouselStart(delaySeconds);
+        return true;
+    }
+
+    /// <summary>取消尚未开始的延时开轮播。</summary>
+    public bool CancelBigScreenAutoCarouselDelayedStart()
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.CancelDelayedStart();
+        return true;
+    }
+
+    /// <summary>通知收到宿主通信（等同 WebGL 入站消息）。</summary>
+    public bool NotifyBigScreenHostCommunication()
+    {
+        BigScreenCarouselController controller = BigScreenCarouselController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            return false;
+        }
+
+        controller.HandleHostCommunication();
+        return true;
     }
 }

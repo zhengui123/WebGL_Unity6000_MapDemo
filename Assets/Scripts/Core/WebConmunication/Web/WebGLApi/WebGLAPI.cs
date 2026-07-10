@@ -36,6 +36,9 @@ public class WebGLAPI : MonoBehaviour
 
     public event Action<string> OnHostMessageReceived;
 
+    /// <summary>父页面 / WebGL 宿主任意通信到达时触发（method, arg）。</summary>
+    public static event Action<string, string> HostCommunicationReceived;
+
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
     private static extern void CallHTMLHandler(string methodName, string message);
@@ -463,6 +466,7 @@ public class WebGLAPI : MonoBehaviour
     /// </param>
     public void TransitionToControlState(string json)
     {
+        NotifyHostCommunicationReceived(nameof(TransitionToControlState), json);
         LogCommunication("← Host", nameof(TransitionToControlState), json);
 
         if (string.IsNullOrWhiteSpace(json))
@@ -490,6 +494,7 @@ public class WebGLAPI : MonoBehaviour
 
     public void TransitionToNextControlState()
     {
+        NotifyHostCommunicationReceived(nameof(TransitionToNextControlState), string.Empty);
         LogCommunication("← Host", nameof(TransitionToNextControlState), string.Empty);
 
         if (!MapApi.Instance.TransitionToNextControlState())
@@ -503,6 +508,7 @@ public class WebGLAPI : MonoBehaviour
 
     public void TransitionToPreviousControlState()
     {
+        NotifyHostCommunicationReceived(nameof(TransitionToPreviousControlState), string.Empty);
         LogCommunication("← Host", nameof(TransitionToPreviousControlState), string.Empty);
 
         if (!MapApi.Instance.TransitionToPreviousControlState())
@@ -517,6 +523,7 @@ public class WebGLAPI : MonoBehaviour
     /// <summary>宿主调用：开启/关闭四个大屏自动轮播。json 示例：{"enabled":true}</summary>
     public void SetBigScreenAutoCarouselEnabled(string json)
     {
+        NotifyHostCommunicationReceived(nameof(SetBigScreenAutoCarouselEnabled), json);
         LogCommunication("← Host", nameof(SetBigScreenAutoCarouselEnabled), json);
 
         if (string.IsNullOrWhiteSpace(json))
@@ -538,6 +545,14 @@ public class WebGLAPI : MonoBehaviour
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
+    private void NotifyHostCommunicationReceived(string method, string arg)
+    {
+        arg ??= string.Empty;
+        lastHostMessage = $"{method}|{arg}";
+        OnHostMessageReceived?.Invoke(lastHostMessage);
+        HostCommunicationReceived?.Invoke(method, arg);
     }
 
     #endregion

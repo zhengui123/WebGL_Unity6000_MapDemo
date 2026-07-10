@@ -5,6 +5,7 @@ using UnityEngine.Serialization;
 /// <summary>
 /// 四个大屏自动轮播：综合态势 → 区域态势 → 车辆态势 → 部件态势，循环切换。
 /// 开启后按间隔调用 <see cref="ControlStateHierarchyTransitionController.TransitionToState"/> 跳转。
+/// Android 真机版本不启用轮播（由 Android 宿主控制大屏切换）。
 /// </summary>
 [DisallowMultipleComponent]
 [DefaultExecutionOrder(210)]
@@ -19,11 +20,54 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
   [SerializeField] private float _partCycleWaitSeconds = 120f;
   [SerializeField] private bool _useInstantTransition = true;
 
+  [Header("延时开启")]
+  [Tooltip("是否启用延时开轮播判定（默认开启）")]
+  [SerializeField] private bool _delayedStartFeatureEnabled = true;
+  [Tooltip("延时开启轮播的默认等待时间（秒）")]
+  [SerializeField] private float _defaultDelayedStartSeconds = 60f;
+
   private Coroutine _carouselCoroutine;
+  private Coroutine _delayedStartCoroutine;
   private float _nextSwitchUnscaledTime = -1f;
+  private float _delayedStartTargetUnscaledTime = -1f;
+  private float _activeDelayedStartSeconds;
   private bool _waitingAtPartCycle;
+  private bool _loggedAndroidCarouselDisabled;
+
+  /// <summary>当前平台是否支持大屏自动轮播（Android 真机版本为 false）。</summary>
+  public static bool IsCarouselSupportedOnCurrentPlatform
+  {
+    get
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+      return false;
+#else
+      return true;
+#endif
+    }
+  }
 
   public bool IsAutoCarouselEnabled => _autoCarouselEnabled;
+
+  public bool IsDelayedStartFeatureEnabled =>
+    IsCarouselSupportedOnCurrentPlatform && _delayedStartFeatureEnabled;
+
+  /// <summary>是否处于延时开启轮播的等待阶段。</summary>
+  public bool IsWaitingDelayedStart => _delayedStartCoroutine != null;
+
+  /// <summary>延时开启轮播剩余秒数；未等待时返回 0。</summary>
+  public float RemainingDelayedStartSeconds
+  {
+    get
+    {
+      if (!IsWaitingDelayedStart)
+      {
+        return 0f;
+      }
+
+      return Mathf.Max(0f, _delayedStartTargetUnscaledTime - Time.unscaledTime);
+    }
+  }
 
   /// <summary>是否处于两次轮播之间的等待倒计时阶段。</summary>
   public bool IsCountingDownToNextSwitch =>
@@ -58,37 +102,193 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     set => _partCycleWaitSeconds = Mathf.Max(1f, value);
   }
 
-  private void Start()
+  public float DefaultDelayedStartSeconds
   {
-    if (_autoCarouselEnabled)
+    get => _defaultDelayedStartSeconds;
+    set => _defaultDelayedStartSeconds = Mathf.Max(0f, value);
+  }
+
+  private void OnEnable()
+  {
+    if (!IsCarouselSupportedOnCurrentPlatform)
     {
-      StartCarouselRoutine();
+      return;
     }
+
+    WebGLAPI.HostCommunicationReceived += HandleHostCommunicationReceived;
   }
 
   private void OnDisable()
   {
+    if (IsCarouselSupportedOnCurrentPlatform)
+    {
+      WebGLAPI.HostCommunicationReceived -= HandleHostCommunicationReceived;
+    }
+
     StopCarouselRoutine();
+    CancelDelayedStart();
   }
 
-  /// <summary>开启或关闭自动轮播；关闭时立即停止计时。</summary>
-  public void SetAutoCarouselEnabled(bool enabled)
+  private void Start()
   {
-    if (_autoCarouselEnabled == enabled)
+    if (!IsCarouselSupportedOnCurrentPlatform)
     {
+      LogAndroidCarouselDisabledOnce();
       return;
     }
 
-    _autoCarouselEnabled = enabled;
+    if (_delayedStartFeatureEnabled)
+    {
+      ScheduleAutoCarouselStart(_defaultDelayedStartSeconds);
+      return;
+    }
+
     if (_autoCarouselEnabled)
     {
-      StartCarouselRoutine();
-      Debug.Log("[BigScreenCarousel] 自动轮播已开启。");
+      BeginAutoCarouselAsEnabled();
+    }
+  }
+
+  /// <summary>开启或关闭延时开轮播判定功能。</summary>
+  public void SetDelayedStartFeatureEnabled(bool enabled)
+  {
+    if (!IsCarouselSupportedOnCurrentPlatform)
+    {
+      LogAndroidCarouselDisabledOnce();
       return;
     }
 
-    StopCarouselRoutine();
-    Debug.Log("[BigScreenCarousel] 自动轮播已关闭。");
+    if (_delayedStartFeatureEnabled == enabled)
+    {
+      return;
+    }
+
+    _delayedStartFeatureEnabled = enabled;
+    if (!enabled)
+    {
+      CancelDelayedStart();
+      Debug.Log("[BigScreenCarousel] 延时开轮播功能已关闭。");
+      return;
+    }
+
+    Debug.Log("[BigScreenCarousel] 延时开轮播功能已开启。");
+    if (!_autoCarouselEnabled)
+    {
+      ScheduleAutoCarouselStart(_defaultDelayedStartSeconds);
+    }
+  }
+
+  /// <summary>开启或关闭自动轮播；开启时若延时功能启用则走延时判定。</summary>
+  public void SetAutoCarouselEnabled(bool enabled, bool bypassDelayedStart = false)
+  {
+    if (!IsCarouselSupportedOnCurrentPlatform)
+    {
+      LogAndroidCarouselDisabledOnce();
+      return;
+    }
+
+    if (!enabled)
+    {
+      CancelDelayedStart();
+      if (_autoCarouselEnabled)
+      {
+        _autoCarouselEnabled = false;
+        StopCarouselRoutine();
+        Debug.Log("[BigScreenCarousel] 自动轮播已关闭。");
+      }
+
+      return;
+    }
+
+    if (_autoCarouselEnabled)
+    {
+      return;
+    }
+
+    if (_delayedStartFeatureEnabled && !bypassDelayedStart)
+    {
+      ScheduleAutoCarouselStart(_defaultDelayedStartSeconds);
+      return;
+    }
+
+    BeginAutoCarouselAsEnabled();
+  }
+
+  /// <summary>指定秒数后开启自动轮播。</summary>
+  public void ScheduleAutoCarouselStart(float delaySeconds)
+  {
+    if (!IsCarouselSupportedOnCurrentPlatform)
+    {
+      LogAndroidCarouselDisabledOnce();
+      return;
+    }
+
+    if (!_delayedStartFeatureEnabled)
+    {
+      Debug.LogWarning("[BigScreenCarousel] 延时开轮播功能已关闭，改为立即开启。");
+      SetAutoCarouselEnabled(true, bypassDelayedStart: true);
+      return;
+    }
+
+    CancelDelayedStart();
+
+    if (_autoCarouselEnabled)
+    {
+      _autoCarouselEnabled = false;
+      StopCarouselRoutine();
+    }
+
+    _activeDelayedStartSeconds = Mathf.Max(0f, delaySeconds);
+    if (_activeDelayedStartSeconds <= 0f)
+    {
+      BeginAutoCarouselAsEnabled();
+      return;
+    }
+
+    _delayedStartCoroutine = StartCoroutine(DelayedStartRoutine(_activeDelayedStartSeconds));
+    Debug.Log($"[BigScreenCarousel] 已预约 {_activeDelayedStartSeconds:0.#}s 后开启轮播。");
+  }
+
+  /// <summary>取消尚未开始的延时开启。</summary>
+  public void CancelDelayedStart()
+  {
+    if (_delayedStartCoroutine == null)
+    {
+      return;
+    }
+
+    StopCoroutine(_delayedStartCoroutine);
+    _delayedStartCoroutine = null;
+    _delayedStartTargetUnscaledTime = -1f;
+    Debug.Log("[BigScreenCarousel] 已取消延时开启轮播。");
+  }
+
+  /// <summary>
+  /// 收到宿主通信：轮播中则暂停并进入延时重开；已在延时等待则重置计时。
+  /// </summary>
+  public void HandleHostCommunication()
+  {
+    if (!IsCarouselSupportedOnCurrentPlatform)
+    {
+      return;
+    }
+
+    if (!_delayedStartFeatureEnabled)
+    {
+      return;
+    }
+
+    if (_autoCarouselEnabled)
+    {
+      _autoCarouselEnabled = false;
+      StopCarouselRoutine();
+      Debug.Log("[BigScreenCarousel] 收到宿主通信，已暂停自动轮播并进入延时重开判定。");
+    }
+
+    float delaySeconds = _activeDelayedStartSeconds > 0f
+      ? _activeDelayedStartSeconds
+      : _defaultDelayedStartSeconds;
+    ScheduleAutoCarouselStart(delaySeconds);
   }
 
   /// <summary>立即切换到轮播序列中的下一个大屏。</summary>
@@ -98,9 +298,69 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     return TryAdvanceToNextScreen(out transitionStarted);
   }
 
+  private void HandleHostCommunicationReceived(string method, string arg)
+  {
+    HandleHostCommunication();
+  }
+
+  private void LogAndroidCarouselDisabledOnce()
+  {
+    if (_loggedAndroidCarouselDisabled)
+    {
+      return;
+    }
+
+    _loggedAndroidCarouselDisabled = true;
+    Debug.Log("[BigScreenCarousel] Android 版本不启用自动轮播，由宿主控制大屏切换。");
+  }
+
+  private void BeginAutoCarouselAsEnabled()
+  {
+    _autoCarouselEnabled = true;
+    BeginAutoCarousel();
+  }
+
+  private void BeginAutoCarousel()
+  {
+    SetPlaybackStateDefault();
+    StartCarouselRoutine();
+    Debug.Log("[BigScreenCarousel] 自动轮播已开启，大屏播放状态 → 默认。");
+  }
+
+  private static void SetPlaybackStateDefault()
+  {
+    GameManager manager = GameManager.Instance;
+    manager?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
+  }
+
+  private IEnumerator DelayedStartRoutine(float delaySeconds)
+  {
+    _delayedStartTargetUnscaledTime = Time.unscaledTime + delaySeconds;
+    while (Time.unscaledTime < _delayedStartTargetUnscaledTime)
+    {
+      yield return null;
+    }
+
+    _delayedStartCoroutine = null;
+    _delayedStartTargetUnscaledTime = -1f;
+
+    if (_autoCarouselEnabled)
+    {
+      yield break;
+    }
+
+    BeginAutoCarouselAsEnabled();
+  }
+
   private bool TryAdvanceToNextScreen(out bool hierarchyTransitionStarted)
   {
     hierarchyTransitionStarted = false;
+
+    if (!IsCarouselSupportedOnCurrentPlatform)
+    {
+      return false;
+    }
+
     GameManager manager = GameManager.Instance;
     if (manager == null)
     {

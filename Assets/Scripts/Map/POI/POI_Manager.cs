@@ -49,6 +49,11 @@ public class POI_Manager : UnitySingle<POI_Manager>
         obj.transform.localPosition = localPos;
         obj.transform.localScale = targetScale;
         obj.transform.rotation = desiredWorldRotation;
+        // 统一挂到 POI_Manager 下，保留已计算好的世界位姿
+        obj.transform.SetParent(transform, true);
+        Vector3 managerLocalPos = obj.transform.localPosition;
+        managerLocalPos.y = 0f;
+        obj.transform.localPosition = managerLocalPos;
 
         AddPOI(new POIData(type, obj, longitude, latitude, localPos));
     }
