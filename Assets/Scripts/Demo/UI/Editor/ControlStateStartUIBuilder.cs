@@ -22,6 +22,7 @@ public static class ControlStateStartUIBuilder
     private const string PreviousLevelPanelName = "PreviousLevelPanel";
     private const string BigScreenCarouselPanelName = "BigScreenCarouselPanel";
     private const string HttpApiTestPanelName = "HttpApiTestPanel";
+    private const string AndroidBridgeApiPanelName = "AndroidBridgeApiPanel";
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -35,6 +36,8 @@ public static class ControlStateStartUIBuilder
     private const string BigScreenCarouselUiTitle = "大屏自动轮播";
     private const string HttpApiTestMenuLabel = "接口调用测试";
     private const string HttpApiTestUiTitle = "接口调用测试";
+    private const string AndroidBridgeApiMenuLabel = "Android 桥接 API";
+    private const string AndroidBridgeApiUiTitle = "Android 桥接 API";
     private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
     private const string FpsOverlayName = "DemoFpsOverlay";
@@ -117,6 +120,7 @@ public static class ControlStateStartUIBuilder
         PreviousLevelPanelName,
         BigScreenCarouselPanelName,
         HttpApiTestPanelName,
+        AndroidBridgeApiPanelName,
     };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
@@ -207,6 +211,12 @@ public static class ControlStateStartUIBuilder
             out GameObject httpJsonResultBar,
             out InputField httpJsonCopyInput,
             out GameObject httpJsonCopyBar);
+        GameObject androidBridgeApiPanel = CreateAndroidBridgeApiPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(AndroidBridgeApiPanelName),
+            navigator,
+            demoUiFont);
 
         Text fpsValueLabel = CreateFpsOverlay(
             uiRoot.transform,
@@ -228,6 +238,7 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_previousLevelPanel").objectReferenceValue = previousLevelPanel;
         serializedNavigator.FindProperty("_bigScreenCarouselPanel").objectReferenceValue = bigScreenCarouselPanel;
         serializedNavigator.FindProperty("_httpApiTestPanel").objectReferenceValue = httpApiTestPanel;
+        serializedNavigator.FindProperty("_androidBridgeApiPanel").objectReferenceValue = androidBridgeApiPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -237,6 +248,7 @@ public static class ControlStateStartUIBuilder
         previousLevelPanel.SetActive(false);
         bigScreenCarouselPanel.SetActive(false);
         httpApiTestPanel.SetActive(false);
+        androidBridgeApiPanel.SetActive(false);
         httpJsonResultBar.SetActive(false);
         httpJsonCopyBar.SetActive(false);
 
@@ -353,6 +365,17 @@ public static class ControlStateStartUIBuilder
             httpApiTestEntryButtonText.text = HttpApiTestMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject androidBridgeApiEntryButtonGo = DefaultControls.CreateButton(resources);
+        androidBridgeApiEntryButtonGo.name = "AndroidBridgeApiEntryButton";
+        SetupChildRect(androidBridgeApiEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text androidBridgeApiEntryButtonText = androidBridgeApiEntryButtonGo.GetComponentInChildren<Text>();
+        if (androidBridgeApiEntryButtonText != null)
+        {
+            androidBridgeApiEntryButtonText.text = AndroidBridgeApiMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -370,6 +393,8 @@ public static class ControlStateStartUIBuilder
             bigScreenCarouselEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_httpApiTestEntryButton").objectReferenceValue =
             httpApiTestEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_androidBridgeApiEntryButton").objectReferenceValue =
+            androidBridgeApiEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
@@ -579,6 +604,128 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_countdownLabel").objectReferenceValue = countdownLabel;
         serializedDemo.FindProperty("_enableButton").objectReferenceValue = enableButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_disableButton").objectReferenceValue = disableButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
+
+        return panel;
+    }
+
+    private static GameObject CreateAndroidBridgeApiPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, AndroidBridgeApiPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+        CreateLabel(panel.transform, AndroidBridgeApiUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        GameObject callbackStatusLabelGo = CreateLabelObject(
+            panel.transform,
+            "CarYawCallbackStatusLabel",
+            "等待旋转回调...",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight * 2f,
+            14,
+            FontStyle.Normal);
+        Text callbackStatusLabel = callbackStatusLabelGo.GetComponent<Text>();
+        y -= RowHeight * 2f + 8f;
+
+        InputField yawAngleInput = CreateLabeledInputField(
+            panel.transform,
+            resources,
+            "CarYawAngleInputRow",
+            "Yaw 角度",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            DemoAndroidBridgeApiUIDemo.DefaultYawAngle,
+            InputFieldFontSize);
+        y -= RowHeight + 8f;
+
+        GameObject setYawButtonGo = DefaultControls.CreateButton(resources);
+        setYawButtonGo.name = "SetCarYawButton";
+        SetupChildRect(setYawButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text setYawButtonText = setYawButtonGo.GetComponentInChildren<Text>();
+        if (setYawButtonText != null)
+        {
+            setYawButtonText.text = "SetCarYawRotation（自定义）";
+        }
+
+        y -= 48f;
+        float presetButtonWidth = (PanelWidth - 24f - 8f) * 0.5f;
+
+        GameObject setYaw0ButtonGo = DefaultControls.CreateButton(resources);
+        setYaw0ButtonGo.name = "SetCarYaw0Button";
+        SetupChildRect(setYaw0ButtonGo, panel.transform, 12f, y, presetButtonWidth, 36f);
+        Text setYaw0ButtonText = setYaw0ButtonGo.GetComponentInChildren<Text>();
+        if (setYaw0ButtonText != null)
+        {
+            setYaw0ButtonText.text = "0°";
+        }
+
+        GameObject setYaw90ButtonGo = DefaultControls.CreateButton(resources);
+        setYaw90ButtonGo.name = "SetCarYaw90Button";
+        SetupChildRect(setYaw90ButtonGo, panel.transform, 12f + presetButtonWidth + 8f, y, presetButtonWidth, 36f);
+        Text setYaw90ButtonText = setYaw90ButtonGo.GetComponentInChildren<Text>();
+        if (setYaw90ButtonText != null)
+        {
+            setYaw90ButtonText.text = "90°";
+        }
+
+        y -= 44f;
+
+        GameObject setYaw180ButtonGo = DefaultControls.CreateButton(resources);
+        setYaw180ButtonGo.name = "SetCarYaw180Button";
+        SetupChildRect(setYaw180ButtonGo, panel.transform, 12f, y, presetButtonWidth, 36f);
+        Text setYaw180ButtonText = setYaw180ButtonGo.GetComponentInChildren<Text>();
+        if (setYaw180ButtonText != null)
+        {
+            setYaw180ButtonText.text = "180°";
+        }
+
+        GameObject setYaw270ButtonGo = DefaultControls.CreateButton(resources);
+        setYaw270ButtonGo.name = "SetCarYaw270Button";
+        SetupChildRect(setYaw270ButtonGo, panel.transform, 12f + presetButtonWidth + 8f, y, presetButtonWidth, 36f);
+        Text setYaw270ButtonText = setYaw270ButtonGo.GetComponentInChildren<Text>();
+        if (setYaw270ButtonText != null)
+        {
+            setYaw270ButtonText.text = "270°";
+        }
+
+        DemoAndroidBridgeApiUIDemo uiDemo = panel.AddComponent<DemoAndroidBridgeApiUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_callbackStatusLabel").objectReferenceValue = callbackStatusLabel;
+        serializedDemo.FindProperty("_yawAngleInput").objectReferenceValue = yawAngleInput;
+        serializedDemo.FindProperty("_setYawButton").objectReferenceValue = setYawButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setYaw0Button").objectReferenceValue = setYaw0ButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setYaw90Button").objectReferenceValue = setYaw90ButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setYaw180Button").objectReferenceValue = setYaw180ButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_setYaw270Button").objectReferenceValue = setYaw270ButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();

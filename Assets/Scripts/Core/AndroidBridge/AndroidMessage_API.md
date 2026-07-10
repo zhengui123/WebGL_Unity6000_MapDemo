@@ -1,20 +1,23 @@
-# Unity 操控级别桥接 API（Android 侧）
+# Unity ↔ Android 桥接 API
 
-本文档供 **Android 原生开发**接入 Unity 地图 Demo 的操控级别跳转能力。
+本文档描述 **Unity 中央可视化** 与 **Android 原生宿主** 之间的双向通信接口。
 
----
-
-## 约定
-
-| 项目 | 值 |
-|------|-----|
-| Unity 接收物体名 | `AndroidBridge` |
-| Android → Unity | `UnityPlayer.UnitySendMessage(...)` |
-| Unity → Android | `MainActivity` 中实现对应 `public` 方法，由 Unity 通过 `activity.Call(...)` 调用 |
+实现脚本：`Assets/Scripts/Core/AndroidBridge/AndroidMessage.cs`  
+Unity 场景中需存在名为 **`AndroidBridge`** 的 GameObject，并挂载 `AndroidMessage` 组件。
 
 ---
 
-## 操控级别
+## 一、通信约定
+
+| 项目 | 说明 |
+|------|------|
+| Unity 接收物体名 | `AndroidBridge`（固定） |
+| Android → Unity | `UnityPlayer.UnitySendMessage("AndroidBridge", 方法名, 参数)` |
+| Unity → Android | `MainActivity` 中实现 `public` 回调方法，Unity 通过 `activity.Call(方法名, json)` 调用 |
+| 数据格式 | JSON 字符串，字段名**区分大小写**，编码 UTF-8 |
+| 调用特性 | Android → Unity 多为**异步发起**；结果通过 Unity → Android 回调感知 |
+
+### 操控级别（`targetState` / `from` / `to`）
 
 | 值 | 级别 |
 |----|------|
@@ -27,29 +30,27 @@
 
 ---
 
-## 一、Android 调用 Unity：发起层级跳转
+## 二、Android → Unity（`UnitySendMessage`）
 
-### 调用方式
+### 2.1 `TransitionToControlState` — 跳转到指定操控级别
+
+**调用：**
 
 ```java
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 ```
 
-### 请求 JSON 字段
-
-字段名区分大小写，须与下表一致。
+**请求 JSON 字段：**
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `targetState` | int | 是 | 目标级别 0~5 |
-| `provinceName` | string | 否 | 省名，如「山东」；省略或 `""` 表示使用 Unity 默认 |
-| `provinceModuleName` | string | 否 | 省级 3D 板块对象名 |
-| `partId` | string | 否 | 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件 |
+| `provinceName` | string | 否 | 省名，如「山东」；省略或 `""` 使用 Unity 默认 |
+| `provinceModuleName` | string | 否 | 省级 3D 板块 GameObject 名 |
+| `partId` | string | 否 | 业务零部件 ID；进入零件级、零件切换、攻击路径→零件时使用 |
 | `useInstantTransition` | bool | 否 | 是否跳过过渡动画；省略为 `false` |
 
-### 调用示例
-
-**跳到省级，并指定省名与板块模块：**
+**示例 — 跳到省级：**
 
 ```java
 String json = "{"
@@ -61,14 +62,14 @@ String json = "{"
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 ```
 
-**仅指定目标为车辆级（其余参数走默认）：**
+**示例 — 仅跳到车辆级：**
 
 ```java
-String json = "{\"targetState\":3}";
-UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
+UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState",
+    "{\"targetState\":3}");
 ```
 
-**瞬时跳到零件级：**
+**示例 — 瞬时跳到零件级：**
 
 ```java
 String json = "{"
@@ -79,41 +80,108 @@ String json = "{"
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 ```
 
-### 说明
+**说明：**
 
-- 本接口为**异步发起**，Unity 不通过回调告知成功或失败。
-- `targetState` 必须为 0~5；非法值时 Unity 侧会忽略请求。
+- `targetState` 非法（非 0~5）时 Unity 忽略请求，Console 输出警告。
 - 可选字符串字段可不传；传空字符串与省略等价。
+- 跳转是否成功无同步返回值；请结合 `onUnityControlStateTransition` 回调判断。
 
 ---
 
-## 二、Unity 回调 Android / WebGL：级别跳转通知
+### 2.2 `TransitionToNextControlState` — 进入下一操控级别
 
-### 需在 MainActivity / 宿主页面实现的方法
+等同 Unity 内双击操作。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToNextControlState", "");
+```
+
+---
+
+### 2.3 `TransitionToPreviousControlState` — 返回上一操控级别
+
+等同 Unity 内系统返回键。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToPreviousControlState", "");
+```
+
+---
+
+### 2.4 `SetBigScreenAutoCarouselEnabled` — 大屏自动轮播开关
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetBigScreenAutoCarouselEnabled",
+    "{\"enabled\":true}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `enabled` | bool | 是 | `true` 开启四屏自动轮播，`false` 关闭 |
+
+---
+
+### 2.5 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+
+> **特殊说明（重要）**  
+> **Android 侧在正式业务中无需调用本接口。**  
+> 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；Android 只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.2 节），用于平板端同步展示当前朝向。  
+> 本接口仅供 Unity Editor / Demo 联调、自动化测试等场景使用，**不作为 Android 生产集成项**。
+
+用于控制车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
+
+```java
+// 以下仅为联调示例，Android 生产代码请勿调用
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
+    "{\"yawAngle\":90.0}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `yawAngle` | float | 是 | 目标 Yaw 角度，0~360 |
+| `instant` | bool | 否 | 是否立即到位；省略为 `false`（平滑旋转，与拖拽相同 Slerp 效果） |
+
+**示例 — 平滑旋转到 180°：**
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
+    "{\"yawAngle\":180.0,\"instant\":false}");
+```
+
+**示例 — 立即到位：**
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
+    "{\"yawAngle\":90.0,\"instant\":true}");
+```
+
+---
+
+## 三、Unity → Android（MainActivity 回调）
+
+在 `MainActivity` 中实现下列 **`public`** 方法（方法名区分大小写，须完全一致）：
+
+### 3.1 `onUnityControlStateTransition` — 操控级别过渡通知
 
 ```java
 public void onUnityControlStateTransition(String json) { }
 ```
 
-```javascript
-function onUnityControlStateTransition(json) { }
-```
-
-同一回调承载两类通知，通过 `from` 区分：
+同一回调承载**过渡开始**与**过渡完成**两类通知，通过 `from` 区分：
 
 | `from` | 含义 |
 |--------|------|
 | `0~5` | 过渡**开始**（动画尚未结束） |
-| `-1` | 过渡**完成**（目标级别已加载就绪） |
+| `-1` | 过渡**完成**（目标级别已就绪） |
 
-### 回调 JSON 字段
+**回调 JSON 字段：**
 
 | 字段 | 类型 | 说明 |
 |------|------|------|
 | `from` | int | 起始级别 `0~5`；完成通知时为 `-1` |
 | `to` | int | 目标级别 `0~5` |
-| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它场景为空字符串 |
-| `status` | int | **（预留）** 大屏跳转状态：`0` 普通跳转、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
+| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
+| `status` | int | **（预留）** 大屏跳转状态：`0` 普通、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
 
 **过渡开始示例：**
 
@@ -121,17 +189,13 @@ function onUnityControlStateTransition(json) { }
 {"from":1,"to":2,"partId":"","status":0}
 ```
 
-表示从**国家级**进入**省级**的过渡已开始。
-
 **过渡完成示例：**
 
 ```json
 {"from":-1,"to":4,"partId":"Group01","status":0}
 ```
 
-表示**零件级**过渡已完成并可交互。
-
-### 接收示例
+**接收示例：**
 
 ```java
 public void onUnityControlStateTransition(String json) {
@@ -140,13 +204,13 @@ public void onUnityControlStateTransition(String json) {
         int from = obj.getInt("from");
         int to = obj.getInt("to");
         String partId = obj.optString("partId", "");
-        int status = obj.optInt("status", 0); // 预留：大屏状态
+        int status = obj.optInt("status", 0);
         if (from == -1) {
-            Log.d("UnityBridge", "transition completed, level=" + to + ", partId=" + partId);
-            // 根据 to / partId 隐藏 Loading、刷新原生界面
+            Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId);
+            // 隐藏 Loading、刷新原生界面
         } else {
-            Log.d("UnityBridge", "transition start: " + from + " -> " + to);
-            // 根据 from / to 展示 Loading
+            Log.d("UnityBridge", "过渡开始: " + from + " -> " + to);
+            // 展示 Loading
         }
     } catch (JSONException e) {
         Log.e("UnityBridge", "invalid transition json: " + json, e);
@@ -154,25 +218,18 @@ public void onUnityControlStateTransition(String json) {
 }
 ```
 
+#### 会触发本回调的场景
 
----
+**过渡开始（`from` 为 0~5）：**
 
-
-
-## 三、会触发 `onUnityControlStateTransition` 的场景
-
-### 过渡开始（`from` 为 0~5）
-
-以下为 Unity 侧可能发起的跳转；在对应过渡**开始时**回调一次。
-
-| from → to | 场景说明 |
-|-----------|----------|
-| 0 → 1 | 地球 → 国家（进入板块地图） |
-| 1 → 0 | 国家 → 地球（返回地球视图） |
-| 1 → 2 | 国家 → 省级（开始聚焦某省模块） |
-| 2 → 1 | 省级 → 国家（相机还原到国家视图） |
-| 2 → 3 | 省级 → 车辆（进入车辆视图） |
-| 3 → 2 | 车辆 → 省级（返回省级视图） |
+| from → to | 场景 |
+|-----------|------|
+| 0 → 1 | 地球 → 国家 |
+| 1 → 0 | 国家 → 地球 |
+| 1 → 2 | 国家 → 省级 |
+| 2 → 1 | 省级 → 国家 |
+| 2 → 3 | 省级 → 车辆 |
+| 3 → 2 | 车辆 → 省级 |
 | 3 → 4 | 车辆 → 零件 |
 | 4 → 3 | 零件 → 车辆 |
 | 4 → 4 | 零件 → 零件切换 |
@@ -180,12 +237,10 @@ public void onUnityControlStateTransition(String json) {
 | 5 → 3 | 攻击路径 → 车辆 |
 | 5 → 4 | 攻击路径 → 零件 |
 
-### 过渡完成（`from` 为 -1）
+**过渡完成（`from` 为 -1）：**
 
-在对应过渡动画结束、目标级别就绪后回调一次；`to` 为已就绪级别。
-
-| to | 场景说明 | partId |
-|----|----------|--------|
+| to | 场景 | partId |
+|----|------|--------|
 | 0 | 地球级就绪 | 空 |
 | 1 | 国家级就绪 | 空 |
 | 2 | 省级就绪 | 空 |
@@ -193,119 +248,85 @@ public void onUnityControlStateTransition(String json) {
 | 4 | 零件级就绪 | 进入/切换/攻击路径→零件时可有值 |
 | 5 | 攻击路径级就绪 | 空 |
 
-> 跨多级跳转（如国家 → 零件）时，每一级过渡完成都会分别回调一次 `from=-1`。
-
-
+> 跨多级跳转时，每一级过渡完成都会分别回调一次 `from=-1`。
 
 ---
 
+### 3.2 `onUnityCarYawRotationChanged` — 车辆旋转变化通知
 
+大屏用户拖拽车辆或 Unity 内部设角后，Unity 将当前 Yaw 通知 Android。**Android 通过本回调同步平板展示即可，无需反向调用 `SetCarYawRotation`。**
 
-## 四、MainActivity 接口汇总
+```java
+public void onUnityCarYawRotationChanged(String json) { }
+```
 
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `yawAngle` | float | 当前 Yaw 角度，0~360 |
+| `isDragging` | bool | `true` 拖拽中连续回调；`false` 松手、API 平滑插值中或到位 |
 
+**拖拽中示例：**
 
-### Android 需实现（Unity → Android）
+```json
+{"yawAngle":45.2,"isDragging":true}
+```
 
+**松手或 API 到位示例：**
 
+```json
+{"yawAngle":90.0,"isDragging":false}
+```
+
+**说明：**
+
+- 拖拽过程中角度变化 ≥ 0.5° 时连续回调。
+- API 设角且 `instant=false` 时，平滑插值过程中按实际显示角度连续回调（`isDragging=false`），到位后再回调一次最终角度。
+- API 设角且 `instant=true` 时，立即回调一次最终角度。
+
+**接收示例：**
+
+```java
+public void onUnityCarYawRotationChanged(String json) {
+    try {
+        JSONObject obj = new JSONObject(json);
+        float yawAngle = (float) obj.getDouble("yawAngle");
+        boolean isDragging = obj.getBoolean("isDragging");
+        Log.d("UnityBridge", "car yaw=" + yawAngle + ", dragging=" + isDragging);
+    } catch (JSONException e) {
+        Log.e("UnityBridge", "invalid car yaw json: " + json, e);
+    }
+}
+```
+
+---
+
+## 四、接口汇总
+
+### Android 需在 MainActivity 实现（Unity → Android）
 
 | 方法 | 参数 | 说明 |
-
 |------|------|------|
-
-| `onUnityControlStateTransition` | JSON `{"from":n,"to":m}` | 操控级别过渡开始 |
-
-
+| `onUnityControlStateTransition` | JSON | 操控级别过渡开始 / 完成 |
+| `onUnityCarYawRotationChanged` | JSON | 车辆 Yaw 旋转变化 |
 
 ### Android 可调用（Android → Unity）
 
-
-
-| UnitySendMessage 方法名 | 第 3 参数 | 说明 |
-
-|-------------------------|-----------|------|
-
-| `TransitionToControlState` | JSON，见第一节 | 请求跳转到指定操控级别 |
-
-
+| `UnitySendMessage` 方法名 | 第 3 参数 | 说明 |
+|---------------------------|-----------|------|
+| `TransitionToControlState` | JSON | 跳转到指定操控级别 |
+| `TransitionToNextControlState` | `""` | 进入下一级别 |
+| `TransitionToPreviousControlState` | `""` | 返回上一级别 |
+| `SetBigScreenAutoCarouselEnabled` | JSON | 开启/关闭大屏自动轮播 |
+| `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
 
 ---
 
-## 五、WebGL 跨域 iframe 嵌入（Vue 父页面）
+## 五、联调建议
 
-Unity 打包产物作为 `<iframe src=".../index.html">` 嵌入前端时，**仅使用 `postMessage`**，不直接调用 `parent` 上的函数。
-
-### 消息协议
-
-| 方向 | `source` | 字段 | 说明 |
-|------|----------|------|------|
-| Unity → 父页面 | `unity-webgl` | `method`, `message` | 与 Android 回调方法名一致，如 `onUnityControlStateTransition` |
-| 父页面 → Unity | `webgl-unity-parent` | `method`, `arg` | `method` 对应 `WebGLAPI` 公共方法，如 `TransitionToControlState` |
-
-就绪通知：Unity 启动后发送 `{ source:"unity-webgl", method:"onUnityWebGLReady", message:"" }`。
-
-### iframe 内 index.html（Build 后合并）
-
-```javascript
-var unityInstance = null;
-createUnityInstance(canvas, config, onProgress).then((instance) => {
-  unityInstance = instance;
-  window.unityInstance = instance; // jslib 依赖此全局变量
-});
-```
-
-参考：`Assets/Plugins/Web/WebJs/WebGLEmbedIframe.sample.html`
-
-### Vue 父页面示例
-
-完整 API 见：**`Assets/Plugins/Web/WebJs/vue-parent-demo/WebGL_Iframe_API.md`**
-
-免 npm 单文件：`vue-parent-demo/vue-parent-standalone.html`
-
-```javascript
-// composables/useUnityIframeBridge.js — 见 Assets/Plugins/Web/WebJs/vue-parent-embed.sample.js
-iframeRef.value.contentWindow.postMessage({
-  source: 'webgl-unity-parent',
-  method: 'TransitionToControlState',
-  arg: JSON.stringify({ targetState: 4, partId: 'Group01' })
-}, '*');
-
-window.addEventListener('message', (event) => {
-  const data = event.data;
-  if (!data || data.source !== 'unity-webgl') return;
-  if (data.method === 'onUnityControlStateTransition') {
-    const { from, to, partId } = JSON.parse(data.message);
-    // from=-1 表示过渡完成；0~5 表示过渡开始
-  }
-});
-```
-
-### WebGL 与 Android API 对齐
-
-| 父页面 → Unity `method` | `arg` | 说明 |
-|-------------------------|-------|------|
-| `TransitionToControlState` | JSON | 同 Android `TransitionToControlState` |
-| `TransitionToNextControlState` | `""` | 下一级 |
-| `TransitionToPreviousControlState` | `""` | 上一级 |
-| `SetBigScreenAutoCarouselEnabled` | `{"enabled":true}` | 大屏轮播 |
-
-| Unity → 父页面 `method` | `message` | 说明 |
-|-------------------------|-----------|------|
-| `onUnityWebGLReady` | `""` | 桥接就绪 |
-| `onUnityControlStateTransition` | JSON | 同 Android；`from=-1` 为完成通知 |
-
----
-
-## 六、联调建议
-
-
-
-1. 确认 `UnityPlayer.UnitySendMessage` 的第一个参数固定为 **`AndroidBridge`**。
-
-2. JSON 使用 UTF-8，中文省名无需额外转义（标准 JSON 字符串即可）。
-
-3. 收到 `onUnityControlStateTransition` 后按 `to` 切换界面；需要主动跳转时调用 `TransitionToControlState`。
-
-4. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致（区分大小写）。
-
-
+1. `UnitySendMessage` 第一个参数固定为 **`AndroidBridge`**。
+2. JSON 使用 UTF-8；中文省名按标准 JSON 字符串传递即可。
+3. 收到 `onUnityControlStateTransition` 且 `from=-1` 时，表示目标级别已可交互。
+4. 车辆旋转：Android **监听** `onUnityCarYawRotationChanged` 即可，**勿调用** `SetCarYawRotation`。
+5. 需要主动跳转时调用 `TransitionToControlState`。
+6. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
+7. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。

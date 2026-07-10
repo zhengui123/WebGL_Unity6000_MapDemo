@@ -15,6 +15,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _previousLevelEntryButton;
     [SerializeField] private Button _bigScreenCarouselEntryButton;
     [SerializeField] private Button _httpApiTestEntryButton;
+    [SerializeField] private Button _androidBridgeApiEntryButton;
 
     private void Awake()
     {
@@ -51,6 +52,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_httpApiTestEntryButton != null)
         {
             _httpApiTestEntryButton.onClick.AddListener(OnHttpApiTestEntryClicked);
+        }
+
+        if (_androidBridgeApiEntryButton != null)
+        {
+            _androidBridgeApiEntryButton.onClick.AddListener(OnAndroidBridgeApiEntryClicked);
         }
     }
 
@@ -89,6 +95,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_httpApiTestEntryButton != null)
         {
             _httpApiTestEntryButton.onClick.RemoveListener(OnHttpApiTestEntryClicked);
+        }
+
+        if (_androidBridgeApiEntryButton != null)
+        {
+            _androidBridgeApiEntryButton.onClick.RemoveListener(OnAndroidBridgeApiEntryClicked);
         }
     }
 
@@ -174,6 +185,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowHttpApiTestPanel();
+    }
+
+    private void OnAndroidBridgeApiEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowAndroidBridgeApiPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

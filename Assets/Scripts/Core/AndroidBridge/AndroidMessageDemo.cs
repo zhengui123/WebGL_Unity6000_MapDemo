@@ -12,14 +12,19 @@ public class AndroidMessageDemo : MonoBehaviour
     [SerializeField] private string _sampleJson =
         "{\"targetState\":2,\"provinceName\":\"山东\",\"provinceModuleName\":\"polySurface3\",\"useInstantTransition\":false}";
 
+    [SerializeField] private string _sampleCarYawJson = "{\"yawAngle\":90.0,\"instant\":false}";
+
     private void Update()
     {
-        if (!Input.GetKeyDown(_transitionKey))
+        if (Input.GetKeyDown(_transitionKey))
         {
-            return;
+            CallTransitionToControlStateSample();
         }
 
-        CallTransitionToControlStateSample();
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            CallSetCarYawRotationSample();
+        }
     }
 
     /// <summary>
@@ -37,5 +42,21 @@ public class AndroidMessageDemo : MonoBehaviour
 
         Debug.Log($"[AndroidMessageDemo] 模拟 Android 调用 TransitionToControlState: {_sampleJson}");
         AndroidMessage.Instance.TransitionToControlState(_sampleJson);
+    }
+
+    /// <summary>
+    /// UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
+    /// </summary>
+    [ContextMenu("示例：SetCarYawRotation")]
+    public void CallSetCarYawRotationSample()
+    {
+        if (AndroidMessage.Instance == null)
+        {
+            Debug.LogWarning("[AndroidMessageDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
+            return;
+        }
+
+        Debug.Log($"[AndroidMessageDemo] 模拟 Android 调用 SetCarYawRotation: {_sampleCarYawJson}");
+        AndroidMessage.Instance.SetCarYawRotation(_sampleCarYawJson);
     }
 }

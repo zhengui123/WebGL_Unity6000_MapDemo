@@ -68,6 +68,28 @@ public struct BigScreenAutoCarouselRequest
     public bool enabled;
 }
 
+/// <summary>Android → Unity 设置车辆 Y 轴旋转角度。</summary>
+[System.Serializable]
+public struct SetCarYawRotationRequest
+{
+    /// <summary>目标 Yaw 角度，0~360。</summary>
+    public float yawAngle;
+
+    /// <summary>是否立即到位；JSON 省略时 Unity 侧默认 false（平滑旋转）。</summary>
+    public bool instant;
+}
+
+/// <summary>Unity → Android 车辆 Yaw 旋转变化通知。</summary>
+[System.Serializable]
+public struct CarYawRotationNotify
+{
+    /// <summary>当前 Yaw 角度，0~360。</summary>
+    public float yawAngle;
+
+    /// <summary>true 表示拖拽中连续回调，false 表示松手或 API 设角。</summary>
+    public bool isDragging;
+}
+
 /// <summary>
 /// Unity 与 Android 宿主双向通信。场景内需有名为 AndroidBridge 的物体并挂载本脚本。
 /// </summary>
@@ -86,6 +108,11 @@ public class AndroidMessage : MonoBehaviour
 
     public event System.Action<string> OnAndroidMessageReceived;
 
+    /// <summary>车辆 Yaw 变化已通知 Android（Editor 调试用）。</summary>
+    public event System.Action<CarYawRotationNotify> OnCarYawRotationNotified;
+
+    private MouseDragYawRotate _carYawRotate;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -103,11 +130,13 @@ public class AndroidMessage : MonoBehaviour
     {
         // 订阅各级别跳转开始事件，通知 Android from → to
         SubscribeControlStateEvents();
+        TrySubscribeCarYawRotation();
     }
 
     private void OnDisable()
     {
         UnsubscribeControlStateEvents();
+        UnsubscribeCarYawRotation();
     }
 
     #region Unity → Android（对应 MainActivity 三个测试方法）
@@ -125,6 +154,20 @@ public class AndroidMessage : MonoBehaviour
     public void CallAndroidRequestDataSync(string message)
     {
         CallActivity("onUnityRequestDataSync", message ?? "");
+    }
+
+    /// <summary>通知 Android 车辆 Yaw 旋转变化（JSON）。</summary>
+    public void CallAndroidCarYawRotationChanged(float yawAngle, bool isDragging)
+    {
+        var notify = new CarYawRotationNotify
+        {
+            yawAngle = NormalizeYawAngle(yawAngle),
+            isDragging = isDragging,
+        };
+        string json = JsonUtility.ToJson(notify);
+        Debug.Log($"[AndroidMessage] 车辆 Yaw 回调: {json}");
+        OnCarYawRotationNotified?.Invoke(notify);
+        CallActivity("onUnityCarYawRotationChanged", json);
     }
 
     /// <summary>通知 Android 操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
@@ -553,6 +596,89 @@ public class AndroidMessage : MonoBehaviour
         {
             Debug.LogWarning($"[AndroidMessage] SetBigScreenAutoCarouselEnabled 失败: {json}");
         }
+    }
+
+    /// <summary>
+    /// Android 调用：设置车辆 Y 轴旋转角度。
+    /// UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
+    /// json 示例：{"yawAngle":90.0,"instant":false}
+    /// </summary>
+    public void SetCarYawRotation(string json)
+    {
+        Debug.Log($"[AndroidMessage] SetCarYawRotation 收到: {json}");
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[AndroidMessage] SetCarYawRotation: JSON 为空。");
+            return;
+        }
+
+        if (!TryResolveCarYawRotate())
+        {
+            Debug.LogWarning("[AndroidMessage] SetCarYawRotation 失败：未找到车辆旋转控制器。");
+            return;
+        }
+
+        SetCarYawRotationRequest request = JsonUtility.FromJson<SetCarYawRotationRequest>(json);
+        bool instant = json.Contains("\"instant\"") && request.instant;
+        _carYawRotate.SetYawAngle(request.yawAngle, instant, notify: true);
+        Debug.Log($"[AndroidMessage] SetCarYawRotation 已应用: yaw={NormalizeYawAngle(request.yawAngle):F1}°, instant={instant}");
+    }
+
+    private void TrySubscribeCarYawRotation()
+    {
+        if (!TryResolveCarYawRotate())
+        {
+            return;
+        }
+
+        _carYawRotate.OnYawAngleChanged -= HandleCarYawAngleChanged;
+        _carYawRotate.OnYawAngleChanged += HandleCarYawAngleChanged;
+        Debug.Log("[AndroidMessage] 已订阅车辆 Yaw 旋转回调。");
+    }
+
+    private void UnsubscribeCarYawRotation()
+    {
+        if (_carYawRotate == null)
+        {
+            return;
+        }
+
+        _carYawRotate.OnYawAngleChanged -= HandleCarYawAngleChanged;
+    }
+
+    private void HandleCarYawAngleChanged(float yawAngle, bool isDragging)
+    {
+        CallAndroidCarYawRotationChanged(yawAngle, isDragging);
+    }
+
+    private bool TryResolveCarYawRotate()
+    {
+        if (_carYawRotate != null)
+        {
+            return true;
+        }
+
+        CarModelController carModelController = FindFirstObjectByType<CarModelController>();
+        if (carModelController != null && carModelController.carModelRotateController != null)
+        {
+            _carYawRotate = carModelController.carModelRotateController;
+            return true;
+        }
+
+        _carYawRotate = FindFirstObjectByType<MouseDragYawRotate>();
+        return _carYawRotate != null;
+    }
+
+    private static float NormalizeYawAngle(float yawDegrees)
+    {
+        float normalized = yawDegrees % 360f;
+        if (normalized < 0f)
+        {
+            normalized += 360f;
+        }
+
+        return normalized;
     }
 
     private static string NormalizeOptionalString(string value)

@@ -17,6 +17,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _previousLevelPanel;
     [SerializeField] private GameObject _bigScreenCarouselPanel;
     [SerializeField] private GameObject _httpApiTestPanel;
+    [SerializeField] private GameObject _androidBridgeApiPanel;
 
     private void Awake()
     {
@@ -60,6 +61,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowControlStateJumpPanel()
@@ -72,6 +74,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowPlateMapHighlightPanel()
@@ -84,6 +87,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowVehicleHeatmapUpdatePanel()
@@ -96,6 +100,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowCarPanelUiPanel()
@@ -108,6 +113,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowPreviousLevelPanel()
@@ -120,6 +126,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, true);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowBigScreenCarouselPanel()
@@ -132,6 +139,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, true);
         SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, false);
     }
 
     public void ShowHttpApiTestPanel()
@@ -144,6 +152,20 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_previousLevelPanel, false);
         SetPanelActive(_bigScreenCarouselPanel, false);
         SetPanelActive(_httpApiTestPanel, true);
+        SetPanelActive(_androidBridgeApiPanel, false);
+    }
+
+    public void ShowAndroidBridgeApiPanel()
+    {
+        SetPanelActive(_menuPanel, false);
+        SetPanelActive(_controlStateJumpPanel, false);
+        SetPanelActive(_plateMapHighlightPanel, false);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
+        SetPanelActive(_carPanelUiPanel, false);
+        SetPanelActive(_previousLevelPanel, false);
+        SetPanelActive(_bigScreenCarouselPanel, false);
+        SetPanelActive(_httpApiTestPanel, false);
+        SetPanelActive(_androidBridgeApiPanel, true);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)
