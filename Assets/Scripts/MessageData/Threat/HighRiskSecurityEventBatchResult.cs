@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// 按省分批请求全部区域的汇总结果。
+/// 国内全国单次请求汇总结果。
 /// </summary>
 public sealed class HighRiskSecurityEventBatchResult
 {

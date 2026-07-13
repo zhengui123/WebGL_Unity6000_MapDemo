@@ -8,10 +8,12 @@ public class HighRiskSecurityEventRequest
 {
     public string startTime = ThreatQueryDefaults.StartTime;
     public string endTime = ThreatQueryDefaults.EndTime;
+    /// <summary>国家 code（空表示中国）。</summary>
     public string firstClassCode = string.Empty;
+    /// <summary>省级 adcode（空表示全国不限省）。</summary>
     public string secondClassCode = string.Empty;
 
-    /// <summary>创建国内单省请求：firstClassCode 为单个省级 adcode。</summary>
+    /// <summary>创建国内单省筛选请求：firstClassCode 国家（空=中国），secondClassCode 省级 adcode。</summary>
     public static HighRiskSecurityEventRequest CreateForProvince(
         string provinceCode,
         string startTime = null,
@@ -21,8 +23,8 @@ public class HighRiskSecurityEventRequest
         {
             startTime = ThreatQueryDefaults.ResolveStartTime(startTime),
             endTime = ThreatQueryDefaults.ResolveEndTime(endTime),
-            firstClassCode = provinceCode ?? string.Empty,
-            secondClassCode = string.Empty,
+            firstClassCode = ThreatRegionCodeSettings.DomesticFirstClassCode,
+            secondClassCode = provinceCode ?? string.Empty,
         };
     }
 

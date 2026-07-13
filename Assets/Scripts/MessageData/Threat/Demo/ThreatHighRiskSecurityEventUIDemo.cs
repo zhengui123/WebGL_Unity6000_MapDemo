@@ -4,21 +4,17 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 威胁态势高危安全事件接口 Demo：分批按省请求并展示结果列表。
+/// 威胁态势高危安全事件接口 Demo：全国单次请求，列表展示各省事件条数。
 /// </summary>
 [DisallowMultipleComponent]
 public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
 {
-    public const string DefaultProvinceCode = "370000";
-
     [Header("查询参数")]
     [SerializeField] private InputField _startTimeInput;
     [SerializeField] private InputField _endTimeInput;
-    [SerializeField] private InputField _provinceCodeInput;
 
     [Header("操作")]
-    [SerializeField] private Button _requestAllProvincesButton;
-    [SerializeField] private Button _requestSingleProvinceButton;
+    [SerializeField] private Button _requestNationalButton;
     [SerializeField] private Button _refreshListButton;
     [SerializeField] private Button _completeAlertButton;
     [SerializeField] private Button _backButton;
@@ -30,22 +26,15 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
 
     [SerializeField] private DemoGameStateUINavigator _navigator;
 
-    private int _batchCompletedRegionCount;
-    private int _batchTotalRegionCount;
     private bool _isRequesting;
 
     private void Awake()
     {
         EnsureReferences();
 
-        if (_requestAllProvincesButton != null)
+        if (_requestNationalButton != null)
         {
-            _requestAllProvincesButton.onClick.AddListener(OnRequestAllProvincesClicked);
-        }
-
-        if (_requestSingleProvinceButton != null)
-        {
-            _requestSingleProvinceButton.onClick.AddListener(OnRequestSingleProvinceClicked);
+            _requestNationalButton.onClick.AddListener(OnRequestNationalClicked);
         }
 
         if (_refreshListButton != null)
@@ -76,7 +65,6 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
 
     private void OnEnable()
     {
-        HighRiskSecurityEventApi.RequestCompleted += HandleRegionRequestCompleted;
         HighRiskSecurityEventApi.BatchCompleted += HandleBatchCompleted;
         HighRiskSecurityEventDataStore.Instance.DataChanged += HandleDataStoreChanged;
         ThreatProvinceAlertController.ProvinceAlertStarted += HandleProvinceAlertStarted;
@@ -86,14 +74,13 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         ApplyDefaultInputs();
         ApplyRuntimeTextStyle();
         RefreshEffectiveTimeHint();
-        RefreshStatusLabel("就绪：可请求国内全部省份或单省。");
+        RefreshStatusLabel("就绪：点击「请求全国」拉取数据。");
         RefreshResultList();
         RefreshRequestButtons();
     }
 
     private void OnDisable()
     {
-        HighRiskSecurityEventApi.RequestCompleted -= HandleRegionRequestCompleted;
         HighRiskSecurityEventApi.BatchCompleted -= HandleBatchCompleted;
 
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
@@ -109,14 +96,9 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (_requestAllProvincesButton != null)
+        if (_requestNationalButton != null)
         {
-            _requestAllProvincesButton.onClick.RemoveListener(OnRequestAllProvincesClicked);
-        }
-
-        if (_requestSingleProvinceButton != null)
-        {
-            _requestSingleProvinceButton.onClick.RemoveListener(OnRequestSingleProvinceClicked);
+            _requestNationalButton.onClick.RemoveListener(OnRequestNationalClicked);
         }
 
         if (_refreshListButton != null)
@@ -140,21 +122,18 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         EnsureReferences();
         SetInputText(_startTimeInput, ThreatQueryDefaults.StartTime);
         SetInputText(_endTimeInput, ThreatQueryDefaults.EndTime);
-        SetInputText(_provinceCodeInput, DefaultProvinceCode);
     }
 
     private void RefreshEffectiveTimeHint()
     {
-        string startTime = ResolveStartTimeFromInput();
-        string endTime = ResolveEndTimeFromInput();
         if (_startTimeInput != null && string.IsNullOrWhiteSpace(_startTimeInput.text))
         {
-            SetInputText(_startTimeInput, startTime);
+            SetInputText(_startTimeInput, ResolveStartTimeFromInput());
         }
 
         if (_endTimeInput != null && string.IsNullOrWhiteSpace(_endTimeInput.text))
         {
-            SetInputText(_endTimeInput, endTime);
+            SetInputText(_endTimeInput, ResolveEndTimeFromInput());
         }
     }
 
@@ -164,10 +143,9 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         ThreatDemoUiStyle.ApplyResultText(_resultListText);
         ThreatDemoUiStyle.ApplyInputField(_startTimeInput);
         ThreatDemoUiStyle.ApplyInputField(_endTimeInput);
-        ThreatDemoUiStyle.ApplyInputField(_provinceCodeInput);
     }
 
-    private void OnRequestAllProvincesClicked()
+    private void OnRequestNationalClicked()
     {
         if (_isRequesting || HighRiskSecurityEventApi.IsBatchRequesting)
         {
@@ -175,123 +153,40 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
             return;
         }
 
-        string startTime = ResolveStartTimeFromInput();
-        string endTime = ResolveEndTimeFromInput();
-        int regionCount = HighRiskSecurityEventApi.GetDomesticProvinceCount();
-        if (regionCount <= 0)
-        {
-            RefreshStatusLabel("请求失败：未获取到国内省级 code 列表。");
-            return;
-        }
-
-        _batchCompletedRegionCount = 0;
-        _batchTotalRegionCount = regionCount;
         _isRequesting = true;
         RefreshRequestButtons();
-        RefreshStatusLabel($"分批请求中：0/{regionCount} 省…");
+        RefreshStatusLabel("全国请求中…");
         RefreshResultList();
 
         HighRiskSecurityEventApi.RequestAllDomesticProvinces(
-            startTime,
-            endTime,
-            OnAllProvincesBatchCompleted);
+            ResolveStartTimeFromInput(),
+            ResolveEndTimeFromInput(),
+            OnNationalRequestCompleted);
     }
 
-    private void OnRequestSingleProvinceClicked()
-    {
-        if (_isRequesting || HighRiskSecurityEventApi.IsBatchRequesting)
-        {
-            RefreshStatusLabel("已有请求进行中，请等待完成。");
-            return;
-        }
-
-        string provinceCode = GetInputText(_provinceCodeInput, DefaultProvinceCode);
-        if (string.IsNullOrWhiteSpace(provinceCode))
-        {
-            RefreshStatusLabel("单省请求失败：province code 为空。");
-            return;
-        }
-
-        string startTime = ResolveStartTimeFromInput();
-        string endTime = ResolveEndTimeFromInput();
-        ThreatRegionRequestCodes regionCodes = new ThreatRegionRequestCodes(provinceCode.Trim(), string.Empty);
-
-        _isRequesting = true;
-        RefreshRequestButtons();
-        RefreshStatusLabel($"单省请求中：{provinceCode}…");
-
-        HighRiskSecurityEventApi.RequestSingleRegion(
-            regionCodes,
-            startTime,
-            endTime,
-            OnSingleProvinceRequestCompleted,
-            evaluateAlerts: true);
-    }
-
-    private void OnSingleProvinceRequestCompleted(HttpRequestResult result, HighRiskSecurityEventResponse response)
-    {
-        _isRequesting = false;
-        RefreshRequestButtons();
-
-        if (result == null)
-        {
-            RefreshStatusLabel("单省请求失败：结果为空。");
-            return;
-        }
-
-        if (!result.IsSuccess || response == null || !response.IsSuccess)
-        {
-            string error = result.Error;
-            if (response != null && !response.IsSuccess)
-            {
-                error = $"code={response.code}, msg={response.msg}";
-            }
-
-            RefreshStatusLabel($"单省请求失败：{error}");
-            RefreshResultList();
-            return;
-        }
-
-        int count = response.data != null ? response.data.Length : 0;
-        RefreshStatusLabel($"单省请求成功：province={GetInputText(_provinceCodeInput, DefaultProvinceCode)}，事件数={count}");
-        RefreshResultList();
-    }
-
-    private void OnAllProvincesBatchCompleted(HttpRequestResult result, HighRiskSecurityEventBatchResult batchResult)
+    private void OnNationalRequestCompleted(HttpRequestResult result, HighRiskSecurityEventBatchResult batchResult)
     {
         _isRequesting = false;
         RefreshRequestButtons();
 
         if (batchResult == null)
         {
-            RefreshStatusLabel("分批请求结束：无汇总结果。");
+            RefreshStatusLabel("全国请求结束：无汇总结果。");
             RefreshResultList();
             return;
         }
 
-        RefreshStatusLabel(
-            $"分批请求完成：成功 {batchResult.SuccessRegionCount}/{batchResult.TotalRegionCount} 省，" +
-            $"失败 {batchResult.FailedRegionCount}，总事件 {batchResult.TotalEventCount} 条。");
-        RefreshResultList();
-    }
-
-    private void HandleRegionRequestCompleted(
-        HttpRequestResult result,
-        HighRiskSecurityEventResponse response,
-        ThreatRegionRequestCodes regionCodes)
-    {
-        if (!_isRequesting)
+        if (batchResult.FailedRegionCount > 0 || batchResult.SuccessRegionCount == 0)
         {
-            return;
+            string error = result != null && !string.IsNullOrWhiteSpace(result.Error) ? result.Error : "请求失败";
+            RefreshStatusLabel($"全国请求失败：{error}");
+        }
+        else
+        {
+            RefreshStatusLabel(
+                $"全国请求成功：共 {batchResult.TotalEventCount} 条，覆盖 {HighRiskSecurityEventDataStore.Instance.ProvinceGroupCount} 个省。");
         }
 
-        _batchCompletedRegionCount++;
-        int eventCount = response?.data != null ? response.data.Length : 0;
-        bool success = result != null && result.IsSuccess && response != null && response.IsSuccess;
-        string status = success ? "成功" : "失败";
-        RefreshStatusLabel(
-            $"分批请求进度 {_batchCompletedRegionCount}/{Mathf.Max(_batchTotalRegionCount, 1)}：" +
-            $"{regionCodes.FirstClassCode} {status}，本批 {eventCount} 条");
         RefreshResultList();
     }
 
@@ -357,7 +252,7 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
     private string BuildResultListText()
     {
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
-        StringBuilder builder = new StringBuilder(512);
+        StringBuilder builder = new StringBuilder(256);
         builder.AppendLine("【汇总】");
         builder.AppendLine($"总事件数：{store.Count}");
         builder.AppendLine($"覆盖省份数：{store.ProvinceGroupCount}");
@@ -367,73 +262,39 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
             $"当前省={ThreatProvinceAlertController.CurrentProvinceCode ?? "-"}");
         builder.AppendLine();
 
-        IReadOnlyList<string> qualifiedProvinces =
-            store.GetProvincesMeetingThreshold(ThreatAlertSettings.EventsPerProvinceThreshold);
-        if (qualifiedProvinces.Count > 0)
+        IReadOnlyList<string> provinceCodes = store.GetProvincesMeetingThreshold(1);
+        builder.AppendLine("【各省数据】（按条数降序）");
+        if (provinceCodes == null || provinceCodes.Count == 0)
         {
-            builder.AppendLine("【达标省份】");
-            for (int i = 0; i < qualifiedProvinces.Count; i++)
-            {
-                string provinceCode = qualifiedProvinces[i];
-                builder.AppendLine($"  {FormatProvinceHeader(provinceCode, store.GetProvinceEventCount(provinceCode))}");
-            }
-
-            builder.AppendLine();
-        }
-
-        builder.AppendLine("【按省明细】");
-        IReadOnlyList<string> allProvinceCodes = store.GetProvincesMeetingThreshold(1);
-        if (allProvinceCodes.Count == 0)
-        {
-            builder.AppendLine("(暂无数据，请先请求接口)");
+            builder.AppendLine("(暂无数据，请先请求全国)");
             return builder.ToString();
         }
 
-        const int maxEventsPerProvince = 15;
-        for (int i = 0; i < allProvinceCodes.Count; i++)
+        List<string> sortedProvinces = new List<string>(provinceCodes);
+        sortedProvinces.Sort((a, b) =>
         {
-            string provinceCode = allProvinceCodes[i];
-            IReadOnlyList<HighRiskSecurityEventItem> events = store.GetEventsByProvince(provinceCode);
-            builder.AppendLine(FormatProvinceHeader(provinceCode, events.Count));
+            int countCompare = store.GetProvinceEventCount(b).CompareTo(store.GetProvinceEventCount(a));
+            return countCompare != 0 ? countCompare : string.CompareOrdinal(a, b);
+        });
 
-            int displayCount = Mathf.Min(events.Count, maxEventsPerProvince);
-            for (int j = 0; j < displayCount; j++)
-            {
-                builder.AppendLine("  " + FormatEventLine(events[j]));
-            }
-
-            if (events.Count > maxEventsPerProvince)
-            {
-                builder.AppendLine($"  … 另有 {events.Count - maxEventsPerProvince} 条未显示");
-            }
-
-            builder.AppendLine();
+        for (int i = 0; i < sortedProvinces.Count; i++)
+        {
+            string provinceCode = sortedProvinces[i];
+            int count = store.GetProvinceEventCount(provinceCode);
+            builder.AppendLine(FormatProvinceLine(provinceCode, count));
         }
 
         return builder.ToString();
     }
 
-    private static string FormatProvinceHeader(string provinceCode, int count)
+    private static string FormatProvinceLine(string provinceCode, int count)
     {
-        string provinceName = provinceCode;
         if (GaodeProvinceAdcodeConverter.TryAdcodeToProvinceName(provinceCode, out string name))
         {
-            provinceName = $"{provinceCode} {name}";
+            return $"{provinceCode}  {name}  {count} 条";
         }
 
-        return $"[{provinceName}] {count} 条";
-    }
-
-    private static string FormatEventLine(HighRiskSecurityEventItem item)
-    {
-        if (item == null)
-        {
-            return "(空事件)";
-        }
-
-        return
-            $"eventId={item.eventId} vin={item.vin} level={item.eventLevel} " +
-            $"time={item.processTime} lon={item.longitude} lat={item.latitude}";
+        return $"{provinceCode}  {count} 条";
     }
 
     private void RefreshStatusLabel(string text)
@@ -448,14 +309,9 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
     {
         bool busy = _isRequesting || HighRiskSecurityEventApi.IsBatchRequesting;
 
-        if (_requestAllProvincesButton != null)
+        if (_requestNationalButton != null)
         {
-            _requestAllProvincesButton.interactable = !busy;
-        }
-
-        if (_requestSingleProvinceButton != null)
-        {
-            _requestSingleProvinceButton.interactable = !busy;
+            _requestNationalButton.interactable = !busy;
         }
 
         if (_completeAlertButton != null)
@@ -511,11 +367,26 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
                 ?? transform.Find("EndTimeInputRow")?.GetComponentInChildren<InputField>(true);
         }
 
-        if (_provinceCodeInput == null)
+        if (_requestNationalButton == null)
         {
-            _provinceCodeInput = transform.Find("ProvinceCodeInputRow/InputField")?.GetComponent<InputField>()
-                ?? transform.Find("ProvinceCodeInputRow/Input")?.GetComponent<InputField>()
-                ?? transform.Find("ProvinceCodeInputRow")?.GetComponentInChildren<InputField>(true);
+            _requestNationalButton =
+                transform.Find("RequestNationalButton")?.GetComponent<Button>()
+                ?? transform.Find("RequestAllProvincesButton")?.GetComponent<Button>();
+        }
+
+        if (_refreshListButton == null)
+        {
+            _refreshListButton = transform.Find("RefreshListButton")?.GetComponent<Button>();
+        }
+
+        if (_completeAlertButton == null)
+        {
+            _completeAlertButton = transform.Find("CompleteAlertButton")?.GetComponent<Button>();
+        }
+
+        if (_backButton == null)
+        {
+            _backButton = transform.Find("BackButton")?.GetComponent<Button>();
         }
 
         if (_statusLabel == null)
@@ -534,34 +405,14 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         }
     }
 
-    private static string GetInputText(InputField input, string fallback)
-    {
-        if (input == null || string.IsNullOrWhiteSpace(input.text))
-        {
-            return fallback;
-        }
-
-        return input.text.Trim();
-    }
-
-    private static string ResolveStartTimeFromInput(InputField input)
-    {
-        return ThreatQueryDefaults.ResolveStartTime(input != null ? input.text : null);
-    }
-
-    private static string ResolveEndTimeFromInput(InputField input)
-    {
-        return ThreatQueryDefaults.ResolveEndTime(input != null ? input.text : null);
-    }
-
     private string ResolveStartTimeFromInput()
     {
-        return ResolveStartTimeFromInput(_startTimeInput);
+        return ThreatQueryDefaults.ResolveStartTime(_startTimeInput != null ? _startTimeInput.text : null);
     }
 
     private string ResolveEndTimeFromInput()
     {
-        return ResolveEndTimeFromInput(_endTimeInput);
+        return ThreatQueryDefaults.ResolveEndTime(_endTimeInput != null ? _endTimeInput.text : null);
     }
 
     private static void SetInputText(InputField input, string text)

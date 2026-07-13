@@ -2,22 +2,29 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 威胁态势接口区域编码配置：国内按省单次请求，国外预留多套编码。
+/// 威胁态势接口区域编码：firstClassCode=国家，secondClassCode=省。
+/// 国内默认全国一次请求（国家/省 code 均为空，后端默认中国）。
 /// </summary>
 public static class ThreatRegionCodeSettings
 {
     /// <summary>当前默认查询范围（可按业务切换为国内/国外）。</summary>
     public static ThreatQueryScope ActiveScope = ThreatQueryScope.Domestic;
 
-    // —— 国外调用预留（后续可扩展为多组编码，每组一次请求）——
+    /// <summary>国内国家 code（空表示中国，对应 firstClassCode）。</summary>
+    public const string DomesticFirstClassCode = "";
+
+    /// <summary>国内全国查询时不传省 code（对应 secondClassCode 为空）。</summary>
+    public const string DomesticSecondClassCode = "";
+
+    // —— 国外调用预留 ——
     public const string InternationalFirstClassCode = "";
     public const string InternationalSecondClassCode = "";
 
-    private static readonly List<ThreatRegionRequestCodes> DomesticRegionBuffer = new List<ThreatRegionRequestCodes>(40);
+    private static readonly List<ThreatRegionRequestCodes> DomesticRegionBuffer = new List<ThreatRegionRequestCodes>(1);
     private static readonly List<ThreatRegionRequestCodes> InternationalRegionBuffer = new List<ThreatRegionRequestCodes>(4);
     private static readonly List<string> DomesticProvinceCodeBuffer = new List<string>(40);
 
-    /// <summary>打包兜底：与 GaodeProvinceAdcode.json 一致的省级 adcode。</summary>
+    /// <summary>打包兜底：与 GaodeProvinceAdcode.json 一致的省级 adcode（仅用于展示/校验，不再用于分批请求）。</summary>
     private static readonly string[] BuiltInDomesticProvinceCodes =
     {
         "110000", "120000", "130000", "140000", "150000", "210000", "220000", "230000",
@@ -27,7 +34,13 @@ public static class ThreatRegionCodeSettings
         "810000", "820000",
     };
 
-    /// <summary>国内全部省级 adcode（每个 adcode 对应一次接口调用）。</summary>
+    /// <summary>国内全国单次请求编码（firstClassCode 国家，secondClassCode 省；均为空）。</summary>
+    public static ThreatRegionRequestCodes GetDomesticNationalRequestRegion()
+    {
+        return new ThreatRegionRequestCodes(DomesticFirstClassCode, DomesticSecondClassCode);
+    }
+
+    /// <summary>已知省级 adcode 列表（用于 UI 展示等，非接口分批请求）。</summary>
     public static IReadOnlyList<string> GetDomesticProvinceCodes()
     {
         DomesticProvinceCodeBuffer.Clear();
@@ -41,25 +54,22 @@ public static class ThreatRegionCodeSettings
         AppendProvinceCodesFromPlateMapBoundary(DomesticProvinceCodeBuffer);
         if (DomesticProvinceCodeBuffer.Count > 0)
         {
-            Debug.LogWarning(
-                $"[ThreatRegionCodeSettings] GaodeProvinceAdcode 未加载，已回退 PlateMapBoundary，" +
-                $"省级数={DomesticProvinceCodeBuffer.Count}");
             return DomesticProvinceCodeBuffer;
         }
 
         AppendProvinceCodes(DomesticProvinceCodeBuffer, BuiltInDomesticProvinceCodes);
-        Debug.LogWarning(
-            $"[ThreatRegionCodeSettings] 使用内置省级 adcode 列表（打包兜底），省级数={DomesticProvinceCodeBuffer.Count}");
         return DomesticProvinceCodeBuffer;
     }
 
-    /// <summary>国内全部省份请求列表（每省一条）。</summary>
+    /// <summary>国内请求列表（全国一次）。</summary>
     public static IReadOnlyList<ThreatRegionRequestCodes> GetDomesticRequestRegions()
     {
-        return BuildDomesticRequestRegions();
+        DomesticRegionBuffer.Clear();
+        DomesticRegionBuffer.Add(GetDomesticNationalRequestRegion());
+        return DomesticRegionBuffer;
     }
 
-    /// <summary>按查询范围返回待请求区域列表（国内=每省一条，国外=预留编码列表）。</summary>
+    /// <summary>按查询范围返回待请求区域列表。</summary>
     public static IReadOnlyList<ThreatRegionRequestCodes> GetRequestRegions(ThreatQueryScope scope)
     {
         switch (scope)
@@ -68,31 +78,8 @@ public static class ThreatRegionCodeSettings
                 return BuildInternationalRequestRegions();
 
             default:
-                return BuildDomesticRequestRegions();
+                return GetDomesticRequestRegions();
         }
-    }
-
-    private static IReadOnlyList<ThreatRegionRequestCodes> BuildDomesticRequestRegions()
-    {
-        DomesticRegionBuffer.Clear();
-        IReadOnlyList<string> provinceCodes = GetDomesticProvinceCodes();
-        if (provinceCodes == null || provinceCodes.Count == 0)
-        {
-            return DomesticRegionBuffer;
-        }
-
-        for (int i = 0; i < provinceCodes.Count; i++)
-        {
-            string code = provinceCodes[i];
-            if (string.IsNullOrWhiteSpace(code))
-            {
-                continue;
-            }
-
-            DomesticRegionBuffer.Add(new ThreatRegionRequestCodes(code.Trim(), string.Empty));
-        }
-
-        return DomesticRegionBuffer;
     }
 
     private static IReadOnlyList<ThreatRegionRequestCodes> BuildInternationalRequestRegions()

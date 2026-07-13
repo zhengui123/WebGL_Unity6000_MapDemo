@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 高危安全事件接口（综合态势 highRiskSecurityEvent）。
-/// 国内默认按每个省级 adcode 各请求一次，全部完成后合并数据并评估告警。
+/// 国内：单次全国 POST（firstClassCode/secondClassCode 均为空），入库后按 data[].province 分省存储。
 /// </summary>
 public static class HighRiskSecurityEventApi
 {
@@ -22,28 +22,26 @@ public static class HighRiskSecurityEventApi
     }
 
     private static RegionBatchState _activeBatch;
+    private static bool _isDomesticRequestInProgress;
 
     /// <summary>单次区域请求完成（成功或失败均触发）。</summary>
     public static event Action<HttpRequestResult, HighRiskSecurityEventResponse, ThreatRegionRequestCodes> RequestCompleted;
 
-    /// <summary>全部区域请求结束（国内=全部省份请求完毕）。</summary>
+    /// <summary>国内全国请求或国外分批全部结束。</summary>
     public static event Action<HighRiskSecurityEventBatchResult> BatchCompleted;
 
-    public static bool IsBatchRequesting => _activeBatch != null;
+    public static bool IsBatchRequesting => _activeBatch != null || _isDomesticRequestInProgress;
 
     public static string BuildRequestUrl()
     {
         return HttpProjectConfig.BuildApiUrl(HttpProjectConfig.HighRiskSecurityEventPath);
     }
 
-    /// <summary>国内待请求省级数量。</summary>
-    public static int GetDomesticProvinceCount()
-    {
-        return ThreatRegionCodeSettings.GetDomesticProvinceCodes().Count;
-    }
+    /// <summary>国内请求为单次全国查询，固定返回 1。</summary>
+    public static int GetDomesticProvinceCount() => 1;
 
     /// <summary>
-    /// 请求国内全部省份（每省一次 POST）；打包后亦可用（含省级 adcode 兜底）。
+    /// 请求国内全国数据（单次 POST）；成功后按 <see cref="HighRiskSecurityEventItem.province"/> 分省入库。
     /// </summary>
     public static void RequestAllDomesticProvinces(
         string startTime = null,
@@ -51,20 +49,70 @@ public static class HighRiskSecurityEventApi
         Action<HttpRequestResult, HighRiskSecurityEventBatchResult> onCompleted = null,
         Dictionary<string, string> additionalHeaders = null)
     {
+        if (_isDomesticRequestInProgress || _activeBatch != null)
+        {
+            Debug.LogWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的全国请求。");
+            return;
+        }
+
         string resolvedStartTime = ThreatQueryDefaults.ResolveStartTime(startTime);
         string resolvedEndTime = ThreatQueryDefaults.ResolveEndTime(endTime);
-        IReadOnlyList<ThreatRegionRequestCodes> regions = ThreatRegionCodeSettings.GetDomesticRequestRegions();
-        BeginRegionBatch(
-            ThreatQueryScope.Domestic,
+        ThreatRegionRequestCodes regionCodes = ThreatRegionCodeSettings.GetDomesticNationalRequestRegion();
+        HighRiskSecurityEventRequest requestBody = HighRiskSecurityEventRequest.CreateForRegion(
+            regionCodes,
             resolvedStartTime,
-            resolvedEndTime,
-            regions,
-            onCompleted,
+            resolvedEndTime);
+
+        _isDomesticRequestInProgress = true;
+        Debug.Log(
+            $"[HighRiskSecurityEventApi] 开始全国请求，" +
+            $"firstClassCode={regionCodes.FirstClassCode}，secondClassCode={regionCodes.SecondClassCode}，" +
+            $"startTime={resolvedStartTime}，endTime={resolvedEndTime}");
+
+        PostRequest(
+            requestBody,
+            regionCodes,
+            (result, response) =>
+            {
+                _isDomesticRequestInProgress = false;
+
+                int successCount = 0;
+                int failedCount = 0;
+                if (result != null && result.IsSuccess && response != null && response.IsSuccess)
+                {
+                    successCount = 1;
+                    HighRiskSecurityEventDataStore.Instance.ReplaceFromResponse(response);
+                    LogSuccessfulDataStoredIfNeeded(regionCodes, result, response, "全国入库");
+                }
+                else
+                {
+                    failedCount = 1;
+                }
+
+                RequestCompleted?.Invoke(result, response, regionCodes);
+
+                HighRiskSecurityEventBatchResult batchResult = new HighRiskSecurityEventBatchResult
+                {
+                    TotalRegionCount = 1,
+                    SuccessRegionCount = successCount,
+                    FailedRegionCount = failedCount,
+                    TotalEventCount = HighRiskSecurityEventDataStore.Instance.Count,
+                };
+
+                ThreatProvinceAlertController.EvaluateAfterDataUpdated();
+
+                Debug.Log(
+                    $"[HighRiskSecurityEventApi] 全国请求完成，成功={batchResult.SuccessRegionCount}，" +
+                    $"失败={batchResult.FailedRegionCount}，总事件数={batchResult.TotalEventCount}");
+
+                BatchCompleted?.Invoke(batchResult);
+                onCompleted?.Invoke(result, batchResult);
+            },
             additionalHeaders);
     }
 
     /// <summary>
-    /// 按查询范围逐个区域请求（国内=每省一次）；全部完成后合并数据并评估告警。
+    /// 按查询范围请求：国内=全国单次；国外=预留分批。
     /// </summary>
     public static void Request(
         ThreatQueryScope scope = ThreatQueryScope.Domestic,
@@ -97,9 +145,9 @@ public static class HighRiskSecurityEventApi
         Action<HttpRequestResult, HighRiskSecurityEventBatchResult> onCompleted,
         Dictionary<string, string> additionalHeaders)
     {
-        if (_activeBatch != null)
+        if (_activeBatch != null || _isDomesticRequestInProgress)
         {
-            Debug.LogWarning("[HighRiskSecurityEventApi] 已有分批请求进行中，忽略新的分批请求。");
+            Debug.LogWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的分批请求。");
             return;
         }
 
@@ -159,7 +207,7 @@ public static class HighRiskSecurityEventApi
             additionalHeaders);
     }
 
-    /// <summary>使用 <see cref="ThreatRegionCodeSettings.ActiveScope"/> 与默认时间分批请求。</summary>
+    /// <summary>使用 <see cref="ThreatRegionCodeSettings.ActiveScope"/> 与默认时间请求。</summary>
     public static void RequestWithActiveScope(
         Action<HttpRequestResult, HighRiskSecurityEventBatchResult> onCompleted = null,
         Dictionary<string, string> additionalHeaders = null)
@@ -282,9 +330,7 @@ public static class HighRiskSecurityEventApi
         if (result != null && result.IsSuccess && response != null && response.IsSuccess)
         {
             batch.SuccessRegionCount++;
-            HighRiskSecurityEventDataStore.Instance.MergeProvinceResponse(
-                regionCodes.FirstClassCode,
-                response);
+            StoreRegionResponse(response, regionCodes);
             LogSuccessfulDataStoredIfNeeded(regionCodes, result, response, "分批入库");
             return;
         }
@@ -299,12 +345,31 @@ public static class HighRiskSecurityEventApi
     {
         if (result != null && result.IsSuccess && response != null && response.IsSuccess)
         {
-            HighRiskSecurityEventDataStore.Instance.MergeProvinceResponse(
-                regionCodes.FirstClassCode,
-                response);
+            StoreRegionResponse(response, regionCodes);
             LogSuccessfulDataStoredIfNeeded(regionCodes, result, response, "单省入库");
             ThreatProvinceAlertController.EvaluateAfterDataUpdated();
         }
+    }
+
+    /// <summary>全国响应全量替换；带 secondClassCode 时仅合并该省。</summary>
+    private static void StoreRegionResponse(
+        HighRiskSecurityEventResponse response,
+        ThreatRegionRequestCodes regionCodes)
+    {
+        if (!string.IsNullOrWhiteSpace(regionCodes.SecondClassCode))
+        {
+            HighRiskSecurityEventDataStore.Instance.MergeProvinceResponse(
+                regionCodes.SecondClassCode,
+                response);
+            return;
+        }
+
+        HighRiskSecurityEventDataStore.Instance.ReplaceFromResponse(response);
+    }
+
+    private static string FormatRegionCodesForLog(ThreatRegionRequestCodes regionCodes)
+    {
+        return $"country={regionCodes.FirstClassCode}，province={regionCodes.SecondClassCode}";
     }
 
     private static void PostRequest(
@@ -354,7 +419,7 @@ public static class HighRiskSecurityEventApi
         if (!result.IsSuccess)
         {
             Debug.LogWarning(
-                $"[HighRiskSecurityEventApi] 请求失败，province={regionCodes.FirstClassCode}，" +
+                $"[HighRiskSecurityEventApi] 请求失败，{FormatRegionCodesForLog(regionCodes)}，" +
                 $"状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{BuildResponseJsonText(result, response)}");
             return;
         }
@@ -379,14 +444,14 @@ public static class HighRiskSecurityEventApi
         if (bizOk)
         {
             Debug.Log(
-                $"[HighRiskSecurityEventApi] 成功接收 JSON，province={regionCodes.FirstClassCode}，" +
+                $"[HighRiskSecurityEventApi] 成功接收 JSON，{FormatRegionCodesForLog(regionCodes)}，" +
                 $"{requestHint}事件数={count}\n响应 JSON：\n{json}");
             return;
         }
 
         string bizMessage = response != null ? $"code={response.code}，msg={response.msg}" : "响应对象为空";
         Debug.LogWarning(
-            $"[HighRiskSecurityEventApi] HTTP 成功但业务失败，province={regionCodes.FirstClassCode}，" +
+            $"[HighRiskSecurityEventApi] HTTP 成功但业务失败，{FormatRegionCodesForLog(regionCodes)}，" +
             $"{requestHint}{bizMessage}\n响应 JSON：\n{json}");
     }
 
@@ -409,7 +474,7 @@ public static class HighRiskSecurityEventApi
         int count = response.data != null ? response.data.Length : 0;
         string json = BuildResponseJsonText(result, response);
         Debug.Log(
-            $"[HighRiskSecurityEventApi] {action}（补打日志）：province={regionCodes.FirstClassCode}，" +
+            $"[HighRiskSecurityEventApi] {action}（补打日志）：{FormatRegionCodesForLog(regionCodes)}，" +
             $"事件数={count}\n响应 JSON：\n{json}");
     }
 

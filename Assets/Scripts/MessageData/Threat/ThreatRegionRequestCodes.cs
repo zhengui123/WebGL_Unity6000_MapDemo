@@ -1,5 +1,5 @@
 /// <summary>
-/// 单次威胁接口调用的区域编码（firstClassCode / secondClassCode）。
+/// 单次威胁接口调用的区域编码：firstClassCode=国家，secondClassCode=省。
 /// </summary>
 public readonly struct ThreatRegionRequestCodes
 {

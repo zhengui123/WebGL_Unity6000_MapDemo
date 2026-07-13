@@ -120,20 +120,9 @@ public static class ThreatHighRiskSecurityEventUIDemoBuilder
             ThreatQueryDefaults.EndTime);
         y -= RowHeight + 8f;
 
-        InputField provinceCodeInput = CreateLabeledInputField(
-            panel.transform,
-            resources,
-            "ProvinceCodeInputRow",
-            "单省 code",
-            12f,
-            y,
-            ThreatHighRiskSecurityEventUIDemo.DefaultProvinceCode);
-        y -= RowHeight + 12f;
-
         float buttonWidth = PanelWidth - 24f;
-        GameObject requestAllButtonGo = CreateFullWidthButton(resources, panel.transform, "RequestAllProvincesButton", "请求全部省份", 12f, y, buttonWidth);
-        y -= 40f;
-        GameObject requestSingleButtonGo = CreateFullWidthButton(resources, panel.transform, "RequestSingleProvinceButton", "请求单省", 12f, y, buttonWidth);
+        GameObject requestNationalButtonGo = CreateFullWidthButton(
+            resources, panel.transform, "RequestNationalButton", "请求全国", 12f, y, buttonWidth);
         y -= 40f;
         GameObject refreshButtonGo = CreateFullWidthButton(resources, panel.transform, "RefreshListButton", "刷新列表", 12f, y, buttonWidth);
         y -= 40f;
@@ -152,11 +141,8 @@ public static class ThreatHighRiskSecurityEventUIDemoBuilder
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
         serializedDemo.FindProperty("_startTimeInput").objectReferenceValue = startTimeInput;
         serializedDemo.FindProperty("_endTimeInput").objectReferenceValue = endTimeInput;
-        serializedDemo.FindProperty("_provinceCodeInput").objectReferenceValue = provinceCodeInput;
-        serializedDemo.FindProperty("_requestAllProvincesButton").objectReferenceValue =
-            requestAllButtonGo.GetComponent<Button>();
-        serializedDemo.FindProperty("_requestSingleProvinceButton").objectReferenceValue =
-            requestSingleButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_requestNationalButton").objectReferenceValue =
+            requestNationalButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_refreshListButton").objectReferenceValue = refreshButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_completeAlertButton").objectReferenceValue =
             completeAlertButtonGo.GetComponent<Button>();

@@ -22,7 +22,7 @@ public class HighRiskSecurityEventDataStore : UnitySingle<HighRiskSecurityEventD
 
     public HighRiskSecurityEventResponse LastResponse => _lastResponse;
 
-    /// <summary>开始分批拉取前清空缓存。</summary>
+    /// <summary>开始国外分批拉取前清空缓存。</summary>
     public void BeginBatch()
     {
         _events.Clear();
