@@ -17,7 +17,6 @@ public static class CarPointAssetsBuilder
     private const string ShaderInstancedPath = Root + "/Shaders/CarPointGlowInstanced.shader";
     private const string ResInstancedMatPath = "Assets/Resources/CarPoint/M_CarPointGlowInstanced.mat";
 
-    [MenuItem("Tools/地图/创建 CarPoint 发光资源")]
     public static void BuildAll()
     {
         EnsureFolders();

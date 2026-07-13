@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 977355c30f4f0804bb36bd0f736eb91b, type: 3}
   m_Name: EarthPlateTransitionConfig
   m_EditorClassIdentifier: 
-  SoftParticleTexture: {fileID: 2800000, guid: 855220271bfddc248a0ba29c58b21123, type: 3}
-  ParticleCloudMaterial: {fileID: 2100000, guid: 74cc30d2097efab4aa958751fb4983e0, type: 2}
-  ParticleStreakMaterial: {fileID: 2100000, guid: 02acc8a0a4f42ff4ea699256c087fb85, type: 2}
-  TechScanWaveMaterial: {fileID: 2100000, guid: 8025071125923b34ebe715035460e892, type: 2}
-  TechScanLineMaterial: {fileID: 2100000, guid: 73b3eba9a708d894ca3aa56eb08b3ebf, type: 2}
-  CloudFogPrefab: {fileID: 8992809716502467619, guid: 999cd28403c85ad4dbfe3c4cd437684e, type: 3}
-  TechScanPrefab: {fileID: 5511667013583615142, guid: a57a2c527eba2b34ea1ee77033682a4e, type: 3}
-  DiveRevealPrefab: {fileID: 1379001250127242913, guid: 206b922babd038743aabb99cbfbba90a, type: 3}
+  SoftParticleTexture: {fileID: 2800000, guid: 6b841399b968efa4398ae2f5f8c0323e, type: 3}
+  ParticleCloudMaterial: {fileID: 2100000, guid: 4f967c5da5bf42743abf9c4badea1460, type: 2}
+  ParticleStreakMaterial: {fileID: 2100000, guid: dea4a50755ec7b848900e7fffd93c4da, type: 2}
+  TechScanWaveMaterial: {fileID: 2100000, guid: b939f26ac9b4ca24a81c3ec5211b919d, type: 2}
+  TechScanLineMaterial: {fileID: 2100000, guid: 7e91002a835dfbc42b6cb5ea1cddef04, type: 2}
+  CloudFogPrefab: {fileID: 4078115561450107639, guid: 525be8552074bcf4da6fcc7dc4221098, type: 3}
+  TechScanPrefab: {fileID: 2416371530126753674, guid: f3d222762191ca743af931af2876e807, type: 3}
+  DiveRevealPrefab: {fileID: 5671368493135967210, guid: 5ba1c723a748d5a48872966389f1b1d2, type: 3}

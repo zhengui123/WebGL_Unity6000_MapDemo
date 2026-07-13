@@ -20,7 +20,6 @@ public static class EarthPlateTransitionAssetsBuilder
     private const string PrefabScan = Root + "/Prefabs/P_TechScanTransition.prefab";
     private const string PrefabDive = Root + "/Prefabs/P_DiveRevealTransition.prefab";
 
-    [MenuItem("Tools/地图/创建过渡动画资源")]
     [MenuItem("Tools/Map/Create Transition Assets")]
     public static void BuildAll()
     {
