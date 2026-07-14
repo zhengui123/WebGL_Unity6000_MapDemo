@@ -1,7 +1,8 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
@@ -10,21 +11,31 @@ using UnityEngine;
 /// </summary>
 public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 {
-    private const float RowHeight = 78f;
+    private enum SortColumn
+    {
+        None = 0,
+        ObjectName,
+        Province,
+        Status
+    }
+
+    private const float RowHeight = 88f;
 
     private PlateMapVehiclePointsBindingStore _store;
     private List<PlateMapBoundaryData> _provinceOptions;
     private List<PlateMapVehiclePointsBindingUtility.BindingRow> _rows = new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
     private Vector2 _scrollPosition;
-    private string[] _provinceLabels = System.Array.Empty<string>();
-    private int[] _provincePopupIndices;
+    private string[] _provinceLabels = Array.Empty<string>();
+    private string[] _provinceFilterTexts = Array.Empty<string>();
+    private SortColumn _sortColumn = SortColumn.None;
+    private bool _sortAscending = true;
 
     [MenuItem("Tools/地图/板块车辆点绑定面板")]
     public static void OpenWindow()
     {
         PlateMapVehiclePointsBindingEditorWindow window = GetWindow<PlateMapVehiclePointsBindingEditorWindow>();
         window.titleContent = new GUIContent("板块车辆点绑定");
-        window.minSize = new Vector2(720f, 420f);
+        window.minSize = new Vector2(760f, 420f);
         window.Show();
     }
 
@@ -128,13 +139,13 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
     private void DrawHeader()
     {
-        Rect headerRect = EditorGUILayout.GetControlRect(false, 20f);
+        Rect headerRect = EditorGUILayout.GetControlRect(false, 22f);
         float x = headerRect.x;
         float width = headerRect.width;
         const float checkWidth = 28f;
-        float objectWidth = width * 0.30f;
-        float provinceWidth = width * 0.22f;
-        float statusWidth = width * 0.26f;
+        float objectWidth = width * 0.28f;
+        float provinceWidth = width * 0.24f;
+        float statusWidth = width * 0.24f;
         float actionWidth = width * 0.14f;
 
         bool allSelected = _rows.Count > 0 && CountSelectedRows() == _rows.Count;
@@ -145,19 +156,43 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         }
 
         x += checkWidth;
-        EditorGUI.LabelField(new Rect(x, headerRect.y, objectWidth, 18f), "板块对象", EditorStyles.miniBoldLabel);
+        DrawSortableHeaderButton(new Rect(x, headerRect.y, objectWidth, 20f), "板块对象", SortColumn.ObjectName);
         x += objectWidth;
-        EditorGUI.LabelField(new Rect(x, headerRect.y, provinceWidth, 18f), "省份", EditorStyles.miniBoldLabel);
+        DrawSortableHeaderButton(new Rect(x, headerRect.y, provinceWidth, 20f), "省份", SortColumn.Province);
         x += provinceWidth;
-        EditorGUI.LabelField(new Rect(x, headerRect.y, statusWidth, 18f), "状态", EditorStyles.miniBoldLabel);
+        DrawSortableHeaderButton(new Rect(x, headerRect.y, statusWidth, 20f), "状态", SortColumn.Status);
         x += statusWidth;
         EditorGUI.LabelField(new Rect(x, headerRect.y, actionWidth, 18f), "操作", EditorStyles.miniBoldLabel);
+    }
+
+    private void DrawSortableHeaderButton(Rect rect, string title, SortColumn column)
+    {
+        string arrow = string.Empty;
+        if (_sortColumn == column)
+        {
+            arrow = _sortAscending ? " ▲" : " ▼";
+        }
+
+        if (GUI.Button(rect, title + arrow, EditorStyles.miniButton))
+        {
+            if (_sortColumn == column)
+            {
+                _sortAscending = !_sortAscending;
+            }
+            else
+            {
+                _sortColumn = column;
+                _sortAscending = true;
+            }
+
+            ApplyCurrentSort();
+        }
     }
 
     private void DrawRows()
     {
         _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
-        EnsurePopupCacheSize();
+        EnsureProvinceFilterCacheSize();
 
         for (int i = 0; i < _rows.Count; i++)
         {
@@ -193,7 +228,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             row.Target,
             typeof(GameObject),
             true,
-            GUILayout.Width(position.width * 0.30f - 12f));
+            GUILayout.Width(position.width * 0.28f - 12f));
         if (EditorGUI.EndChangeCheck())
         {
             row.Target = newTarget;
@@ -201,24 +236,13 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             if (row.Target != null)
             {
                 PlateMapVehiclePointsBindingUtility.ApplyProvinceFromObjectName(row, _provinceOptions);
-                _provincePopupIndices[index] = PlateMapVehiclePointsBindingUtility.FindProvinceIndex(
-                    _provinceOptions,
-                    row.ProvinceCode);
+                SyncProvinceFilterText(index);
             }
         }
 
-        _provincePopupIndices[index] = EditorGUILayout.Popup(
-            _provincePopupIndices[index],
-            _provinceLabels,
-            GUILayout.Width(position.width * 0.22f - 12f));
-        if (_provinceOptions != null &&
-            _provincePopupIndices[index] >= 0 &&
-            _provincePopupIndices[index] < _provinceOptions.Count)
-        {
-            row.ProvinceCode = _provinceOptions[_provincePopupIndices[index]].provinceCode;
-        }
+        DrawProvinceSearchField(index, row, position.width * 0.24f - 12f);
 
-        DrawStatusColumn(row, position.width * 0.26f - 12f);
+        DrawStatusColumn(row, position.width * 0.24f - 12f);
 
         EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.14f - 12f));
         if (GUILayout.Button("绑定", GUILayout.Height(24f)))
@@ -245,6 +269,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         if (GUILayout.Button("删", GUILayout.Height(22f)))
         {
             _rows.RemoveAt(index);
+            EnsureProvinceFilterCacheSize();
             Repaint();
             EditorGUILayout.EndHorizontal();
             EditorGUILayout.EndVertical();
@@ -262,20 +287,74 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         EditorGUILayout.Space(4f);
     }
 
+    /// <summary>省份：上方搜索框过滤，下方弹出当前过滤结果。</summary>
+    private void DrawProvinceSearchField(
+        int index,
+        PlateMapVehiclePointsBindingUtility.BindingRow row,
+        float width)
+    {
+        EnsureProvinceFilterCacheSize();
+        EditorGUILayout.BeginVertical(GUILayout.Width(width));
+
+        EditorGUI.BeginChangeCheck();
+        _provinceFilterTexts[index] = EditorGUILayout.TextField(
+            _provinceFilterTexts[index] ?? string.Empty,
+            EditorStyles.toolbarSearchField);
+        if (EditorGUI.EndChangeCheck())
+        {
+            Repaint();
+        }
+
+        List<PlateMapBoundaryData> filtered = PlateMapVehiclePointsBindingUtility.FilterProvinceOptions(
+            _provinceOptions,
+            _provinceFilterTexts[index]);
+
+        if (filtered.Count == 0)
+        {
+            EditorGUILayout.HelpBox("无匹配省份", MessageType.None);
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
+        string[] labels = new string[filtered.Count];
+        int selected = 0;
+        for (int i = 0; i < filtered.Count; i++)
+        {
+            labels[i] = PlateMapVehiclePointsBindingUtility.FormatProvinceLabel(filtered[i]);
+            if (filtered[i].provinceCode == row.ProvinceCode)
+            {
+                selected = i;
+            }
+        }
+
+        EditorGUI.BeginChangeCheck();
+        int newSelected = EditorGUILayout.Popup(selected, labels);
+        if (EditorGUI.EndChangeCheck() && newSelected >= 0 && newSelected < filtered.Count)
+        {
+            row.ProvinceCode = filtered[newSelected].provinceCode;
+            _provinceFilterTexts[index] = string.Empty;
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
     private static void DrawStatusColumn(PlateMapVehiclePointsBindingUtility.BindingRow row, float width)
     {
         EditorGUILayout.BeginVertical(GUILayout.Width(width));
-        string title = GetIssueTitle(row.Issue);
-        Color previous = GUI.contentColor;
-        GUI.contentColor = GetIssueTextColor(row.Issue);
-        EditorGUILayout.LabelField(title, EditorStyles.boldLabel);
-        GUI.contentColor = previous;
-
-        if (!string.IsNullOrWhiteSpace(row.IssueDetail))
+        GUIStyle style = new GUIStyle(EditorStyles.label)
         {
-            EditorGUILayout.LabelField(row.IssueDetail, EditorStyles.wordWrappedMiniLabel);
+            wordWrap = true
+        };
+        style.normal.textColor = GetIssueTextColor(row.Issue);
+
+        string title = GetIssueTitle(row.Issue);
+        EditorGUILayout.LabelField(title, style);
+        if (!string.IsNullOrEmpty(row.IssueDetail))
+        {
+            EditorGUILayout.LabelField(row.IssueDetail, EditorStyles.miniLabel);
         }
-        else if (row.Target != null)
+
+        if (row.Target != null)
         {
             string scenePath = PlateMapVehiclePointsBindingUtility.GetSceneAssetPath(row.Target);
             string hierarchy = PlateMapVehiclePointsBindingUtility.GetHierarchyPath(row.Target);
@@ -306,6 +385,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         HashSet<string> previouslySelected = new HashSet<string>();
         List<PlateMapVehiclePointsBindingUtility.BindingRow> manualRows =
             new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
+        Dictionary<string, string> filterByKey = new Dictionary<string, string>();
 
         for (int i = 0; i < _rows.Count; i++)
         {
@@ -324,6 +404,14 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             {
                 manualRows.Add(existing);
             }
+
+            if (existing.Target != null &&
+                i < _provinceFilterTexts.Length &&
+                !string.IsNullOrEmpty(_provinceFilterTexts[i]))
+            {
+                filterByKey[PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(existing.Target)] =
+                    _provinceFilterTexts[i];
+            }
         }
 
         _rows = PlateMapVehiclePointsBindingUtility.BuildRows(_store);
@@ -341,23 +429,149 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(row.Target));
         }
 
-        EnsurePopupCacheSize();
+        EnsureProvinceFilterCacheSize();
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
+            if (row?.Target == null)
+            {
+                _provinceFilterTexts[i] = string.Empty;
+                continue;
+            }
+
+            string key = PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(row.Target);
+            _provinceFilterTexts[i] = filterByKey.TryGetValue(key, out string kept) ? kept : string.Empty;
+        }
+
+        ApplyCurrentSort();
         Repaint();
     }
 
-    private void EnsurePopupCacheSize()
+    private void EnsureProvinceFilterCacheSize()
     {
-        if (_provincePopupIndices == null || _provincePopupIndices.Length != _rows.Count)
+        if (_provinceFilterTexts != null && _provinceFilterTexts.Length == _rows.Count)
         {
-            _provincePopupIndices = new int[_rows.Count];
+            return;
         }
 
+        string[] resized = new string[_rows.Count];
+        int copy = _provinceFilterTexts != null
+            ? Math.Min(_provinceFilterTexts.Length, resized.Length)
+            : 0;
+        for (int i = 0; i < copy; i++)
+        {
+            resized[i] = _provinceFilterTexts[i];
+        }
+
+        for (int i = copy; i < resized.Length; i++)
+        {
+            resized[i] = string.Empty;
+        }
+
+        _provinceFilterTexts = resized;
+    }
+
+    private void SyncProvinceFilterText(int index)
+    {
+        EnsureProvinceFilterCacheSize();
+        if (index >= 0 && index < _provinceFilterTexts.Length)
+        {
+            _provinceFilterTexts[index] = string.Empty;
+        }
+    }
+
+    private void ApplyCurrentSort()
+    {
+        if (_sortColumn == SortColumn.None || _rows == null || _rows.Count <= 1)
+        {
+            return;
+        }
+
+        EnsureProvinceFilterCacheSize();
+        List<(PlateMapVehiclePointsBindingUtility.BindingRow row, string filter)> paired =
+            new List<(PlateMapVehiclePointsBindingUtility.BindingRow, string)>(_rows.Count);
         for (int i = 0; i < _rows.Count; i++)
         {
-            _provincePopupIndices[i] = PlateMapVehiclePointsBindingUtility.FindProvinceIndex(
-                _provinceOptions,
-                _rows[i].ProvinceCode);
+            paired.Add((_rows[i], _provinceFilterTexts[i] ?? string.Empty));
         }
+
+        paired.Sort((a, b) =>
+        {
+            int cmp = CompareRows(a.row, b.row);
+            return _sortAscending ? cmp : -cmp;
+        });
+
+        for (int i = 0; i < paired.Count; i++)
+        {
+            _rows[i] = paired[i].row;
+            _provinceFilterTexts[i] = paired[i].filter;
+        }
+    }
+
+    private static readonly CompareInfo ZhCnCompareInfo =
+        CultureInfo.GetCultureInfo("zh-CN").CompareInfo;
+
+    private int CompareRows(
+        PlateMapVehiclePointsBindingUtility.BindingRow a,
+        PlateMapVehiclePointsBindingUtility.BindingRow b)
+    {
+        if (a == null && b == null)
+        {
+            return 0;
+        }
+
+        if (a == null)
+        {
+            return 1;
+        }
+
+        if (b == null)
+        {
+            return -1;
+        }
+
+        switch (_sortColumn)
+        {
+            case SortColumn.ObjectName:
+                return CompareObjectName(a, b);
+            case SortColumn.Province:
+                return CompareProvinceCode(a, b);
+            case SortColumn.Status:
+                // 状态为主；同状态内按对象拼音 → 省份 code
+                int issueCmp = ((int)a.Issue).CompareTo((int)b.Issue);
+                if (issueCmp != 0)
+                {
+                    return issueCmp;
+                }
+
+                int nameCmp = CompareObjectName(a, b);
+                if (nameCmp != 0)
+                {
+                    return nameCmp;
+                }
+
+                return CompareProvinceCode(a, b);
+            default:
+                return 0;
+        }
+    }
+
+    /// <summary>板块对象名：zh-CN 语言序（拼音 / 字母）。</summary>
+    private static int CompareObjectName(
+        PlateMapVehiclePointsBindingUtility.BindingRow a,
+        PlateMapVehiclePointsBindingUtility.BindingRow b)
+    {
+        string nameA = a.Target != null ? a.Target.name : string.Empty;
+        string nameB = b.Target != null ? b.Target.name : string.Empty;
+        return ZhCnCompareInfo.Compare(nameA, nameB, CompareOptions.IgnoreCase);
+    }
+
+    /// <summary>省份：按 provinceCode 排序。</summary>
+    private static int CompareProvinceCode(
+        PlateMapVehiclePointsBindingUtility.BindingRow a,
+        PlateMapVehiclePointsBindingUtility.BindingRow b)
+    {
+        return string.Compare(a.ProvinceCode, b.ProvinceCode, StringComparison.Ordinal);
     }
 
     private void AddManualRow()
@@ -371,7 +585,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 ? _provinceOptions[0].provinceCode
                 : PlateMapBoundaryDatabase.NationalProvinceCode
         });
-        EnsurePopupCacheSize();
+        EnsureProvinceFilterCacheSize();
     }
 
     private void AddRowsFromHierarchySelection()
@@ -379,7 +593,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         GameObject[] selected = Selection.gameObjects;
         if (selected == null || selected.Length == 0)
         {
-            EditorUtility.DisplayDialog("从多选加入", "请先在 Hierarchy 中多选板块对象（如 山东、重庆）。", "确定");
+            EditorUtility.DisplayDialog("从多选加入", "请先在 Hierarchy 中选中一个或多个板块对象。", "确定");
             return;
         }
 
@@ -396,9 +610,6 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         }
 
         int added = 0;
-        int skipped = 0;
-        int unresolved = 0;
-
         for (int i = 0; i < selected.Length; i++)
         {
             GameObject target = selected[i];
@@ -410,7 +621,6 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             string key = PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(target);
             if (!existingKeys.Add(key))
             {
-                skipped++;
                 continue;
             }
 
@@ -425,35 +635,24 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
             PlateMapVehiclePointsBindingUtility.EvaluateComponentState(row);
             PlateMapVehiclePointsBindingUtility.ApplyProvinceFromObjectName(row, _provinceOptions);
-            if (row.Issue == PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved)
-            {
-                unresolved++;
-            }
-
             _rows.Add(row);
             added++;
         }
 
-        EnsurePopupCacheSize();
+        EnsureProvinceFilterCacheSize();
+        ShowNotification(new GUIContent($"从多选加入 {added} 行"));
         Repaint();
-        ShowNotification(new GUIContent($"加入 {added} 个（跳过重复 {skipped}，未匹配省名 {unresolved}）"));
     }
 
     private void BatchBindPendingRows()
     {
-        if (CountSelectedRows() == 0)
-        {
-            EditorUtility.DisplayDialog("批量绑定", "请先勾选要绑定的行（可用全选）。", "确定");
-            return;
-        }
-
         int success = 0;
         int failed = 0;
 
         for (int i = 0; i < _rows.Count; i++)
         {
             PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
-            if (row == null || !row.IsSelected || row.Target == null)
+            if (row == null || row.Target == null)
             {
                 continue;
             }
@@ -461,6 +660,11 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             if (row.Issue == PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved)
             {
                 failed++;
+                continue;
+            }
+
+            if (PlateMapVehiclePointsBindingUtility.HasFullBinding(row.Target))
+            {
                 continue;
             }
 
@@ -501,6 +705,22 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             {
                 skipped++;
                 continue;
+            }
+
+            // 未绑定则先绑定（绑定内已写随机点），再刷默认视觉并再写一遍随机三点
+            if (!PlateMapVehiclePointsBindingUtility.HasFullBinding(row.Target))
+            {
+                if (row.Issue == PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved)
+                {
+                    skipped++;
+                    continue;
+                }
+
+                if (!PlateMapVehiclePointsBindingUtility.ApplyBinding(row))
+                {
+                    skipped++;
+                    continue;
+                }
             }
 
             if (PlateMapVehiclePointsBindingUtility.ApplyDefaultVisualData(row.Target, forceOverwriteColors: true))
@@ -571,13 +791,21 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         }
 
         _rows = remaining;
-        if (_store != null)
+        EnsureProvinceFilterCacheSize();
+        ShowNotification(new GUIContent($"删除绑定：成功 {success}，跳过 {skipped}"));
+        Repaint();
+    }
+
+    private void SavePersistence()
+    {
+        if (_store == null)
         {
-            PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
+            _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
         }
 
+        PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
+        ShowNotification(new GUIContent("已保存持久化"));
         RefreshRows();
-        ShowNotification(new GUIContent($"删除绑定：成功 {success}，跳过 {skipped}"));
     }
 
     private void SetAllRowsSelected(bool selected)
@@ -589,8 +817,6 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 _rows[i].IsSelected = selected;
             }
         }
-
-        Repaint();
     }
 
     private int CountSelectedRows()
@@ -605,19 +831,6 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         }
 
         return count;
-    }
-
-    private void SavePersistence()
-    {
-        if (_store == null)
-        {
-            _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
-        }
-
-        PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
-        AssetDatabase.SaveAssets();
-        RefreshRows();
-        ShowNotification(new GUIContent("持久化已保存"));
     }
 
     private int CountBoundRows()
@@ -656,15 +869,15 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             case PlateMapVehiclePointsBindingUtility.RowIssue.NotPersisted:
                 return "未持久化";
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingInScene:
-                return "持久化对象缺失";
+                return "场景缺失";
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceMismatch:
                 return "省份不一致";
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingComponents:
-                return "组件未齐";
+                return "缺组件";
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
                 return "待绑定";
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
-                return "省名未匹配";
+                return "省份未解析";
             default:
                 return "正常";
         }
@@ -676,14 +889,14 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         {
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingInScene:
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceMismatch:
-                return new Color(0.95f, 0.25f, 0.2f);
+                return new Color(0.85f, 0.2f, 0.2f);
             case PlateMapVehiclePointsBindingUtility.RowIssue.NotPersisted:
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingComponents:
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
-                return new Color(0.95f, 0.72f, 0.1f);
+                return new Color(0.75f, 0.55f, 0.1f);
             default:
-                return new Color(0.2f, 0.85f, 0.35f);
+                return EditorStyles.label.normal.textColor;
         }
     }
 
@@ -693,14 +906,14 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         {
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingInScene:
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceMismatch:
-                return new Color(0.45f, 0.12f, 0.12f, 0.22f);
+                return new Color(0.45f, 0.15f, 0.15f, 0.25f);
             case PlateMapVehiclePointsBindingUtility.RowIssue.NotPersisted:
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingComponents:
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
             case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
-                return new Color(0.42f, 0.32f, 0.05f, 0.18f);
+                return new Color(0.4f, 0.35f, 0.1f, 0.2f);
             default:
-                return new Color(0.1f, 0.28f, 0.14f, 0.12f);
+                return new Color(0f, 0f, 0f, 0.05f);
         }
     }
 }

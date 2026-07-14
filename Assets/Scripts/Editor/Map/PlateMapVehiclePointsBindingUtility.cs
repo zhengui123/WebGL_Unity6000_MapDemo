@@ -142,6 +142,66 @@ public static class PlateMapVehiclePointsBindingUtility
         return $"{data.provinceCode}  {data.provinceName}";
     }
 
+    /// <summary>按 code 取展示名；找不到则返回 code。</summary>
+    public static string GetProvinceSortKey(IReadOnlyList<PlateMapBoundaryData> options, string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return string.Empty;
+        }
+
+        if (options != null)
+        {
+            for (int i = 0; i < options.Count; i++)
+            {
+                if (options[i] != null && options[i].provinceCode == provinceCode)
+                {
+                    return $"{options[i].provinceName}_{options[i].provinceCode}";
+                }
+            }
+        }
+
+        return provinceCode;
+    }
+
+    /// <summary>过滤省份选项：匹配 code 或名称（忽略大小写）。</summary>
+    public static List<PlateMapBoundaryData> FilterProvinceOptions(
+        IReadOnlyList<PlateMapBoundaryData> options,
+        string filter)
+    {
+        List<PlateMapBoundaryData> result = new List<PlateMapBoundaryData>();
+        if (options == null)
+        {
+            return result;
+        }
+
+        if (string.IsNullOrWhiteSpace(filter))
+        {
+            result.AddRange(options);
+            return result;
+        }
+
+        string keyword = filter.Trim();
+        for (int i = 0; i < options.Count; i++)
+        {
+            PlateMapBoundaryData item = options[i];
+            if (item == null)
+            {
+                continue;
+            }
+
+            if ((!string.IsNullOrEmpty(item.provinceCode) &&
+                 item.provinceCode.IndexOf(keyword, System.StringComparison.OrdinalIgnoreCase) >= 0) ||
+                (!string.IsNullOrEmpty(item.provinceName) &&
+                 item.provinceName.IndexOf(keyword, System.StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                result.Add(item);
+            }
+        }
+
+        return result;
+    }
+
     public static int FindProvinceIndex(IReadOnlyList<PlateMapBoundaryData> options, string provinceCode)
     {
         if (options == null || string.IsNullOrWhiteSpace(provinceCode))
@@ -452,12 +512,12 @@ public static class PlateMapVehiclePointsBindingUtility
         SetTransformReference(geoConverter, "_mapRoot", mapRoot);
         SetTransformReference(controller, "_mapRoot", mapRoot);
         SetComponentReference(controller, "_instancedRenderer", renderer);
-        SetComponentReference(controller, "_geoConverter", geoConverter);
         AssignDefaultInstancedMaterial(renderer);
 
         EnsureLeftRightMarkersFromChildMeshes(geoConverter, mapRoot);
         SetProvinceCode(geoConverter, row.ProvinceCode);
         geoConverter.Rebuild();
+        TryApplyRandomVehiclePointsFromLeftRight(target);
 
         EditorUtility.SetDirty(target);
         EditorUtility.SetDirty(geoConverter);
@@ -636,7 +696,8 @@ public static class PlateMapVehiclePointsBindingUtility
 
     /// <summary>
     /// 强制覆盖颜色标定默认值；材质为空时挂载 Instanced 材质；
-    /// 取消 _autoBindWestEastByLocalX；并按子 mesh 边界强制刷新 Left/Right 坐标后 Rebuild。
+    /// 取消 _autoBindWestEastByLocalX；并按子 mesh 边界强制刷新 Left/Right 坐标后 Rebuild；
+    /// 再按 Left/Right 经纬度外接矩形随机写入 3 个车辆测试点。
     /// </summary>
     public static bool ApplyDefaultVisualData(GameObject target, bool forceOverwriteColors = true)
     {
@@ -702,7 +763,88 @@ public static class PlateMapVehiclePointsBindingUtility
             EditorUtility.SetDirty(geoConverter);
         }
 
+        TryApplyRandomVehiclePointsFromLeftRight(target);
+
         EditorSceneManager.MarkSceneDirty(target.scene);
+        return true;
+    }
+
+    /// <summary>
+    /// 按 GeoConverter 西/东锚点经纬度外接矩形，随机生成 3 条 VehicleMapPointData 写入 Controller。
+    /// </summary>
+    public static bool TryApplyRandomVehiclePointsFromLeftRight(GameObject target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlateMapGeoConverter geoConverter = target.GetComponent<PlateMapGeoConverter>();
+        PlateMapVehiclePointController controller = target.GetComponent<PlateMapVehiclePointController>();
+        if (geoConverter == null || controller == null)
+        {
+            return false;
+        }
+
+        geoConverter.GetProvinceLongitudeLatitudeBounds(
+            out double westLon,
+            out double eastLon,
+            out double southLat,
+            out double northLat);
+
+        if (eastLon - westLon < 1e-9 || northLat - southLat < 1e-9)
+        {
+            Debug.LogWarning(
+                $"[PlateMapVehiclePointsBinding] 「{target.name}」Left/Right 经纬度无效，跳过随机点写入。");
+            return false;
+        }
+
+        string idPrefix = target.name;
+        if (idPrefix.Length > 16)
+        {
+            idPrefix = idPrefix.Substring(0, 16);
+        }
+
+        SerializedObject controllerSo = new SerializedObject(controller);
+        SerializedProperty pointsProp = controllerSo.FindProperty("_vehiclePoints");
+        if (pointsProp == null)
+        {
+            return false;
+        }
+
+        const int pointCount = 3;
+        pointsProp.arraySize = pointCount;
+        for (int i = 0; i < pointCount; i++)
+        {
+            SerializedProperty element = pointsProp.GetArrayElementAtIndex(i);
+            SerializedProperty idProp = element.FindPropertyRelative("vehicleId");
+            SerializedProperty lonProp = element.FindPropertyRelative("longitude");
+            SerializedProperty latProp = element.FindPropertyRelative("latitude");
+            SerializedProperty alertProp = element.FindPropertyRelative("alertValue");
+
+            if (idProp != null)
+            {
+                idProp.stringValue = $"{idPrefix}-{i + 1:D3}";
+            }
+
+            if (lonProp != null)
+            {
+                lonProp.doubleValue = westLon + (eastLon - westLon) * Random.value;
+            }
+
+            if (latProp != null)
+            {
+                latProp.doubleValue = southLat + (northLat - southLat) * Random.value;
+            }
+
+            if (alertProp != null)
+            {
+                alertProp.floatValue = Random.Range(0.1f, 1f);
+            }
+        }
+
+        controllerSo.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(controller);
         return true;
     }
 
