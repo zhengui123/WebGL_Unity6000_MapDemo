@@ -12,4 +12,140 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5b7af6310b83d049919e58d8e0d0e11, type: 3}
   m_Name: PlateMapVehiclePointsBindingStore
   m_EditorClassIdentifier: Assembly-CSharp-Editor::PlateMapVehiclePointsBindingStore
-  _entries: []
+  _entries:
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6D59\u6C5F"
+    objectName: "\u6D59\u6C5F"
+    provinceCode: 330000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u798F\u5EFA"
+    objectName: "\u798F\u5EFA"
+    provinceCode: 350000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u9ED1\u9F99\u6C5F"
+    objectName: "\u9ED1\u9F99\u6C5F"
+    provinceCode: 230000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5317\u4EAC"
+    objectName: "\u5317\u4EAC"
+    provinceCode: 110000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5B89\u5FBD"
+    objectName: "\u5B89\u5FBD"
+    provinceCode: 340000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6E56\u5317"
+    objectName: "\u6E56\u5317"
+    provinceCode: 420000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5409\u6797"
+    objectName: "\u5409\u6797"
+    provinceCode: 220000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6C5F\u897F"
+    objectName: "\u6C5F\u897F"
+    provinceCode: 360000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6CB3\u5357"
+    objectName: "\u6CB3\u5357"
+    provinceCode: 410000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u8D35\u5DDE"
+    objectName: "\u8D35\u5DDE"
+    provinceCode: 520000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6E56\u5357"
+    objectName: "\u6E56\u5357"
+    provinceCode: 430000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u4E0A\u6D77"
+    objectName: "\u4E0A\u6D77"
+    provinceCode: 310000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5E7F\u897F"
+    objectName: "\u5E7F\u897F"
+    provinceCode: 450000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5929\u6D25"
+    objectName: "\u5929\u6D25"
+    provinceCode: 120000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u65B0\u7586"
+    objectName: "\u65B0\u7586"
+    provinceCode: 650000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5B81\u590F"
+    objectName: "\u5B81\u590F"
+    provinceCode: 640000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u91CD\u5E86"
+    objectName: "\u91CD\u5E86"
+    provinceCode: 500000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u9655\u897F"
+    objectName: "\u9655\u897F"
+    provinceCode: 610000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u4E91\u5357"
+    objectName: "\u4E91\u5357"
+    provinceCode: 530000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6D77\u5357"
+    objectName: "\u6D77\u5357"
+    provinceCode: 460000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u9999\u6E2F"
+    objectName: "\u9999\u6E2F"
+    provinceCode: 810000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6CB3\u5317"
+    objectName: "\u6CB3\u5317"
+    provinceCode: 130000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u9752\u6D77"
+    objectName: "\u9752\u6D77"
+    provinceCode: 630000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u7518\u8083"
+    objectName: "\u7518\u8083"
+    provinceCode: 620000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5185\u8499\u53E4"
+    objectName: "\u5185\u8499\u53E4"
+    provinceCode: 150000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u897F\u85CF"
+    objectName: "\u897F\u85CF"
+    provinceCode: 540000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u56DB\u5DDD"
+    objectName: "\u56DB\u5DDD"
+    provinceCode: 510000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5C71\u897F"
+    objectName: "\u5C71\u897F"
+    provinceCode: 140000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5C71\u4E1C"
+    objectName: "\u5C71\u4E1C"
+    provinceCode: 370000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u8FBD\u5B81"
+    objectName: "\u8FBD\u5B81"
+    provinceCode: 210000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6FB3\u95E8"
+    objectName: "\u6FB3\u95E8"
+    provinceCode: 820000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u5E7F\u4E1C"
+    objectName: "\u5E7F\u4E1C"
+    provinceCode: 440000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u6C5F\u82CF"
+    objectName: "\u6C5F\u82CF"
+    provinceCode: 320000
+  - sceneAssetPath: Assets/Scenes/EarthModelDemo.unity
+    hierarchyPath: "--------Models--------------/Model/AllPlateMap/\u4E2D\u56FD\u5730\u56FE/\u53F0\u6E7E"
+    objectName: "\u53F0\u6E7E"
+    provinceCode: 710000

@@ -12,8 +12,13 @@ using UnityEngine.SceneManagement;
 public static class PlateMapVehiclePointsBindingUtility
 {
     private const string InstancedMaterialResourcePath = "CarPoint/M_CarPointGlowInstanced";
+    private const string InstancedMaterialPrimaryPath = "Assets/Materials/CarPoint/Materials/M_CarPointGlowInstanced.mat";
     private const string InstancedMaterialAssetPath = "Assets/Resources/CarPoint/M_CarPointGlowInstanced.mat";
     private const string InstancedMaterialFallbackPath = "Assets/CarPoint/Materials/M_CarPointGlowInstanced.mat";
+
+    /// <summary>Controller 颜色标定默认值（#FFFBA0 / #F5FF00）。</summary>
+    public static readonly Color DefaultColorAtDataMin = new Color(1f, 251f / 255f, 160f / 255f, 1f);
+    public static readonly Color DefaultColorAtDataMax = new Color(245f / 255f, 1f, 0f, 1f);
 
     public enum RowIssue
     {
@@ -22,7 +27,8 @@ public static class PlateMapVehiclePointsBindingUtility
         MissingInScene,
         ProvinceMismatch,
         MissingComponents,
-        PendingBind
+        PendingBind,
+        ProvinceUnresolved
     }
 
     public sealed class BindingRow
@@ -33,6 +39,7 @@ public static class PlateMapVehiclePointsBindingUtility
         public string IssueDetail;
         public bool IsManualAdd;
         public bool FromPersistenceOnly;
+        public bool IsSelected;
         public PlateMapVehiclePointsBindingStore.Entry PersistedEntry;
     }
 
@@ -151,6 +158,165 @@ public static class PlateMapVehiclePointsBindingUtility
         }
 
         return 0;
+    }
+
+    /// <summary>
+    /// 按板块对象名关联省份：全等 → 规范化全等 → 唯一前缀匹配。
+    /// 多命中或零命中返回 false。
+    /// </summary>
+    public static bool TryResolveProvinceByObjectName(
+        string objectName,
+        IReadOnlyList<PlateMapBoundaryData> options,
+        out PlateMapBoundaryData matched)
+    {
+        matched = null;
+        if (string.IsNullOrWhiteSpace(objectName) || options == null || options.Count == 0)
+        {
+            return false;
+        }
+
+        string trimmedName = objectName.Trim();
+        string normalizedName = NormalizeAdminRegionName(trimmedName);
+
+        for (int i = 0; i < options.Count; i++)
+        {
+            PlateMapBoundaryData item = options[i];
+            if (item == null || string.IsNullOrWhiteSpace(item.provinceName))
+            {
+                continue;
+            }
+
+            if (string.Equals(item.provinceName, trimmedName, System.StringComparison.Ordinal))
+            {
+                matched = item;
+                return true;
+            }
+        }
+
+        for (int i = 0; i < options.Count; i++)
+        {
+            PlateMapBoundaryData item = options[i];
+            if (item == null || string.IsNullOrWhiteSpace(item.provinceName))
+            {
+                continue;
+            }
+
+            if (string.Equals(NormalizeAdminRegionName(item.provinceName), normalizedName, System.StringComparison.Ordinal))
+            {
+                matched = item;
+                return true;
+            }
+        }
+
+        List<PlateMapBoundaryData> prefixMatches = new List<PlateMapBoundaryData>();
+        for (int i = 0; i < options.Count; i++)
+        {
+            PlateMapBoundaryData item = options[i];
+            if (item == null || string.IsNullOrWhiteSpace(item.provinceName))
+            {
+                continue;
+            }
+
+            string provinceName = item.provinceName.Trim();
+            string normalizedProvince = NormalizeAdminRegionName(provinceName);
+            bool isPrefix =
+                provinceName.StartsWith(trimmedName, System.StringComparison.Ordinal) ||
+                (!string.IsNullOrEmpty(normalizedName) &&
+                 normalizedProvince.StartsWith(normalizedName, System.StringComparison.Ordinal));
+            if (isPrefix)
+            {
+                prefixMatches.Add(item);
+            }
+        }
+
+        if (prefixMatches.Count == 1)
+        {
+            matched = prefixMatches[0];
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>根据对象名填充省份；失败时标记 ProvinceUnresolved。</summary>
+    public static void ApplyProvinceFromObjectName(BindingRow row, IReadOnlyList<PlateMapBoundaryData> options)
+    {
+        if (row == null || row.Target == null)
+        {
+            return;
+        }
+
+        PlateMapGeoConverter existingGeo = row.Target.GetComponent<PlateMapGeoConverter>();
+        if (existingGeo != null && !string.IsNullOrWhiteSpace(existingGeo.ProvinceCode))
+        {
+            row.ProvinceCode = existingGeo.ProvinceCode;
+            return;
+        }
+
+        if (TryResolveProvinceByObjectName(row.Target.name, options, out PlateMapBoundaryData matched))
+        {
+            row.ProvinceCode = matched.provinceCode;
+            if (row.Issue == RowIssue.ProvinceUnresolved || row.Issue == RowIssue.PendingBind)
+            {
+                row.Issue = HasFullBinding(row.Target) ? RowIssue.None : RowIssue.PendingBind;
+                row.IssueDetail = HasFullBinding(row.Target)
+                    ? null
+                    : $"已匹配省份：{matched.provinceName}（{matched.provinceCode}），点击「绑定」写入组件。";
+            }
+            else if (row.Issue == RowIssue.MissingComponents)
+            {
+                row.IssueDetail =
+                    $"已匹配省份：{matched.provinceName}（{matched.provinceCode}）。缺少组件，请点击「绑定」。";
+            }
+
+            return;
+        }
+
+        row.Issue = RowIssue.ProvinceUnresolved;
+        row.IssueDetail = $"无法根据对象名「{row.Target.name}」唯一匹配省份，请手动选择。";
+    }
+
+    /// <summary>去掉省/市/自治区等行政后缀，便于「重庆」匹配「重庆市」。</summary>
+    public static string NormalizeAdminRegionName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        string result = name.Trim();
+        string[] suffixes =
+        {
+            "特别行政区",
+            "壮族自治区",
+            "回族自治区",
+            "维吾尔自治区",
+            "自治区",
+            "省",
+            "市"
+        };
+
+        for (int i = 0; i < suffixes.Length; i++)
+        {
+            string suffix = suffixes[i];
+            if (result.EndsWith(suffix, System.StringComparison.Ordinal) && result.Length > suffix.Length)
+            {
+                result = result.Substring(0, result.Length - suffix.Length);
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    public static string BuildRowKeyPublic(GameObject target)
+    {
+        if (target == null)
+        {
+            return string.Empty;
+        }
+
+        return BuildRowKey(GetSceneAssetPath(target), GetHierarchyPath(target));
     }
 
     public static List<BindingRow> BuildRows(PlateMapVehiclePointsBindingStore store)
@@ -438,6 +604,89 @@ public static class PlateMapVehiclePointsBindingUtility
         }
     }
 
+    /// <summary>
+    /// 强制覆盖颜色标定默认值；材质为空时挂载 Instanced 材质；
+    /// 并将 PlateMapGeoConverter._autoBindWestEastByLocalX 设为 false。
+    /// </summary>
+    public static bool ApplyDefaultVisualData(GameObject target, bool forceOverwriteColors = true)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        PlateMapVehiclePointController controller = target.GetComponent<PlateMapVehiclePointController>();
+        PlateMapVehiclePointInstancedRenderer renderer = target.GetComponent<PlateMapVehiclePointInstancedRenderer>();
+        PlateMapGeoConverter geoConverter = target.GetComponent<PlateMapGeoConverter>();
+        if (controller == null && renderer == null && geoConverter == null)
+        {
+            return false;
+        }
+
+        Undo.RegisterFullObjectHierarchyUndo(target, "更新车辆点默认数据");
+
+        if (controller != null && forceOverwriteColors)
+        {
+            SerializedObject controllerSo = new SerializedObject(controller);
+            SerializedProperty minProp = controllerSo.FindProperty("_colorAtDataMin");
+            SerializedProperty maxProp = controllerSo.FindProperty("_colorAtDataMax");
+            if (minProp != null)
+            {
+                minProp.colorValue = DefaultColorAtDataMin;
+            }
+
+            if (maxProp != null)
+            {
+                maxProp.colorValue = DefaultColorAtDataMax;
+            }
+
+            controllerSo.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(controller);
+        }
+
+        if (renderer != null)
+        {
+            AssignDefaultInstancedMaterial(renderer);
+            EditorUtility.SetDirty(renderer);
+        }
+
+        if (geoConverter != null)
+        {
+            SerializedObject geoSo = new SerializedObject(geoConverter);
+            SerializedProperty autoBindProp = geoSo.FindProperty("_autoBindWestEastByLocalX");
+            if (autoBindProp != null)
+            {
+                autoBindProp.boolValue = false;
+                geoSo.ApplyModifiedPropertiesWithoutUndo();
+                EditorUtility.SetDirty(geoConverter);
+            }
+        }
+
+        EditorSceneManager.MarkSceneDirty(target.scene);
+        return true;
+    }
+
+    public static Material LoadDefaultInstancedMaterial()
+    {
+        Material material = Resources.Load<Material>(InstancedMaterialResourcePath);
+        if (material == null)
+        {
+            material = AssetDatabase.LoadAssetAtPath<Material>(InstancedMaterialPrimaryPath);
+        }
+
+        if (material == null)
+        {
+            material = AssetDatabase.LoadAssetAtPath<Material>(InstancedMaterialAssetPath);
+        }
+
+        if (material == null)
+        {
+            material = AssetDatabase.LoadAssetAtPath<Material>(InstancedMaterialFallbackPath);
+        }
+
+        return material;
+    }
+
     private static void AssignDefaultInstancedMaterial(PlateMapVehiclePointInstancedRenderer renderer)
     {
         if (renderer == null)
@@ -452,17 +701,7 @@ public static class PlateMapVehiclePointsBindingUtility
             return;
         }
 
-        Material material = Resources.Load<Material>(InstancedMaterialResourcePath);
-        if (material == null)
-        {
-            material = AssetDatabase.LoadAssetAtPath<Material>(InstancedMaterialAssetPath);
-        }
-
-        if (material == null)
-        {
-            material = AssetDatabase.LoadAssetAtPath<Material>(InstancedMaterialFallbackPath);
-        }
-
+        Material material = LoadDefaultInstancedMaterial();
         if (material != null)
         {
             materialProperty.objectReferenceValue = material;

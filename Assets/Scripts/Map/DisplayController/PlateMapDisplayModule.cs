@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 板块地图上可点击的显示模块（挂在地市/区域 mesh 节点上）。
-/// 需有 Collider 供 <see cref="PlateMapDisplayController"/> 射线拾取。
+/// 板块地图上可点击的显示模块（挂在地市/区域 mesh 节点或其父节点上）。
+/// 材质透明度/发光与拾取碰撞体均作用于<strong>自身及全部子物体</strong>（符合 PlateMapProvinceTech 的 Renderer 及其 Mesh）。
+/// 需有 Collider 供 <see cref="PlateMapDisplayController"/> 射线拾取（可通过子物体 Collider + GetComponentInParent 命中本模块）。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateMapDisplayModule : MonoBehaviour
@@ -17,6 +19,7 @@ public class PlateMapDisplayModule : MonoBehaviour
     [SerializeField] private bool _autoAddMeshColliderIfMissing = true;
 
     private Renderer[] _renderers;
+    private Collider[] _managedColliders;
     private MaterialPropertyBlock _propertyBlock;
     private float _currentAlpha = 1f;
     private float _currentEmissionIntensity;
@@ -39,30 +42,39 @@ public class PlateMapDisplayModule : MonoBehaviour
 
     public float CurrentEmissionIntensity => _currentEmissionIntensity;
 
-    private MeshCollider meshCollider;
     private void Awake()
     {
+        CacheRenderers();
+
         if (_autoAddMeshColliderIfMissing)
         {
-            EnsurePickCollider();
+            EnsurePickColliders();
+        }
+        else
+        {
+            CacheManagedColliders();
         }
 
-        CacheRenderers();
         CacheBaseEmissionIntensity();
         ApplyAlphaImmediate(_currentAlpha);
         ApplyEmissionIntensityImmediate(_currentEmissionIntensity);
     }
 
-
     public void ChangeColliderState()
     {
-        if(_propertyBlock.GetFloat("_Alpha") >= 1)
+        if (_managedColliders == null || _managedColliders.Length == 0)
         {
-            meshCollider.enabled = true;
+            return;
         }
-        else if(meshCollider.enabled)
+
+        bool enabled = _currentAlpha >= 1f;
+        for (int i = 0; i < _managedColliders.Length; i++)
         {
-            meshCollider.enabled = false;
+            Collider collider = _managedColliders[i];
+            if (collider != null)
+            {
+                collider.enabled = enabled;
+            }
         }
     }
 
@@ -220,41 +232,143 @@ public class PlateMapDisplayModule : MonoBehaviour
             return;
         }
 
-        var list = new System.Collections.Generic.List<Renderer>();
-        GetComponentsInChildren(false, list);
-        for (int i = list.Count - 1; i >= 0; i--)
+        var candidates = new System.Collections.Generic.List<Renderer>();
+        // 自身 + 全部子层级（含未激活子物体）
+        GetComponentsInChildren(true, candidates);
+
+        var list = new System.Collections.Generic.List<Renderer>(candidates.Count);
+        for (int i = 0; i < candidates.Count; i++)
         {
-            Material mat = list[i].sharedMaterial;
-            if (mat == null || mat.shader == null || mat.shader.name != "Custom/PlateMapProvinceTech")
+            Renderer renderer = candidates[i];
+            if (IsPlateMapProvinceTechRenderer(renderer))
             {
-                list.RemoveAt(i);
+                list.Add(renderer);
             }
         }
 
         _renderers = list.ToArray();
     }
 
-    private void EnsurePickCollider()
+    private static bool IsPlateMapProvinceTechRenderer(Renderer renderer)
     {
-        if (GetComponent<Collider>() != null)
+        if (renderer == null)
+        {
+            return false;
+        }
+
+        Material mat = renderer.sharedMaterial;
+        return mat != null &&
+               mat.shader != null &&
+               mat.shader.name == "Custom/PlateMapProvinceTech";
+    }
+
+    private void EnsurePickColliders()
+    {
+        CacheRenderers();
+
+        var colliderSet = new HashSet<Collider>();
+        TryRegisterOrCreateCollider(gameObject, colliderSet);
+
+        if (_renderers != null)
+        {
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                Renderer renderer = _renderers[i];
+                if (renderer != null)
+                {
+                    TryRegisterOrCreateCollider(renderer.gameObject, colliderSet);
+                }
+            }
+        }
+
+        _managedColliders = ToArray(colliderSet);
+        ChangeColliderState();
+    }
+
+    private void CacheManagedColliders()
+    {
+        CacheRenderers();
+
+        var colliderSet = new HashSet<Collider>();
+        CollectExistingColliders(gameObject, colliderSet);
+
+        if (_renderers != null)
+        {
+            for (int i = 0; i < _renderers.Length; i++)
+            {
+                Renderer renderer = _renderers[i];
+                if (renderer != null)
+                {
+                    CollectExistingColliders(renderer.gameObject, colliderSet);
+                }
+            }
+        }
+
+        _managedColliders = ToArray(colliderSet);
+    }
+
+    private static void CollectExistingColliders(GameObject target, HashSet<Collider> colliders)
+    {
+        if (target == null)
         {
             return;
         }
 
-        MeshFilter meshFilter = GetComponent<MeshFilter>();
+        Collider[] existing = target.GetComponents<Collider>();
+        for (int i = 0; i < existing.Length; i++)
+        {
+            if (existing[i] != null)
+            {
+                colliders.Add(existing[i]);
+            }
+        }
+    }
+
+    private static void TryRegisterOrCreateCollider(GameObject target, HashSet<Collider> colliders)
+    {
+        if (target == null)
+        {
+            return;
+        }
+
+        Collider existing = target.GetComponent<Collider>();
+        if (existing != null)
+        {
+            colliders.Add(existing);
+            return;
+        }
+
+        MeshFilter meshFilter = target.GetComponent<MeshFilter>();
         if (meshFilter != null && meshFilter.sharedMesh != null)
         {
-            meshCollider = gameObject.AddComponent<MeshCollider>();
+            MeshCollider meshCollider = target.AddComponent<MeshCollider>();
             meshCollider.sharedMesh = meshFilter.sharedMesh;
+            colliders.Add(meshCollider);
             return;
         }
 
-        Renderer renderer = GetComponent<Renderer>();
-        if (renderer != null)
+        Renderer renderer = target.GetComponent<Renderer>();
+        if (renderer == null)
         {
-            var box = gameObject.AddComponent<BoxCollider>();
-            box.center = renderer.bounds.center - transform.position;
-            box.size = renderer.bounds.size;
+            return;
         }
+
+        BoxCollider boxCollider = target.AddComponent<BoxCollider>();
+        Bounds worldBounds = renderer.bounds;
+        boxCollider.center = target.transform.InverseTransformPoint(worldBounds.center);
+        boxCollider.size = worldBounds.size;
+        colliders.Add(boxCollider);
+    }
+
+    private static Collider[] ToArray(HashSet<Collider> colliders)
+    {
+        if (colliders == null || colliders.Count == 0)
+        {
+            return System.Array.Empty<Collider>();
+        }
+
+        var array = new Collider[colliders.Count];
+        colliders.CopyTo(array);
+        return array;
     }
 }

@@ -237,6 +237,12 @@ public class PlateMapVehiclePointInstancedRenderer : MonoBehaviour
             if (_material == null)
             {
                 _material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(
+                    "Assets/Materials/CarPoint/Materials/M_CarPointGlowInstanced.mat");
+            }
+
+            if (_material == null)
+            {
+                _material = UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(
                     "Assets/CarPoint/Materials/M_CarPointGlowInstanced.mat");
             }
 #endif

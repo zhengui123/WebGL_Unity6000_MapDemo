@@ -36,8 +36,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
     [SerializeField] private Vector3 _pointLocalScale = new Vector3(0.01f, 0.01f, 0.01f);
 
     [Header("颜色标定")]
-    [SerializeField] private Color _colorAtDataMin = new Color(0.2f, 0.88f, 1f, 1f);
-    [SerializeField] private Color _colorAtDataMax = new Color(1f, 0.28f, 0.12f, 1f);
+    [SerializeField] private Color _colorAtDataMin = new Color(1f, 0.9843137f, 0.627451f, 1f);
+    [SerializeField] private Color _colorAtDataMax = new Color(0.9607843f, 1f, 0f, 1f);
     [SerializeField] private float _dataValueMin;
     [SerializeField] private float _dataValueMax = 1f;
     [SerializeField] private float _glowIntensityAtDataMin = 0.6f;

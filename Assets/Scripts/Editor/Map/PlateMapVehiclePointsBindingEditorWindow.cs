@@ -5,7 +5,7 @@ using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// 板块车辆点绑定控制面板：扫描场景中的 PlateMapGeoConverter，支持省份下拉与一键绑定三组件。
+/// 板块车辆点绑定控制面板：扫描场景、批量从 Hierarchy 加入、按对象名匹配省份、一键绑定三组件。
 /// 持久化：Assets/Scripts/Editor/Map/PlateMapVehiclePointsBindingStore.asset
 /// </summary>
 public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
@@ -69,7 +69,32 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             AddManualRow();
         }
 
+        if (GUILayout.Button("从多选加入", EditorStyles.toolbarButton, GUILayout.Width(88f)))
+        {
+            AddRowsFromHierarchySelection();
+        }
+
+        if (GUILayout.Button("批量绑定", EditorStyles.toolbarButton, GUILayout.Width(80f)))
+        {
+            BatchBindPendingRows();
+        }
+
+        if (GUILayout.Button("更新默认数据", EditorStyles.toolbarButton, GUILayout.Width(96f)))
+        {
+            UpdateDefaultVisualDataOnSelected();
+        }
+
         GUILayout.FlexibleSpace();
+
+        if (GUILayout.Button("全选", EditorStyles.toolbarButton, GUILayout.Width(48f)))
+        {
+            SetAllRowsSelected(true);
+        }
+
+        if (GUILayout.Button("全不选", EditorStyles.toolbarButton, GUILayout.Width(56f)))
+        {
+            SetAllRowsSelected(false);
+        }
 
         if (GUILayout.Button("选中 Store", EditorStyles.toolbarButton, GUILayout.Width(88f)))
         {
@@ -85,7 +110,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         int issueCount = CountIssueRows();
         EditorGUILayout.LabelField("持久化文件", PlateMapVehiclePointsBindingStore.AssetPath, EditorStyles.miniLabel);
         EditorGUILayout.LabelField(
-            $"已扫描 {_rows.Count} 行 | 含 GeoConverter 的板块 {CountBoundRows()} 个 | 异常 {issueCount} 个",
+            $"已扫描 {_rows.Count} 行 | 已勾选 {CountSelectedRows()} | 含 GeoConverter 的板块 {CountBoundRows()} 个 | 异常 {issueCount} 个",
             EditorStyles.boldLabel);
 
         if (issueCount > 0)
@@ -101,11 +126,20 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         Rect headerRect = EditorGUILayout.GetControlRect(false, 20f);
         float x = headerRect.x;
         float width = headerRect.width;
-        float objectWidth = width * 0.34f;
-        float provinceWidth = width * 0.24f;
-        float statusWidth = width * 0.28f;
+        const float checkWidth = 28f;
+        float objectWidth = width * 0.30f;
+        float provinceWidth = width * 0.22f;
+        float statusWidth = width * 0.26f;
         float actionWidth = width * 0.14f;
 
+        bool allSelected = _rows.Count > 0 && CountSelectedRows() == _rows.Count;
+        bool newAllSelected = EditorGUI.Toggle(new Rect(x, headerRect.y, checkWidth, 18f), allSelected);
+        if (newAllSelected != allSelected)
+        {
+            SetAllRowsSelected(newAllSelected);
+        }
+
+        x += checkWidth;
         EditorGUI.LabelField(new Rect(x, headerRect.y, objectWidth, 18f), "板块对象", EditorStyles.miniBoldLabel);
         x += objectWidth;
         EditorGUI.LabelField(new Rect(x, headerRect.y, provinceWidth, 18f), "省份", EditorStyles.miniBoldLabel);
@@ -127,7 +161,9 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
         if (_rows.Count == 0)
         {
-            EditorGUILayout.HelpBox("当前无绑定行。点击「添加绑定行」或「刷新场景」。", MessageType.Info);
+            EditorGUILayout.HelpBox(
+                "当前无绑定行。可「添加绑定行」，或在 Hierarchy 多选省份物体后点「从多选加入」。",
+                MessageType.Info);
         }
 
         EditorGUILayout.EndScrollView();
@@ -145,19 +181,21 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         EditorGUI.DrawRect(new Rect(rowRect.x - 2f, rowRect.y, position.width - 24f, RowHeight), background);
         EditorGUILayout.BeginHorizontal(GUILayout.Height(RowHeight));
 
+        row.IsSelected = EditorGUILayout.Toggle(row.IsSelected, GUILayout.Width(22f));
+
         EditorGUI.BeginChangeCheck();
         GameObject newTarget = (GameObject)EditorGUILayout.ObjectField(
             row.Target,
             typeof(GameObject),
             true,
-            GUILayout.Width(position.width * 0.34f - 12f));
+            GUILayout.Width(position.width * 0.30f - 12f));
         if (EditorGUI.EndChangeCheck())
         {
             row.Target = newTarget;
             PlateMapVehiclePointsBindingUtility.EvaluateComponentState(row);
-            if (row.Target != null && row.Target.GetComponent<PlateMapGeoConverter>() != null)
+            if (row.Target != null)
             {
-                row.ProvinceCode = row.Target.GetComponent<PlateMapGeoConverter>().ProvinceCode;
+                PlateMapVehiclePointsBindingUtility.ApplyProvinceFromObjectName(row, _provinceOptions);
                 _provincePopupIndices[index] = PlateMapVehiclePointsBindingUtility.FindProvinceIndex(
                     _provinceOptions,
                     row.ProvinceCode);
@@ -167,7 +205,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         _provincePopupIndices[index] = EditorGUILayout.Popup(
             _provincePopupIndices[index],
             _provinceLabels,
-            GUILayout.Width(position.width * 0.24f - 12f));
+            GUILayout.Width(position.width * 0.22f - 12f));
         if (_provinceOptions != null &&
             _provincePopupIndices[index] >= 0 &&
             _provincePopupIndices[index] < _provinceOptions.Count)
@@ -175,7 +213,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             row.ProvinceCode = _provinceOptions[_provincePopupIndices[index]].provinceCode;
         }
 
-        DrawStatusColumn(row, position.width * 0.28f - 12f);
+        DrawStatusColumn(row, position.width * 0.26f - 12f);
 
         EditorGUILayout.BeginVertical(GUILayout.Width(position.width * 0.14f - 12f));
         if (GUILayout.Button("绑定", GUILayout.Height(24f)))
@@ -260,17 +298,44 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
     private void RefreshRows()
     {
-        List<PlateMapVehiclePointsBindingUtility.BindingRow> manualRows = new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
+        HashSet<string> previouslySelected = new HashSet<string>();
+        List<PlateMapVehiclePointsBindingUtility.BindingRow> manualRows =
+            new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
+
         for (int i = 0; i < _rows.Count; i++)
         {
-            if (_rows[i] != null && _rows[i].IsManualAdd)
+            PlateMapVehiclePointsBindingUtility.BindingRow existing = _rows[i];
+            if (existing == null)
             {
-                manualRows.Add(_rows[i]);
+                continue;
+            }
+
+            if (existing.IsSelected && existing.Target != null)
+            {
+                previouslySelected.Add(PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(existing.Target));
+            }
+
+            if (existing.IsManualAdd)
+            {
+                manualRows.Add(existing);
             }
         }
 
         _rows = PlateMapVehiclePointsBindingUtility.BuildRows(_store);
         _rows.AddRange(manualRows);
+
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
+            if (row?.Target == null)
+            {
+                continue;
+            }
+
+            row.IsSelected = previouslySelected.Contains(
+                PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(row.Target));
+        }
+
         EnsurePopupCacheSize();
         Repaint();
     }
@@ -302,6 +367,175 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 : PlateMapBoundaryDatabase.NationalProvinceCode
         });
         EnsurePopupCacheSize();
+    }
+
+    private void AddRowsFromHierarchySelection()
+    {
+        GameObject[] selected = Selection.gameObjects;
+        if (selected == null || selected.Length == 0)
+        {
+            EditorUtility.DisplayDialog("从多选加入", "请先在 Hierarchy 中多选板块对象（如 山东、重庆）。", "确定");
+            return;
+        }
+
+        HashSet<string> existingKeys = new HashSet<string>();
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow existing = _rows[i];
+            if (existing?.Target == null)
+            {
+                continue;
+            }
+
+            existingKeys.Add(PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(existing.Target));
+        }
+
+        int added = 0;
+        int skipped = 0;
+        int unresolved = 0;
+
+        for (int i = 0; i < selected.Length; i++)
+        {
+            GameObject target = selected[i];
+            if (target == null)
+            {
+                continue;
+            }
+
+            string key = PlateMapVehiclePointsBindingUtility.BuildRowKeyPublic(target);
+            if (!existingKeys.Add(key))
+            {
+                skipped++;
+                continue;
+            }
+
+            var row = new PlateMapVehiclePointsBindingUtility.BindingRow
+            {
+                Target = target,
+                IsManualAdd = true,
+                IsSelected = true,
+                Issue = PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind,
+                IssueDetail = "已加入列表，确认省份后点击「绑定」或「批量绑定」。"
+            };
+
+            PlateMapVehiclePointsBindingUtility.EvaluateComponentState(row);
+            PlateMapVehiclePointsBindingUtility.ApplyProvinceFromObjectName(row, _provinceOptions);
+            if (row.Issue == PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved)
+            {
+                unresolved++;
+            }
+
+            _rows.Add(row);
+            added++;
+        }
+
+        EnsurePopupCacheSize();
+        Repaint();
+        ShowNotification(new GUIContent($"加入 {added} 个（跳过重复 {skipped}，未匹配省名 {unresolved}）"));
+    }
+
+    private void BatchBindPendingRows()
+    {
+        if (CountSelectedRows() == 0)
+        {
+            EditorUtility.DisplayDialog("批量绑定", "请先勾选要绑定的行（可用全选）。", "确定");
+            return;
+        }
+
+        int success = 0;
+        int failed = 0;
+
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
+            if (row == null || !row.IsSelected || row.Target == null)
+            {
+                continue;
+            }
+
+            if (row.Issue == PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved)
+            {
+                failed++;
+                continue;
+            }
+
+            if (PlateMapVehiclePointsBindingUtility.ApplyBinding(row))
+            {
+                success++;
+            }
+            else
+            {
+                failed++;
+            }
+        }
+
+        RefreshRows();
+        ShowNotification(new GUIContent($"批量绑定完成：成功 {success}，失败/跳过 {failed}"));
+    }
+
+    private void UpdateDefaultVisualDataOnSelected()
+    {
+        if (CountSelectedRows() == 0)
+        {
+            EditorUtility.DisplayDialog("更新默认数据", "请先勾选要更新的行（可用全选）。", "确定");
+            return;
+        }
+
+        int success = 0;
+        int skipped = 0;
+
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
+            if (row == null || !row.IsSelected)
+            {
+                continue;
+            }
+
+            if (row.Target == null)
+            {
+                skipped++;
+                continue;
+            }
+
+            if (PlateMapVehiclePointsBindingUtility.ApplyDefaultVisualData(row.Target, forceOverwriteColors: true))
+            {
+                success++;
+            }
+            else
+            {
+                skipped++;
+            }
+        }
+
+        ShowNotification(new GUIContent($"更新默认数据：成功 {success}，跳过 {skipped}"));
+    }
+
+    private void SetAllRowsSelected(bool selected)
+    {
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            if (_rows[i] != null)
+            {
+                _rows[i].IsSelected = selected;
+            }
+        }
+
+        Repaint();
+    }
+
+    private int CountSelectedRows()
+    {
+        int count = 0;
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            if (_rows[i] != null && _rows[i].IsSelected)
+            {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private void SavePersistence()
@@ -360,6 +594,8 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 return "组件未齐";
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
                 return "待绑定";
+            case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
+                return "省名未匹配";
             default:
                 return "正常";
         }
@@ -375,6 +611,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             case PlateMapVehiclePointsBindingUtility.RowIssue.NotPersisted:
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingComponents:
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
+            case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
                 return new Color(0.95f, 0.72f, 0.1f);
             default:
                 return new Color(0.2f, 0.85f, 0.35f);
@@ -391,6 +628,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             case PlateMapVehiclePointsBindingUtility.RowIssue.NotPersisted:
             case PlateMapVehiclePointsBindingUtility.RowIssue.MissingComponents:
             case PlateMapVehiclePointsBindingUtility.RowIssue.PendingBind:
+            case PlateMapVehiclePointsBindingUtility.RowIssue.ProvinceUnresolved:
                 return new Color(0.42f, 0.32f, 0.05f, 0.18f);
             default:
                 return new Color(0.1f, 0.28f, 0.14f, 0.12f);

@@ -580,10 +580,11 @@ public class PlateMapDisplayController : MonoBehaviour
         Ray ray = _pickCamera.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out RaycastHit hit, _raycastMaxDistance, _pickLayerMask, QueryTriggerInteraction.Ignore))
         {
+
             return;
         }
-
-        PlateMapDisplayModule module = hit.collider.GetComponentInParent<PlateMapDisplayModule>();
+        Debug.Log($"[PlateMapDisplayController] 点击模块：{hit.collider.transform.parent.name}");
+        PlateMapDisplayModule module = hit.collider.transform.parent.GetComponentInParent<PlateMapDisplayModule>();
         if (module == null || !IsRegisteredModule(module))
         {
             return;

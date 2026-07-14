@@ -17,6 +17,6 @@ MonoBehaviour:
   ParticleStreakMaterial: {fileID: 2100000, guid: dea4a50755ec7b848900e7fffd93c4da, type: 2}
   TechScanWaveMaterial: {fileID: 2100000, guid: b939f26ac9b4ca24a81c3ec5211b919d, type: 2}
   TechScanLineMaterial: {fileID: 2100000, guid: 7e91002a835dfbc42b6cb5ea1cddef04, type: 2}
-  CloudFogPrefab: {fileID: 4078115561450107639, guid: 525be8552074bcf4da6fcc7dc4221098, type: 3}
-  TechScanPrefab: {fileID: 2416371530126753674, guid: f3d222762191ca743af931af2876e807, type: 3}
-  DiveRevealPrefab: {fileID: 5671368493135967210, guid: 5ba1c723a748d5a48872966389f1b1d2, type: 3}
+  CloudFogPrefab: {fileID: 2603452398296020419, guid: 525be8552074bcf4da6fcc7dc4221098, type: 3}
+  TechScanPrefab: {fileID: 952745499374309058, guid: f3d222762191ca743af931af2876e807, type: 3}
+  DiveRevealPrefab: {fileID: 4549409801800265052, guid: 5ba1c723a748d5a48872966389f1b1d2, type: 3}
