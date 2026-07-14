@@ -49,7 +49,7 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
                PlateMapVehiclePointEvents.Instance.InvokeIsGeoConverterReady(plateMapName);
     }
 
-    /// <summary>经纬度转板块地图局部坐标。</summary>
+    /// <summary>经纬度转板块物体本地坐标（世界映射后再 InverseTransform；POI 等挂接用）。</summary>
     public bool TryLongitudeLatitudeToLocal(
         string provinceCode,
         double longitude,

@@ -50,6 +50,10 @@ public class PlateMapVehiclePointController : MonoBehaviour
     [Header("运行")]
     [SerializeField] private bool _rebuildOnStart = true;
 
+    [Header("调试映射 Cube")]
+    [Tooltip("首次经纬度→局部坐标映射成功后，在 VehiclePoints 下创建 Cube（仅一次，与 GPU 并存）")]
+    [SerializeField] private bool _spawnMappedPointCubesOnce = true;
+
     private readonly List<Matrix4x4> _matrices = new List<Matrix4x4>(128);
     private readonly List<CarPointGpuInstanceData> _gpuInstanceData = new List<CarPointGpuInstanceData>(128);
     private readonly List<PlateMapVehiclePointMerger.InputPoint> _mergeInputs = new List<PlateMapVehiclePointMerger.InputPoint>(128);
@@ -60,6 +64,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private bool _initialized;
     private bool _wasDisplayActiveBeforeDisable;
     private float _lastAppliedCenterBrightness = float.NaN;
+    private bool _mappedPointCubesSpawned;
 
     public VehicleMapPointData[] VehiclePoints => _vehiclePoints;
     public bool IsDisplayReady => _initialized;
@@ -322,6 +327,9 @@ public class PlateMapVehiclePointController : MonoBehaviour
             return false;
         }
 
+        // 合并前原始点：首次映射成功后创建调试 Cube（不影响 GPU Instancing）
+        TrySpawnMappedPointCubesOnce(_mergeInputs);
+
         if (_enableProximityMerge)
         {
             PlateMapVehiclePointMerger.Merge(_mergeInputs, _mergeDistanceLocal, _mergedPoints, _mergeUseAveragePosition);
@@ -468,7 +476,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void CleanupLegacyPointObjects()
     {
-        if (_mapRoot == null)
+        // 已创建过调试 Cube 则不再清空，避免后续刷新删掉「只建一次」的点位
+        if (_mappedPointCubesSpawned || _mapRoot == null)
         {
             return;
         }
@@ -491,6 +500,69 @@ public class PlateMapVehiclePointController : MonoBehaviour
                 DestroyImmediate(child.gameObject);
             }
         }
+    }
+
+    /// <summary>
+    /// 首次将车辆点映射为局部坐标后，在 _mapRoot/VehiclePoints 下按合并前点位生成 Cube。
+    /// 原理：Cube 用 localPosition 挂到地图根下，与 InstancedRenderer 的 TransformPoint 路径一致，便于目视校验映射。
+    /// </summary>
+    private void TrySpawnMappedPointCubesOnce(List<PlateMapVehiclePointMerger.InputPoint> mappedInputs)
+    {
+        if (!_spawnMappedPointCubesOnce || _mappedPointCubesSpawned || _mapRoot == null)
+        {
+            return;
+        }
+
+        if (mappedInputs == null || mappedInputs.Count == 0)
+        {
+            return;
+        }
+
+        Transform pointsRoot = _mapRoot.Find("VehiclePoints");
+        if (pointsRoot == null)
+        {
+            GameObject rootGo = new GameObject("VehiclePoints");
+            rootGo.transform.SetParent(_mapRoot, false);
+            pointsRoot = rootGo.transform;
+        }
+        else
+        {
+            for (int i = pointsRoot.childCount - 1; i >= 0; i--)
+            {
+                Transform child = pointsRoot.GetChild(i);
+                if (Application.isPlaying)
+                {
+                    Destroy(child.gameObject);
+                }
+                else
+                {
+                    DestroyImmediate(child.gameObject);
+                }
+            }
+        }
+
+        for (int i = 0; i < mappedInputs.Count; i++)
+        {
+            GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            cube.name = $"MappedPoint_{i}";
+            cube.transform.SetParent(pointsRoot, false);
+
+            Vector3 localPos = mappedInputs[i].LocalPosition;
+            localPos.y = _pointHeightOffset;
+            cube.transform.localPosition = localPos;
+            cube.transform.localRotation = Quaternion.identity;
+            cube.transform.localScale = _pointLocalScale;
+
+            Collider col = cube.GetComponent<Collider>();
+            if (col != null)
+            {
+                Destroy(col);
+            }
+        }
+
+        _mappedPointCubesSpawned = true;
+        Debug.Log(
+            $"[PlateMapVehiclePointController] 已一次性创建 {mappedInputs.Count} 个映射调试 Cube → {_mapRoot.name}/VehiclePoints");
     }
 
     private void ResolveReferences()

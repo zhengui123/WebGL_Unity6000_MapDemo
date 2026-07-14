@@ -118,6 +118,31 @@ public class PlateMapGeoConverterEditor : Editor
     private void ApplyProvinceSelection(SerializedProperty provinceCodeProp, PlateMapBoundaryData item)
     {
         provinceCodeProp.stringValue = item.provinceCode;
+
+        SerializedProperty westLon = serializedObject.FindProperty("_westAnchor.longitude");
+        SerializedProperty westLat = serializedObject.FindProperty("_westAnchor.latitude");
+        SerializedProperty eastLon = serializedObject.FindProperty("_eastAnchor.longitude");
+        SerializedProperty eastLat = serializedObject.FindProperty("_eastAnchor.latitude");
+        if (westLon != null)
+        {
+            westLon.doubleValue = item.westLongitude;
+        }
+
+        if (westLat != null)
+        {
+            westLat.doubleValue = item.southLatitude;
+        }
+
+        if (eastLon != null)
+        {
+            eastLon.doubleValue = item.eastLongitude;
+        }
+
+        if (eastLat != null)
+        {
+            eastLat.doubleValue = item.northLatitude;
+        }
+
         serializedObject.ApplyModifiedProperties();
 
         foreach (Object targetObject in targets)

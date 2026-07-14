@@ -2,13 +2,13 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 基于板块模型 Left（西）/ Right（东）控制点，在局部 XZ 平面做经纬度仿射映射。
-/// 边界经纬度从 <see cref="PlateMapBoundaryDatabase"/> 按 <see cref="_provinceCode"/> 加载。
+/// 基于 Left / Right 两控制点做经纬度 ↔ 局部 XZ 仿射映射。
+/// 映射只依赖两锚点的 Transform（局部坐标）及其 longitude/latitude，不扫描子模型网格，不读省界 Database。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateMapGeoConverter : MonoBehaviour
 {
-    /// <summary>地图控制点：模型子物体位置 + 对应的真实经纬度。</summary>
+    /// <summary>控制点：局部位置 + 该点对应的经纬度。</summary>
     [Serializable]
     public struct GeoAnchor
     {
@@ -18,7 +18,7 @@ public class PlateMapGeoConverter : MonoBehaviour
     }
 
     [Header("板块标识")]
-    [Tooltip("省级 adcode 字符串；0 表示全国整体大板块。与 PlateMapBoundaries.json 对应。")]
+    [Tooltip("省级 adcode；仅用于事件总线 provinceCode→板块名 映射，不参与几何计算。")]
     [SerializeField] private string _provinceCode = "370000";
 
     [Header("地图根节点")]
@@ -28,25 +28,18 @@ public class PlateMapGeoConverter : MonoBehaviour
     [SerializeField] private GeoAnchor _westAnchor;
     [SerializeField] private GeoAnchor _eastAnchor;
 
-    [Tooltip("按局部 X 自动绑定西/东标记（X 较大为西缘）")]
-    [SerializeField] private bool _autoBindWestEastByLocalX = true;
+    [Tooltip("勾选后按局部 X 决定西/东（X 较大为西缘）；默认不勾选，沿用手动指定的西/东引用。")]
+    [SerializeField] private bool _autoBindWestEastByLocalX;
 
     private PlateMapVehiclePointController _vehiclePointController;
-
-    private double _southLatitude;
-    private double _northLatitude;
-    private float _southLocalZ;
-    private float _northLocalZ;
     private bool _isReady;
 
     public bool IsReady => _isReady;
     public string ProvinceCode => _provinceCode;
     public GeoAnchor WestAnchor => _westAnchor;
     public GeoAnchor EastAnchor => _eastAnchor;
-    public double SouthLatitude => _southLatitude;
-    public double NorthLatitude => _northLatitude;
 
-    /// <summary>获取板块映射用的经纬度外接矩形（西、东、南、北）。</summary>
+    /// <summary>外接经纬度范围（取自两锚点经纬度）。</summary>
     public void GetProvinceLongitudeLatitudeBounds(
         out double westLongitude,
         out double eastLongitude,
@@ -55,8 +48,8 @@ public class PlateMapGeoConverter : MonoBehaviour
     {
         westLongitude = Math.Min(_westAnchor.longitude, _eastAnchor.longitude);
         eastLongitude = Math.Max(_westAnchor.longitude, _eastAnchor.longitude);
-        southLatitude = Math.Min(_southLatitude, _northLatitude);
-        northLatitude = Math.Max(_southLatitude, _northLatitude);
+        southLatitude = Math.Min(_westAnchor.latitude, _eastAnchor.latitude);
+        northLatitude = Math.Max(_westAnchor.latitude, _eastAnchor.latitude);
     }
 
     private void Awake()
@@ -140,7 +133,7 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
     }
 
-    /// <summary>根据 Left/Right 与网格 Z 范围重建映射；经纬度边界来自 Database。</summary>
+    /// <summary>仅根据 Left/Right 锚点重建映射。</summary>
     [ContextMenu("重建地理映射")]
     public void Rebuild()
     {
@@ -151,28 +144,7 @@ public class PlateMapGeoConverter : MonoBehaviour
             _mapRoot = transform;
         }
 
-        if (!TryApplyBoundaryFromDatabase())
-        {
-            return;
-        }
-
         TryFindMarkersByName();
-
-        if (!TryComputeMeshLocalBounds(out float meshMinX, out float meshMaxX, out float meshMinZ, out float meshMaxZ))
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」无法从网格计算 XZ 范围。");
-            return;
-        }
-
-        AssignSouthNorthLocalZFromMeshExtents(meshMinZ, meshMaxZ);
-
-        if (Math.Abs(_northLocalZ - _southLocalZ) < 1e-6f)
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」纬度方向局部 Z 范围无效。");
-            return;
-        }
-
-        EnsureWestEastMarkers(meshMinX, meshMaxX);
 
         if (_autoBindWestEastByLocalX)
         {
@@ -181,27 +153,23 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         if (_westAnchor.marker == null || _eastAnchor.marker == null)
         {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」未找到 Left/Right 控制点。");
+            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」未指定 Left/Right 控制点。");
             return;
         }
 
-        if (Math.Abs(_eastAnchor.marker.localPosition.x - _westAnchor.marker.localPosition.x) < 1e-6f)
+        if (!IsMappingGeometryValid())
         {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」西/东控制点局部 X 过近。");
+            Debug.LogWarning(
+                $"[PlateMapGeoConverter] 板块「{PlateMapKey}」锚点无效：西东 X 或经度重合，或两锚点纬度/Z 无法构成有效映射。");
             return;
         }
 
-        _westAnchor.latitude = _southLatitude;
-        _eastAnchor.latitude = _northLatitude;
         _isReady = true;
 
-        Vector3 localNorth = _mapRoot.InverseTransformDirection(Vector3.forward);
         Debug.Log(
             $"[PlateMapGeoConverter] 映射就绪 | code={_provinceCode} | 板块「{PlateMapKey}」 | " +
-            $"西 lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} | " +
-            $"东 lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} | " +
-            $"Z 南[{_southLocalZ:F4}] 北[{_northLocalZ:F4}] <- 纬度 [{_southLatitude:F4},{_northLatitude:F4}] | " +
-            $"局部Z朝向北分量={localNorth.z:F4}");
+            $"西 lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} @ {_westAnchor.marker.localPosition} | " +
+            $"东 lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} @ {_eastAnchor.marker.localPosition}");
 
         RefreshVehiclePointsDisplayIfPlaying();
 
@@ -213,65 +181,17 @@ public class PlateMapGeoConverter : MonoBehaviour
 #endif
     }
 
-    /// <summary>
-    /// Marker 为空时，在板块 mesh 外接矩形左下（西/南）与右上（东/北）创建 Left / Right 子物体。
-    /// 本模型局部 X 向西增大：西缘取较大 X，东缘取较小 X。
-    /// </summary>
-    private void EnsureWestEastMarkers(float meshMinX, float meshMaxX)
+    private bool IsMappingGeometryValid()
     {
-        float westLocalX = Mathf.Max(meshMinX, meshMaxX);
-        float eastLocalX = Mathf.Min(meshMinX, meshMaxX);
+        float dx = _eastAnchor.marker.localPosition.x - _westAnchor.marker.localPosition.x;
+        float dz = _eastAnchor.marker.localPosition.z - _westAnchor.marker.localPosition.z;
+        double dLon = _eastAnchor.longitude - _westAnchor.longitude;
+        double dLat = _eastAnchor.latitude - _westAnchor.latitude;
 
-        if (_westAnchor.marker == null)
-        {
-            _westAnchor.marker = CreateMarkerChild("Left", new Vector3(westLocalX, 0f, _southLocalZ));
-        }
-
-        if (_eastAnchor.marker == null)
-        {
-            _eastAnchor.marker = CreateMarkerChild("Right", new Vector3(eastLocalX, 0f, _northLocalZ));
-        }
-    }
-
-    private Transform CreateMarkerChild(string markerName, Vector3 localPosition)
-    {
-        var markerObject = new GameObject(markerName);
-        markerObject.transform.SetParent(_mapRoot, false);
-        markerObject.transform.localPosition = localPosition;
-        markerObject.transform.localRotation = Quaternion.identity;
-        markerObject.transform.localScale = Vector3.one;
-
-#if UNITY_EDITOR
-        if (!Application.isPlaying)
-        {
-            UnityEditor.Undo.RegisterCreatedObjectUndo(markerObject, $"Create {markerName}");
-            UnityEditor.EditorUtility.SetDirty(_mapRoot.gameObject);
-        }
-#endif
-
-        return markerObject.transform;
-    }
-
-    private bool TryApplyBoundaryFromDatabase()
-    {
-        if (string.IsNullOrWhiteSpace(_provinceCode))
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」未配置 provinceCode。");
-            return false;
-        }
-
-        if (!PlateMapBoundaryDatabase.TryGet(_provinceCode, out PlateMapBoundaryData boundary))
-        {
-            Debug.LogWarning($"[PlateMapGeoConverter] 未找到 provinceCode={_provinceCode} 的边界数据。");
-            return false;
-        }
-
-        _provinceCode = boundary.provinceCode;
-        _westAnchor.longitude = boundary.westLongitude;
-        _eastAnchor.longitude = boundary.eastLongitude;
-        _southLatitude = boundary.southLatitude;
-        _northLatitude = boundary.northLatitude;
-        return true;
+        return Math.Abs(dx) > 1e-6f &&
+               Math.Abs(dz) > 1e-6f &&
+               Math.Abs(dLon) > 1e-9 &&
+               Math.Abs(dLat) > 1e-9;
     }
 
     private void RefreshVehiclePointsDisplayIfPlaying()
@@ -292,15 +212,20 @@ public class PlateMapGeoConverter : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 仿射：经度沿西→东锚点插值 X，纬度沿西→东锚点插值 Z。
+    /// （约定两锚点为对角控制点：携带各自经度与纬度。）
+    /// </summary>
     private Vector3 ComputeLocalPosition(double longitude, double latitude)
     {
-        float westX = _westAnchor.marker.localPosition.x;
-        float eastX = _eastAnchor.marker.localPosition.x;
-        float tLon = Mathf.InverseLerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, (float)longitude);
-        float x = Mathf.Lerp(westX, eastX, tLon);
+        Vector3 westLocal = _westAnchor.marker.localPosition;
+        Vector3 eastLocal = _eastAnchor.marker.localPosition;
 
-        float tLat = Mathf.InverseLerp((float)_southLatitude, (float)_northLatitude, (float)latitude);
-        float z = Mathf.Lerp(_southLocalZ, _northLocalZ, tLat);
+        float tLon = Mathf.InverseLerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, (float)longitude);
+        float tLat = Mathf.InverseLerp((float)_westAnchor.latitude, (float)_eastAnchor.latitude, (float)latitude);
+
+        float x = Mathf.Lerp(westLocal.x, eastLocal.x, tLon);
+        float z = Mathf.Lerp(westLocal.z, eastLocal.z, tLat);
         return new Vector3(x, 0f, z);
     }
 
@@ -314,13 +239,13 @@ public class PlateMapGeoConverter : MonoBehaviour
             return false;
         }
 
-        float westX = _westAnchor.marker.localPosition.x;
-        float eastX = _eastAnchor.marker.localPosition.x;
-        float tLon = Mathf.InverseLerp(westX, eastX, localPosition.x);
-        longitude = Mathf.Lerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, tLon);
+        Vector3 westLocal = _westAnchor.marker.localPosition;
+        Vector3 eastLocal = _eastAnchor.marker.localPosition;
 
-        float tLat = Mathf.InverseLerp(_southLocalZ, _northLocalZ, localPosition.z);
-        latitude = Mathf.Lerp((float)_southLatitude, (float)_northLatitude, tLat);
+        float tLon = Mathf.InverseLerp(westLocal.x, eastLocal.x, localPosition.x);
+        float tLat = Mathf.InverseLerp(westLocal.z, eastLocal.z, localPosition.z);
+        longitude = Mathf.Lerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, tLon);
+        latitude = Mathf.Lerp((float)_westAnchor.latitude, (float)_eastAnchor.latitude, tLat);
         return true;
     }
 
@@ -364,13 +289,23 @@ public class PlateMapGeoConverter : MonoBehaviour
             return;
         }
 
-        Transform westMarker = left.localPosition.x >= right.localPosition.x ? left : right;
-        Transform eastMarker = westMarker == left ? right : left;
+        // 本模型局部 X 向西增大：X 更大者为西缘
+        bool leftIsWest = left.localPosition.x >= right.localPosition.x;
+        Transform westMarker = leftIsWest ? left : right;
+        Transform eastMarker = leftIsWest ? right : left;
+
+        double lonA = _westAnchor.longitude;
+        double lonB = _eastAnchor.longitude;
+        double latA = _westAnchor.latitude;
+        double latB = _eastAnchor.latitude;
 
         _westAnchor.marker = westMarker;
         _eastAnchor.marker = eastMarker;
-        _westAnchor.longitude = Math.Min(_westAnchor.longitude, _eastAnchor.longitude);
-        _eastAnchor.longitude = Math.Max(_westAnchor.longitude, _eastAnchor.longitude);
+        _westAnchor.longitude = Math.Min(lonA, lonB);
+        _eastAnchor.longitude = Math.Max(lonA, lonB);
+        // 纬度随原西/东序列化值与对应角点约定：较小 lat 给西侧字段、较大给东侧（对角西南/东北）
+        _westAnchor.latitude = Math.Min(latA, latB);
+        _eastAnchor.latitude = Math.Max(latA, latB);
     }
 
     private Transform FindChildMarker(string markerName)
@@ -383,7 +318,7 @@ public class PlateMapGeoConverter : MonoBehaviour
         Transform[] all = _mapRoot.GetComponentsInChildren<Transform>(true);
         for (int i = 0; i < all.Length; i++)
         {
-            if (all[i].name == markerName)
+            if (all[i] != null && all[i].name == markerName)
             {
                 return all[i];
             }
@@ -403,84 +338,5 @@ public class PlateMapGeoConverter : MonoBehaviour
         {
             _eastAnchor.marker = FindChildMarker("Right");
         }
-    }
-
-    private bool TryComputeMeshLocalBounds(
-        out float minX,
-        out float maxX,
-        out float minZ,
-        out float maxZ)
-    {
-        minX = maxX = minZ = maxZ = 0f;
-        bool has = false;
-        float boundsMinX = float.MaxValue;
-        float boundsMaxX = float.MinValue;
-        float boundsMinZ = float.MaxValue;
-        float boundsMaxZ = float.MinValue;
-
-        Renderer[] renderers = _mapRoot.GetComponentsInChildren<Renderer>(true);
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            Renderer r = renderers[i];
-            if (r == null)
-            {
-                continue;
-            }
-
-            if (r.transform == _westAnchor.marker || r.transform == _eastAnchor.marker)
-            {
-                continue;
-            }
-
-            if (_westAnchor.marker != null &&
-                (r.transform.IsChildOf(_westAnchor.marker) || r.transform == _westAnchor.marker))
-            {
-                continue;
-            }
-
-            if (_eastAnchor.marker != null &&
-                (r.transform.IsChildOf(_eastAnchor.marker) || r.transform == _eastAnchor.marker))
-            {
-                continue;
-            }
-
-            Bounds b = r.bounds;
-            Vector3 cLocal = _mapRoot.InverseTransformPoint(b.center);
-            Vector3 eLocal = _mapRoot.InverseTransformVector(b.extents);
-            float x0 = cLocal.x - Mathf.Abs(eLocal.x);
-            float x1 = cLocal.x + Mathf.Abs(eLocal.x);
-            float z0 = cLocal.z - Mathf.Abs(eLocal.z);
-            float z1 = cLocal.z + Mathf.Abs(eLocal.z);
-            boundsMinX = Mathf.Min(boundsMinX, x0, x1);
-            boundsMaxX = Mathf.Max(boundsMaxX, x0, x1);
-            boundsMinZ = Mathf.Min(boundsMinZ, z0, z1);
-            boundsMaxZ = Mathf.Max(boundsMaxZ, z0, z1);
-            has = true;
-        }
-
-        if (!has)
-        {
-            return false;
-        }
-
-        minX = boundsMinX;
-        maxX = boundsMaxX;
-        minZ = boundsMinZ;
-        maxZ = boundsMaxZ;
-        return true;
-    }
-
-    private void AssignSouthNorthLocalZFromMeshExtents(float meshMinZ, float meshMaxZ)
-    {
-        Vector3 localNorth = _mapRoot.InverseTransformDirection(Vector3.forward);
-        if (localNorth.z >= 0f)
-        {
-            _southLocalZ = meshMinZ;
-            _northLocalZ = meshMaxZ;
-            return;
-        }
-
-        _southLocalZ = meshMaxZ;
-        _northLocalZ = meshMinZ;
     }
 }

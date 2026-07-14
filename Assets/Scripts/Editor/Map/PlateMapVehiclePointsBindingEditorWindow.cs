@@ -84,6 +84,11 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             UpdateDefaultVisualDataOnSelected();
         }
 
+        if (GUILayout.Button("删除绑定", EditorStyles.toolbarButton, GUILayout.Width(80f)))
+        {
+            RemoveBindingOnSelected();
+        }
+
         GUILayout.FlexibleSpace();
 
         if (GUILayout.Button("全选", EditorStyles.toolbarButton, GUILayout.Width(48f)))
@@ -508,7 +513,71 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             }
         }
 
+        RefreshRows();
         ShowNotification(new GUIContent($"更新默认数据：成功 {success}，跳过 {skipped}"));
+    }
+
+    private void RemoveBindingOnSelected()
+    {
+        if (CountSelectedRows() == 0)
+        {
+            EditorUtility.DisplayDialog("删除绑定", "请先勾选要删除绑定的行（可用全选）。", "确定");
+            return;
+        }
+
+        if (!EditorUtility.DisplayDialog(
+                "删除绑定",
+                $"将删除勾选的 {CountSelectedRows()} 个对象上的三组件（GeoConverter / Controller / InstancedRenderer），并删除其子物体 Left / Right。\n此操作可 Undo，是否继续？",
+                "删除",
+                "取消"))
+        {
+            return;
+        }
+
+        int success = 0;
+        int skipped = 0;
+        List<PlateMapVehiclePointsBindingUtility.BindingRow> remaining =
+            new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
+
+        for (int i = 0; i < _rows.Count; i++)
+        {
+            PlateMapVehiclePointsBindingUtility.BindingRow row = _rows[i];
+            if (row == null)
+            {
+                continue;
+            }
+
+            if (!row.IsSelected)
+            {
+                remaining.Add(row);
+                continue;
+            }
+
+            if (row.Target == null)
+            {
+                skipped++;
+                continue;
+            }
+
+            if (PlateMapVehiclePointsBindingUtility.RemoveBinding(row.Target))
+            {
+                success++;
+            }
+            else
+            {
+                skipped++;
+                remaining.Add(row);
+            }
+        }
+
+        _rows = remaining;
+        if (_store != null)
+        {
+            PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
+        }
+
+        RefreshRows();
+        ShowNotification(new GUIContent($"删除绑定：成功 {success}，跳过 {skipped}"));
     }
 
     private void SetAllRowsSelected(bool selected)

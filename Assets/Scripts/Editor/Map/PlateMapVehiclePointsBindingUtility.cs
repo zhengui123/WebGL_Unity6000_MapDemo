@@ -452,9 +452,10 @@ public static class PlateMapVehiclePointsBindingUtility
         SetTransformReference(geoConverter, "_mapRoot", mapRoot);
         SetTransformReference(controller, "_mapRoot", mapRoot);
         SetComponentReference(controller, "_instancedRenderer", renderer);
-        SetTransformReference(renderer, "_mapRoot", mapRoot);
+        SetComponentReference(controller, "_geoConverter", geoConverter);
         AssignDefaultInstancedMaterial(renderer);
 
+        EnsureLeftRightMarkersFromChildMeshes(geoConverter, mapRoot);
         SetProvinceCode(geoConverter, row.ProvinceCode);
         geoConverter.Rebuild();
 
@@ -578,8 +579,37 @@ public static class PlateMapVehiclePointsBindingUtility
         if (property != null)
         {
             property.stringValue = provinceCode ?? string.Empty;
-            serializedObject.ApplyModifiedPropertiesWithoutUndo();
         }
+
+        // 编辑器写入锚点经纬度，供 GeoConverter 仿射映射使用（运行时不再读 Database）
+        if (PlateMapBoundaryDatabase.TryGet(provinceCode, out PlateMapBoundaryData boundary))
+        {
+            SerializedProperty westLon = serializedObject.FindProperty("_westAnchor.longitude");
+            SerializedProperty westLat = serializedObject.FindProperty("_westAnchor.latitude");
+            SerializedProperty eastLon = serializedObject.FindProperty("_eastAnchor.longitude");
+            SerializedProperty eastLat = serializedObject.FindProperty("_eastAnchor.latitude");
+            if (westLon != null)
+            {
+                westLon.doubleValue = boundary.westLongitude;
+            }
+
+            if (westLat != null)
+            {
+                westLat.doubleValue = boundary.southLatitude;
+            }
+
+            if (eastLon != null)
+            {
+                eastLon.doubleValue = boundary.eastLongitude;
+            }
+
+            if (eastLat != null)
+            {
+                eastLat.doubleValue = boundary.northLatitude;
+            }
+        }
+
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void SetTransformReference(Object component, string propertyName, Transform value)
@@ -606,7 +636,7 @@ public static class PlateMapVehiclePointsBindingUtility
 
     /// <summary>
     /// 强制覆盖颜色标定默认值；材质为空时挂载 Instanced 材质；
-    /// 并将 PlateMapGeoConverter._autoBindWestEastByLocalX 设为 false。
+    /// 取消 _autoBindWestEastByLocalX；并按子 mesh 边界强制刷新 Left/Right 坐标后 Rebuild。
     /// </summary>
     public static bool ApplyDefaultVisualData(GameObject target, bool forceOverwriteColors = true)
     {
@@ -658,12 +688,97 @@ public static class PlateMapVehiclePointsBindingUtility
             {
                 autoBindProp.boolValue = false;
                 geoSo.ApplyModifiedPropertiesWithoutUndo();
-                EditorUtility.SetDirty(geoConverter);
             }
+
+            Transform mapRoot = target.transform;
+            SerializedProperty mapRootProp = geoSo.FindProperty("_mapRoot");
+            if (mapRootProp != null && mapRootProp.objectReferenceValue is Transform assignedRoot)
+            {
+                mapRoot = assignedRoot;
+            }
+
+            EnsureLeftRightMarkersFromChildMeshes(geoConverter, mapRoot, forceRecalculatePositions: true);
+            geoConverter.Rebuild();
+            EditorUtility.SetDirty(geoConverter);
         }
 
         EditorSceneManager.MarkSceneDirty(target.scene);
         return true;
+    }
+
+    /// <summary>
+    /// 删除工具绑定的三组件，并删除名为 Left / Right 的子物体。
+    /// </summary>
+    public static bool RemoveBinding(GameObject target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        Undo.RegisterFullObjectHierarchyUndo(target, "删除板块车辆点绑定");
+
+        PlateMapVehiclePointController controller = target.GetComponent<PlateMapVehiclePointController>();
+        PlateMapVehiclePointInstancedRenderer renderer = target.GetComponent<PlateMapVehiclePointInstancedRenderer>();
+        PlateMapGeoConverter geoConverter = target.GetComponent<PlateMapGeoConverter>();
+
+        if (controller == null && renderer == null && geoConverter == null)
+        {
+            DestroyNamedMarkerChildren(target.transform, "Left");
+            DestroyNamedMarkerChildren(target.transform, "Right");
+            EditorSceneManager.MarkSceneDirty(target.scene);
+            return true;
+        }
+
+        if (controller != null)
+        {
+            Undo.DestroyObjectImmediate(controller);
+        }
+
+        if (renderer != null)
+        {
+            Undo.DestroyObjectImmediate(renderer);
+        }
+
+        if (geoConverter != null)
+        {
+            Undo.DestroyObjectImmediate(geoConverter);
+        }
+
+        DestroyNamedMarkerChildren(target.transform, "Left");
+        DestroyNamedMarkerChildren(target.transform, "Right");
+
+        EditorUtility.SetDirty(target);
+        EditorSceneManager.MarkSceneDirty(target.scene);
+        return true;
+    }
+
+    private static void DestroyNamedMarkerChildren(Transform root, string markerName)
+    {
+        if (root == null)
+        {
+            return;
+        }
+
+        // 收集后再删，避免遍历中修改层级
+        List<Transform> toDestroy = new List<Transform>();
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            Transform t = all[i];
+            if (t != null && t != root && t.name == markerName)
+            {
+                toDestroy.Add(t);
+            }
+        }
+
+        for (int i = 0; i < toDestroy.Count; i++)
+        {
+            if (toDestroy[i] != null)
+            {
+                Undo.DestroyObjectImmediate(toDestroy[i].gameObject);
+            }
+        }
     }
 
     public static Material LoadDefaultInstancedMaterial()
@@ -685,6 +800,237 @@ public static class PlateMapVehiclePointsBindingUtility
         }
 
         return material;
+    }
+
+    /// <summary>
+    /// 编辑器专用：按子物体 Renderer 的局部 XZ 外接盒创建/补齐 Left、Right 空物体，并挂到 GeoConverter 锚点。
+    /// forceRecalculatePositions=true 时即使已有 Left/Right 也按 mesh 边界重写坐标。
+    /// </summary>
+    public static bool EnsureLeftRightMarkersFromChildMeshes(
+        PlateMapGeoConverter converter,
+        Transform mapRoot,
+        bool forceRecalculatePositions = false)
+    {
+        if (converter == null || mapRoot == null)
+        {
+            return false;
+        }
+
+        Transform existingLeft = FindNamedChild(mapRoot, "Left");
+        Transform existingRight = FindNamedChild(mapRoot, "Right");
+
+        if (existingLeft != null && existingRight != null && !forceRecalculatePositions)
+        {
+            AssignAnchorMarkers(converter, existingLeft, existingRight);
+            return true;
+        }
+
+        if (!TryComputeChildMeshLocalBounds(mapRoot, existingLeft, existingRight,
+                out float meshMinX, out float meshMaxX, out float meshMinZ, out float meshMaxZ))
+        {
+            Debug.LogWarning(
+                $"[板块绑定] 「{mapRoot.name}」无法从子模型计算 XZ 边界，跳过 Left/Right {(forceRecalculatePositions ? "刷新" : "创建")}。");
+            if (existingLeft != null && existingRight != null)
+            {
+                AssignAnchorMarkers(converter, existingLeft, existingRight);
+            }
+
+            return false;
+        }
+
+        float southLocalZ;
+        float northLocalZ;
+        ResolveSouthNorthLocalZ(mapRoot, meshMinZ, meshMaxZ, out southLocalZ, out northLocalZ);
+
+        float westLocalX = Mathf.Max(meshMinX, meshMaxX);
+        float eastLocalX = Mathf.Min(meshMinX, meshMaxX);
+        Vector3 leftPos = new Vector3(westLocalX, 0f, southLocalZ);
+        Vector3 rightPos = new Vector3(eastLocalX, 0f, northLocalZ);
+
+        Transform left = existingLeft;
+        Transform right = existingRight;
+
+        if (left == null)
+        {
+            left = CreateMarkerChild(mapRoot, "Left", leftPos);
+        }
+        else if (forceRecalculatePositions)
+        {
+            Undo.RecordObject(left, "刷新 Left 锚点坐标");
+            left.localPosition = leftPos;
+            left.localRotation = Quaternion.identity;
+            left.localScale = Vector3.one;
+            EditorUtility.SetDirty(left.gameObject);
+        }
+
+        if (right == null)
+        {
+            right = CreateMarkerChild(mapRoot, "Right", rightPos);
+        }
+        else if (forceRecalculatePositions)
+        {
+            Undo.RecordObject(right, "刷新 Right 锚点坐标");
+            right.localPosition = rightPos;
+            right.localRotation = Quaternion.identity;
+            right.localScale = Vector3.one;
+            EditorUtility.SetDirty(right.gameObject);
+        }
+
+        if (left == null || right == null)
+        {
+            return false;
+        }
+
+        AssignAnchorMarkers(converter, left, right);
+        return true;
+    }
+
+    private static void AssignAnchorMarkers(
+        PlateMapGeoConverter converter,
+        Transform leftOrWest,
+        Transform rightOrEast)
+    {
+        // 默认：Left→西锚、Right→东锚（几何西/东由 X 更大决定时可再右键/勾选 autoBind）
+        bool leftIsWest = leftOrWest.localPosition.x >= rightOrEast.localPosition.x;
+        Transform west = leftIsWest ? leftOrWest : rightOrEast;
+        Transform east = leftIsWest ? rightOrEast : leftOrWest;
+
+        SerializedObject so = new SerializedObject(converter);
+        SerializedProperty westMarker = so.FindProperty("_westAnchor.marker");
+        SerializedProperty eastMarker = so.FindProperty("_eastAnchor.marker");
+        if (westMarker != null)
+        {
+            westMarker.objectReferenceValue = west;
+        }
+
+        if (eastMarker != null)
+        {
+            eastMarker.objectReferenceValue = east;
+        }
+
+        so.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(converter);
+    }
+
+    private static Transform FindNamedChild(Transform root, string markerName)
+    {
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
+        {
+            if (all[i] != null && all[i].name == markerName)
+            {
+                return all[i];
+            }
+        }
+
+        return null;
+    }
+
+    private static Transform CreateMarkerChild(Transform mapRoot, string markerName, Vector3 localPosition)
+    {
+        GameObject markerObject = new GameObject(markerName);
+        Undo.RegisterCreatedObjectUndo(markerObject, $"Create {markerName}");
+        markerObject.transform.SetParent(mapRoot, false);
+        markerObject.transform.localPosition = localPosition;
+        markerObject.transform.localRotation = Quaternion.identity;
+        markerObject.transform.localScale = Vector3.one;
+        EditorUtility.SetDirty(mapRoot.gameObject);
+        return markerObject.transform;
+    }
+
+    private static void ResolveSouthNorthLocalZ(
+        Transform mapRoot,
+        float meshMinZ,
+        float meshMaxZ,
+        out float southLocalZ,
+        out float northLocalZ)
+    {
+        Vector3 localNorth = mapRoot.InverseTransformDirection(Vector3.forward);
+        if (localNorth.z >= 0f)
+        {
+            southLocalZ = meshMinZ;
+            northLocalZ = meshMaxZ;
+            return;
+        }
+
+        southLocalZ = meshMaxZ;
+        northLocalZ = meshMinZ;
+    }
+
+    private static bool TryComputeChildMeshLocalBounds(
+        Transform mapRoot,
+        Transform excludeA,
+        Transform excludeB,
+        out float minX,
+        out float maxX,
+        out float minZ,
+        out float maxZ)
+    {
+        minX = maxX = minZ = maxZ = 0f;
+        bool has = false;
+        float boundsMinX = float.MaxValue;
+        float boundsMaxX = float.MinValue;
+        float boundsMinZ = float.MaxValue;
+        float boundsMaxZ = float.MinValue;
+
+        Renderer[] renderers = mapRoot.GetComponentsInChildren<Renderer>(true);
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer r = renderers[i];
+            if (r == null)
+            {
+                continue;
+            }
+
+            if (ShouldExcludeRendererForBounds(r.transform, excludeA, excludeB))
+            {
+                continue;
+            }
+
+            Bounds b = r.bounds;
+            Vector3 cLocal = mapRoot.InverseTransformPoint(b.center);
+            Vector3 eLocal = mapRoot.InverseTransformVector(b.extents);
+            float x0 = cLocal.x - Mathf.Abs(eLocal.x);
+            float x1 = cLocal.x + Mathf.Abs(eLocal.x);
+            float z0 = cLocal.z - Mathf.Abs(eLocal.z);
+            float z1 = cLocal.z + Mathf.Abs(eLocal.z);
+            boundsMinX = Mathf.Min(boundsMinX, x0, x1);
+            boundsMaxX = Mathf.Max(boundsMaxX, x0, x1);
+            boundsMinZ = Mathf.Min(boundsMinZ, z0, z1);
+            boundsMaxZ = Mathf.Max(boundsMaxZ, z0, z1);
+            has = true;
+        }
+
+        if (!has)
+        {
+            return false;
+        }
+
+        minX = boundsMinX;
+        maxX = boundsMaxX;
+        minZ = boundsMinZ;
+        maxZ = boundsMaxZ;
+        return true;
+    }
+
+    private static bool ShouldExcludeRendererForBounds(Transform t, Transform excludeA, Transform excludeB)
+    {
+        if (t == null)
+        {
+            return true;
+        }
+
+        if (excludeA != null && (t == excludeA || t.IsChildOf(excludeA)))
+        {
+            return true;
+        }
+
+        if (excludeB != null && (t == excludeB || t.IsChildOf(excludeB)))
+        {
+            return true;
+        }
+
+        return t.name == "Left" || t.name == "Right";
     }
 
     private static void AssignDefaultInstancedMaterial(PlateMapVehiclePointInstancedRenderer renderer)

@@ -507,7 +507,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         return source;
     }
 
-    /// <summary>经纬度转地图局部坐标；失败时 <paramref name="localPosition"/> 为零向量。</summary>
+    /// <summary>经纬度转板块本地坐标（GeoConverter：世界仿射后再 InverseTransform 到板块物体）；失败时为零向量。</summary>
     public bool InvokeTryLongitudeLatitudeToLocal(
         string plateMapName,
         double longitude,
