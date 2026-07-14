@@ -2,19 +2,21 @@ using System.Collections;
 using UnityEngine;
 
 /// <summary>
-/// 车辆热力图 HTTP 接口定时调用控制器：按间隔轮询 <see cref="VehicleHeatmapApi"/>。
+/// 车辆热力图 HTTP 接口定时调用控制器：仅在国家级/省级由 <see cref="CarHotManager"/> 驱动启停。
 /// </summary>
 [DisallowMultipleComponent]
 public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiController>
 {
     [Header("轮询")]
-    [SerializeField] private bool _autoStart = true;
+    [Tooltip("默认关闭；由 CarHotManager 在进入国家/省级时 StartPolling。")]
+    [SerializeField] private bool _autoStart;
     [SerializeField] private float _intervalSeconds = 60f;
     [Tooltip("开启轮询后是否立即请求一次，再进入间隔等待。")]
     [SerializeField] private bool _requestImmediatelyOnStart = true;
 
     [Header("查询参数")]
-    [SerializeField] private string _provinceCode = "0";
+    [Tooltip("省级 adcode；空或 \"0\" 表示全国默认请求。")]
+    [SerializeField] private string _provinceCode = "";
     [SerializeField] private string _region = string.Empty;
     [SerializeField] private string _country = string.Empty;
     [SerializeField] private string _startTime = string.Empty;
@@ -27,6 +29,9 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
 
     /// <summary>是否正在定时轮询。</summary>
     public bool IsPolling => _isPolling;
+
+    /// <summary>当前请求省份 code（空=全国默认参数）。</summary>
+    public string ProvinceCode => _provinceCode;
 
     /// <summary>轮询间隔（秒）。</summary>
     public float IntervalSeconds
@@ -48,6 +53,28 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         StopPolling();
     }
 
+    /// <summary>
+    /// 设置查询省份。全国级传空或 "0"；省级传对应 adcode。
+    /// 会触发下一次 Request 使用新参数；若正在轮询且 needImmediateRequest，则立刻请求一次。
+    /// </summary>
+    public void SetProvinceCode(string provinceCode, bool requestImmediately = true)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode) ||
+            provinceCode == PlateMapBoundaryDatabase.NationalProvinceCode)
+        {
+            _provinceCode = string.Empty;
+        }
+        else
+        {
+            _provinceCode = provinceCode.Trim();
+        }
+
+        if (requestImmediately && _isPolling)
+        {
+            RequestOnce();
+        }
+    }
+
     /// <summary>开始定时轮询车辆热力图接口。</summary>
     public void StartPolling()
     {
@@ -58,7 +85,8 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
 
         _isPolling = true;
         _pollCoroutine = StartCoroutine(PollRoutine());
-        Debug.Log($"[VehicleHeatmapApiController] 已开启轮询，间隔={IntervalSeconds}s。");
+        Debug.Log(
+            $"[VehicleHeatmapApiController] 已开启轮询，间隔={IntervalSeconds}s，province={(string.IsNullOrEmpty(_provinceCode) ? "(全国默认)" : _provinceCode)}。");
     }
 
     /// <summary>停止定时轮询。</summary>

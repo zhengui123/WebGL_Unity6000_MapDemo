@@ -2,7 +2,7 @@ using System;
 using System.Globalization;
 
 /// <summary>
-/// 综合区域态势通用请求体（province 为省级 adcode 字符串，空表示全国/不限）。
+/// 综合区域态势通用请求体（province 为省级 adcode 字符串，空表示全国默认请求）。
 /// </summary>
 [Serializable]
 public class ComprehensiveRegionRequest
@@ -13,7 +13,7 @@ public class ComprehensiveRegionRequest
     public string region = string.Empty;
     public string country = string.Empty;
 
-    /// <summary>Demo 默认请求参数 JSON（格式化，便于 UI 展示）。</summary>
+    /// <summary>全国默认请求参数 JSON（格式化，便于 UI 展示）。</summary>
     public const string DefaultJson =
         "{\n" +
         "  \"startTime\": \"\",\n" +

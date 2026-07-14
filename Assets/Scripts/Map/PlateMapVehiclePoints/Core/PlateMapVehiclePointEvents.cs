@@ -299,11 +299,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         plateMapNameList.Remove(plateMapName);
     }
 
-    /// <summary>
-    /// 按板块名推送车辆点位（<see cref="PlateMapAPI.UpdateVehiclePointsFromJson"/> 的最终落点）。
-    /// 板块隐藏（AllPlateMap SetActive false）时仍写入 Hub 缓存；显示层由 Controller 在重新启用时刷新。
-    /// </summary>
-    /// <summary>按 provinceCode 推送车辆点位到对应场景板块。</summary>
+    /// <summary>按 provinceCode 推送车辆点位到对应场景板块（按 code 精确落点，不回退到其他板块）。</summary>
     public bool PublishSetVehiclePointsByProvinceCode(string provinceCode, VehicleMapPointData[] points, bool syncNow = true)
     {
         string plateMapName = ResolvePlateMapNameByProvinceCode(provinceCode);
@@ -313,7 +309,23 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
             return false;
         }
 
-        return PublishSetVehiclePoints(plateMapName, points, syncNow);
+        VehicleMapPointData[] snapshot = CloneVehiclePointArray(points);
+        SetCachedVehiclePoints(plateMapName, snapshot);
+        RaiseVehiclePointsWillChange(plateMapName, snapshot);
+
+        if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null)
+        {
+            handlers.SetVehiclePoints.Invoke(snapshot, syncNow);
+            return true;
+        }
+
+        RaiseVehiclePointsChanged(plateMapName, snapshot);
+        if (syncNow)
+        {
+            MarkPendingDisplayRefresh(plateMapName);
+        }
+
+        return false;
     }
 
     /// <returns>是否已调用 Controller 的 Set 回调（未注册时仅写入缓存并返回 false）。</returns>
