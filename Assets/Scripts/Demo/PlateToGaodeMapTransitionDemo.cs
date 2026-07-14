@@ -2,13 +2,17 @@ using UnityEngine;
 
 /// <summary>
 /// T/Y/U/I：单阶段过渡；G/H：两阶段总控正播/倒播。
+/// 省名为空时按当前聚焦板块的 provinceCode 自动配置二维地图。
 /// </summary>
 public class PlateToGaodeMapTransitionDemo : MonoBehaviour
 {
     [SerializeField] private PlateToGaodeMapTransitionController _transitionController;
     [SerializeField] private GaodeToCityTransitionController _cityTransitionController;
     [SerializeField] private PlateToCityMapTransitionOrchestrator _orchestrator;
-    [SerializeField] private string _provinceName = "山东";
+
+    [Tooltip("留空则用聚焦板块 provinceCode；也可填省名或 adcode 强制覆盖")]
+    [SerializeField] private string _provinceNameOrCode = string.Empty;
+
     [SerializeField] private KeyCode _playKey = KeyCode.T;
     [SerializeField] private KeyCode _reverseKey = KeyCode.Y;
     [SerializeField] private KeyCode _cityTransitionKey = KeyCode.U;
@@ -20,11 +24,11 @@ public class PlateToGaodeMapTransitionDemo : MonoBehaviour
     {
         if (Input.GetKeyDown(_playKey))
         {
-            ResolvePlateController()?.PlayTransition(_provinceName);
+            ResolvePlateController()?.PlayTransition(GetOverrideOrNull());
         }
         else if (Input.GetKeyDown(_reverseKey))
         {
-            ResolvePlateController()?.PlayTransitionReverse(_provinceName);
+            ResolvePlateController()?.PlayTransitionReverse(GetOverrideOrNull());
         }
         else if (Input.GetKeyDown(_cityTransitionKey))
         {
@@ -36,12 +40,17 @@ public class PlateToGaodeMapTransitionDemo : MonoBehaviour
         }
         else if (Input.GetKeyDown(_fullPlayKey))
         {
-            ResolveOrchestrator()?.PlayFullTransition(_provinceName);
+            ResolveOrchestrator()?.PlayFullTransition(GetOverrideOrNull());
         }
         else if (Input.GetKeyDown(_fullReverseKey))
         {
-            ResolveOrchestrator()?.PlayFullTransitionReverse(_provinceName);
+            ResolveOrchestrator()?.PlayFullTransitionReverse(GetOverrideOrNull());
         }
+    }
+
+    private string GetOverrideOrNull()
+    {
+        return string.IsNullOrWhiteSpace(_provinceNameOrCode) ? null : _provinceNameOrCode.Trim();
     }
 
     private PlateToGaodeMapTransitionController ResolvePlateController()

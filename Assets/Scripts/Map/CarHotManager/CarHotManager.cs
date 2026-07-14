@@ -87,6 +87,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
     private void HandleEnterProvinceLevel(string moduleName)
     {
         _focusedModuleName = moduleName;
+        PlateProvinceFocusResolver.TryCacheFromModuleName(moduleName);
         EnterProvinceHeatmap(ResolveProvinceCodeFromModuleName(moduleName));
     }
 
@@ -111,6 +112,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
     /// <summary>国家界面：只显示 code=0 热力图，默认参数轮询。</summary>
     public void EnterNationalHeatmap()
     {
+        PlateProvinceFocusResolver.ClearCache();
         _activeProvinceCode = PlateMapBoundaryDatabase.NationalProvinceCode;
         ApplyControllerEnableState(_activeProvinceCode);
         BeginPollingForProvince(string.Empty);
@@ -130,6 +132,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
         }
 
         _activeProvinceCode = normalized;
+        PlateProvinceFocusResolver.TryCacheProvince(normalized);
         ApplyControllerEnableState(_activeProvinceCode);
         BeginPollingForProvince(_activeProvinceCode);
         LogState($"省级热力图（code={_activeProvinceCode}）");

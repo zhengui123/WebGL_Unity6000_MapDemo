@@ -226,6 +226,9 @@ public class PlateMapDisplayController : MonoBehaviour
         _focusedModule = module;
         string moduleKey = module.ModuleKey;
 
+        // 进入省级时立即缓存 name/code，供下钻二维地图使用
+        PlateProvinceFocusResolver.TryCacheFromModule(module);
+
         EventManager.Instance?.TriggerPlateMapDisplayFocus(moduleKey);
 
         FadeModulesForFocus(module, _otherModuleFadeDuration, _otherModuleFadeEase);
@@ -336,6 +339,7 @@ public class PlateMapDisplayController : MonoBehaviour
             {
                 _hasPreFocusPose = false;
                 _focusedModule = null;
+                PlateProvinceFocusResolver.ClearCache();
                 EventManager.Instance?.TriggerPlateMapRestoreCameraCompleted();
             });
 
@@ -352,6 +356,7 @@ public class PlateMapDisplayController : MonoBehaviour
         _hasPreFocusPose = false;
         _focusedModule = null;
         _transitionCachedModule = null;
+        PlateProvinceFocusResolver.ClearCache();
 
         PlateMapDisplayModule[] modules = CollectAllModules(forceRefresh: true);
         if (modules == null)

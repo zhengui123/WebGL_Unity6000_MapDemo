@@ -55,6 +55,18 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
         return FocusProvince(data);
     }
 
+    /// <summary>按省级 adcode 聚焦（先转省名再查 ChinaProvinceMapDatabase）。</summary>
+    public bool FocusProvinceByCode(string provinceCode)
+    {
+        if (!PlateProvinceFocusResolver.TryProvinceCodeToFocusName(provinceCode, out string provinceName))
+        {
+            Debug.LogWarning($"[GaodeMapProvinceFocusController] 无法从 code={provinceCode} 解析省名。");
+            return false;
+        }
+
+        return FocusProvince(provinceName);
+    }
+
     /// <summary>使用已有省级数据聚焦。</summary>
     public bool FocusProvince(ChinaProvinceMapFocusData data)
     {

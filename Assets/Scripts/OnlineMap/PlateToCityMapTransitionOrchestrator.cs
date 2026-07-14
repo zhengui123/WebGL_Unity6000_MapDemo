@@ -15,7 +15,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     [SerializeField] private CarModelDissolveController _carModelDissolveController;
     [SerializeField] private CityHideTransitionController _cityHideTransitionController;
 
-    [Header("默认省份（事件未传参时使用）")]
+    [Header("默认省份（无法从聚焦板块解析 code 时回退）")]
     [SerializeField] private string _defaultProvinceName = "山东";
 
     private bool _isOrchestrating;
@@ -98,8 +98,8 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         }
     }
 
-    /// <summary>正播：板块 → GaodeMap → City-Maker。</summary>
-    public bool PlayFullTransition(string provinceName = null)
+    /// <summary>正播：板块 → GaodeMap → City-Maker。省名/code 为空时用聚焦板块 provinceCode。</summary>
+    public bool PlayFullTransition(string provinceNameOrCode = null)
     {
         if (_isOrchestrating)
         {
@@ -121,7 +121,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
             return false;
         }
 
-        _activeProvinceName = ResolveProvinceName(provinceName);
+        _activeProvinceName = ResolveProvinceName(provinceNameOrCode);
         _isOrchestrating = true;
         _isForwardOrchestration = true;
         _carPhase = OrchestratorCarPhase.None;
@@ -139,7 +139,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     }
 
     /// <summary>倒播：SwitchToRealyCar → City-Maker → GaodeMap → 板块。</summary>
-    public bool PlayFullTransitionReverse(string provinceName = null)
+    public bool PlayFullTransitionReverse(string provinceNameOrCode = null)
     {
         if (_isOrchestrating)
         {
@@ -161,7 +161,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
             return false;
         }
 
-        _activeProvinceName = ResolveProvinceName(provinceName);
+        _activeProvinceName = ResolveProvinceName(provinceNameOrCode);
         _isOrchestrating = true;
         _isForwardOrchestration = false;
         _carPhase = OrchestratorCarPhase.None;
@@ -383,14 +383,11 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.None;
     }
 
-    private string ResolveProvinceName(string provinceNameOverride)
+    private string ResolveProvinceName(string provinceNameOrCodeOverride)
     {
-        if (!string.IsNullOrWhiteSpace(provinceNameOverride))
-        {
-            return provinceNameOverride.Trim();
-        }
-
-        return _defaultProvinceName;
+        return PlateProvinceFocusResolver.ResolveProvinceName(
+            provinceNameOrCodeOverride,
+            _defaultProvinceName);
     }
 
     private void ResolveReferences()

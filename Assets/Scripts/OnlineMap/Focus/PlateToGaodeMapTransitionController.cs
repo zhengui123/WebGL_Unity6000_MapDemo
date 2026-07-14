@@ -23,13 +23,17 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     [SerializeField] private float _gaodeFadeDuration = 2f;
     [SerializeField] private Ease _plateFadeEase = Ease.InOutQuad;
     [SerializeField] private Ease _gaodeFadeEase = Ease.InOutQuad;
+    [Tooltip("无法从聚焦板块解析 provinceCode 时的回退省名")]
     [SerializeField] private string _defaultProvinceName = "山东";
 
     private Sequence _sequence;
     private bool _isTransitioning;
     private string _activeProvinceName;
+    private string _activeProvinceCode;
 
     public bool IsTransitioning => _isTransitioning;
+    public string ActiveProvinceName => _activeProvinceName;
+    public string ActiveProvinceCode => _activeProvinceCode;
 
     private static PlateToGaodeMapTransitionController _instance;
 
@@ -62,8 +66,11 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
     }
 
-    /// <summary>播放过渡：扫描线 + AllPlateMap 淡出 + GaodeMap_RawImg 渐显。</summary>
-    public bool PlayTransition(string provinceName = null)
+    /// <summary>
+    /// 播放过渡：扫描线 + AllPlateMap 淡出 + GaodeMap_RawImg 渐显。
+    /// <paramref name="provinceNameOrCode"/> 可传省名或 adcode；为空则用当前聚焦板块的 provinceCode。
+    /// </summary>
+    public bool PlayTransition(string provinceNameOrCode = null)
     {
         if (_isTransitioning)
         {
@@ -89,7 +96,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             return false;
         }
 
-        _activeProvinceName = ResolveProvinceName(provinceName);
+        ResolveActiveProvince(provinceNameOrCode);
         _isTransitioning = true;
         KillSequence();
 
@@ -129,11 +136,22 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         _sequence.OnComplete(CompleteTransition);
         ForceCompleteSequenceIfInstant();
         EventManager.Instance?.TriggerPlateToGaodeMapTransitionStarted(_activeProvinceName);
+        Debug.Log(
+            $"[PlateToGaodeMapTransition] 正播开始 | code={_activeProvinceCode} | name={_activeProvinceName}");
         return true;
     }
 
-    /// <summary>倒放过渡：扫描线收回 + AllPlateMap 淡入 + GaodeMap_RawImg 渐隐。</summary>
-    public bool PlayTransitionReverse(string provinceName = null)
+    /// <summary>按板块 provinceCode 播放过渡（code→省名→ChinaProvinceMapDatabase 聚焦）。</summary>
+    public bool PlayTransitionByProvinceCode(string provinceCode)
+    {
+        return PlayTransition(provinceCode);
+    }
+
+    /// <summary>
+    /// 倒放过渡：扫描线收回 + AllPlateMap 淡入 + GaodeMap_RawImg 渐隐。
+    /// <paramref name="provinceNameOrCode"/> 为空时沿用上次活动省或聚焦板块 code。
+    /// </summary>
+    public bool PlayTransitionReverse(string provinceNameOrCode = null)
     {
         if (_isTransitioning)
         {
@@ -153,7 +171,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
             return false;
         }
 
-        _activeProvinceName = ResolveProvinceName(provinceName);
+        ResolveActiveProvince(provinceNameOrCode);
         _isTransitioning = true;
         KillSequence();
 
@@ -214,12 +232,30 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
     private void PrepareGaodeMapView(string provinceName)
     {
-        if (_provinceFocusController != null && !string.IsNullOrEmpty(provinceName))
+        if (_provinceFocusController != null)
         {
-            _provinceFocusController.FocusProvince(provinceName);
+            bool focused = false;
+            if (!string.IsNullOrEmpty(_activeProvinceCode))
+            {
+                focused = _provinceFocusController.FocusProvinceByCode(_activeProvinceCode);
+            }
+
+            if (!focused && !string.IsNullOrEmpty(provinceName))
+            {
+                focused = _provinceFocusController.FocusProvince(provinceName);
+            }
+
+            if (!focused)
+            {
+                Debug.LogWarning(
+                    $"[PlateToGaodeMapTransition] 二维经纬度设置失败 | code={_activeProvinceCode} name={provinceName}");
+            }
         }
 
-        _gaodeMapController.OnlineMaps.RedrawImmediately();
+        if (_gaodeMapController != null && _gaodeMapController.OnlineMaps != null)
+        {
+            _gaodeMapController.OnlineMaps.RedrawImmediately();
+        }
     }
 
     private void CompleteTransition()
@@ -263,14 +299,33 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         }
     }
 
-    private string ResolveProvinceName(string provinceNameOverride)
+    private void ResolveActiveProvince(string provinceNameOrCode)
     {
-        if (!string.IsNullOrWhiteSpace(provinceNameOverride))
-        {
-            return provinceNameOverride.Trim();
-        }
+        _activeProvinceName = PlateProvinceFocusResolver.ResolveProvinceName(
+            provinceNameOrCode,
+            _defaultProvinceName);
 
-        return _defaultProvinceName;
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode))
+        {
+            _activeProvinceCode = cachedCode;
+            if (PlateProvinceFocusResolver.HasCachedProvince &&
+                !string.IsNullOrEmpty(PlateProvinceFocusResolver.CachedProvinceName))
+            {
+                _activeProvinceName = PlateProvinceFocusResolver.CachedProvinceName;
+            }
+        }
+        else if (GaodeProvinceAdcodeConverter.TryProvinceNameToAdcode(_activeProvinceName, out string code))
+        {
+            _activeProvinceCode = code;
+        }
+        else if (PlateProvinceFocusResolver.TryGetFocusedPlateProvinceCode(out string focusedCode))
+        {
+            _activeProvinceCode = focusedCode;
+        }
+        else
+        {
+            _activeProvinceCode = string.Empty;
+        }
     }
 
     private void HidePlateDisplayForTransition()
@@ -354,16 +409,16 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    [ContextMenu("测试：播放过渡")]
+    [ContextMenu("测试：播放过渡（聚焦板块 code）")]
     private void EditorTestPlay()
     {
-        PlayTransition(_defaultProvinceName);
+        PlayTransition();
     }
 
     [ContextMenu("测试：倒放过渡")]
     private void EditorTestPlayReverse()
     {
-        PlayTransitionReverse(_defaultProvinceName);
+        PlayTransitionReverse();
     }
 #endif
 }

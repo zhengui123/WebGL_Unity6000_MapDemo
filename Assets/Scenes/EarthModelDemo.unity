@@ -99776,7 +99776,7 @@ MonoBehaviour:
   _transitionController: {fileID: 1389356382}
   _cityTransitionController: {fileID: 0}
   _orchestrator: {fileID: 0}
-  _provinceName: "\u5C71\u4E1C"
+  _provinceNameOrCode: 
   _playKey: 116
   _reverseKey: 121
   _cityTransitionKey: 117

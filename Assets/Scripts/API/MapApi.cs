@@ -88,8 +88,8 @@ public class MapApi : UnitySingle<MapApi>
         controller.ClearHighlight();
     }
 
-    /// <summary>正播完整阶段：板块 → 车辆视图。</summary>
-    public bool TransitionPlateMapToCity(string provinceName = null)
+    /// <summary>正播完整阶段：板块 → 车辆视图。省名/code 为空时用当前聚焦板块 provinceCode。</summary>
+    public bool TransitionPlateMapToCity(string provinceNameOrCode = null)
     {
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
         if (orchestrator == null)
@@ -98,11 +98,11 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return orchestrator.PlayFullTransition(provinceName);
+        return orchestrator.PlayFullTransition(provinceNameOrCode);
     }
 
     /// <summary>倒播完整阶段：车辆视图 → 板块。</summary>
-    public bool TransitionCityToPlateMap(string provinceName = null)
+    public bool TransitionCityToPlateMap(string provinceNameOrCode = null)
     {
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
         if (orchestrator == null)
@@ -111,19 +111,19 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return orchestrator.PlayFullTransitionReverse(provinceName);
+        return orchestrator.PlayFullTransitionReverse(provinceNameOrCode);
     }
 
-    /// <summary>通过事件请求正播两阶段过渡。</summary>
-    public void RequestPlateToCityMapTransitionPlay(string provinceName = null)
+    /// <summary>通过事件请求正播两阶段过渡（空参=聚焦板块 code）。</summary>
+    public void RequestPlateToCityMapTransitionPlay(string provinceNameOrCode = null)
     {
-        EventManager.Instance?.TriggerPlateToCityMapTransitionPlay(provinceName);
+        EventManager.Instance?.TriggerPlateToCityMapTransitionPlay(provinceNameOrCode);
     }
 
     /// <summary>通过事件请求倒播两阶段过渡。</summary>
-    public void RequestCityToPlateMapTransitionReverse(string provinceName = null)
+    public void RequestCityToPlateMapTransitionReverse(string provinceNameOrCode = null)
     {
-        EventManager.Instance?.TriggerCityToPlateMapTransitionReverse(provinceName);
+        EventManager.Instance?.TriggerCityToPlateMapTransitionReverse(provinceNameOrCode);
     }
 
     /// <summary>打开车辆 UI 与连线（仅 VehicleLevel 生效）。</summary>
