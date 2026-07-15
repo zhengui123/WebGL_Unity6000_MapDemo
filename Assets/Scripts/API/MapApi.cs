@@ -414,4 +414,30 @@ public class MapApi : UnitySingle<MapApi>
         controller.HandleHostCommunication();
         return true;
     }
+
+    /// <summary>暂停游戏（Time.timeScale=0，并暂停全部 DOTween）。</summary>
+    public bool PauseGame()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GameManager，无法暂停。");
+            return false;
+        }
+
+        GameManager.Instance.PauseGame();
+        return true;
+    }
+
+    /// <summary>恢复游戏（还原 timeScale，并播放全部 DOTween）。</summary>
+    public bool ResumeGame()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GameManager，无法恢复。");
+            return false;
+        }
+
+        GameManager.Instance.ResumeGame();
+        return true;
+    }
 }

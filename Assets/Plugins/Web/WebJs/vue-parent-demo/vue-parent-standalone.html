@@ -154,7 +154,7 @@
             </div>
           </section>
 
-          <!-- TransitionToNext/PreviousControlState、SetBigScreenAutoCarouselEnabled -->
+          <!-- TransitionToNext/PreviousControlState、SetBigScreenAutoCarouselEnabled、Pause/Resume -->
           <section>
             <h2>其它接口</h2>
             <div class="btn-row">
@@ -164,6 +164,10 @@
             <div class="btn-row">
               <button type="button" :disabled="!unityReady" @click="setBigScreenAutoCarouselEnabled(true)">开启大屏轮播</button>
               <button type="button" :disabled="!unityReady" @click="setBigScreenAutoCarouselEnabled(false)">关闭大屏轮播</button>
+            </div>
+            <div class="btn-row">
+              <button type="button" :disabled="!unityReady" @click="pauseGame">暂停游戏</button>
+              <button type="button" :disabled="!unityReady" @click="resumeGame">恢复游戏</button>
             </div>
           </section>
 
@@ -286,6 +290,8 @@
         transitionToNextControlState: () => callUnity('TransitionToNextControlState', ''),
         transitionToPreviousControlState: () => callUnity('TransitionToPreviousControlState', ''),
         setBigScreenAutoCarouselEnabled: (enabled) => callUnity('SetBigScreenAutoCarouselEnabled', JSON.stringify({ enabled })),
+        pauseGame: () => callUnity('PauseGame', ''),
+        resumeGame: () => callUnity('ResumeGame', ''),
       };
     }
 
@@ -315,6 +321,7 @@
           unityReady, messageLog, formatControlStateTransition,
           transitionToControlState, transitionToNextControlState,
           transitionToPreviousControlState, setBigScreenAutoCarouselEnabled,
+          pauseGame, resumeGame,
         } = useUnityIframeBridge(unityIframe, {
           handlers: {
             // 级别过渡开始/完成；message 为 ControlStateTransitionNotify JSON
@@ -339,6 +346,7 @@
           provinceName, provinceModuleName, partId, useInstantTransition,
           lastCallbackText, controlStateButtons,
           transitionToNextControlState, transitionToPreviousControlState, setBigScreenAutoCarouselEnabled,
+          pauseGame, resumeGame,
           jumpToState: (s) => transitionToControlState(buildPayload(s)),
           jumpToProvince: () => transitionToControlState(buildPayload(2)),
           jumpToPart: () => transitionToControlState(buildPayload(4)),

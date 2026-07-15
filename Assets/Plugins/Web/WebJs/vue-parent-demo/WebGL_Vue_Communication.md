@@ -139,6 +139,8 @@ handlers: {
 | `TransitionToNextControlState` | `""` | `TransitionToNextControlState()` | `TransitionToNextControlState` | ✅ |
 | `TransitionToPreviousControlState` | `""` | `TransitionToPreviousControlState()` | `TransitionToPreviousControlState` | ✅ |
 | `SetBigScreenAutoCarouselEnabled` | `{"enabled":bool}` | `SetBigScreenAutoCarouselEnabled(string)` | `SetBigScreenAutoCarouselEnabled` | ✅ |
+| `PauseGame` | `""` | `PauseGame()` | `PauseGame` | ✅ |
+| `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
 
 #### TransitionToControlState 请求 JSON
 
@@ -352,6 +354,8 @@ function callUnity(method, arg = '') {
 
 callUnity('TransitionToControlState', '{"targetState":3}');
 callUnity('SetBigScreenAutoCarouselEnabled', '{"enabled":true}');
+callUnity('PauseGame', '');
+callUnity('ResumeGame', '');
 
 // Unity → 父
 window.addEventListener('message', (e) => {

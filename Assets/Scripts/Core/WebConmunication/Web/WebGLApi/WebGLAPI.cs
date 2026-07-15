@@ -542,6 +542,36 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(SetBigScreenAutoCarouselEnabled), $"enabled={request.enabled}");
     }
 
+    /// <summary>宿主调用：暂停游戏。arg 传 ""。</summary>
+    public void PauseGame()
+    {
+        NotifyHostCommunicationReceived(nameof(PauseGame), string.Empty);
+        LogCommunication("← Host", nameof(PauseGame), string.Empty);
+
+        if (!MapApi.Instance.PauseGame())
+        {
+            Debug.LogWarning("[WebGLAPI] PauseGame 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(PauseGame), "已暂停");
+    }
+
+    /// <summary>宿主调用：恢复游戏。arg 传 ""。</summary>
+    public void ResumeGame()
+    {
+        NotifyHostCommunicationReceived(nameof(ResumeGame), string.Empty);
+        LogCommunication("← Host", nameof(ResumeGame), string.Empty);
+
+        if (!MapApi.Instance.ResumeGame())
+        {
+            Debug.LogWarning("[WebGLAPI] ResumeGame 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(ResumeGame), "已恢复");
+    }
+
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;

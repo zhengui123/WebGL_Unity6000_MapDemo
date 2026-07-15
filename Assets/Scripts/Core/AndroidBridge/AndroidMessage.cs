@@ -599,6 +599,30 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：暂停游戏。
+    /// UnitySendMessage("AndroidBridge", "PauseGame", "");
+    /// </summary>
+    public void PauseGame()
+    {
+        if (!MapApi.Instance.PauseGame())
+        {
+            Debug.LogWarning("[AndroidMessage] PauseGame 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：恢复游戏。
+    /// UnitySendMessage("AndroidBridge", "ResumeGame", "");
+    /// </summary>
+    public void ResumeGame()
+    {
+        if (!MapApi.Instance.ResumeGame())
+        {
+            Debug.LogWarning("[AndroidMessage] ResumeGame 失败。");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：设置车辆 Y 轴旋转角度。
     /// UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
     /// json 示例：{"yawAngle":90.0,"instant":false}

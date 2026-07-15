@@ -360,9 +360,29 @@ callUnity('SetBigScreenAutoCarouselEnabled', JSON.stringify({ enabled: false }))
 
 ---
 
+### 4.5 PauseGame / ResumeGame
+
+暂停或恢复游戏（`Time.timeScale` + 全部 DOTween）。
 
 
-### 4.5 接口汇总表（父 → Unity）
+| 项目       | 值                              |
+| -------- | ------------------------------ |
+| `method` | `PauseGame` / `ResumeGame`     |
+| `arg`    | `""`                           |
+| Unity 方法 | `WebGLAPI.PauseGame()` / `ResumeGame()` |
+| MapApi   | `PauseGame()` / `ResumeGame()` |
+
+
+```javascript
+callUnity('PauseGame', '');
+callUnity('ResumeGame', '');
+```
+
+---
+
+
+
+### 4.6 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -370,6 +390,8 @@ callUnity('SetBigScreenAutoCarouselEnabled', JSON.stringify({ enabled: false }))
 | `TransitionToNextControlState`     | `""` |      | 下一级       |
 | `TransitionToPreviousControlState` | `""` |      | 上一级       |
 | `SetBigScreenAutoCarouselEnabled`  | JSON | ✅    | 大屏轮播开关    |
+| `PauseGame`                        | `""` |      | 暂停游戏      |
+| `ResumeGame`                       | `""` |      | 恢复游戏      |
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。
 
