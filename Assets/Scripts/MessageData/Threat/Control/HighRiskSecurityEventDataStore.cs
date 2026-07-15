@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// 高危安全事件接口结果缓存：全量列表 + 按省级 code 分组。
+/// 入库时跳过 <see cref="ThreatExcludedEventIdStore"/> 中已排除的 eventId。
 /// </summary>
 public class HighRiskSecurityEventDataStore : UnitySingle<HighRiskSecurityEventDataStore>
 {
@@ -157,9 +159,22 @@ public class HighRiskSecurityEventDataStore : UnitySingle<HighRiskSecurityEventD
         return true;
     }
 
+    /// <summary>删除该省数据，并将其 eventId 记入排除表（后续接口入库跳过）。</summary>
+    public bool RemoveProvinceEventsAndExclude(string provinceCode)
+    {
+        IReadOnlyList<HighRiskSecurityEventItem> events = GetEventsByProvince(provinceCode);
+        ThreatExcludedEventIdStore.AddRange(events);
+        return RemoveProvinceEvents(provinceCode);
+    }
+
     private void AddEventInternal(HighRiskSecurityEventItem item, string fallbackProvinceCode)
     {
         if (item == null)
+        {
+            return;
+        }
+
+        if (ThreatExcludedEventIdStore.Contains(item.eventId))
         {
             return;
         }

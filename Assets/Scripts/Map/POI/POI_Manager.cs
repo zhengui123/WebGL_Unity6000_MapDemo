@@ -47,13 +47,14 @@ public class POI_Manager : UnitySingle<POI_Manager>
         Quaternion desiredWorldRotation = obj.transform.rotation;
         obj.transform.SetParent(plateRoot, false);
         obj.transform.localPosition = localPos;
-        obj.transform.localScale = targetScale;
         obj.transform.rotation = desiredWorldRotation;
         // 统一挂到 POI_Manager 下，保留已计算好的世界位姿
         obj.transform.SetParent(transform, true);
         Vector3 managerLocalPos = obj.transform.localPosition;
         managerLocalPos.y = 0f;
         obj.transform.localPosition = managerLocalPos;
+        // 必须在最终父节点下再写缩放，否则 SetParent(worldPositionStays) 会被板块 lossyScale 撑歪
+        obj.transform.localScale = targetScale;
 
         AddPOI(new POIData(type, obj, longitude, latitude, localPos));
     }

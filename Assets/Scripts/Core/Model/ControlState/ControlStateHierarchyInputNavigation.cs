@@ -2,28 +2,22 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// 操控层级输入导航：双击进入下一级，Escape/Backspace/Android 返回键回到上一级。
-/// 通过 <see cref="ControlStateHierarchyTransitionController.TransitionToState"/> 执行跳转。
+/// 操控层级输入导航：
+/// 省级单击/触摸进入车辆大屏；Escape/Backspace/Android 返回键回到上一级。
+/// 双击进下一级已移除；显式接口 <see cref="TryTransitionToNextLevel"/> 仍保留给 MapApi/Android。
 /// </summary>
 [DisallowMultipleComponent]
 [RequireComponent(typeof(ControlStateHierarchyTransitionController))]
 public class ControlStateHierarchyInputNavigation : MonoBehaviour
 {
-    [Header("输入导航（双击下一级 / 返回上一级）")]
+    [Header("输入导航（省级单击进车辆 / 返回上一级）")]
     [SerializeField] private bool _enableInputNavigation = true;
-    [Tooltip("双击或双触间隔（秒）")]
-    [SerializeField] private float _doubleClickInterval = 0.35f;
     [Tooltip("抬起时相对按下位置的最大位移（像素），超过则不算点击")]
     [SerializeField] private float _clickMaxDragPixels = 12f;
-    [Tooltip("两次点击的最大屏幕距离（像素）")]
-    [SerializeField] private float _doubleClickMaxDistancePixels = 35f;
     [SerializeField] private bool _useInstantTransition = false;
 
     private ControlStateHierarchyTransitionController _transitionController;
 
-    private float _lastClickTime = -1f;
-    private Vector2 _lastClickScreenPosition;
-    private int _lastClickPointerId = -2;
     private Vector2 _pointerDownPosition;
     private int _activePointerId = -1;
     private bool _hasActivePointer;
@@ -43,7 +37,9 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
         HandleInputNavigation();
     }
 
-    /// <summary>双击/双触：进入层级下一级（Android 触摸同样生效）。</summary>
+    /// <summary>
+    /// 进入层级下一级（供 MapApi / Android 显式调用；手势双击已不再触发）。
+    /// </summary>
     public bool TryTransitionToNextLevel()
     {
         GameManager manager = GameManager.Instance;
@@ -67,6 +63,32 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
         }
 
         return _transitionController.TransitionToState(_useInstantTransition, next);
+    }
+
+    /// <summary>省级单击/触摸：进入车辆大屏。</summary>
+    public bool TryEnterVehicleFromProvinceClick()
+    {
+        GameManager manager = GameManager.Instance;
+        if (manager == null)
+        {
+            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法进入车辆大屏。");
+            return false;
+        }
+
+        if (manager.CurrentState != GameManager.ControlState.ProvinceLevel)
+        {
+            return false;
+        }
+
+        if (_transitionController == null)
+        {
+            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
+            return false;
+        }
+
+        return _transitionController.TransitionToState(
+            _useInstantTransition,
+            GameManager.ControlState.VehicleLevel);
     }
 
     /// <summary>返回上一级；PC 为 Escape/Backspace，Android 为系统返回键（映射为 Escape）。</summary>
@@ -164,19 +186,7 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
             return;
         }
 
-        float maxDistanceSqr = _doubleClickMaxDistancePixels * _doubleClickMaxDistancePixels;
-        bool isDoubleClick = _lastClickPointerId == pointerId
-            && Time.unscaledTime - _lastClickTime <= _doubleClickInterval
-            && (screenPosition - _lastClickScreenPosition).sqrMagnitude <= maxDistanceSqr;
-
-        _lastClickTime = Time.unscaledTime;
-        _lastClickScreenPosition = screenPosition;
-        _lastClickPointerId = pointerId;
-
-        if (isDoubleClick)
-        {
-            TryTransitionToNextLevel();
-        }
+        TryEnterVehicleFromProvinceClick();
     }
 
     private static bool IsPointerOverUi()

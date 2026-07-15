@@ -19,6 +19,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _httpApiTestPanel;
     [SerializeField] private GameObject _androidBridgeApiPanel;
     [SerializeField] private GameObject _threatHighRiskSecurityEventPanel;
+    [SerializeField] private GameObject _threatLocalAlertTestPanel;
 
     private void Awake()
     {
@@ -54,142 +55,72 @@ public class DemoGameStateUINavigator : MonoBehaviour
 
     public void ShowMenu()
     {
-        SetPanelActive(_menuPanel, true);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_menuPanel);
     }
 
     public void ShowControlStateJumpPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, true);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_controlStateJumpPanel);
     }
 
     public void ShowPlateMapHighlightPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, true);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_plateMapHighlightPanel);
     }
 
     public void ShowVehicleHeatmapUpdatePanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, true);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_vehicleHeatmapUpdatePanel);
     }
 
     public void ShowCarPanelUiPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, true);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_carPanelUiPanel);
     }
 
     public void ShowPreviousLevelPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, true);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_previousLevelPanel);
     }
 
     public void ShowBigScreenCarouselPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, true);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_bigScreenCarouselPanel);
     }
 
     public void ShowHttpApiTestPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, true);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_httpApiTestPanel);
     }
 
     public void ShowAndroidBridgeApiPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, true);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, false);
+        ShowOnly(_androidBridgeApiPanel);
     }
 
     public void ShowThreatHighRiskSecurityEventPanel()
     {
-        SetPanelActive(_menuPanel, false);
-        SetPanelActive(_controlStateJumpPanel, false);
-        SetPanelActive(_plateMapHighlightPanel, false);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, false);
-        SetPanelActive(_carPanelUiPanel, false);
-        SetPanelActive(_previousLevelPanel, false);
-        SetPanelActive(_bigScreenCarouselPanel, false);
-        SetPanelActive(_httpApiTestPanel, false);
-        SetPanelActive(_androidBridgeApiPanel, false);
-        SetPanelActive(_threatHighRiskSecurityEventPanel, true);
+        ShowOnly(_threatHighRiskSecurityEventPanel);
+    }
+
+    public void ShowThreatLocalAlertTestPanel()
+    {
+        ShowOnly(_threatLocalAlertTestPanel);
+    }
+
+    private void ShowOnly(GameObject activePanel)
+    {
+        SetPanelActive(_menuPanel, activePanel == _menuPanel);
+        SetPanelActive(_controlStateJumpPanel, activePanel == _controlStateJumpPanel);
+        SetPanelActive(_plateMapHighlightPanel, activePanel == _plateMapHighlightPanel);
+        SetPanelActive(_vehicleHeatmapUpdatePanel, activePanel == _vehicleHeatmapUpdatePanel);
+        SetPanelActive(_carPanelUiPanel, activePanel == _carPanelUiPanel);
+        SetPanelActive(_previousLevelPanel, activePanel == _previousLevelPanel);
+        SetPanelActive(_bigScreenCarouselPanel, activePanel == _bigScreenCarouselPanel);
+        SetPanelActive(_httpApiTestPanel, activePanel == _httpApiTestPanel);
+        SetPanelActive(_androidBridgeApiPanel, activePanel == _androidBridgeApiPanel);
+        SetPanelActive(_threatHighRiskSecurityEventPanel, activePanel == _threatHighRiskSecurityEventPanel);
+        SetPanelActive(_threatLocalAlertTestPanel, activePanel == _threatLocalAlertTestPanel);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

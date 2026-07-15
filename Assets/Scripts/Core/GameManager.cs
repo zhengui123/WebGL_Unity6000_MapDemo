@@ -50,8 +50,17 @@ public class GameManager : UnitySingle<GameManager>
 
     public BigScreenPlaybackState CurrentPlaybackState => _currentPlaybackState;
 
+    /// <summary>是否处于暂停。</summary>
+    public bool IsPaused => _isPaused;
+
     /// <summary>大屏播放状态变化时触发。</summary>
     public event Action<BigScreenPlaybackState> OnPlaybackStateChanged;
+
+    /// <summary>暂停/恢复时触发（参数：是否已暂停）。</summary>
+    public event Action<bool> OnPauseStateChanged;
+
+    private bool _isPaused;
+    private float _timeScaleBeforePause = 1f;
 
     private void Awake()
     {
@@ -109,20 +118,60 @@ public class GameManager : UnitySingle<GameManager>
 
     public void Update()
     {
-        // if (Input.GetKeyDown(KeyCode.Space))
-        // {
-        //     SwitchToCountryLevel();
-        // }
-        // if (Input.GetKeyDown(KeyCode.Backspace))
-        // {
-        //     RestoreToEarthLevel();
-        // }
-       
-        // if (Input.GetKeyDown(KeyCode.Escape) && _currentState == ControlState.ProvinceLevel)
-        // {
-        //     RestoreToCountryLevelFromProvince();
-        // }
+        // 测试：P 切换暂停 / 恢复
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            TogglePause();
+        }
     }
+
+    #region 暂停 / 恢复
+
+    /// <summary>暂停游戏：Time.timeScale=0，并暂停全部 DOTween。</summary>
+    public void PauseGame()
+    {
+        if (_isPaused)
+        {
+            return;
+        }
+
+        _timeScaleBeforePause = Time.timeScale > 0f ? Time.timeScale : 1f;
+        Time.timeScale = 0f;
+        DG.Tweening.DOTween.PauseAll();
+        _isPaused = true;
+        Debug.Log("[GameManager] 游戏已暂停");
+        OnPauseStateChanged?.Invoke(true);
+    }
+
+    /// <summary>恢复游戏：还原 timeScale，并播放全部 DOTween。</summary>
+    public void ResumeGame()
+    {
+        if (!_isPaused)
+        {
+            return;
+        }
+
+        Time.timeScale = _timeScaleBeforePause > 0f ? _timeScaleBeforePause : 1f;
+        DG.Tweening.DOTween.PlayAll();
+        _isPaused = false;
+        Debug.Log("[GameManager] 游戏已恢复");
+        OnPauseStateChanged?.Invoke(false);
+    }
+
+    /// <summary>切换暂停 / 恢复。</summary>
+    public void TogglePause()
+    {
+        if (_isPaused)
+        {
+            ResumeGame();
+        }
+        else
+        {
+            PauseGame();
+        }
+    }
+
+    #endregion
 
     #region 状态推进（事件驱动）
 
