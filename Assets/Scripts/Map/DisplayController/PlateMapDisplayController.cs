@@ -34,6 +34,17 @@ public class PlateMapDisplayController : MonoBehaviour
 
     [Header("聚焦动画")]
     [SerializeField] private float _defaultFocusCameraLocalY = 650f;
+    [Tooltip("勾选后按省份包围盒自动计算拉近高度，使省份占 Game 视图约 Viewport Fill Ratio")]
+    [SerializeField] private bool _autoFitProvinceToViewport = true;
+    [Tooltip("省级聚焦时目标占视口比例（越小越远、越容易看全；0.55≈留边约 45%）")]
+    [Range(0.1f, 1f)]
+    [SerializeField] private float _provinceViewportFillRatio = 0.55f;
+    [Tooltip("视距→相机局部 Y 的缩放（俯视场景一般 1；不对时微调）")]
+    [SerializeField] private float _provinceFitDistanceToLocalYScale = 1f;
+    [Tooltip("省自适应允许的最小局部 Y（可低于 CameraController 的 MinZoomY，避免小省全被钳成同一高度）")]
+    [SerializeField] private float _provinceFitMinLocalY = 80f;
+    [Tooltip("省自适应允许的最大局部 Y")]
+    [SerializeField] private float _provinceFitMaxLocalY = 5000f;
     [SerializeField] private float _focusDuration = 0.45f;
     [SerializeField] private Ease _focusEase = Ease.InOutQuad;
 
@@ -205,19 +216,28 @@ public class PlateMapDisplayController : MonoBehaviour
             _hasPreFocusPose = true;
         }
 
-        float targetZoomY = module.FocusCameraLocalY > 0f
-            ? module.FocusCameraLocalY
-            : _defaultFocusCameraLocalY;
+        float targetZoomY = ResolveProvinceFocusCameraLocalY(module, out float viewDistanceAlongForward);
+        bool fromAutoFit = _autoFitProvinceToViewport && _pickCamera != null;
 
-        if (_cameraZoomController != null)
+        // 自动适配不要再用 CameraController.MinZoomY(常为 500) 钳死，否则大小省会同一高度
+        if (!fromAutoFit && _cameraZoomController != null)
         {
             targetZoomY = Mathf.Clamp(targetZoomY, _cameraZoomController.MinZoomY, _cameraZoomController.MaxZoomY);
+        }
+        else
+        {
+            targetZoomY = Mathf.Clamp(targetZoomY, _provinceFitMinLocalY, _provinceFitMaxLocalY);
         }
 
         Vector3 camLocalTarget = _cameraTransform.localPosition;
         camLocalTarget.y = targetZoomY;
 
-        if (!TryComputeRigPositionForModuleAtViewCenter(module, targetZoomY, out Vector3 rigTargetPos))
+        // 必须用「装下包围盒所需视距」沿 forward 摆相机，不能沿用当前机位深度（否则会过近）
+        float placeDepth = fromAutoFit
+            ? Mathf.Max(viewDistanceAlongForward, targetZoomY)
+            : Mathf.Max(targetZoomY, 1f);
+
+        if (!TryComputeRigPositionForModuleAtViewCenter(module, targetZoomY, placeDepth, out Vector3 rigTargetPos))
         {
             Debug.LogWarning("[PlateMapDisplayController] 无法计算聚焦机位。");
             return;
@@ -240,6 +260,7 @@ public class PlateMapDisplayController : MonoBehaviour
             targetZoomY,
             _focusDuration,
             _focusEase,
+            clampSyncZoom: fromAutoFit == false,
             onComplete: () => EventManager.Instance?.TriggerPlateMapFocusModuleCompleted(moduleKey));
 
         Debug.Log($"[PlateMapDisplayController] 聚焦模块：{moduleKey}");
@@ -278,11 +299,53 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 计算相机架世界坐标：拉近后模块包围盒中心落在视口 (0.5,0.5) 光轴上。
+    /// 省级拉近高度：按包围盒适配视口，并用角点验证保证整省可见。
+    /// </summary>
+    private float ResolveProvinceFocusCameraLocalY(PlateMapDisplayModule module, out float viewDistanceAlongForward)
+    {
+        viewDistanceAlongForward = 0f;
+
+        if (_autoFitProvinceToViewport && _pickCamera != null)
+        {
+            Bounds bounds = module.GetWorldBounds();
+            float fitted = PlateMapCameraFitUtility.ComputeCameraLocalYVerified(
+                _pickCamera,
+                _cameraRig,
+                _cameraTransform,
+                bounds,
+                _provinceViewportFillRatio,
+                _provinceFitMinLocalY,
+                _provinceFitMaxLocalY,
+                _provinceFitDistanceToLocalYScale,
+                out viewDistanceAlongForward);
+
+            if (fitted > 1f)
+            {
+                Debug.Log(
+                    $"[PlateMapDisplayController] 省聚焦自适应 | module={module.ModuleKey} | " +
+                    $"fill={_provinceViewportFillRatio:P0} | localY={fitted:F1} | depth={viewDistanceAlongForward:F1} | " +
+                    $"boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1}) | size={bounds.size}");
+                return fitted;
+            }
+        }
+
+        if (module.FocusCameraLocalY > 0f)
+        {
+            viewDistanceAlongForward = module.FocusCameraLocalY;
+            return module.FocusCameraLocalY;
+        }
+
+        viewDistanceAlongForward = _defaultFocusCameraLocalY;
+        return _defaultFocusCameraLocalY;
+    }
+
+    /// <summary>
+    /// 计算相机架世界坐标：相机位于模块中心沿视线后退 viewDistanceAlongForward 处。
     /// </summary>
     private bool TryComputeRigPositionForModuleAtViewCenter(
         PlateMapDisplayModule module,
         float targetCameraLocalY,
+        float viewDistanceAlongForward,
         out Vector3 rigWorldPosition)
     {
         rigWorldPosition = _cameraRig.position;
@@ -291,7 +354,6 @@ public class PlateMapDisplayController : MonoBehaviour
         Vector3 targetCamLocal = _cameraTransform.localPosition;
         targetCamLocal.y = targetCameraLocalY;
 
-        Vector3 predictedCamWorld = _cameraRig.TransformPoint(targetCamLocal);
         Quaternion predictedCamWorldRot = _cameraRig.rotation * _cameraTransform.localRotation;
         Vector3 forward = predictedCamWorldRot * Vector3.forward;
 
@@ -302,16 +364,12 @@ public class PlateMapDisplayController : MonoBehaviour
 
         forward.Normalize();
 
-        float depthAlongView = Vector3.Dot(moduleCenter - predictedCamWorld, forward);
-        if (depthAlongView < 0.5f)
-        {
-            depthAlongView = Mathf.Max(targetCameraLocalY, 1f);
-        }
+        float depthAlongView = Mathf.Max(viewDistanceAlongForward, 1f);
 
-        // 模块中心落在相机正前方 depth 处 → 视口中心对准模块
+        // 模块中心落在相机正前方 depth 处；depth 用装框所需视距，避免沿用旧机位导致过近
         Vector3 targetCameraWorld = moduleCenter - forward * depthAlongView;
-        Vector3 rigToCamera = predictedCamWorld - _cameraRig.position;
-        rigWorldPosition = targetCameraWorld - rigToCamera;
+        Vector3 localOffsetWorld = _cameraRig.rotation * targetCamLocal;
+        rigWorldPosition = targetCameraWorld - localOffsetWorld;
         return true;
     }
 
@@ -335,8 +393,10 @@ public class PlateMapDisplayController : MonoBehaviour
             _preFocusPose.ZoomLocalY,
             _restoreDuration,
             _restoreEase,
+            clampSyncZoom: true,
             onComplete: () =>
             {
+                _cameraZoomController?.ResetZoomLimitOverrides();
                 _hasPreFocusPose = false;
                 _focusedModule = null;
                 PlateProvinceFocusResolver.ClearCache();
@@ -357,6 +417,7 @@ public class PlateMapDisplayController : MonoBehaviour
         _focusedModule = null;
         _transitionCachedModule = null;
         PlateProvinceFocusResolver.ClearCache();
+        _cameraZoomController?.ResetZoomLimitOverrides();
 
         PlateMapDisplayModule[] modules = CollectAllModules(forceRefresh: true);
         if (modules == null)
@@ -501,6 +562,7 @@ public class PlateMapDisplayController : MonoBehaviour
         float syncZoomY,
         float duration,
         Ease ease,
+        bool clampSyncZoom = true,
         TweenCallback onComplete = null)
     {
         if (_cameraZoomController != null)
@@ -517,7 +579,8 @@ public class PlateMapDisplayController : MonoBehaviour
         {
             if (_cameraZoomController != null)
             {
-                _cameraZoomController.SetTargetZoomY(syncZoomY, immediate: true);
+                // 省自适应时不钳到默认 MinZoomY，避免动画结束瞬间被拉回同一高度
+                _cameraZoomController.SetTargetZoomY(syncZoomY, immediate: true, clampToLimits: clampSyncZoom);
                 _cameraZoomController.ZoomControlEnabled = true;
             }
 

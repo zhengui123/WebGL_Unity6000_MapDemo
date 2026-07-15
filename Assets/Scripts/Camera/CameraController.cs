@@ -22,6 +22,9 @@ public class CameraController : MonoBehaviour
     private float _currentZoomY;
     private float _zoomVelocity;
     private bool _zoomControlEnabled = true;
+    /// <summary>运行时下限（省聚焦可暂时低于 Inspector 的 Min，便于大小省拉开距离）。</summary>
+    private float _activeMinZoomY;
+    private float _activeMaxZoomY;
 
     /// <summary>为 false 时暂停滚轮与 SmoothDamp（板块聚焦 DOTween 期间使用）。</summary>
     public bool ZoomControlEnabled
@@ -36,6 +39,9 @@ public class CameraController : MonoBehaviour
         {
             _cameraTransform = transform.GetChild(0);
         }
+
+        _activeMinZoomY = _minZoomY;
+        _activeMaxZoomY = _maxZoomY;
 
         if (_cameraTransform != null)
         {
@@ -64,11 +70,11 @@ public class CameraController : MonoBehaviour
         }
 
         _targetZoomY -= wheel * _zoomSpeed;
-        _targetZoomY = Mathf.Clamp(_targetZoomY, _minZoomY, _maxZoomY);
+        _targetZoomY = Mathf.Clamp(_targetZoomY, _activeMinZoomY, _activeMaxZoomY);
     }
 
-    public float MinZoomY => _minZoomY;
-    public float MaxZoomY => _maxZoomY;
+    public float MinZoomY => _activeMinZoomY;
+    public float MaxZoomY => _activeMaxZoomY;
 
     /// <summary>
     /// 当前相机沿局部 Y 的距离（与滚轮缩放一致，越小越近）。
@@ -83,14 +89,26 @@ public class CameraController : MonoBehaviour
 
     /// <summary>设置目标缩放局部 Y（供板块模块点击拉近等）。</summary>
     /// <param name="immediate">为 true 时立即到位，否则走 SmoothDamp。</param>
-    public void SetTargetZoomY(float localY, bool immediate = false)
+    /// <param name="clampToLimits">为 false 时不钳到默认 Min/Max，并临时放开滚轮下限至该值。</param>
+    public void SetTargetZoomY(float localY, bool immediate = false, bool clampToLimits = true)
     {
         if (_cameraTransform == null)
         {
             return;
         }
 
-        _targetZoomY = Mathf.Clamp(localY, _minZoomY, _maxZoomY);
+        if (clampToLimits)
+        {
+            _targetZoomY = Mathf.Clamp(localY, _activeMinZoomY, _activeMaxZoomY);
+        }
+        else
+        {
+            _targetZoomY = localY;
+            // 允许省聚焦拉到低于 Inspector Min 后，滚轮仍可从这个高度往外推
+            _activeMinZoomY = Mathf.Min(_minZoomY, localY);
+            _activeMaxZoomY = Mathf.Max(_maxZoomY, localY);
+        }
+
         if (!immediate)
         {
             return;
@@ -103,6 +121,13 @@ public class CameraController : MonoBehaviour
         _cameraTransform.localPosition = localPos;
     }
 
+    /// <summary>还原到 Inspector 配置的缩放上下限（退出省聚焦时调用）。</summary>
+    public void ResetZoomLimitOverrides()
+    {
+        _activeMinZoomY = _minZoomY;
+        _activeMaxZoomY = _maxZoomY;
+    }
+
     /// <summary>
     /// 双击旋转结束后由 MapController 调用：将相机拉近到固定的局部 Y。
     /// </summary>
@@ -113,7 +138,7 @@ public class CameraController : MonoBehaviour
             return;
         }
 
-        _targetZoomY = Mathf.Clamp(_doubleClickFixedLocalY, _minZoomY, _maxZoomY);
+        _targetZoomY = Mathf.Clamp(_doubleClickFixedLocalY, _activeMinZoomY, _activeMaxZoomY);
         _currentZoomY = _targetZoomY;
         _zoomVelocity = 0f;
 

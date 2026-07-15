@@ -18927,8 +18927,10 @@ MonoBehaviour:
   mainCameraTransform: {fileID: 0}
   firstTargetLocalPos: {x: 0, y: 1200, z: 0}
   secondTargetLocalPos: {x: 0, y: 1000, z: 0}
-  plateViewLocalPos: {x: 0, y: 800, z: 0}
+  plateViewLocalPos: {x: 0, y: 900, z: 0}
   plateMapCenterDistance: 1200
+  _useManualPlateMapPosition: 1
+  _manualPlateMapLocalPosition: {x: -309, y: -1612, z: -216}
   goEarthAnimTime: 1
   showFogAnimTime: 0.5
   showPlateMapAnimTime: 0.5
@@ -182548,6 +182550,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
+  _autoFitProvinceToViewport: 1
+  _provinceViewportFillRatio: 0.7
+  _provinceFitDistanceToLocalYScale: 1
+  _provinceFitMinLocalY: 80
+  _provinceFitMaxLocalY: 5000
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5

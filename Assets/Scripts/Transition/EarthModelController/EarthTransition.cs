@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using VolumetricFogAndMist;
 using DG.Tweening;
 
@@ -15,9 +16,17 @@ public class EarthTransition : UnitySingle<EarthTransition>
     [SerializeField] private Transform mainCameraTransform;
     [SerializeField] private Vector3 firstTargetLocalPos = new Vector3(0f, 1200f, 0f);
     [SerializeField] private Vector3 secondTargetLocalPos = new Vector3(0f, 1000f, 0f);
-    [Tooltip("板块视图下相机本地坐标（正向最后一步与雾消散同步到达）")]
+    [Tooltip("板块全国视图下相机本地坐标")]
     [SerializeField] private Vector3 plateViewLocalPos = new Vector3(0f, 800f, 0f);
+    [Tooltip("关闭「手动板块位置」时：将 AllPlateMap 沿相机前方放置的距离")]
     [SerializeField] private float plateMapCenterDistance = 800f;
+
+    [Header("AllPlateMap 初始位置")]
+    [Tooltip("开启：使用下方手动局部坐标重置 AllPlateMap；关闭：沿相机前方自动生成世界位置")]
+    [SerializeField] private bool _useManualPlateMapPosition = false;
+    [Tooltip("开启手动时写入 AllPlateMap 的局部坐标（相对父节点，不改旋转/缩放）")]
+    [FormerlySerializedAs("_manualPlateMapWorldPosition")]
+    [SerializeField] private Vector3 _manualPlateMapLocalPosition = Vector3.zero;
 
     [Header("动画时长")]
     public float goEarthAnimTime = 1f;
@@ -152,7 +161,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         if (plateMapObj != null)
         {
             plateMapObj.SetActive(true);
-            CenterPlateMapInView();
+            ApplyPlateMapInitialPosition();
         }
     }
 
@@ -169,10 +178,62 @@ public class EarthTransition : UnitySingle<EarthTransition>
         }
     }
 
-    private void CenterPlateMapInView()
+    /// <summary>
+    /// 重置 AllPlateMap 位置：手动世界坐标，或沿相机前方自动生成。
+    /// </summary>
+    private void ApplyPlateMapInitialPosition()
     {
+        if (plateMapObj == null)
+        {
+            return;
+        }
+
+        if (_useManualPlateMapPosition)
+        {
+            plateMapObj.transform.localPosition = _manualPlateMapLocalPosition;
+            Debug.Log($"[EarthTransition] AllPlateMap 使用手动局部坐标：{_manualPlateMapLocalPosition}");
+            return;
+        }
+
+        if (mainCameraTransform == null)
+        {
+            return;
+        }
+
         Vector3 viewCenterWorldPos = mainCameraTransform.position + mainCameraTransform.forward * plateMapCenterDistance;
         plateMapObj.transform.position = viewCenterWorldPos;
+        Debug.Log($"[EarthTransition] AllPlateMap 自动初始位置：{viewCenterWorldPos}");
+    }
+
+    /// <summary>运行时设置 AllPlateMap 手动局部坐标，并开启手动开关（不改旋转/缩放）。</summary>
+    public void SetManualPlateMapLocalPosition(Vector3 localPosition)
+    {
+        _manualPlateMapLocalPosition = localPosition;
+        _useManualPlateMapPosition = true;
+    }
+
+    public bool UseManualPlateMapPosition
+    {
+        get => _useManualPlateMapPosition;
+        set => _useManualPlateMapPosition = value;
+    }
+
+    public Vector3 ManualPlateMapLocalPosition
+    {
+        get => _manualPlateMapLocalPosition;
+        set => _manualPlateMapLocalPosition = value;
+    }
+
+    public Vector3 PlateViewLocalPos
+    {
+        get => plateViewLocalPos;
+        set => plateViewLocalPos = value;
+    }
+
+    public float PlateMapCenterDistance
+    {
+        get => plateMapCenterDistance;
+        set => plateMapCenterDistance = Mathf.Max(1f, value);
     }
 
     #endregion
