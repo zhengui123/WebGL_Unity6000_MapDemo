@@ -181781,6 +181781,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2100000101}
   - component: {fileID: 2100000102}
+  - component: {fileID: 2100000103}
   m_Layer: 0
   m_Name: CameraPivot
   m_TagString: Untagged
@@ -181826,6 +181827,28 @@ MonoBehaviour:
   _maxZoomY: 2500
   _zoomSmoothTime: 0.1
   _doubleClickFixedLocalY: 800
+--- !u!114 &2100000103
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2100000100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b82970cf909ec848834a1bf0ab4a14a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CountryMapZoomController
+  _cameraRig: {fileID: 0}
+  _cameraTransform: {fileID: 0}
+  _allPlateMapRoot: {fileID: 0}
+  _fogCameraZoomController: {fileID: 0}
+  _plateMapDisplayController: {fileID: 0}
+  _wheelZoomSpeed: 400
+  _pinchZoomSpeed: 1.5
+  _minDistanceToMapCenter: 200
+  _maxDistanceToMapCenter: 6000
+  _zoomSmoothTime: 0.08
 --- !u!1 &2101861625
 GameObject:
   m_ObjectHideFlags: 0

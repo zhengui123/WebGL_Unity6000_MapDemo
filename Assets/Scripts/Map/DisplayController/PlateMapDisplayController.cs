@@ -78,6 +78,10 @@ public class PlateMapDisplayController : MonoBehaviour
     /// <summary>是否已缓存首次聚焦前相机位姿（可调用还原）。</summary>
     public bool CanRestoreCamera => _hasPreFocusPose;
 
+    /// <summary>板块聚焦 / 还原相机 DOTween 是否正在播放。</summary>
+    public bool IsCameraTweening =>
+        _cameraTweenSequence != null && _cameraTweenSequence.IsActive() && _cameraTweenSequence.IsPlaying();
+
     private static PlateMapDisplayController _instance;
 
     /// <summary>场景中的显示控制器（供 MapApi 等调用）。</summary>
@@ -122,7 +126,8 @@ public class PlateMapDisplayController : MonoBehaviour
 
     private void OnDisable()
     {
-        KillCameraTweens();
+        // 聚焦开始时 GameManager 会禁用本组件；此时尚未创建 DOTween，勿解除缩放抑制
+        KillCameraTweens(releaseZoomSuppress: false);
         KillAllModuleAlphaTweens();
     }
 
@@ -248,6 +253,8 @@ public class PlateMapDisplayController : MonoBehaviour
         // 进入省级时立即缓存 name/code，供下钻二维地图使用
         PlateProvinceFocusResolver.TryCacheFromModule(module);
 
+        // 先硬关缩放；先发聚焦事件（会禁用组件并 OnDisable Kill 空 Tween）；再开 DOTween
+        CountryMapZoomController.Instance?.SetSuppressed(true);
         EventManager.Instance?.TriggerPlateMapDisplayFocus(moduleKey);
 
         FadeModulesForFocus(module, _otherModuleFadeDuration, _otherModuleFadeEase);
@@ -261,7 +268,11 @@ public class PlateMapDisplayController : MonoBehaviour
             _focusEase,
             clampSyncZoom: true,
             tweenCameraLocal: false,
-            onComplete: () => EventManager.Instance?.TriggerPlateMapFocusModuleCompleted(moduleKey));
+            onComplete: () =>
+            {
+                CountryMapZoomController.Instance?.SetSuppressed(false);
+                EventManager.Instance?.TriggerPlateMapFocusModuleCompleted(moduleKey);
+            });
 
         Debug.Log($"[PlateMapDisplayController] 聚焦模块：{moduleKey} | viewDistance={viewDistance:F1}");
     }
@@ -380,10 +391,23 @@ public class PlateMapDisplayController : MonoBehaviour
 
         KillCameraTweens();
         FadeAllModulesForRestore();
+        CountryMapZoomController.Instance?.SetSuppressed(true);
         EventManager.Instance?.TriggerPlateMapRestoreCameraStarted();
+
+        // 省→国家：CameraPivot 终点用国家级缩放 Home，丢弃进省前缩放，避免与 CountryMapZoom 冲突
+        Vector3 rigTargetPos = _preFocusPose.RigWorldPosition;
+        Quaternion rigTargetRot = _preFocusPose.RigWorldRotation;
+        CountryMapZoomController countryZoom = CountryMapZoomController.Instance;
+        if (countryZoom != null &&
+            countryZoom.TryGetCountryHomePose(out Vector3 homePos, out Quaternion homeRot))
+        {
+            rigTargetPos = homePos;
+            rigTargetRot = homeRot;
+        }
+
         PlayCameraTween(
-            _preFocusPose.RigWorldPosition,
-            _preFocusPose.RigWorldRotation,
+            rigTargetPos,
+            rigTargetRot,
             _preFocusPose.CameraLocalPosition,
             _preFocusPose.CameraLocalRotation,
             _preFocusPose.ZoomLocalY,
@@ -396,10 +420,12 @@ public class PlateMapDisplayController : MonoBehaviour
                 _hasPreFocusPose = false;
                 _focusedModule = null;
                 PlateProvinceFocusResolver.ClearCache();
+                CountryMapZoomController.Instance?.SetSuppressed(false);
+                CountryMapZoomController.Instance?.ResetToCountryHomeAfterProvinceRestore();
                 EventManager.Instance?.TriggerPlateMapRestoreCameraCompleted();
             });
 
-        Debug.Log("[PlateMapDisplayController] 正在还原摄像机位置。");
+        Debug.Log("[PlateMapDisplayController] 正在还原摄像机位置（国家级 Home）。");
         return true;
     }
 
@@ -606,7 +632,7 @@ public class PlateMapDisplayController : MonoBehaviour
         };
     }
 
-    private void KillCameraTweens()
+    private void KillCameraTweens(bool releaseZoomSuppress = true)
     {
         if (_cameraTweenSequence != null && _cameraTweenSequence.IsActive())
         {
@@ -620,6 +646,11 @@ public class PlateMapDisplayController : MonoBehaviour
         if (_cameraZoomController != null)
         {
             _cameraZoomController.ZoomControlEnabled = true;
+        }
+
+        if (releaseZoomSuppress)
+        {
+            CountryMapZoomController.Instance?.SetSuppressed(false);
         }
     }
 
