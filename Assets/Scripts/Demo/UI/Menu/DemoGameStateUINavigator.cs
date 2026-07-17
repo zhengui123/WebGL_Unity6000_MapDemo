@@ -20,6 +20,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _androidBridgeApiPanel;
     [SerializeField] private GameObject _threatHighRiskSecurityEventPanel;
     [SerializeField] private GameObject _threatLocalAlertTestPanel;
+    [SerializeField] private GameObject _carVehicleDataPanel;
 
     private void Awake()
     {
@@ -108,6 +109,11 @@ public class DemoGameStateUINavigator : MonoBehaviour
         ShowOnly(_threatLocalAlertTestPanel);
     }
 
+    public void ShowCarVehicleDataPanel()
+    {
+        ShowOnly(_carVehicleDataPanel);
+    }
+
     private void ShowOnly(GameObject activePanel)
     {
         SetPanelActive(_menuPanel, activePanel == _menuPanel);
@@ -121,6 +127,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_androidBridgeApiPanel, activePanel == _androidBridgeApiPanel);
         SetPanelActive(_threatHighRiskSecurityEventPanel, activePanel == _threatHighRiskSecurityEventPanel);
         SetPanelActive(_threatLocalAlertTestPanel, activePanel == _threatLocalAlertTestPanel);
+        SetPanelActive(_carVehicleDataPanel, activePanel == _carVehicleDataPanel);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

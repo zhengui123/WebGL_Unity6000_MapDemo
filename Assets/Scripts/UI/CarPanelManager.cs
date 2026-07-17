@@ -7,7 +7,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     [SerializeField] private string _defaultStart3DObjectName;
 
+    [Header("消息面板")]
+    [Tooltip("车辆弹窗消息列表；留空则从 GridLine 当前 endUI / CarPanel 子级查找")]
+    [SerializeField] private MessageListPanel _messageListPanel;
+
     private string _currentStart3DObjectName;
+
+    /// <summary>绑定的消息列表面板。</summary>
+    public MessageListPanel MessageListPanel => ResolveMessageListPanel();
 
     public override void Awake()
     {
@@ -118,6 +125,33 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         return true;
     }
 
+    /// <summary>
+    /// 打开车辆 UI，并用防护状态数据刷新消息面板。
+    /// start3DObjectName 建议使用首个 unprotectedParts.partTypeName（如 IDC）。
+    /// </summary>
+    public bool OpenCarUIWithMessageList(
+        string start3DObjectName,
+        string title,
+        ProtectionStateType protectionState,
+        System.Collections.Generic.IList<string> abnormalEvents)
+    {
+        bool opened = OpenCarUI(start3DObjectName);
+        if (!opened)
+        {
+            return false;
+        }
+
+        MessageListPanel panel = ResolveMessageListPanel(start3DObjectName);
+        if (panel == null)
+        {
+            Debug.LogWarning("[CarPanelManager] 未找到 MessageListPanel，跳过消息列表刷新。");
+            return true;
+        }
+
+        panel.SetMessageList(title, protectionState, abnormalEvents);
+        return true;
+    }
+
     public void CloseCarUI()
     {
         if (!IsVehicleLevel())
@@ -188,5 +222,38 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         {
             gridLine.enabled = false;
         }
+    }
+
+    private MessageListPanel ResolveMessageListPanel(string start3DObjectName = null)
+    {
+        if (_messageListPanel != null)
+        {
+            return _messageListPanel;
+        }
+
+        if (gridLine != null)
+        {
+            if (!string.IsNullOrEmpty(start3DObjectName))
+            {
+                MessageListPanel fromBinding = gridLine.GetEndMessageListPanel(start3DObjectName);
+                if (fromBinding != null)
+                {
+                    return fromBinding;
+                }
+            }
+
+            MessageListPanel active = gridLine.ActiveEndMessageListPanel;
+            if (active != null)
+            {
+                return active;
+            }
+        }
+
+        if (CarPanel != null)
+        {
+            return CarPanel.GetComponentInChildren<MessageListPanel>(true);
+        }
+
+        return FindFirstObjectByType<MessageListPanel>(FindObjectsInactive.Include);
     }
 }

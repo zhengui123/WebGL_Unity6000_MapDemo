@@ -13,7 +13,8 @@ public class GridLine : MonoBehaviour
         public Transform start3D;
         [Tooltip("连线起点 UI 图（RectTransform），留空则不显示；运行时跟随 start3D 屏幕坐标")]
         public Transform startUI;
-        public Transform endUI;
+        [Tooltip("连线终点消息面板（MessageListPanel）")]
+        public MessageListPanel endUI;
     }
 
     private class GridLineBinding
@@ -21,6 +22,7 @@ public class GridLine : MonoBehaviour
         public Transform Start3D;
         public Transform StartUI;
         public Transform EndUI;
+        public MessageListPanel EndMessageListPanel;
         public Vector3 EndUINormalScale;
         public float DrawProgress;
     }
@@ -33,7 +35,7 @@ public class GridLine : MonoBehaviour
 
     [Header("兼容旧配置（仅当列表为空时生效）")]
     [SerializeField] private Transform start3D;
-    [SerializeField] private Transform m_EndUI;
+    [SerializeField] private MessageListPanel m_EndUI;
 
     [Header("绘制动画（左→右出现，消失反向收起）")]
     [SerializeField] private float _drawDuration = 0.6f;
@@ -60,6 +62,31 @@ public class GridLine : MonoBehaviour
 
     public string ActiveStart3DName => _activeStart3DName;
     public bool IsAnimating => _animationCoroutine != null;
+
+    /// <summary>按三维物体名称取绑定的消息面板；未找到返回 null。</summary>
+    public MessageListPanel GetEndMessageListPanel(string start3DObjectName)
+    {
+        if (!TryGetBinding(start3DObjectName, out GridLineBinding binding))
+        {
+            return null;
+        }
+
+        return binding.EndMessageListPanel;
+    }
+
+    /// <summary>当前激活连线绑定的消息面板。</summary>
+    public MessageListPanel ActiveEndMessageListPanel
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(_activeStart3DName))
+            {
+                return m_EndUI;
+            }
+
+            return GetEndMessageListPanel(_activeStart3DName) ?? m_EndUI;
+        }
+    }
 
     private void Awake()
     {
@@ -188,7 +215,8 @@ public class GridLine : MonoBehaviour
             {
                 Start3D = data.start3D,
                 StartUI = data.startUI,
-                EndUI = data.endUI,
+                EndUI = data.endUI != null ? data.endUI.transform : null,
+                EndMessageListPanel = data.endUI,
                 DrawProgress = 0f
             };
             CacheEndUINormalScale(binding);

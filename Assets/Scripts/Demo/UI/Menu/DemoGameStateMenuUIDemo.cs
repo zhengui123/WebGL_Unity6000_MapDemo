@@ -18,6 +18,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _androidBridgeApiEntryButton;
     [SerializeField] private Button _threatHighRiskSecurityEventEntryButton;
     [SerializeField] private Button _threatLocalAlertTestEntryButton;
+    [SerializeField] private Button _carVehicleDataEntryButton;
 
     private void Awake()
     {
@@ -69,6 +70,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_threatLocalAlertTestEntryButton != null)
         {
             _threatLocalAlertTestEntryButton.onClick.AddListener(OnThreatLocalAlertTestEntryClicked);
+        }
+
+        if (_carVehicleDataEntryButton != null)
+        {
+            _carVehicleDataEntryButton.onClick.AddListener(OnCarVehicleDataEntryClicked);
         }
     }
 
@@ -122,6 +128,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_threatLocalAlertTestEntryButton != null)
         {
             _threatLocalAlertTestEntryButton.onClick.RemoveListener(OnThreatLocalAlertTestEntryClicked);
+        }
+
+        if (_carVehicleDataEntryButton != null)
+        {
+            _carVehicleDataEntryButton.onClick.RemoveListener(OnCarVehicleDataEntryClicked);
         }
     }
 
@@ -243,6 +254,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowThreatLocalAlertTestPanel();
+    }
+
+    private void OnCarVehicleDataEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowCarVehicleDataPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

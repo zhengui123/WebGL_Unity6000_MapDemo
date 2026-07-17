@@ -25,6 +25,7 @@ public static class ControlStateStartUIBuilder
     private const string AndroidBridgeApiPanelName = "AndroidBridgeApiPanel";
     private const string ThreatHighRiskSecurityEventPanelName = ThreatHighRiskSecurityEventUIDemoBuilder.PanelName;
     private const string ThreatLocalAlertTestPanelName = ThreatLocalAlertTestUIDemoBuilder.PanelName;
+    private const string CarVehicleDataPanelName = CarVehicleDataUIDemoBuilder.PanelName;
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -43,6 +44,7 @@ public static class ControlStateStartUIBuilder
     private const string ThreatHighRiskSecurityEventMenuLabel = ThreatHighRiskSecurityEventUIDemoBuilder.MenuLabel;
     private const string ThreatHighRiskSecurityEventUiTitle = ThreatHighRiskSecurityEventUIDemoBuilder.UiTitle;
     private const string ThreatLocalAlertTestMenuLabel = ThreatLocalAlertTestUIDemoBuilder.MenuLabel;
+    private const string CarVehicleDataMenuLabel = CarVehicleDataUIDemoBuilder.MenuLabel;
     private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
     private const string FpsOverlayName = "DemoFpsOverlay";
@@ -128,6 +130,7 @@ public static class ControlStateStartUIBuilder
         AndroidBridgeApiPanelName,
         ThreatHighRiskSecurityEventPanelName,
         ThreatLocalAlertTestPanelName,
+        CarVehicleDataPanelName,
     };
 
     [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
@@ -236,6 +239,12 @@ public static class ControlStateStartUIBuilder
             preserved.GetPanelLayout(ThreatLocalAlertTestPanelName),
             navigator,
             demoUiFont);
+        GameObject carVehicleDataPanel = CarVehicleDataUIDemoBuilder.CreatePanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(CarVehicleDataPanelName),
+            navigator,
+            demoUiFont);
 
         Text fpsValueLabel = CreateFpsOverlay(
             uiRoot.transform,
@@ -262,6 +271,8 @@ public static class ControlStateStartUIBuilder
             threatHighRiskSecurityEventPanel;
         serializedNavigator.FindProperty("_threatLocalAlertTestPanel").objectReferenceValue =
             threatLocalAlertTestPanel;
+        serializedNavigator.FindProperty("_carVehicleDataPanel").objectReferenceValue =
+            carVehicleDataPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -274,6 +285,7 @@ public static class ControlStateStartUIBuilder
         androidBridgeApiPanel.SetActive(false);
         threatHighRiskSecurityEventPanel.SetActive(false);
         threatLocalAlertTestPanel.SetActive(false);
+        carVehicleDataPanel.SetActive(false);
         httpJsonResultBar.SetActive(false);
         httpJsonCopyBar.SetActive(false);
 
@@ -425,6 +437,17 @@ public static class ControlStateStartUIBuilder
             threatLocalAlertTestEntryButtonText.text = ThreatLocalAlertTestMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject carVehicleDataEntryButtonGo = DefaultControls.CreateButton(resources);
+        carVehicleDataEntryButtonGo.name = "CarVehicleDataEntryButton";
+        SetupChildRect(carVehicleDataEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text carVehicleDataEntryButtonText = carVehicleDataEntryButtonGo.GetComponentInChildren<Text>();
+        if (carVehicleDataEntryButtonText != null)
+        {
+            carVehicleDataEntryButtonText.text = CarVehicleDataMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -448,6 +471,8 @@ public static class ControlStateStartUIBuilder
             threatHighRiskSecurityEventEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_threatLocalAlertTestEntryButton").objectReferenceValue =
             threatLocalAlertTestEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_carVehicleDataEntryButton").objectReferenceValue =
+            carVehicleDataEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
