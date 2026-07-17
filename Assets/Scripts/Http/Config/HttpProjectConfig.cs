@@ -86,6 +86,22 @@ public static class HttpProjectConfig
 
 
 
+    /// <summary>车辆态势：目标车辆各零部件防护状态。</summary>
+
+    public const string PartProtectionStatusPath =
+
+        "/business/bigScreen/vehiclePosture/partProtectionStatus";
+
+
+
+    /// <summary>车辆态势：攻击链路（平铺零部件节点 + 攻击边）。</summary>
+
+    public const string AttackChainPath =
+
+        "/business/bigScreen/vehiclePosture/attackChain";
+
+
+
     /// <summary>HTTPS 测试环境告警详情接口路径。</summary>
 
     public const string SecurityEventDetailPath = "/api/business/event/getSecurityEventDetail";
