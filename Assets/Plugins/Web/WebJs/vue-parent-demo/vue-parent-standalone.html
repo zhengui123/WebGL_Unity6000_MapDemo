@@ -292,6 +292,7 @@
         setBigScreenAutoCarouselEnabled: (enabled) => callUnity('SetBigScreenAutoCarouselEnabled', JSON.stringify({ enabled })),
         pauseGame: () => callUnity('PauseGame', ''),
         resumeGame: () => callUnity('ResumeGame', ''),
+        closeCarUI: () => callUnity('CloseCarUI', ''),
       };
     }
 

@@ -141,6 +141,7 @@ handlers: {
 | `SetBigScreenAutoCarouselEnabled` | `{"enabled":bool}` | `SetBigScreenAutoCarouselEnabled(string)` | `SetBigScreenAutoCarouselEnabled` | ✅ |
 | `PauseGame` | `""` | `PauseGame()` | `PauseGame` | ✅ |
 | `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
+| `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
 
 #### TransitionToControlState 请求 JSON
 

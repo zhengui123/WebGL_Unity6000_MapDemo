@@ -572,6 +572,21 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(ResumeGame), "已恢复");
     }
 
+    /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
+    public void CloseCarUI()
+    {
+        NotifyHostCommunicationReceived(nameof(CloseCarUI), string.Empty);
+        LogCommunication("← Host", nameof(CloseCarUI), string.Empty);
+
+        if (!MapApi.Instance.CloseCarVehicleDataUi())
+        {
+            Debug.LogWarning("[WebGLAPI] CloseCarUI 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(CloseCarUI), "已关闭");
+    }
+
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;

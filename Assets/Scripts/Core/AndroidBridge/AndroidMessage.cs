@@ -623,6 +623,15 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。
+    /// UnitySendMessage("AndroidBridge", "CloseCarUI", "");
+    /// </summary>
+    public void CloseCarUI()
+    {
+        MapApi.Instance.CloseCarVehicleDataUi();
+    }
+
+    /// <summary>
     /// Android 调用：设置车辆 Y 轴旋转角度。
     /// UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
     /// json 示例：{"yawAngle":90.0,"instant":false}

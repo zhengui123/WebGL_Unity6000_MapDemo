@@ -1,10 +1,9 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
 /// 车辆态势数据控制：同参并发请求防护状态 + 攻击链路，全部成功后覆盖缓存；
-/// 若当前已在车辆级，则 OpenCarUI（起点=首个 unprotectedParts.partTypeName）并刷新 MessageListPanel。
+/// 若当前已在车辆级，则通知 CarPanelManager 基于缓存打开车辆 UI 并开始轮播消息面板。
 /// </summary>
 [DisallowMultipleComponent]
 public class CarVehicleDataController : MonoBehaviour
@@ -42,7 +41,6 @@ public class CarVehicleDataController : MonoBehaviour
     private string _activeStartTime;
     private string _activeEndTime;
     private Action<bool, string> _onBatchCompleted;
-
     public bool IsRequesting => _isRequesting;
     public CarVehicleDataStore Store => CarVehicleDataStore.Instance;
 
@@ -223,7 +221,7 @@ public class CarVehicleDataController : MonoBehaviour
     }
 
     /// <summary>
-    /// 已在车辆级时：OpenCarUI(首个 unprotected partTypeName) 并刷新 MessageListPanel。
+    /// 已在车辆级时：通知 CarPanelManager 基于缓存打开车辆 UI，并轮播消息面板。
     /// </summary>
     public bool TryShowVehicleUiFromCache()
     {
@@ -245,47 +243,18 @@ public class CarVehicleDataController : MonoBehaviour
             return false;
         }
 
-        PartProtectionStatusPart first = CarVehicleDataStore.Instance.GetFirstUnprotectedPart();
-        string partTypeName = first != null ? first.partTypeName : null;
-        if (string.IsNullOrWhiteSpace(partTypeName))
+        if (CarVehicleDataStore.Instance.BuildPartSlides().Count == 0)
         {
-            Debug.LogWarning("[CarVehicleDataController] 无 unprotectedParts.partTypeName，无法 OpenCarUI。");
+            Debug.LogWarning("[CarVehicleDataController] 无零部件可轮播，无法 OpenCarUI。");
             return false;
         }
 
-        string title = partTypeName.Trim();
-        List<string> eventNames = BuildPendingEventNames(first);
-        bool opened = _carPanelManager.OpenCarUIWithMessageList(
-            title,
-            title,
-            ProtectionStateType.Unprotected,
-            eventNames);
+        bool opened = _carPanelManager.StartPartMessageCarouselFromCache();
+        if (opened)
+        {
+            Debug.Log("[CarVehicleDataController] 已通知 CarPanelManager 开始零部件轮播。");
+        }
 
-        Debug.Log(
-            $"[CarVehicleDataController] OpenCarUI={opened} | start/title={title} | events={eventNames.Count}");
         return opened;
-    }
-
-    private static List<string> BuildPendingEventNames(PartProtectionStatusPart part)
-    {
-        List<string> names = new List<string>(MessageListPanel.MaxMessageCount);
-        if (part?.pendingEvents == null)
-        {
-            return names;
-        }
-
-        int count = Mathf.Min(part.pendingEvents.Length, MessageListPanel.MaxMessageCount);
-        for (int i = 0; i < count; i++)
-        {
-            PartProtectionPendingEvent evt = part.pendingEvents[i];
-            if (evt == null || string.IsNullOrWhiteSpace(evt.eventName))
-            {
-                continue;
-            }
-
-            names.Add(evt.eventName.Trim());
-        }
-
-        return names;
     }
 }

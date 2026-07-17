@@ -100,6 +100,8 @@ public static class CarVehicleDataUIDemoBuilder
             panel.transform, resources, demoUiFont, "ApplyLocalJsonButton", "应用本地JSON", ref y);
         Button showBtn = CreateButton(
             panel.transform, resources, demoUiFont, "ShowUiFromCacheButton", "从缓存打开车辆UI", ref y);
+        Button closeBtn = CreateButton(
+            panel.transform, resources, demoUiFont, "CloseCarUiButton", "关闭车辆UI/停止轮播", ref y);
 
         Text result = CreateLabel(panel.transform, "ResultText", "就绪", demoUiFont, 13f, ref y, 120f);
         result.alignment = TextAnchor.UpperLeft;
@@ -113,6 +115,7 @@ public static class CarVehicleDataUIDemoBuilder
         so.FindProperty("_requestHttpButton").objectReferenceValue = httpBtn;
         so.FindProperty("_applyLocalJsonButton").objectReferenceValue = localBtn;
         so.FindProperty("_showUiFromCacheButton").objectReferenceValue = showBtn;
+        so.FindProperty("_closeCarUiButton").objectReferenceValue = closeBtn;
         so.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         so.FindProperty("_navigator").objectReferenceValue = navigator;
         so.ApplyModifiedPropertiesWithoutUndo();

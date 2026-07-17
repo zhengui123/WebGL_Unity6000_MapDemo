@@ -380,9 +380,28 @@ callUnity('ResumeGame', '');
 
 ---
 
+### 4.6 CloseCarUI
+
+停止零部件防护状态轮播，并关闭车辆 UI / 连线。
 
 
-### 4.6 接口汇总表（父 → Unity）
+| 项目       | 值                              |
+| -------- | ------------------------------ |
+| `method` | `CloseCarUI`                   |
+| `arg`    | `""`                           |
+| Unity 方法 | `WebGLAPI.CloseCarUI()`        |
+| MapApi   | `CloseCarVehicleDataUi()` / `CloseCarUI()` |
+
+
+```javascript
+callUnity('CloseCarUI', '');
+```
+
+---
+
+
+
+### 4.7 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -392,6 +411,7 @@ callUnity('ResumeGame', '');
 | `SetBigScreenAutoCarouselEnabled`  | JSON | ✅    | 大屏轮播开关    |
 | `PauseGame`                        | `""` |      | 暂停游戏      |
 | `ResumeGame`                       | `""` |      | 恢复游戏      |
+| `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。
 

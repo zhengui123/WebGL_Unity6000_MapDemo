@@ -15,6 +15,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
     [SerializeField] private Button _requestHttpButton;
     [SerializeField] private Button _applyLocalJsonButton;
     [SerializeField] private Button _showUiFromCacheButton;
+    [SerializeField] private Button _closeCarUiButton;
     [SerializeField] private Button _backButton;
     [SerializeField] private DemoGameStateUINavigator _navigator;
 
@@ -41,6 +42,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         Bind(_requestHttpButton, OnClickRequestHttp, true);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, true);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, true);
+        Bind(_closeCarUiButton, OnClickCloseCarUi, true);
         Bind(_backButton, OnBackClicked, true);
     }
 
@@ -49,6 +51,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         Bind(_requestHttpButton, OnClickRequestHttp, false);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, false);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, false);
+        Bind(_closeCarUiButton, OnClickCloseCarUi, false);
         Bind(_backButton, OnBackClicked, false);
     }
 
@@ -100,7 +103,8 @@ public class CarVehicleDataUIDemo : MonoBehaviour
 
         PartProtectionStatusPart first = CarVehicleDataStore.Instance.GetFirstUnprotectedPart();
         string name = first != null ? first.partTypeName : "-";
-        SetResult($"本地 JSON 已应用 | title/start3D={name} | 若已在车辆级将 OpenCarUI");
+        int slideCount = CarVehicleDataStore.Instance.BuildPartSlides().Count;
+        SetResult($"本地 JSON 已应用 | first={name} | slides={slideCount} | 车辆级将轮播面板");
     }
 
     private void OnClickShowUiFromCache()
@@ -119,7 +123,13 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         }
 
         bool shown = _controller.TryShowVehicleUiFromCache();
-        SetResult(shown ? "已尝试 OpenCarUI + MessageListPanel" : "未展示（非车辆级或缺少 partTypeName）");
+        SetResult(shown ? "已 OpenCarUI + 零部件轮播（切换时先关再开）" : "未展示（非车辆级或无零部件）");
+    }
+
+    private void OnClickCloseCarUi()
+    {
+        bool closed = MapApi.Instance != null && MapApi.Instance.CloseCarVehicleDataUi();
+        SetResult(closed ? "已停止轮播并关闭车辆 UI" : "关闭失败（无 CarPanelManager）");
     }
 
     private void OnBackClicked()

@@ -140,7 +140,7 @@ public class MapApi : UnitySingle<MapApi>
         manager.OpenCarUI(start3DObjectName);
     }
 
-    /// <summary>关闭车辆 UI 与连线（仅 VehicleLevel 生效）。</summary>
+    /// <summary>关闭车辆 UI 与连线（仅 VehicleLevel 生效）；同时停止零部件轮播。</summary>
     public void CloseCarUI()
     {
         CarPanelManager manager = CarPanelManager.Instance;
@@ -151,6 +151,20 @@ public class MapApi : UnitySingle<MapApi>
         }
 
         manager.CloseCarUI();
+    }
+
+    /// <summary>停止零部件轮播并关闭车辆 UI。</summary>
+    public bool CloseCarVehicleDataUi()
+    {
+        CarPanelManager manager = CarPanelManager.Instance;
+        if (manager != null)
+        {
+            manager.CloseCarUI();
+            return true;
+        }
+
+        CloseCarUI();
+        return false;
     }
 
     /// <summary>正播：车辆 → 零件过渡。</summary>
