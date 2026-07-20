@@ -5,14 +5,24 @@ using UnityEngine;
 
 /// <summary>
 /// 威胁告警流程协程宿主：先瞬时回到国家级 → 国家 10s → 取最新达标第一条省 → 省 60s → Vin/下钻预留 → 回国家再评估。
+/// 处理中若数据再次入库：只刷新当前阶段画面，不重入流程。
 /// 场景中挂一个即可（可用 <see cref="UnitySingle{T}"/> 自动查找）。
 /// </summary>
 public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 {
+    private enum ThreatVisualStage
+    {
+        None = 0,
+        CountryHold = 1,
+        ProvinceHold = 2,
+    }
+
     private Coroutine _flowRoutine;
     private bool _skipCurrentHold;
     private bool _vehicleStageFinished;
     private bool _provinceFocusSignal;
+    private ThreatVisualStage _visualStage = ThreatVisualStage.None;
+    private string _activeProvinceCode;
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
@@ -70,6 +80,59 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _vehicleStageFinished = true;
     }
 
+    /// <summary>
+    /// 数据已刷新时：按当前阶段重绘 POI/高亮，不重启流程。
+    /// 国家停留若已无达标省，会跳过剩余停留以便尽快结束。
+    /// </summary>
+    public void RefreshVisualsFromCache()
+    {
+        if (_flowRoutine == null)
+        {
+            return;
+        }
+
+        HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
+        switch (_visualStage)
+        {
+            case ThreatVisualStage.CountryHold:
+            {
+                IReadOnlyList<string> qualified = store.GetProvincesMeetingThreshold(
+                    ThreatAlertSettings.EventsPerProvinceThreshold);
+                ApplyCountryStageVisuals(qualified);
+                if (qualified == null || qualified.Count == 0)
+                {
+                    Debug.Log("[ThreatAlertFlowRunner] 数据刷新后无达标省，跳过国家停留剩余时间。");
+                    _skipCurrentHold = true;
+                }
+
+                break;
+            }
+            case ThreatVisualStage.ProvinceHold:
+            {
+                if (string.IsNullOrWhiteSpace(_activeProvinceCode))
+                {
+                    break;
+                }
+
+                IReadOnlyList<HighRiskSecurityEventItem> events =
+                    store.GetEventsByProvince(_activeProvinceCode);
+                ApplyProvinceStageVisuals(_activeProvinceCode, events);
+
+                ThreatProvinceAlertContext context = ThreatProvinceAlertController.CurrentContext;
+                if (context != null &&
+                    string.Equals(context.ProvinceCode, _activeProvinceCode, StringComparison.Ordinal))
+                {
+                    context.Events = events;
+                }
+
+                break;
+            }
+            default:
+                Debug.Log("[ThreatAlertFlowRunner] 数据已刷新，当前非停留阶段，画面待后续步骤使用最新缓存。");
+                break;
+        }
+    }
+
     /// <summary>停止流程并清理 POI/高亮（调试重置）。</summary>
     public void StopAndResetVisuals()
     {
@@ -88,6 +151,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _skipCurrentHold = false;
         _vehicleStageFinished = false;
+        _visualStage = ThreatVisualStage.None;
+        _activeProvinceCode = null;
     }
 
     private IEnumerator ThreatFlowRoutine()
@@ -109,7 +174,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Threat);
 
                 yield return EnsureCountryLevel();
-                yield return PlayCountryStage(qualified);
+                yield return PlayCountryStage();
 
                 // 每次用最新达标列表的第一条（无长期队列）
                 qualified = store.GetProvincesMeetingThreshold(ThreatAlertSettings.EventsPerProvinceThreshold);
@@ -128,6 +193,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
         finally
         {
+            _visualStage = ThreatVisualStage.None;
+            _activeProvinceCode = null;
             _flowRoutine = null;
             ThreatProvinceAlertController.NotifyFlowStopped();
         }
@@ -218,37 +285,22 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         yield return EnsureCountryLevel();
     }
 
-    private IEnumerator PlayCountryStage(IReadOnlyList<string> qualifiedProvinceCodes)
+    private IEnumerator PlayCountryStage()
     {
-        POI_Manager.Instance?.RemoveAllPoi();
+        HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
+        IReadOnlyList<string> qualified = store.GetProvincesMeetingThreshold(
+            ThreatAlertSettings.EventsPerProvinceThreshold);
 
-        List<string> plateNames = new List<string>(qualifiedProvinceCodes.Count);
-        for (int i = 0; i < qualifiedProvinceCodes.Count; i++)
-        {
-            string code = qualifiedProvinceCodes[i];
-            if (!ThreatProvinceCenterLookup.TryGetCenter(code, out double lon, out double lat))
-            {
-                continue;
-            }
-
-            POI_Manager.Instance?.SpawnPoi(code, POIType.provinece_Rad, lon, lat);
-
-            if (PlateMapAPI.Instance != null &&
-                PlateMapAPI.Instance.TryResolvePlateMapName(code, out string plateName) &&
-                !string.IsNullOrWhiteSpace(plateName) &&
-                !plateNames.Contains(plateName))
-            {
-                plateNames.Add(plateName);
-            }
-        }
-
-        PlateMapHighlightController.Instance?.HighlightModulesByName(plateNames);
+        _visualStage = ThreatVisualStage.CountryHold;
+        _activeProvinceCode = null;
+        ApplyCountryStageVisuals(qualified);
 
         Debug.Log(
-            $"[ThreatAlertFlowRunner] 国家阶段：达标省={qualifiedProvinceCodes.Count}，" +
+            $"[ThreatAlertFlowRunner] 国家阶段：达标省={qualified?.Count ?? 0}，" +
             $"停留={ThreatAlertSettings.CountryLevelHoldSeconds:F0}s");
 
         yield return WaitHoldSeconds(ThreatAlertSettings.CountryLevelHoldSeconds);
+        _visualStage = ThreatVisualStage.None;
     }
 
     private IEnumerator PlayProvinceStage(string provinceCode)
@@ -281,14 +333,23 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield return null;
         }
 
-        POI_Manager.Instance?.RemoveAllPoi();
-        SpawnEventPois(provinceCode, events);
+        _visualStage = ThreatVisualStage.ProvinceHold;
+        _activeProvinceCode = provinceCode;
+        // 聚焦完成后用最新缓存绘制（可能在跳转期间已刷新）
+        events = store.GetEventsByProvince(provinceCode);
+        context.Events = events;
+        ApplyProvinceStageVisuals(provinceCode, events);
 
         Debug.Log(
             $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
             $"停留={ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s");
 
         yield return WaitHoldSeconds(ThreatAlertSettings.ProvinceLevelHoldSeconds);
+        _visualStage = ThreatVisualStage.None;
+
+        // 停留结束后再读最新缓存做 Vin 判定
+        events = store.GetEventsByProvince(provinceCode);
+        context.Events = events;
 
         // —— Vin≥3：预留进车辆大屏 ——
         if (TryFindVinMeetingThreshold(events, out string targetVin))
@@ -325,8 +386,50 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         Debug.Log("[ThreatAlertFlowRunner][预留] 威胁下钻钩子已触发，等待后续指令；本次直接继续返回国家。");
 
         ThreatProvinceAlertController.NotifyProvinceAlertCompleted(context);
+        _activeProvinceCode = null;
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
+    }
+
+    private static void ApplyCountryStageVisuals(IReadOnlyList<string> qualifiedProvinceCodes)
+    {
+        POI_Manager.Instance?.RemoveAllPoi();
+        PlateMapHighlightController.Instance?.ClearHighlight();
+
+        if (qualifiedProvinceCodes == null || qualifiedProvinceCodes.Count == 0)
+        {
+            return;
+        }
+
+        List<string> plateNames = new List<string>(qualifiedProvinceCodes.Count);
+        for (int i = 0; i < qualifiedProvinceCodes.Count; i++)
+        {
+            string code = qualifiedProvinceCodes[i];
+            if (!ThreatProvinceCenterLookup.TryGetCenter(code, out double lon, out double lat))
+            {
+                continue;
+            }
+
+            POI_Manager.Instance?.SpawnPoi(code, POIType.provinece_Rad, lon, lat);
+
+            if (PlateMapAPI.Instance != null &&
+                PlateMapAPI.Instance.TryResolvePlateMapName(code, out string plateName) &&
+                !string.IsNullOrWhiteSpace(plateName) &&
+                !plateNames.Contains(plateName))
+            {
+                plateNames.Add(plateName);
+            }
+        }
+
+        PlateMapHighlightController.Instance?.HighlightModulesByName(plateNames);
+    }
+
+    private static void ApplyProvinceStageVisuals(
+        string provinceCode,
+        IReadOnlyList<HighRiskSecurityEventItem> events)
+    {
+        POI_Manager.Instance?.RemoveAllPoi();
+        SpawnEventPois(provinceCode, events);
     }
 
     private static void SpawnEventPois(string provinceCode, IReadOnlyList<HighRiskSecurityEventItem> events)

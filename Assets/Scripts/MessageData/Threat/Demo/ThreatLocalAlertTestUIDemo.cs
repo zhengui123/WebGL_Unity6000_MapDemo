@@ -109,8 +109,10 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     private void InjectJson(string json, string label)
     {
         EnsureFlowRunnerExists();
-        ThreatProvinceAlertController.ResetProcessingState();
 
+        bool wasProcessing = ThreatProvinceAlertController.IsProcessing;
+
+        // 不在此 Reset：处理中只刷新数据与画面；空闲才由 Evaluate 启动新流程。
         if (!HighRiskSecurityEventApi.TryParseAndStoreResponse(json, out _, out string error))
         {
             RefreshStatus($"注入失败（{label}）：{error}");
@@ -118,7 +120,10 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
             return;
         }
 
-        RefreshStatus($"已注入 {label}，已触发告警评估。可用「跳过停留」加快 10s/60s。");
+        string mode = wasProcessing
+            ? "处理中已刷新数据/画面（未重入流程）"
+            : "空闲已触发告警评估并启动流程";
+        RefreshStatus($"已注入 {label}，{mode}。可用「跳过停留」加快 10s/60s。");
         RefreshResultList();
     }
 

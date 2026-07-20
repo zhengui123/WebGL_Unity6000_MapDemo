@@ -30,18 +30,29 @@ public static class ThreatProvinceAlertController
     public static event Action AllProvinceAlertsCompleted;
 
     /// <summary>
-    /// 数据入库后评估是否触发告警；流程进行中忽略。
+    /// 数据入库后评估是否触发告警。
+    /// 处理中：仅刷新当前阶段画面，不重新进入流程；空闲且达标：启动流程。
     /// </summary>
     public static void EvaluateAfterDataUpdated()
     {
-        if (IsProcessing)
-        {
-            return;
-        }
-
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
         IReadOnlyList<string> qualifiedProvinces = store.GetProvincesMeetingThreshold(
             ThreatAlertSettings.EventsPerProvinceThreshold);
+
+        if (IsProcessing)
+        {
+            ThreatAlertFlowRunner running = ThreatAlertFlowRunner.Instance;
+            if (running != null)
+            {
+                running.RefreshVisualsFromCache();
+            }
+
+            Debug.Log(
+                "[ThreatProvinceAlertController] 威胁处理中，仅刷新数据与当前阶段画面，不重新进入流程。" +
+                $" 达标省数={qualifiedProvinces?.Count ?? 0}");
+            return;
+        }
+
         if (qualifiedProvinces == null || qualifiedProvinces.Count == 0)
         {
             GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
