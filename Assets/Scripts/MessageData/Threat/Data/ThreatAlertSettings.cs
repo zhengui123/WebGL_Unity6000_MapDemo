@@ -14,4 +14,7 @@ public static class ThreatAlertSettings
 
     /// <summary>省级停留秒数。</summary>
     public const float ProvinceLevelHoldSeconds = 60f;
+
+    /// <summary>车辆级别停留秒数（Vin≥3 下钻后）；可被 Runner Inspector 覆盖。</summary>
+    public const float VehicleLevelHoldSeconds = 10f;
 }

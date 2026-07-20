@@ -190,7 +190,9 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void HandleVehicleEntryRequested(string vin)
     {
-        RefreshStatus($"[预留] 请求车辆大屏 vin={vin}（可之后接真实过渡）");
+        RefreshStatus(
+            $"同Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle} → 车辆大屏 | vin={vin} | " +
+            $"停留≈{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s 后回国家");
         Debug.Log($"[ThreatLocalAlertTestUIDemo] ThreatVehicleEntryRequested vin={vin}");
     }
 
@@ -213,7 +215,10 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         builder.AppendLine($"排除 eventId 数={ThreatExcludedEventIdStore.Count}");
         builder.AppendLine($"缓存事件总数={store?.Count ?? 0}");
         builder.AppendLine($"阈值≥{ThreatAlertSettings.EventsPerProvinceThreshold}，同Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle}");
-        builder.AppendLine($"停留：国家{ThreatAlertSettings.CountryLevelHoldSeconds:F0}s / 省{ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s");
+        builder.AppendLine(
+            $"停留：国家{ThreatAlertSettings.CountryLevelHoldSeconds:F0}s / " +
+            $"省{ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s / " +
+            $"车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s");
         builder.AppendLine("--- 分省 ---");
 
         if (store != null)
