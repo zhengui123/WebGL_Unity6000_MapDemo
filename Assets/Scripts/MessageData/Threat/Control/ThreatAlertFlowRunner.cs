@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// 威胁告警流程协程宿主：国家 10s → 取最新达标第一条省 → 省 60s → Vin/下钻预留 → 回国家再评估。
+/// 威胁告警流程协程宿主：先瞬时回到国家级 → 国家 10s → 取最新达标第一条省 → 省 60s → Vin/下钻预留 → 回国家再评估。
 /// 场景中挂一个即可（可用 <see cref="UnitySingle{T}"/> 自动查找）。
 /// </summary>
 public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
@@ -12,9 +12,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private Coroutine _flowRoutine;
     private bool _skipCurrentHold;
     private bool _vehicleStageFinished;
-    private bool _plateMapReadySignal;
     private bool _provinceFocusSignal;
-    private bool _restoreCountrySignal;
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
@@ -33,9 +31,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return;
         }
 
-        em.OnTransitionToPlateMapCompleted += HandlePlateMapReady;
         em.OnPlateMapFocusModuleCompleted += HandleProvinceFocusCompleted;
-        em.OnPlateMapRestoreCameraCompleted += HandleRestoreCountryCompleted;
     }
 
     private void OnDisable()
@@ -46,9 +42,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return;
         }
 
-        em.OnTransitionToPlateMapCompleted -= HandlePlateMapReady;
         em.OnPlateMapFocusModuleCompleted -= HandleProvinceFocusCompleted;
-        em.OnPlateMapRestoreCameraCompleted -= HandleRestoreCountryCompleted;
         StopFlowInternal();
     }
 
@@ -139,6 +133,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
+    /// <summary>
+    /// 若不在国家级：经层级控制器瞬时逐步跳回 CountryLevel，完成后再继续威胁逻辑。
+    /// </summary>
     private IEnumerator EnsureCountryLevel()
     {
         GameManager gm = GameManager.Instance;
@@ -152,34 +149,18 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
-        if (gm.CurrentState == GameManager.ControlState.ProvinceLevel)
+        ControlStateHierarchyTransitionController hierarchy =
+            ControlStateHierarchyTransitionController.Instance;
+        if (hierarchy == null)
         {
-            yield return EnsureCountryLevelFromProvince();
+            Debug.LogWarning(
+                "[ThreatAlertFlowRunner] 未找到 ControlStateHierarchyTransitionController，无法跳回国家级。");
             yield break;
         }
 
-        _plateMapReadySignal = false;
-        gm.SwitchToCountryLevel();
-
-        float timeout = 30f;
-        while (!_plateMapReadySignal && timeout > 0f)
+        while (hierarchy.IsBootstrapping)
         {
-            timeout -= Time.deltaTime;
             yield return null;
-        }
-
-        if (!_plateMapReadySignal)
-        {
-            Debug.LogWarning("[ThreatAlertFlowRunner] 等待进入国家级别超时，继续尝试后续步骤。");
-        }
-    }
-
-    private IEnumerator EnsureCountryLevelFromProvince()
-    {
-        GameManager gm = GameManager.Instance;
-        if (gm == null)
-        {
-            yield break;
         }
 
         if (gm.CurrentState == GameManager.ControlState.CountryLevel)
@@ -187,21 +168,54 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
-        if (gm.CurrentState != GameManager.ControlState.ProvinceLevel)
+        GameManager.ControlState from = gm.CurrentState;
+        bool started = hierarchy.TransitionToState(
+            useInstantTransition: true,
+            targetState: GameManager.ControlState.CountryLevel);
+        if (!started)
         {
-            yield return EnsureCountryLevel();
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 从 {from} 瞬时跳转国家级失败。");
             yield break;
         }
 
-        _restoreCountrySignal = false;
-        gm.RestoreToCountryLevelFromProvince();
+        Debug.Log($"[ThreatAlertFlowRunner] 瞬时跳转回国家级：{from} → CountryLevel");
 
-        float timeout = 30f;
-        while (!_restoreCountrySignal && timeout > 0f)
+        const float bootstrapStartTimeoutSeconds = 3f;
+        float elapsed = 0f;
+        while (!hierarchy.IsBootstrapping && elapsed < bootstrapStartTimeoutSeconds)
         {
-            timeout -= Time.deltaTime;
+            elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
+
+        while (hierarchy.IsBootstrapping)
+        {
+            yield return null;
+        }
+
+        while (ControlStateHierarchyTransitionController.IsAnyTransitionAnimationBusy())
+        {
+            yield return null;
+        }
+
+        float confirmTimeout = 5f;
+        while (gm.CurrentState != GameManager.ControlState.CountryLevel && confirmTimeout > 0f)
+        {
+            confirmTimeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (gm.CurrentState != GameManager.ControlState.CountryLevel)
+        {
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 跳转后仍非国家级：{gm.CurrentState}，继续尝试后续步骤。");
+        }
+    }
+
+    /// <summary>省阶段结束后回国家：与任意级别回国家同一套瞬时层级跳转。</summary>
+    private IEnumerator EnsureCountryLevelFromProvince()
+    {
+        yield return EnsureCountryLevel();
     }
 
     private IEnumerator PlayCountryStage(IReadOnlyList<string> qualifiedProvinceCodes)
@@ -387,18 +401,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         Debug.Log("[ThreatAlertFlowRunner] 无达标省，GameManager → Default。");
     }
 
-    private void HandlePlateMapReady()
-    {
-        _plateMapReadySignal = true;
-    }
-
     private void HandleProvinceFocusCompleted(string _)
     {
         _provinceFocusSignal = true;
-    }
-
-    private void HandleRestoreCountryCompleted()
-    {
-        _restoreCountrySignal = true;
     }
 }
