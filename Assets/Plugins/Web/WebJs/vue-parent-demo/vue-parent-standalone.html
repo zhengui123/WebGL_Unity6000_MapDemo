@@ -293,6 +293,10 @@
         pauseGame: () => callUnity('PauseGame', ''),
         resumeGame: () => callUnity('ResumeGame', ''),
         closeCarUI: () => callUnity('CloseCarUI', ''),
+        requestCarVehicleData: (p) => callUnity(
+          'RequestCarVehicleData',
+          p == null || p === '' ? '' : (typeof p === 'string' ? p : JSON.stringify(p))
+        ),
       };
     }
 

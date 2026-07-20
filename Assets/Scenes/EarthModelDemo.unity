@@ -2759,7 +2759,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-06-20 23:00:00
@@ -22494,6 +22494,7 @@ MonoBehaviour:
   gridLine: {fileID: 314520385}
   _defaultStart3DObjectName: IDC
   _messageListPanel: {fileID: 2061291004}
+  _partDisplaySeconds: 5
 --- !u!1 &330953570
 GameObject:
   m_ObjectHideFlags: 0
@@ -78038,7 +78039,6 @@ MonoBehaviour:
   _defaultEncryptVin: ed49f47afa23e45b18d342767495643c
   _defaultStartTime: 
   _defaultEndTime: 2026-06-30 23:00:00
-  _partDisplaySeconds: 5
 --- !u!114 &1170429586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -80156,7 +80156,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-06-30 23:00:00

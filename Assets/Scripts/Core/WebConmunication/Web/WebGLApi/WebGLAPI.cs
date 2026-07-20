@@ -587,6 +587,47 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(CloseCarUI), "已关闭");
     }
 
+    /// <summary>
+    /// 宿主调用：请求车辆态势双接口（防护状态 + 攻击链路）。
+    /// arg 可传 "" 使用默认参数，或 JSON：
+    /// {"encryptVin":"...","startTime":"","endTime":"2026-06-30 23:00:00"}
+    /// </summary>
+    public void RequestCarVehicleData(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(RequestCarVehicleData), json);
+        LogCommunication("← Host", nameof(RequestCarVehicleData), json);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            if (!MapApi.Instance.RequestCarVehicleData())
+            {
+                Debug.LogWarning("[WebGLAPI] RequestCarVehicleData 失败（默认参数）。");
+                return;
+            }
+
+            LogCommunication("← Host", nameof(RequestCarVehicleData), "已发起（默认参数）");
+            return;
+        }
+
+        PartProtectionStatusRequest request = JsonUtility.FromJson<PartProtectionStatusRequest>(json);
+        if (request == null)
+        {
+            Debug.LogWarning($"[WebGLAPI] RequestCarVehicleData: JSON 解析失败 | {json}");
+            return;
+        }
+
+        if (!MapApi.Instance.RequestCarVehicleData(request.encryptVin, request.startTime, request.endTime))
+        {
+            Debug.LogWarning($"[WebGLAPI] RequestCarVehicleData 失败: {json}");
+            return;
+        }
+
+        LogCommunication(
+            "← Host",
+            nameof(RequestCarVehicleData),
+            $"已发起 | vin={request.encryptVin} | start={request.startTime} | end={request.endTime}");
+    }
+
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;

@@ -142,6 +142,7 @@ handlers: {
 | `PauseGame` | `""` | `PauseGame()` | `PauseGame` | ✅ |
 | `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
+| `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
 
 #### TransitionToControlState 请求 JSON
 
@@ -357,6 +358,13 @@ callUnity('TransitionToControlState', '{"targetState":3}');
 callUnity('SetBigScreenAutoCarouselEnabled', '{"enabled":true}');
 callUnity('PauseGame', '');
 callUnity('ResumeGame', '');
+callUnity('RequestCarVehicleData', '');
+callUnity('RequestCarVehicleData', JSON.stringify({
+  encryptVin: 'ed49f47afa23e45b18d342767495643c',
+  startTime: '',
+  endTime: '2026-06-30 23:00:00'
+}));
+callUnity('CloseCarUI', '');
 
 // Unity → 父
 window.addEventListener('message', (e) => {

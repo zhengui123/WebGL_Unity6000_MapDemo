@@ -632,6 +632,39 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：请求车辆态势双接口（防护状态 + 攻击链路）。
+    /// UnitySendMessage("AndroidBridge", "RequestCarVehicleData", json);
+    /// json 可传 "" 使用默认参数；示例：
+    /// {"encryptVin":"ed49f47afa23e45b18d342767495643c","startTime":"","endTime":"2026-06-30 23:00:00"}
+    /// </summary>
+    public void RequestCarVehicleData(string json)
+    {
+        Debug.Log($"[AndroidMessage] RequestCarVehicleData 收到: {json}");
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            if (!MapApi.Instance.RequestCarVehicleData())
+            {
+                Debug.LogWarning("[AndroidMessage] RequestCarVehicleData 失败（默认参数）。");
+            }
+
+            return;
+        }
+
+        PartProtectionStatusRequest request = JsonUtility.FromJson<PartProtectionStatusRequest>(json);
+        if (request == null)
+        {
+            Debug.LogWarning($"[AndroidMessage] RequestCarVehicleData: JSON 解析失败 | {json}");
+            return;
+        }
+
+        if (!MapApi.Instance.RequestCarVehicleData(request.encryptVin, request.startTime, request.endTime))
+        {
+            Debug.LogWarning($"[AndroidMessage] RequestCarVehicleData 失败: {json}");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：设置车辆 Y 轴旋转角度。
     /// UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
     /// json 示例：{"yawAngle":90.0,"instant":false}

@@ -399,9 +399,42 @@ callUnity('CloseCarUI', '');
 
 ---
 
+### 4.7 RequestCarVehicleData
+
+请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
 
-### 4.7 接口汇总表（父 → Unity）
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `RequestCarVehicleData` |
+| `arg`    | `""`（默认参数）或 JSON |
+| Unity 方法 | `WebGLAPI.RequestCarVehicleData(string json)` |
+| MapApi   | `RequestCarVehicleData(encryptVin, startTime, endTime)` |
+
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `encryptVin` | string | 否 | 加密 VIN；空则用 Unity 默认 |
+| `startTime` | string | 否 | 查询开始时间；可空串 |
+| `endTime` | string | 否 | 查询结束时间；空则用 Unity 默认 |
+
+```javascript
+// 使用默认参数
+callUnity('RequestCarVehicleData', '');
+
+// 指定参数
+callUnity('RequestCarVehicleData', JSON.stringify({
+  encryptVin: 'ed49f47afa23e45b18d342767495643c',
+  startTime: '',
+  endTime: '2026-06-30 23:00:00'
+}));
+```
+
+---
+
+
+
+### 4.8 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -412,6 +445,7 @@ callUnity('CloseCarUI', '');
 | `PauseGame`                        | `""` |      | 暂停游戏      |
 | `ResumeGame`                       | `""` |      | 恢复游戏      |
 | `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
+| `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。
 

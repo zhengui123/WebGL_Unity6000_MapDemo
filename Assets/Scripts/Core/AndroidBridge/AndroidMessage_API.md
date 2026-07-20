@@ -121,7 +121,30 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetBigScreenAutoCarouselEnabled",
 
 ---
 
-### 2.5 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.5 `RequestCarVehicleData` — 请求车辆态势数据
+
+同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
+
+```java
+// 使用默认参数
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData", "");
+
+// 指定参数
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
+    "{\"encryptVin\":\"ed49f47afa23e45b18d342767495643c\",\"startTime\":\"\",\"endTime\":\"2026-06-30 23:00:00\"}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `encryptVin` | string | 否 | 加密 VIN；空则用 Unity 默认 |
+| `startTime` | string | 否 | 查询开始时间；可空串 |
+| `endTime` | string | 否 | 查询结束时间；空则用 Unity 默认 |
+
+对应 Unity：`MapApi.RequestCarVehicleData` → `CarVehicleDataController.Request`。
+
+---
+
+### 2.6 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android 侧在正式业务中无需调用本接口。**  
@@ -317,6 +340,8 @@ public void onUnityCarYawRotationChanged(String json) {
 | `TransitionToNextControlState` | `""` | 进入下一级别 |
 | `TransitionToPreviousControlState` | `""` | 返回上一级别 |
 | `SetBigScreenAutoCarouselEnabled` | JSON | 开启/关闭大屏自动轮播 |
+| `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
+| `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
 | `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
 
 ---

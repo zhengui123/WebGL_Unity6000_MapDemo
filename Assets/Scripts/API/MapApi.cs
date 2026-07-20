@@ -167,6 +167,26 @@ public class MapApi : UnitySingle<MapApi>
         return false;
     }
 
+    /// <summary>
+    /// 请求车辆态势双接口（防护状态 + 攻击链路）；均成功后覆盖缓存。
+    /// 参数为空时使用 <see cref="CarVehicleDataController"/> 默认值。
+    /// </summary>
+    public bool RequestCarVehicleData(
+        string encryptVin = null,
+        string startTime = null,
+        string endTime = null)
+    {
+        CarVehicleDataController controller = CarVehicleDataController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 CarVehicleDataController，无法请求车辆态势数据。");
+            return false;
+        }
+
+        controller.Request(encryptVin, startTime, endTime);
+        return true;
+    }
+
     /// <summary>正播：车辆 → 零件过渡。</summary>
     /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
     public bool TransitionVehicleToPart(string partId = null)
