@@ -1,9 +1,6 @@
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -15,50 +12,12 @@ public static class ThreatLocalAlertTestUIDemoBuilder
     public const string MenuLabel = "本地威胁测试";
     public const string UiTitle = "本地威胁测试";
 
-    private const string UiRootName = "--------UI-------------";
-    private const string DemoUiRootName = "DemoGameStateUIRoot";
-    private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const float PanelWidth = 360f;
     private const float BackButtonHeight = 32f;
     private const int DemoTextFontSize = ThreatDemoUiStyle.FontSize;
     private const float ResultScrollHeight = 220f;
 
-    [MenuItem("Tools/Demo/创建本地威胁测试 Demo UI")]
-    public static void CreateStandaloneLocalThreatDemoUi()
-    {
-        if (!TryFindTargetCanvas(out Canvas canvas))
-        {
-            Debug.LogError("[ThreatLocalAlertTestUIDemoBuilder] 场景中未找到 Canvas。");
-            return;
-        }
-
-        EnsureEventSystem();
-        Transform parent = canvas.transform;
-        Transform demoRoot = canvas.transform.Find(DemoUiRootName);
-        if (demoRoot != null)
-        {
-            parent = demoRoot;
-        }
-
-        DestroyExistingPanel(parent);
-        DefaultControls.Resources resources = CreateDefaultUiResources();
-        Font demoFont = LoadDemoUiFont();
-        DemoGameStateUINavigator navigator = parent.GetComponent<DemoGameStateUINavigator>();
-
-        GameObject panel = CreatePanel(
-            parent,
-            resources,
-            ControlStateJumpPanelLayout.CreateDefault(),
-            navigator,
-            demoFont);
-        panel.SetActive(true);
-
-        Undo.RegisterCreatedObjectUndo(panel, "Create Local Threat Test Demo UI");
-        Selection.activeGameObject = panel;
-        EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-        Debug.Log("[ThreatLocalAlertTestUIDemoBuilder] 本地威胁测试 Demo UI 已创建。");
-    }
-
+    /// <summary>由「Tools/Demo/刷新创建全部 Demo UI」统一调用，勿再单独加 MenuItem。</summary>
     public static GameObject CreatePanel(
         Transform parent,
         DefaultControls.Resources resources,
@@ -229,63 +188,6 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         scrollRect.vertical = true;
         scrollRect.movementType = ScrollRect.MovementType.Clamped;
         return scrollRect;
-    }
-
-    private static void DestroyExistingPanel(Transform parent)
-    {
-        Transform existing = parent.Find(PanelName);
-        if (existing != null)
-        {
-            Object.DestroyImmediate(existing.gameObject);
-        }
-    }
-
-    private static bool TryFindTargetCanvas(out Canvas canvas)
-    {
-        GameObject uiRoot = GameObject.Find(UiRootName);
-        if (uiRoot != null)
-        {
-            canvas = uiRoot.GetComponentInChildren<Canvas>(true);
-            if (canvas != null)
-            {
-                return true;
-            }
-        }
-
-        canvas = Object.FindFirstObjectByType<Canvas>();
-        return canvas != null;
-    }
-
-    private static void EnsureEventSystem()
-    {
-        if (Object.FindFirstObjectByType<EventSystem>() != null)
-        {
-            return;
-        }
-
-        GameObject eventSystem = new GameObject("EventSystem");
-        eventSystem.AddComponent<EventSystem>();
-        eventSystem.AddComponent<StandaloneInputModule>();
-    }
-
-    private static Font LoadDemoUiFont()
-    {
-        Font font = AssetDatabase.LoadAssetAtPath<Font>(DemoUiFontPath);
-        return font != null ? font : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-    }
-
-    private static DefaultControls.Resources CreateDefaultUiResources()
-    {
-        return new DefaultControls.Resources
-        {
-            standard = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"),
-            background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd"),
-            inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd"),
-            knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd"),
-            checkmark = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd"),
-            dropdown = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd"),
-            mask = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UIMask.psd"),
-        };
     }
 
     private static void ApplyPanelLayout(RectTransform panelRect, ControlStateJumpPanelLayout.RectLayoutData layout)

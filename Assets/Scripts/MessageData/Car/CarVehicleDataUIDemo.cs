@@ -21,11 +21,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
 
     private void Awake()
     {
-        if (_controller == null)
-        {
-            _controller = GetComponent<CarVehicleDataController>();
-        }
-
+        // Controller 挂在场景 Manager 下，不挂在本 Demo 面板上。
         if (_controller == null)
         {
             _controller = CarVehicleDataController.Instance;

@@ -2,8 +2,8 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 车辆态势数据控制：同参并发请求防护状态 + 攻击链路，全部成功后覆盖缓存；
-/// 若当前已在车辆级，则通知 CarPanelManager 基于缓存打开车辆 UI 并开始轮播消息面板。
+/// 车辆态势数据控制：同参并发请求防护状态 + 攻击链路，全部成功后覆盖缓存。
+/// 已在车辆级时立即开 UI 轮播；非车辆级时仅缓存，由 CarPanelManager 在进入车辆级后重启轮播。
 /// </summary>
 [DisallowMultipleComponent]
 public class CarVehicleDataController : MonoBehaviour
@@ -41,6 +41,7 @@ public class CarVehicleDataController : MonoBehaviour
     private string _activeStartTime;
     private string _activeEndTime;
     private Action<bool, string> _onBatchCompleted;
+
     public bool IsRequesting => _isRequesting;
     public CarVehicleDataStore Store => CarVehicleDataStore.Instance;
 
@@ -139,8 +140,7 @@ public class CarVehicleDataController : MonoBehaviour
         string end = string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime.Trim();
 
         CarVehicleDataStore.Instance.Replace(vin, start, end, partProtection, attackChain);
-        TryShowVehicleUiFromCache();
-        CacheAppliedAndUiMaybeShown?.Invoke();
+        OnCacheApplied();
         return true;
     }
 
@@ -214,21 +214,37 @@ public class CarVehicleDataController : MonoBehaviour
             _pendingPartResponse,
             _pendingAttackResponse);
 
-        TryShowVehicleUiFromCache();
-        CacheAppliedAndUiMaybeShown?.Invoke();
+        OnCacheApplied();
         _onBatchCompleted?.Invoke(true, null);
         _onBatchCompleted = null;
     }
 
     /// <summary>
-    /// 已在车辆级时：通知 CarPanelManager 基于缓存打开车辆 UI，并轮播消息面板。
+    /// 缓存写入后：车辆级立即轮播；非车辆级由 CarPanelManager 在进入车辆级时重启。
+    /// </summary>
+    private void OnCacheApplied()
+    {
+        bool shown = TryShowVehicleUiFromCache();
+        CacheAppliedAndUiMaybeShown?.Invoke();
+
+        if (!shown && HasCarouselCache())
+        {
+            Debug.Log("[CarVehicleDataController] 数据已缓存，待进入 VehicleLevel 后自动轮播。");
+        }
+    }
+
+    /// <summary>
+    /// 已在车辆级且有缓存时：通知 CarPanelManager 打开 UI 并重启零部件轮播。
     /// </summary>
     public bool TryShowVehicleUiFromCache()
     {
-        GameManager gm = GameManager.Instance;
-        if (gm == null || gm.CurrentState != GameManager.ControlState.VehicleLevel)
+        if (!HasCarouselCache())
         {
-            Debug.Log("[CarVehicleDataController] 当前非 VehicleLevel，仅缓存数据不弹窗。");
+            return false;
+        }
+
+        if (!IsVehicleLevel())
+        {
             return false;
         }
 
@@ -243,18 +259,24 @@ public class CarVehicleDataController : MonoBehaviour
             return false;
         }
 
-        if (CarVehicleDataStore.Instance.BuildPartSlides().Count == 0)
-        {
-            Debug.LogWarning("[CarVehicleDataController] 无零部件可轮播，无法 OpenCarUI。");
-            return false;
-        }
-
         bool opened = _carPanelManager.StartPartMessageCarouselFromCache();
         if (opened)
         {
-            Debug.Log("[CarVehicleDataController] 已通知 CarPanelManager 开始零部件轮播。");
+            Debug.Log("[CarVehicleDataController] 已通知 CarPanelManager 开始/重启零部件轮播。");
         }
 
         return opened;
+    }
+
+    private static bool HasCarouselCache()
+    {
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        return store.HasCache && store.BuildPartSlides().Count > 0;
+    }
+
+    private static bool IsVehicleLevel()
+    {
+        GameManager gm = GameManager.Instance;
+        return gm != null && gm.CurrentState == GameManager.ControlState.VehicleLevel;
     }
 }

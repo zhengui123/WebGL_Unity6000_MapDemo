@@ -133,7 +133,11 @@ public static class ControlStateStartUIBuilder
         CarVehicleDataPanelName,
     };
 
-    [MenuItem("Tools/Demo/创建操控状态跳转 UI")]
+    /// <summary>
+    /// 唯一 Demo 入口：销毁并重建全部 Demo UI（含各业务子面板）。
+    /// 新 Demo 只需提供 CreatePanel，并在本方法中注册，不要再单独加 MenuItem。
+    /// </summary>
+    [MenuItem("Tools/Demo/刷新创建全部 Demo UI")]
     public static void CreateControlStateJumpUI()
     {
         if (!TryFindTargetCanvas(out Canvas canvas))
@@ -289,10 +293,10 @@ public static class ControlStateStartUIBuilder
         httpJsonResultBar.SetActive(false);
         httpJsonCopyBar.SetActive(false);
 
-        Undo.RegisterCreatedObjectUndo(uiRoot, "Create Demo GameState UI");
+        Undo.RegisterCreatedObjectUndo(uiRoot, "刷新创建全部 Demo UI");
         Selection.activeGameObject = uiRoot;
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-        Debug.Log($"[ControlStateStartUIBuilder] 已在 {UiRootName}/Canvas 下创建 {UiRootObjectName}。");
+        Debug.Log($"[ControlStateStartUIBuilder] 已刷新创建全部 Demo UI：{UiRootName}/Canvas/{UiRootObjectName}。");
     }
 
     private static GameObject CreateMenuPanel(

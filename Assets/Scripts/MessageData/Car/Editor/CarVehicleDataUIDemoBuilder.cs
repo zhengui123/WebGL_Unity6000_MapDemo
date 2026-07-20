@@ -1,9 +1,6 @@
 #if UNITY_EDITOR
 using UnityEditor;
-using UnityEditor.SceneManagement;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -15,53 +12,12 @@ public static class CarVehicleDataUIDemoBuilder
     public const string MenuLabel = "车辆态势数据测试";
     public const string UiTitle = "车辆态势数据测试";
 
-    private const string DemoUiRootName = "DemoGameStateUIRoot";
-    private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
-    private const float PanelWidth = 360f;
+    private const string ManagerRootName = "--------Manager-------------";
+    private const string ControllerObjectName = "CarVehicleDataController";
     private const float BackButtonHeight = 32f;
+    private const int InputFieldTextFontSize = 10;
 
-    [MenuItem("Tools/Demo/创建车辆态势数据测试 Demo UI")]
-    public static void CreateStandaloneDemoUi()
-    {
-        Canvas canvas = Object.FindFirstObjectByType<Canvas>();
-        if (canvas == null)
-        {
-            Debug.LogError("[CarVehicleDataUIDemoBuilder] 场景中未找到 Canvas。");
-            return;
-        }
-
-        EnsureEventSystem();
-        Transform parent = canvas.transform;
-        Transform demoRoot = canvas.transform.Find(DemoUiRootName);
-        if (demoRoot != null)
-        {
-            parent = demoRoot;
-        }
-
-        Transform existing = parent.Find(PanelName);
-        if (existing != null)
-        {
-            Undo.DestroyObjectImmediate(existing.gameObject);
-        }
-
-        DefaultControls.Resources resources = CreateUiResources();
-        Font font = AssetDatabase.LoadAssetAtPath<Font>(DemoUiFontPath);
-        DemoGameStateUINavigator navigator = parent.GetComponent<DemoGameStateUINavigator>();
-
-        GameObject panel = CreatePanel(
-            parent,
-            resources,
-            ControlStateJumpPanelLayout.CreateDefault(),
-            navigator,
-            font);
-        panel.SetActive(true);
-
-        Undo.RegisterCreatedObjectUndo(panel, "Create Car Vehicle Data Test Panel");
-        Selection.activeGameObject = panel;
-        EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-        Debug.Log("[CarVehicleDataUIDemoBuilder] 车辆态势数据测试 Demo UI 已创建。");
-    }
-
+    /// <summary>由「Tools/Demo/刷新创建全部 Demo UI」统一调用，勿再单独加 MenuItem。</summary>
     public static GameObject CreatePanel(
         Transform parent,
         DefaultControls.Resources resources,
@@ -75,8 +31,14 @@ public static class CarVehicleDataUIDemoBuilder
         ApplyPanelLayout(panelRect, layout);
         panel.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.55f);
 
-        CarVehicleDataController controller = panel.AddComponent<CarVehicleDataController>();
         CarVehicleDataUIDemo demo = panel.AddComponent<CarVehicleDataUIDemo>();
+        CarVehicleDataController controller = FindSceneCarVehicleDataController();
+        if (controller == null)
+        {
+            Debug.LogWarning(
+                $"[CarVehicleDataUIDemoBuilder] 未在场景 {ManagerRootName}/{ControllerObjectName} 找到 CarVehicleDataController，" +
+                "请先在该节点挂载脚本；Demo 面板将仅保留 UI。");
+        }
 
         float y = -12f;
         GameObject backButtonGo = DefaultControls.CreateButton(resources);
@@ -170,14 +132,40 @@ public static class CarVehicleDataUIDemoBuilder
             placeholder.font = font;
         }
 
-        if (field.textComponent != null && font != null)
+        if (field.textComponent != null)
         {
-            field.textComponent.font = font;
-            field.textComponent.fontSize = 13;
+            if (font != null)
+            {
+                field.textComponent.font = font;
+            }
+
+            field.textComponent.fontSize = InputFieldTextFontSize;
         }
 
         y -= 36f;
         return field;
+    }
+
+    /// <summary>仅查找场景 Manager 下的 Controller，不创建。</summary>
+    private static CarVehicleDataController FindSceneCarVehicleDataController()
+    {
+        GameObject managerRoot = GameObject.Find(ManagerRootName);
+        if (managerRoot == null)
+        {
+            return Object.FindFirstObjectByType<CarVehicleDataController>(FindObjectsInactive.Include);
+        }
+
+        Transform controllerTransform = managerRoot.transform.Find(ControllerObjectName);
+        if (controllerTransform != null)
+        {
+            CarVehicleDataController onChild = controllerTransform.GetComponent<CarVehicleDataController>();
+            if (onChild != null)
+            {
+                return onChild;
+            }
+        }
+
+        return managerRoot.GetComponentInChildren<CarVehicleDataController>(true);
     }
 
     private static Button CreateButton(
@@ -238,31 +226,6 @@ public static class CarVehicleDataUIDemoBuilder
         rect.pivot = new Vector2(0f, 1f);
         rect.anchoredPosition = new Vector2(x, y);
         rect.sizeDelta = new Vector2(width, height);
-    }
-
-    private static DefaultControls.Resources CreateUiResources()
-    {
-        return new DefaultControls.Resources
-        {
-            standard = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UISprite.psd"),
-            background = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Background.psd"),
-            inputField = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/InputFieldBackground.psd"),
-            knob = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Knob.psd"),
-            checkmark = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd"),
-            dropdown = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd"),
-            mask = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/UIMask.psd"),
-        };
-    }
-
-    private static void EnsureEventSystem()
-    {
-        if (Object.FindFirstObjectByType<EventSystem>() != null)
-        {
-            return;
-        }
-
-        GameObject es = new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
-        Undo.RegisterCreatedObjectUndo(es, "Create EventSystem");
     }
 }
 #endif

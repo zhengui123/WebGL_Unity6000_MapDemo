@@ -19,6 +19,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private string _currentStart3DObjectName;
     private Coroutine _partCarouselCoroutine;
+    private Coroutine _restartCarouselCoroutine;
     private List<CarVehiclePartSlide> _activeSlides;
     private int _carouselIndex;
     private System.Action _pendingCloseCallback;
@@ -50,6 +51,8 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         em.OnPlateToVehicleViewTransitionCompleted += HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted += HandleEnteredVehicleLevelForCarousel;
+        em.OnAttackPathToVehicleTransitionCompleted += HandleEnteredVehicleLevelFromAttackPathForCarousel;
         em.OnVehicleToPlateViewTransitionStarted += HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted += HandleVehicleToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted += HandleVehicleToAttackPathTransitionStarted;
@@ -64,9 +67,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         em.OnPlateToVehicleViewTransitionCompleted -= HandlePlateToVehicleViewTransitionCompleted;
+        em.OnVehicleToPartTransitionReverseCompleted -= HandleEnteredVehicleLevelForCarousel;
+        em.OnAttackPathToVehicleTransitionCompleted -= HandleEnteredVehicleLevelFromAttackPathForCarousel;
         em.OnVehicleToPlateViewTransitionStarted -= HandleVehicleToPlateViewTransitionStarted;
         em.OnVehicleToPartTransitionStarted -= HandleVehicleToPartTransitionStarted;
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
+
+        CancelRestartCarouselCoroutine();
     }
 
     public void Update()
@@ -285,6 +292,60 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
     {
         OpenCarPanel();
+        TryRestartCarouselFromCacheDeferred("省→车辆");
+    }
+
+    private void HandleEnteredVehicleLevelForCarousel(string partName)
+    {
+        TryRestartCarouselFromCacheDeferred("零件→车辆");
+    }
+
+    private void HandleEnteredVehicleLevelFromAttackPathForCarousel()
+    {
+        TryRestartCarouselFromCacheDeferred("攻击路径→车辆");
+    }
+
+    /// <summary>进入车辆级且有缓存时，延迟重启轮播（等待 GameManager 状态同步）。</summary>
+    private void TryRestartCarouselFromCacheDeferred(string source)
+    {
+        if (!HasCarouselCache())
+        {
+            return;
+        }
+
+        CancelRestartCarouselCoroutine();
+        _restartCarouselCoroutine = StartCoroutine(RestartCarouselWhenReady(source));
+    }
+
+    private IEnumerator RestartCarouselWhenReady(string source)
+    {
+        yield return null;
+        _restartCarouselCoroutine = null;
+
+        if (!HasCarouselCache() || !IsVehicleLevel())
+        {
+            yield break;
+        }
+
+        if (StartPartMessageCarouselFromCache())
+        {
+            Debug.Log($"[CarPanelManager] 进入 VehicleLevel 后已重启轮播 | source={source}");
+        }
+    }
+
+    private void CancelRestartCarouselCoroutine()
+    {
+        if (_restartCarouselCoroutine != null)
+        {
+            StopCoroutine(_restartCarouselCoroutine);
+            _restartCarouselCoroutine = null;
+        }
+    }
+
+    private static bool HasCarouselCache()
+    {
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        return store.HasCache && store.BuildPartSlides().Count > 0;
     }
 
     private void HandleVehicleToPlateViewTransitionStarted(string provinceName)
