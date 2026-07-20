@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// 攻击路径播放：沿路点移动 <see cref="TrailRenderer"/> 线条，到达终点后驱动材质贴图 Offset X 动画。
+/// 攻击路径：使用 <see cref="LineRenderer"/> 绘制折线，通过材质贴图 Offset 实现滚动效果。
 /// 支持通过 <see cref="Add"/> 同时显示多条「起点零件 → 终点零件」连线。
 /// </summary>
 public class AttackPathController : MonoBehaviour
@@ -16,19 +16,23 @@ public class AttackPathController : MonoBehaviour
     [SerializeField] private Transform _pathLocalRoot;
     [Tooltip("零件名对照来源；留空则运行时自动查找")]
     [SerializeField] private GridLine _gridLine;
-    [Tooltip("沿路径移动速度（世界单位/秒）")]
+    [Tooltip("滚动动画基准速度（世界单位/秒）；Play Mode 下修改 Inspector 会实时刷新正在播放的线条")]
     [SerializeField] private float _speed = 8f;
     [Tooltip("勾选后路径首尾相连（闭合路径）")]
     [SerializeField] private bool _closePath;
-    [Tooltip("勾选后 DOPath 动画循环播放")]
+    [Tooltip("勾选后贴图 Offset 动画循环播放")]
     [SerializeField] private bool _loopAnimation;
 
-    [Header("到达终点贴图动画")]
-    [Tooltip("留空则从 TrailRenderer 材质获取并实例化")]
+    [Header("线条样式")]
+    [Tooltip("LineRenderer 线宽（widthMultiplier）；Play Mode 下修改会实时生效")]
+    [SerializeField] private float _lineWidth = 0.26f;
+
+    [Header("材质滚动动画")]
+    [Tooltip("留空则从 LineRenderer 材质获取并实例化")]
     [SerializeField] private Material _lineMaterial;
-    [Tooltip("到达终点后贴图 MainTex Offset X 的增量")]
-    [SerializeField] private float _endTextureOffsetX = 100f;
-    [Tooltip("Offset X 增速 = 移动速度 × 该系数")]
+    [Tooltip("单次滚动 MainTex Offset X 的增量；Play Mode 下可实时调整")]
+    [SerializeField] private float _endTextureOffsetX = 1f;
+    [Tooltip("Offset 增速 = 基准速度 × 该系数；Play Mode 下可实时调整")]
     [SerializeField] private float _endOffsetSpeedCoefficient = 1f;
 
     private readonly List<LineInstance> _addedLines = new List<LineInstance>();
@@ -38,12 +42,13 @@ public class AttackPathController : MonoBehaviour
     private sealed class LineInstance
     {
         public Transform LineTransform;
-        public TrailRenderer TrailRenderer;
+        public LineRenderer LineRenderer;
         public Material RuntimeMaterial;
-        public Tween PathTween;
-        public Tween OffsetTween;
-        public float CurrentPlaySpeed;
+        public Tween MaterialTween;
         public bool IsTemplate;
+        public List<Vector3> LocalPath;
+        public float PathLength;
+        public bool HasActivePath;
     }
 
     private void Awake()
@@ -60,7 +65,6 @@ public class AttackPathController : MonoBehaviour
         }
     }
 
-    /// <summary>组件禁用时停止路径与贴图动画并隐藏线条。</summary>
     private void OnDisable()
     {
         if (IsClonedLineObject())
@@ -71,17 +75,127 @@ public class AttackPathController : MonoBehaviour
         StopPath();
     }
 
-    /// <summary>停止路径与贴图动画并隐藏所有线条（供外部过渡控制器调用）。</summary>
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        if (IsClonedLineObject())
+        {
+            return;
+        }
+
+        _lineWidth = Mathf.Max(0.001f, _lineWidth);
+        ApplyLineWidthToAllInstances();
+
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        RefreshMaterialScrollAnimations();
+    }
+#endif
+
+    /// <summary>当前滚动速度（Inspector / 代码均可改，改后会刷新正在播放的线条）。</summary>
+    public float ScrollSpeed
+    {
+        get => _speed;
+        set => ApplyMaterialScrollSettings(speed: value);
+    }
+
+    /// <summary>单次滚动 MainTex Offset X 增量。</summary>
+    public float ScrollTextureOffsetX
+    {
+        get => _endTextureOffsetX;
+        set => ApplyMaterialScrollSettings(textureOffsetX: value);
+    }
+
+    /// <summary>Offset 增速系数。</summary>
+    public float ScrollOffsetSpeedCoefficient
+    {
+        get => _endOffsetSpeedCoefficient;
+        set => ApplyMaterialScrollSettings(offsetSpeedCoefficient: value);
+    }
+
+    /// <summary>是否循环滚动。</summary>
+    public bool ScrollLoopAnimation
+    {
+        get => _loopAnimation;
+        set => ApplyMaterialScrollSettings(loopAnimation: value);
+    }
+
+    /// <summary>线条宽度。</summary>
+    public float LineWidth
+    {
+        get => _lineWidth;
+        set => ApplyLineWidth(value);
+    }
+
+    /// <summary>更新线宽并应用到所有活跃线条。</summary>
+    public void ApplyLineWidth(float width)
+    {
+        _lineWidth = Mathf.Max(0.001f, width);
+        ApplyLineWidthToAllInstances();
+    }
+
+    /// <summary>
+    /// 更新材质滚动参数并立即刷新所有正在显示的线条动画。
+    /// </summary>
+    public void ApplyMaterialScrollSettings(
+        float? speed = null,
+        float? textureOffsetX = null,
+        float? offsetSpeedCoefficient = null,
+        bool? loopAnimation = null)
+    {
+        if (speed.HasValue)
+        {
+            _speed = Mathf.Max(0.01f, speed.Value);
+        }
+
+        if (textureOffsetX.HasValue)
+        {
+            _endTextureOffsetX = Mathf.Max(0f, textureOffsetX.Value);
+        }
+
+        if (offsetSpeedCoefficient.HasValue)
+        {
+            _endOffsetSpeedCoefficient = Mathf.Max(0.01f, offsetSpeedCoefficient.Value);
+        }
+
+        if (loopAnimation.HasValue)
+        {
+            _loopAnimation = loopAnimation.Value;
+        }
+
+        if (Application.isPlaying)
+        {
+            RefreshMaterialScrollAnimations();
+        }
+    }
+
+    /// <summary>按当前 Inspector / 属性值，重播所有活跃线条的材质滚动动画。</summary>
+    public void RefreshMaterialScrollAnimations()
+    {
+        if (!Application.isPlaying || IsClonedLineObject())
+        {
+            return;
+        }
+
+        ApplyLineWidthToAllInstances();
+        RefreshLineInstanceScroll(_legacyLine);
+        for (int i = 0; i < _addedLines.Count; i++)
+        {
+            RefreshLineInstanceScroll(_addedLines[i]);
+        }
+    }
+
+    /// <summary>停止材质动画并隐藏所有线条（供外部过渡控制器调用）。</summary>
     public void StopPath()
     {
         KillLineInstance(_legacyLine);
         ClearLines();
     }
 
-    /// <summary>
-    /// 按零件名添加一条起点→终点攻击路径；可同时存在多条。
-    /// 零件名与 <see cref="GridLine"/> 中 start3DObjectName 一致。
-    /// </summary>
+    /// <summary>按零件名添加一条起点→终点攻击路径；可同时存在多条。</summary>
     public bool Add(string startPartName, string endPartName)
     {
         if (string.IsNullOrWhiteSpace(startPartName) || string.IsNullOrWhiteSpace(endPartName))
@@ -152,9 +266,7 @@ public class AttackPathController : MonoBehaviour
         return added;
     }
 
-    /// <summary>
-    /// 使用指定路点 Transform 列表播放攻击路径（兼容旧逻辑，会清空 Add 创建的连线）。
-    /// </summary>
+    /// <summary>使用指定路点 Transform 列表播放攻击路径（兼容旧逻辑，会清空 Add 创建的连线）。</summary>
     public void PlayPath(
         List<Transform> waypoints,
         float? speed = null,
@@ -166,7 +278,7 @@ public class AttackPathController : MonoBehaviour
         PlayPathOnInstance(_legacyLine, waypoints, settings);
     }
 
-    /// <summary>使用世界坐标路点列表播放攻击路径（内部会转换到路径本地空间）。</summary>
+    /// <summary>使用世界坐标路点列表播放攻击路径。</summary>
     public void PlayPath(
         List<Vector3> pathPositions,
         float? speed = null,
@@ -191,7 +303,6 @@ public class AttackPathController : MonoBehaviour
         PlayPathOnInstance(instance, BuildPathFromTransforms(waypoints, settings.ClosePath), settings);
     }
 
-    /// <summary>合并本次播放参数：可空入参优先，否则回退到 Inspector 字段。</summary>
     private PlayPathSettings ResolvePlayPathSettings(float? speed, bool? closePath, bool? loopAnimation)
     {
         return new PlayPathSettings
@@ -202,7 +313,6 @@ public class AttackPathController : MonoBehaviour
         };
     }
 
-    /// <summary>单次播放运行时参数（不修改 Inspector 序列化字段）。</summary>
     private struct PlayPathSettings
     {
         public float Speed;
@@ -210,16 +320,14 @@ public class AttackPathController : MonoBehaviour
         public bool LoopAnimation;
     }
 
-    /// <summary>
-    /// 核心播放逻辑：隐藏复位 → 瞬移起点 → DOPath 移动 → 非循环时在终点触发贴图 Offset 动画。
-    /// </summary>
+    /// <summary>设置 LineRenderer 顶点并启动材质 Offset 滚动。</summary>
     private void PlayPathOnInstance(LineInstance instance, List<Vector3> path, PlayPathSettings settings)
     {
         KillLineInstance(instance, hideLine: false);
-        instance.CurrentPlaySpeed = settings.Speed;
 
         Transform pathLocalSpace = PathLocalSpace;
         if (instance.LineTransform == null
+            || instance.LineRenderer == null
             || pathLocalSpace == null
             || path == null
             || path.Count < 2
@@ -229,9 +337,9 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        SetLineVisible(instance, false);
-        instance.LineTransform.localPosition = path[0];
-        ClearTrailRenderer(instance);
+        instance.LineTransform.localPosition = Vector3.zero;
+        instance.LineTransform.localRotation = Quaternion.identity;
+        ConfigureLineRenderer(instance, path);
         ResetTextureOffset(instance);
         SetLineVisible(instance, true);
 
@@ -242,21 +350,73 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        float duration = pathLength / settings.Speed;
-        Tweener pathTween = instance.LineTransform
-            .DOLocalPath(path.ToArray(), duration, PathType.Linear)
+        StartMaterialScrollAnimation(instance, settings, pathLength);
+        instance.LocalPath = new List<Vector3>(path);
+        instance.PathLength = pathLength;
+        instance.HasActivePath = true;
+    }
+
+    private void RefreshLineInstanceScroll(LineInstance instance)
+    {
+        if (instance == null
+            || !instance.HasActivePath
+            || instance.LocalPath == null
+            || instance.LocalPath.Count < 2
+            || instance.PathLength <= 0f)
+        {
+            return;
+        }
+
+        PlayPathSettings settings = ResolvePlayPathSettings(null, null, null);
+        ResetTextureOffset(instance);
+        StartMaterialScrollAnimation(instance, settings, instance.PathLength);
+    }
+
+    private void StartMaterialScrollAnimation(LineInstance instance, PlayPathSettings settings, float pathLength)
+    {
+        if (_endTextureOffsetX <= 0f || _endOffsetSpeedCoefficient <= 0f)
+        {
+            return;
+        }
+
+        Material material = GetOrCreateRuntimeMaterial(instance);
+        if (material == null)
+        {
+            return;
+        }
+
+        float offsetSpeed = settings.Speed * _endOffsetSpeedCoefficient;
+        float duration = pathLength / offsetSpeed;
+        if (duration <= 0f)
+        {
+            duration = _endTextureOffsetX / offsetSpeed;
+        }
+
+        Vector2 startOffset = material.mainTextureOffset;
+        Vector2 targetOffset = new Vector2(startOffset.x + _endTextureOffsetX, startOffset.y);
+
+        instance.MaterialTween?.Kill();
+        Tweener tween = material
+            .DOOffset(targetOffset, duration)
             .SetEase(Ease.Linear);
 
         if (settings.LoopAnimation)
         {
-            pathTween.SetLoops(-1, LoopType.Restart);
-        }
-        else
-        {
-            pathTween.OnComplete(() => PlayEndTextureOffsetAnimation(instance));
+            tween.SetLoops(-1, LoopType.Restart);
         }
 
-        instance.PathTween = pathTween;
+        instance.MaterialTween = tween;
+    }
+
+    private static void ConfigureLineRenderer(LineInstance instance, IReadOnlyList<Vector3> localPath)
+    {
+        LineRenderer lineRenderer = instance.LineRenderer;
+        lineRenderer.useWorldSpace = false;
+        lineRenderer.positionCount = localPath.Count;
+        for (int i = 0; i < localPath.Count; i++)
+        {
+            lineRenderer.SetPosition(i, localPath[i]);
+        }
     }
 
     private GridLine ResolveGridLine()
@@ -296,16 +456,68 @@ public class AttackPathController : MonoBehaviour
         return instance;
     }
 
-    private static LineInstance CreateLineInstance(GameObject lineObject, bool isTemplate)
+    private LineInstance CreateLineInstance(GameObject lineObject, bool isTemplate)
     {
         Transform lineTransform = lineObject.transform;
-        TrailRenderer trailRenderer = lineObject.GetComponentInChildren<TrailRenderer>(true);
+        LineRenderer lineRenderer = EnsureLineRenderer(lineObject);
         return new LineInstance
         {
             LineTransform = lineTransform,
-            TrailRenderer = trailRenderer,
+            LineRenderer = lineRenderer,
             IsTemplate = isTemplate
         };
+    }
+
+    private LineRenderer EnsureLineRenderer(GameObject lineObject)
+    {
+        LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
+        if (lineRenderer == null)
+        {
+            Debug.LogError("[AttackPathController] AttackPathLine 缺少 LineRenderer 组件。");
+            return null;
+        }
+
+        ConfigureLineRendererDefaults(lineRenderer);
+        ApplyLineWidthToRenderer(lineRenderer);
+        return lineRenderer;
+    }
+
+    private void ConfigureLineRendererDefaults(LineRenderer lineRenderer)
+    {
+        lineRenderer.useWorldSpace = false;
+        lineRenderer.textureMode = LineTextureMode.Tile;
+        lineRenderer.numCornerVertices = 4;
+        lineRenderer.numCapVertices = 4;
+        lineRenderer.alignment = LineAlignment.View;
+    }
+
+    private void ApplyLineWidthToRenderer(LineRenderer lineRenderer)
+    {
+        if (lineRenderer == null)
+        {
+            return;
+        }
+
+        lineRenderer.widthMultiplier = _lineWidth;
+    }
+
+    private void ApplyLineWidthToAllInstances()
+    {
+        ApplyLineWidthToRenderer(_legacyLine?.LineRenderer);
+        if (_legacyLine?.LineTransform != null && _legacyLine.LineRenderer == null)
+        {
+            ApplyLineWidthToRenderer(_legacyLine.LineTransform.GetComponent<LineRenderer>());
+        }
+
+        for (int i = 0; i < _addedLines.Count; i++)
+        {
+            ApplyLineWidthToRenderer(_addedLines[i]?.LineRenderer);
+        }
+
+        if (_lineTransform != null)
+        {
+            ApplyLineWidthToRenderer(_lineTransform.GetComponent<LineRenderer>());
+        }
     }
 
     private void DestroyLineInstance(LineInstance instance)
@@ -330,19 +542,20 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        if (instance.PathTween != null && instance.PathTween.IsActive())
+        if (instance.MaterialTween != null && instance.MaterialTween.IsActive())
         {
-            instance.PathTween.Kill();
+            instance.MaterialTween.Kill();
         }
 
-        if (instance.OffsetTween != null && instance.OffsetTween.IsActive())
-        {
-            instance.OffsetTween.Kill();
-        }
+        instance.MaterialTween = null;
+        instance.HasActivePath = false;
+        instance.LocalPath = null;
+        instance.PathLength = 0f;
 
-        instance.PathTween = null;
-        instance.OffsetTween = null;
-        ClearTrailRenderer(instance);
+        if (instance.LineRenderer != null)
+        {
+            instance.LineRenderer.positionCount = 0;
+        }
 
         if (hideLine)
         {
@@ -350,7 +563,6 @@ public class AttackPathController : MonoBehaviour
         }
     }
 
-    /// <summary>路径本地坐标参照：优先 <see cref="_pathLocalRoot"/>，否则为 <see cref="_lineTransform"/> 的父节点。</summary>
     private Transform PathLocalSpace
     {
         get
@@ -364,14 +576,12 @@ public class AttackPathController : MonoBehaviour
         }
     }
 
-    /// <summary>将世界坐标路点转换到路径本地空间。</summary>
     private Vector3 WorldToPathLocal(Vector3 worldPosition)
     {
         Transform pathLocalSpace = PathLocalSpace;
         return pathLocalSpace != null ? pathLocalSpace.InverseTransformPoint(worldPosition) : worldPosition;
     }
 
-    /// <summary>从 Transform 路点构建本地坐标路径，并按需闭合首尾。</summary>
     private List<Vector3> BuildPathFromTransforms(List<Transform> waypoints, bool closePath)
     {
         if (waypoints == null)
@@ -387,7 +597,6 @@ public class AttackPathController : MonoBehaviour
         return ApplyClosePathIfNeeded(path, closePath);
     }
 
-    /// <summary>将世界坐标路点转换到本地空间后构建路径。</summary>
     private List<Vector3> BuildPathFromPositions(List<Vector3> pathPositions, bool closePath)
     {
         if (pathPositions == null || pathPositions.Count == 0)
@@ -404,7 +613,6 @@ public class AttackPathController : MonoBehaviour
         return ApplyClosePathIfNeeded(path, closePath);
     }
 
-    /// <summary>若 <paramref name="closePath"/> 为 true，在路径末尾追加起点坐标形成闭合。</summary>
     private static List<Vector3> ApplyClosePathIfNeeded(List<Vector3> path, bool closePath)
     {
         if (closePath && path.Count > 0)
@@ -415,32 +623,6 @@ public class AttackPathController : MonoBehaviour
         return path;
     }
 
-    /// <summary>到达终点后：MainTex Offset X 按「速度 × 系数」逐渐增加。</summary>
-    private void PlayEndTextureOffsetAnimation(LineInstance instance)
-    {
-        if (_endTextureOffsetX <= 0f || _endOffsetSpeedCoefficient <= 0f || instance.CurrentPlaySpeed <= 0f)
-        {
-            return;
-        }
-
-        Material material = GetOrCreateRuntimeMaterial(instance);
-        if (material == null)
-        {
-            return;
-        }
-
-        float offsetSpeed = instance.CurrentPlaySpeed * _endOffsetSpeedCoefficient;
-        float duration = _endTextureOffsetX / offsetSpeed;
-        Vector2 startOffset = material.mainTextureOffset;
-        Vector2 targetOffset = new Vector2(startOffset.x + _endTextureOffsetX, startOffset.y);
-
-        instance.OffsetTween?.Kill();
-        instance.OffsetTween = material
-            .DOOffset(targetOffset, duration)
-            .SetEase(Ease.Linear);
-    }
-
-    /// <summary>将运行时材质 MainTex Offset X 重置为 0（保留 Y）。</summary>
     private void ResetTextureOffset(LineInstance instance)
     {
         Material material = GetOrCreateRuntimeMaterial(instance);
@@ -453,7 +635,6 @@ public class AttackPathController : MonoBehaviour
         material.mainTextureOffset = new Vector2(0f, offset.y);
     }
 
-    /// <summary>获取或创建运行时材质实例，并绑定到 <see cref="TrailRenderer"/>。</summary>
     private Material GetOrCreateRuntimeMaterial(LineInstance instance)
     {
         if (instance.RuntimeMaterial != null)
@@ -465,24 +646,23 @@ public class AttackPathController : MonoBehaviour
         {
             instance.RuntimeMaterial = Instantiate(_lineMaterial);
         }
-        else if (instance.TrailRenderer != null)
+        else if (instance.LineRenderer != null)
         {
-            instance.RuntimeMaterial = instance.TrailRenderer.material;
+            instance.RuntimeMaterial = instance.LineRenderer.material;
         }
         else
         {
             return null;
         }
 
-        if (instance.TrailRenderer != null)
+        if (instance.LineRenderer != null)
         {
-            instance.TrailRenderer.material = instance.RuntimeMaterial;
+            instance.LineRenderer.material = instance.RuntimeMaterial;
         }
 
         return instance.RuntimeMaterial;
     }
 
-    /// <summary>按世界空间折线长度计算时长（速度仍为世界单位/秒）。</summary>
     private static float CalculatePathWorldLength(IReadOnlyList<Vector3> localPath, Transform localSpace)
     {
         if (localPath == null || localPath.Count < 2 || localSpace == null)
@@ -502,16 +682,6 @@ public class AttackPathController : MonoBehaviour
         return length;
     }
 
-    /// <summary>清空 Trail 历史顶点。</summary>
-    private static void ClearTrailRenderer(LineInstance instance)
-    {
-        if (instance?.TrailRenderer != null)
-        {
-            instance.TrailRenderer.Clear();
-        }
-    }
-
-    /// <summary>显示或隐藏线条根物体。</summary>
     private static void SetLineVisible(LineInstance instance, bool visible)
     {
         if (instance?.LineTransform != null)

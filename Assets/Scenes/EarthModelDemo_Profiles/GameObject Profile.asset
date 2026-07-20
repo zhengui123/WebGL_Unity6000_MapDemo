@@ -89,7 +89,7 @@ MonoBehaviour:
     overrideState: 1
     value: 3
   toneCurveToeStrength:
-    overrideState: 0
+    overrideState: 1
     value: 0
   toneCurveToeLength:
     overrideState: 0

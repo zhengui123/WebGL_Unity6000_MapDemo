@@ -519,12 +519,12 @@ MonoBehaviour:
   _speed: 8
   _closePath: 1
   _loopAnimation: 1
+  _lineWidth: 0.26
   _lineMaterial: {fileID: 0}
   _endTextureOffsetX: 100
   _endOffsetSpeedCoefficient: 1
---- !u!96 &6739105360398776770
-TrailRenderer:
-  serializedVersion: 4
+--- !u!120 &6739105360398776770
+LineRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -571,8 +571,6 @@ TrailRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Time: 2.31
-  m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -581,7 +579,7 @@ TrailRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.26000214
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -621,16 +619,15 @@ TrailRenderer:
       m_ColorSpace: -1
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    numCornerVertices: 0
-    numCapVertices: 0
+    numCornerVertices: 4
+    numCapVertices: 4
     alignment: 0
     textureMode: 1
-    textureScale: {x: 1.21, y: 1}
+    textureScale: {x: 1, y: 1}
     shadowBias: 0.5
-    generateLightingData: 1
-  m_MinVertexDistance: 0.37
-  m_Autodestruct: 0
-  m_Emitting: 1
+    generateLightingData: 0
+  m_UseWorldSpace: 0
+  m_Loop: 0
   m_ApplyActiveColorSpace: 1
 --- !u!1 &2886217606452227845
 GameObject:

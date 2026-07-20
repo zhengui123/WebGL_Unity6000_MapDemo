@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// 攻击路径 Demo：持有路点列表，启用时驱动同物体上的 <see cref="AttackPathController"/> 播放。
+/// 攻击路径 Demo：持有路点列表，启用时驱动同物体上的 <see cref="AttackPathController"/> 播放 LineRenderer 连线。
 /// </summary>
 [DisallowMultipleComponent]
 public class AttackPathDemo : MonoBehaviour
