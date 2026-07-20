@@ -75,7 +75,8 @@ public class CarVehicleDataUIDemo : MonoBehaviour
             PartProtectionStatusPart first = CarVehicleDataStore.Instance.GetFirstUnprotectedPart();
             string name = first != null ? first.partTypeName : "-";
             int events = first != null ? first.PendingEventCount : 0;
-            SetResult($"成功覆盖缓存 | firstUnprotected={name} | pendingEvents={events}");
+            int attackPaths = CarVehicleDataStore.Instance.BuildAttackPathEntries().Count;
+            SetResult($"成功覆盖缓存 | firstUnprotected={name} | pendingEvents={events} | attackPaths={attackPaths}");
         });
     }
 
@@ -100,7 +101,10 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         PartProtectionStatusPart first = CarVehicleDataStore.Instance.GetFirstUnprotectedPart();
         string name = first != null ? first.partTypeName : "-";
         int slideCount = CarVehicleDataStore.Instance.BuildPartSlides().Count;
-        SetResult($"本地 JSON 已应用 | first={name} | slides={slideCount} | 车辆级将轮播面板");
+        int attackPaths = CarVehicleDataStore.Instance.BuildAttackPathEntries().Count;
+        SetResult(
+            $"本地 JSON 已应用 | first={name} | slides={slideCount} | attackPaths={attackPaths} | " +
+            "车辆级轮播/攻击路径级展示");
     }
 
     private void OnClickShowUiFromCache()
@@ -115,6 +119,17 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         if (!CarVehicleDataStore.Instance.HasCache)
         {
             SetResult("无缓存，请先请求或应用本地 JSON。");
+            return;
+        }
+
+        GameManager gm = GameManager.Instance;
+        if (gm != null && gm.CurrentState == GameManager.ControlState.AttackPathLevel)
+        {
+            bool attackShown = _controller.TryShowAttackPathsFromCache();
+            int pathCount = CarVehicleDataStore.Instance.BuildAttackPathEntries().Count;
+            SetResult(attackShown
+                ? $"已加载 {pathCount} 条攻击路径"
+                : "攻击路径未展示（无有效链路或缺少 AttackPathController）");
             return;
         }
 

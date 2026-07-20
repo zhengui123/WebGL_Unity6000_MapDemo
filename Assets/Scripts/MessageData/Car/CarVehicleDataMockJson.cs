@@ -80,7 +80,7 @@ public static class CarVehicleDataMockJson
         "  }\n" +
         "}";
 
-    /// <summary>攻击链路成功响应（最小可用 nodes/links）。</summary>
+    /// <summary>攻击链路成功响应（nodes IP 对照 + 多条 links）。</summary>
     public const string AttackChainSuccessJson =
         "{\n" +
         "  \"code\": 10000,\n" +
@@ -114,9 +114,14 @@ public static class CarVehicleDataMockJson
         "    ],\n" +
         "    \"links\": [\n" +
         "      {\n" +
-        "        \"partType\": \"2\",\n" +
-        "        \"sourceIp\": \"10.0.0.1\",\n" +
+        "        \"partType\": \"4\",\n" +
+        "        \"sourceIp\": \"192.168.1.12\",\n" +
         "        \"targetIp\": \"192.168.1.10\"\n" +
+        "      },\n" +
+        "      {\n" +
+        "        \"partType\": \"2\",\n" +
+        "        \"sourceIp\": \"192.168.1.10\",\n" +
+        "        \"targetIp\": \"192.168.1.11\"\n" +
         "      }\n" +
         "    ]\n" +
         "  }\n" +

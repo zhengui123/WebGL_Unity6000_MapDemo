@@ -74,6 +74,19 @@ public class GridLine : MonoBehaviour
         return binding.EndMessageListPanel;
     }
 
+    /// <summary>按零件名取对应三维 Transform；未找到返回 false。</summary>
+    public bool TryGetPartTransform(string partName, out Transform partTransform)
+    {
+        partTransform = null;
+        if (!TryGetBinding(partName, out GridLineBinding binding))
+        {
+            return false;
+        }
+
+        partTransform = binding.Start3D;
+        return partTransform != null;
+    }
+
     /// <summary>当前激活连线绑定的消息面板。</summary>
     public MessageListPanel ActiveEndMessageListPanel
     {

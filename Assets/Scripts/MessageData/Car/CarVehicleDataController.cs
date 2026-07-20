@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -25,6 +26,7 @@ public class CarVehicleDataController : MonoBehaviour
 
     [Header("引用（可留空，运行时查找）")]
     [SerializeField] private CarPanelManager _carPanelManager;
+    [SerializeField] private AttackPathController _attackPathController;
 
     [Header("请求默认参数")]
     [SerializeField] private string _defaultEncryptVin = PartProtectionStatusRequest.DefaultEncryptVin;
@@ -220,16 +222,22 @@ public class CarVehicleDataController : MonoBehaviour
     }
 
     /// <summary>
-    /// 缓存写入后：车辆级立即轮播；非车辆级由 CarPanelManager 在进入车辆级时重启。
+    /// 缓存写入后：车辆级立即轮播；攻击路径级立即加载链路；否则仅缓存待进入对应级别后展示。
     /// </summary>
     private void OnCacheApplied()
     {
-        bool shown = TryShowVehicleUiFromCache();
+        bool vehicleShown = TryShowVehicleUiFromCache();
+        bool attackShown = TryShowAttackPathsFromCache();
         CacheAppliedAndUiMaybeShown?.Invoke();
 
-        if (!shown && HasCarouselCache())
+        if (!vehicleShown && HasCarouselCache() && !IsVehicleLevel())
         {
-            Debug.Log("[CarVehicleDataController] 数据已缓存，待进入 VehicleLevel 后自动轮播。");
+            Debug.Log("[CarVehicleDataController] 零部件数据已缓存，待进入 VehicleLevel 后自动轮播。");
+        }
+
+        if (!attackShown && HasAttackPathCache() && !IsAttackPathLevel())
+        {
+            Debug.Log("[CarVehicleDataController] 攻击链路数据已缓存，待进入 AttackPathLevel 后自动展示。");
         }
     }
 
@@ -266,6 +274,80 @@ public class CarVehicleDataController : MonoBehaviour
         }
 
         return opened;
+    }
+
+    /// <summary>
+    /// 已在攻击路径级且有攻击链路缓存时：IP 映射为零件名并绘制全部连线。
+    /// </summary>
+    public bool TryShowAttackPathsFromCache()
+    {
+        if (!IsAttackPathLevel())
+        {
+            return false;
+        }
+
+        return ApplyAttackPathsFromCache();
+    }
+
+    /// <summary>
+    /// 车辆→攻击路径过渡完成时调用：不校验级别（此时 GameManager 尚未切到 AttackPathLevel）。
+    /// </summary>
+    public bool ApplyAttackPathsFromCacheForTransition()
+    {
+        return ApplyAttackPathsFromCache();
+    }
+
+    private bool ApplyAttackPathsFromCache()
+    {
+        if (!HasAttackPathCache())
+        {
+            return false;
+        }
+
+        AttackPathController controller = ResolveAttackPathController();
+        if (controller == null)
+        {
+            Debug.LogWarning("[CarVehicleDataController] 未找到 AttackPathController。");
+            return false;
+        }
+
+        List<AttackChainPathEntry> entries = Store.BuildAttackPathEntries();
+        if (entries.Count == 0)
+        {
+            Debug.LogWarning("[CarVehicleDataController] 攻击链路缓存无有效映射条目。");
+            return false;
+        }
+
+        controller.gameObject.SetActive(true);
+        int added = controller.ApplyPartLinks(entries);
+        if (added > 0)
+        {
+            Debug.Log($"[CarVehicleDataController] 已加载 {added} 条攻击路径。");
+        }
+
+        return added > 0;
+    }
+
+    private AttackPathController ResolveAttackPathController()
+    {
+        if (_attackPathController == null)
+        {
+            _attackPathController = FindFirstObjectByType<AttackPathController>(FindObjectsInactive.Include);
+        }
+
+        return _attackPathController;
+    }
+
+    private static bool HasAttackPathCache()
+    {
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        return store.HasCache && store.HasAttackPathEntries();
+    }
+
+    private static bool IsAttackPathLevel()
+    {
+        GameManager gm = GameManager.Instance;
+        return gm != null && gm.CurrentState == GameManager.ControlState.AttackPathLevel;
     }
 
     private static bool HasCarouselCache()

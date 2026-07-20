@@ -71,6 +71,86 @@ public sealed class CarVehicleDataStore
         return slides;
     }
 
+    /// <summary>是否存在可绘制的攻击链路边（links 经 IP 映射后至少一条有效）。</summary>
+    public bool HasAttackPathEntries()
+    {
+        return BuildAttackPathEntries().Count > 0;
+    }
+
+    /// <summary>
+    /// 将攻击链路 links 的 sourceIp / targetIp 转为零件名对（依赖 nodes 中 partsIp 对照）。
+    /// 无法映射的 link 会跳过。
+    /// </summary>
+    public List<AttackChainPathEntry> BuildAttackPathEntries()
+    {
+        List<AttackChainPathEntry> entries = new List<AttackChainPathEntry>();
+        AttackChainData data = AttackChain?.data;
+        if (data?.links == null || data.links.Length == 0)
+        {
+            return entries;
+        }
+
+        Dictionary<string, string> ipToPartName = BuildIpToPartNameMap(data.nodes);
+        for (int i = 0; i < data.links.Length; i++)
+        {
+            AttackChainLink link = data.links[i];
+            if (link == null)
+            {
+                continue;
+            }
+
+            if (!TryResolvePartNameByIp(ipToPartName, link.sourceIp, out string startPartName)
+                || !TryResolvePartNameByIp(ipToPartName, link.targetIp, out string endPartName))
+            {
+                Debug.LogWarning(
+                    $"[CarVehicleDataStore] 跳过无法映射 IP 的攻击链路：{link.sourceIp} → {link.targetIp}");
+                continue;
+            }
+
+            entries.Add(new AttackChainPathEntry(startPartName, endPartName));
+        }
+
+        return entries;
+    }
+
+    private static Dictionary<string, string> BuildIpToPartNameMap(AttackChainNode[] nodes)
+    {
+        Dictionary<string, string> map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        if (nodes == null)
+        {
+            return map;
+        }
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            AttackChainNode node = nodes[i];
+            if (node == null
+                || string.IsNullOrWhiteSpace(node.partsIp)
+                || string.IsNullOrWhiteSpace(node.partTypeName))
+            {
+                continue;
+            }
+
+            map[node.partsIp.Trim()] = node.partTypeName.Trim();
+        }
+
+        return map;
+    }
+
+    private static bool TryResolvePartNameByIp(
+        Dictionary<string, string> ipToPartName,
+        string ip,
+        out string partName)
+    {
+        partName = null;
+        if (string.IsNullOrWhiteSpace(ip) || ipToPartName == null)
+        {
+            return false;
+        }
+
+        return ipToPartName.TryGetValue(ip.Trim(), out partName);
+    }
+
     private static void AppendSlides(
         List<CarVehiclePartSlide> slides,
         PartProtectionStatusPart[] parts,
@@ -117,6 +197,19 @@ public sealed class CarVehicleDataStore
         }
 
         return names;
+    }
+}
+
+/// <summary>攻击链路边经 IP 映射后的起点→终点零件名。</summary>
+public readonly struct AttackChainPathEntry
+{
+    public readonly string StartPartName;
+    public readonly string EndPartName;
+
+    public AttackChainPathEntry(string startPartName, string endPartName)
+    {
+        StartPartName = startPartName;
+        EndPartName = endPartName;
     }
 }
 

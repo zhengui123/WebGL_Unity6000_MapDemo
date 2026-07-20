@@ -21855,6 +21855,14 @@ MonoBehaviour:
     start3D: {fileID: 7499045631105171583}
     startUI: {fileID: 1787088970}
     endUI: {fileID: 2061291004}
+  - start3DObjectName: ADC
+    start3D: {fileID: 1772841886}
+    startUI: {fileID: 1787088970}
+    endUI: {fileID: 2061291004}
+  - start3DObjectName: WG
+    start3D: {fileID: 70070611}
+    startUI: {fileID: 1787088970}
+    endUI: {fileID: 2061291004}
   start3D: {fileID: 8379530433142618740}
   m_EndUI: {fileID: 2061291004}
   _drawDuration: 0.2
@@ -78986,6 +78994,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarVehicleDataController
   _carPanelManager: {fileID: 0}
+  _attackPathController: {fileID: 0}
   _defaultEncryptVin: ed49f47afa23e45b18d342767495643c
   _defaultStartTime: 
   _defaultEndTime: 2026-06-30 23:00:00
@@ -194235,6 +194244,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AttackPathController
   _lineTransform: {fileID: 4504335278739190238}
   _pathLocalRoot: {fileID: 0}
+  _gridLine: {fileID: 0}
   _speed: 8
   _closePath: 1
   _loopAnimation: 1

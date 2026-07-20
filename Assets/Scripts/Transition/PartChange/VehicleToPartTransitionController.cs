@@ -931,7 +931,13 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         controller.gameObject.SetActive(true);
-        controller.PlayPath(_showAttackPath);
+
+        CarVehicleDataController dataController = CarVehicleDataController.Instance;
+        if (dataController == null || !dataController.ApplyAttackPathsFromCacheForTransition())
+        {
+            controller.PlayPath(_showAttackPath);
+        }
+
         EventManager.Instance?.TriggerVehicleToAttackPathTransitionCompleted();
     }
 
