@@ -544,11 +544,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             }
             else
             {
-                yield return RunTimedStep(
-                    $"车辆→零件 {partId}",
-                    TransitionToPartLevelAndWait(partId));
+                bool partToPart = GameManager.Instance != null &&
+                                 GameManager.Instance.CurrentState == GameManager.ControlState.PartLevel;
+                string stepLabel = partToPart ? $"零件→零件 {partId}" : $"车辆→零件 {partId}";
+                yield return RunTimedStep(stepLabel, TransitionToPartLevelAndWait(partId));
             }
 
+            // 零件加载/切换完成后立刻开始停留计时
             _visualStage = ThreatVisualStage.PartHold;
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
             Debug.Log(
@@ -719,14 +721,89 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             $"攻击路径 → 零件 {partId}");
     }
 
+    /// <summary>
+    /// 进入/切换零件：已在零件级监听零件→零件完成；否则监听车辆→零件完成。
+    /// 启动后若未真正过渡（同零件已激活），立刻视为加载完成并开始停留。
+    /// </summary>
     private IEnumerator TransitionToPartLevelAndWait(string partId)
     {
         yield return WaitForTransitionControllersIdle();
-        yield return WaitForBoolStringTransition(
-            h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
-            h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionVehicleToPart(partId),
-            $"车辆 → 零件 {partId}");
+
+        EventManager em = EventManager.Instance;
+        if (em == null || MapApi.Instance == null)
+        {
+            Debug.LogWarning("[ThreatAlertFlowRunner] 无 EventManager/MapApi，跳过零件过渡。");
+            yield break;
+        }
+
+        bool partToPart = GameManager.Instance != null &&
+                          GameManager.Instance.CurrentState == GameManager.ControlState.PartLevel;
+        string stepName = partToPart ? $"零件 → 零件 {partId}" : $"车辆 → 零件 {partId}";
+
+        _transitionStepDone = false;
+        if (partToPart)
+        {
+            em.OnPartToPartTransitionCompleted += OnTransitionStepDoneWithPart;
+        }
+        else
+        {
+            em.OnVehicleToPartTransitionCompleted += OnTransitionStepDoneWithName;
+        }
+
+        bool started = MapApi.Instance.TransitionVehicleToPart(partId);
+        if (!started)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            _lastTransitionSucceeded = false;
+            if (partToPart)
+            {
+                em.OnPartToPartTransitionCompleted -= OnTransitionStepDoneWithPart;
+            }
+            else
+            {
+                em.OnVehicleToPartTransitionCompleted -= OnTransitionStepDoneWithName;
+            }
+
+            yield break;
+        }
+
+        VehicleToPartTransitionController partController = VehicleToPartTransitionController.Instance;
+        // 同零件已激活：PlayTransition 直接返回 true 且不播动画，立刻完成。
+        if (partController != null && !partController.IsTransitioning)
+        {
+            _transitionStepDone = true;
+        }
+
+        float waitStart = Time.unscaledTime;
+        float timeout = 60f;
+        while (!_transitionStepDone && timeout > 0f)
+        {
+            // 动画已结束但事件漏发时，以 IsTransitioning=false 兜底，避免空等 60s。
+            if (partController != null && !partController.IsTransitioning)
+            {
+                yield return null;
+                if (!_transitionStepDone && partController != null && !partController.IsTransitioning)
+                {
+                    _transitionStepDone = true;
+                    break;
+                }
+            }
+
+            timeout -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        _lastTransitionSucceeded = _transitionStepDone;
+        LogTransitionWaitResult(stepName, waitStart, _transitionStepDone);
+
+        if (partToPart)
+        {
+            em.OnPartToPartTransitionCompleted -= OnTransitionStepDoneWithPart;
+        }
+        else
+        {
+            em.OnVehicleToPartTransitionCompleted -= OnTransitionStepDoneWithName;
+        }
     }
 
     private IEnumerator RequestVehicleDataAndWait(string encryptVin)
