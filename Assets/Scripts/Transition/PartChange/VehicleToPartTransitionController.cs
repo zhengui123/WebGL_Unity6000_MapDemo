@@ -39,7 +39,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
     [Header("攻击路径（车辆 ↔ 攻击路径过渡）")]
     [SerializeField] private AttackPathController _attackPathController;
-    [SerializeField] private List<Transform> _showAttackPath = new List<Transform>();
+    [Tooltip("零件显隐数据源（LineBindings.start3D）；留空则运行时查找")]
+    [SerializeField] private GridLine _gridLine;
     [SerializeField] private Transform _attackPathCamera;
     [Tooltip("车辆 → 攻击路径时相机移动到的目标位姿（世界坐标）")]
     [SerializeField] private Transform _attackPathCameraTarget;
@@ -77,7 +78,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public Transform ActivePart => _activePart;
     public string LastPartName => _lastPartName;
     public string LastPartId => _lastPartId;
-    public IReadOnlyList<Transform> ShowAttackPath => _showAttackPath;
     public IReadOnlyList<PartBindingData> ConfiguredPartRoots => _partRoots;
 
     private static VehicleToPartTransitionController _instance;
@@ -107,7 +107,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveAttackPathController();
         CacheAllPartInitialStates();
         StopAndHideAttackPath();
-        ConfigureShowAttackPath(CollectPartTransforms());
+        ShowPartsByNames(null);
     }
 
     private void OnDestroy()
@@ -371,8 +371,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         KillSequence();
         StopAndHideAttackPath();
 
-        // StopAndHideAttackPath 会统一隐藏 _showAttackPath 中物体（当前也包含零件），
-        // 因此必须在它之后再激活参与切换的两个零件，避免切换时“全部消失”。
+        // StopAndHideAttackPath 只停攻击路径线，不影响零件显隐；此处再显式激活切换双方。
         oldPart.gameObject.SetActive(true);
         targetPart.gameObject.SetActive(false);
 
@@ -661,21 +660,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return part.name;
     }
 
-    private List<Transform> CollectPartTransforms()
-    {
-        List<Transform> parts = new List<Transform>(_partRoots.Count);
-        for (int i = 0; i < _partRoots.Count; i++)
-        {
-            Transform part = _partRoots[i].partRoot;
-            if (part != null)
-            {
-                parts.Add(part);
-            }
-        }
-
-        return parts;
-    }
-
     private void NormalizePartBindings()
     {
         if (_partRoots == null)
@@ -716,6 +700,28 @@ public class VehicleToPartTransitionController : MonoBehaviour
     #region 车辆 ↔ 攻击路径过渡
 
     /// <summary>
+    /// 按零件名显示 GridLine.LineBindings 中的 start3D。
+    /// partNames 为 null 或空：显示全部；否则仅显示名单内零件。
+    /// </summary>
+    public void ShowPartsByNames(IReadOnlyList<string> partNames)
+    {
+        GridLine gridLine = ResolveGridLine();
+        if (gridLine == null)
+        {
+            Debug.LogWarning("[VehicleToPart] 未找到 GridLine，无法设置零部件显隐。");
+            return;
+        }
+
+        gridLine.SetPartTransformsVisible(partNames);
+    }
+
+    /// <summary>显示 GridLine 中全部零部件。</summary>
+    public void ShowAllParts()
+    {
+        ShowPartsByNames(null);
+    }
+
+    /// <summary>
     /// 攻击路径 → 零件：先隐藏攻击路径，再播放“车辆 → 零件”两段零件动画（不经过车辆界面）。
     /// </summary>
     /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
@@ -741,36 +747,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return PlayAttackPathToPartTransition(part, normalizedPartId);
     }
 
-    /// <summary>配置用于显示攻击路径的路点 Transform 列表（忽略 null）；配置后默认隐藏路点物体。</summary>
-    public void ConfigureShowAttackPath(IReadOnlyList<Transform> waypoints)
-    {
-        _showAttackPath.Clear();
-        if (waypoints == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < waypoints.Count; i++)
-        {
-            Transform waypoint = waypoints[i];
-            if (waypoint != null)
-            {
-                _showAttackPath.Add(waypoint);
-            }
-        }
-
-        SetShowAttackPathWaypointsActive(false);
-    }
-
-    /// <summary>清空攻击路径路点列表并隐藏原路点物体。</summary>
-    public void ClearShowAttackPath()
-    {
-        SetShowAttackPathWaypointsActive(false);
-        _showAttackPath.Clear();
-    }
-
     /// <summary>
-    /// 车辆 → 攻击路径：过渡开始时显示路点标记，KJ_Car 溶解隐藏后播放攻击路径。
+    /// 车辆 → 攻击路径：KJ_Car 溶解隐藏后加载攻击链路连线，并按 nodes 零件名控制显隐。
     /// </summary>
     public bool PlayVehicleToAttackPathTransition()
     {
@@ -800,7 +778,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         KillSequence();
         RestoreAllPartsToInitialState();
         HideAttackPathControllerImmediate();
-        SetShowAttackPathWaypointsActive(true);
+        ApplyAttackPathPartsVisibilityFromCache();
         _activePart = null;
         CacheAttackPathCameraPose();
 
@@ -814,7 +792,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 攻击路径 → 车辆：停止路径动画并隐藏攻击路径，KJ_Car 溶解显现。
+    /// 攻击路径 → 车辆：停止路径动画并隐藏攻击路径，显示全部零部件，KJ_Car 溶解显现。
     /// </summary>
     public bool PlayAttackPathToVehicleTransition()
     {
@@ -833,6 +811,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         PrepareKjCarDissolve();
         KillSequence();
         StopAndHideAttackPath();
+        ShowAllParts();
         RestoreAllPartsToInitialState();
         ResetCarDragRotation();
         _activePart = null;
@@ -858,33 +837,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return false;
         }
 
-        int validWaypointCount = CountValidWaypoints(_showAttackPath);
-        if (validWaypointCount < 2)
-        {
-            Debug.LogError("[VehicleToAttackPath] showAttackPath 至少需要 2 个有效路点。");
-            return false;
-        }
-
         return true;
-    }
-
-    private static int CountValidWaypoints(IReadOnlyList<Transform> waypoints)
-    {
-        if (waypoints == null)
-        {
-            return 0;
-        }
-
-        int count = 0;
-        for (int i = 0; i < waypoints.Count; i++)
-        {
-            if (waypoints[i] != null)
-            {
-                count++;
-            }
-        }
-
-        return count;
     }
 
     /// <summary>仅播放 KJ_Car 溶解隐藏（与 PlayTransition 前半段车辆部分一致）。</summary>
@@ -925,17 +878,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _kjCarRoot.SetActive(false);
         }
 
-        if (controller == null)
-        {
-            return;
-        }
+        ApplyAttackPathPartsVisibilityFromCache();
 
-        controller.gameObject.SetActive(true);
-
-        CarVehicleDataController dataController = CarVehicleDataController.Instance;
-        if (dataController == null || !dataController.ApplyAttackPathsFromCacheForTransition())
+        if (controller != null)
         {
-            controller.PlayPath(_showAttackPath);
+            controller.gameObject.SetActive(true);
+            CarVehicleDataController dataController = CarVehicleDataController.Instance;
+            if (dataController == null || !dataController.ApplyAttackPathsFromCacheForTransition())
+            {
+                Debug.LogWarning("[VehicleToAttackPath] 无攻击链路缓存或加载失败，跳过连线绘制。");
+            }
         }
 
         EventManager.Instance?.TriggerVehicleToAttackPathTransitionCompleted();
@@ -1007,16 +959,29 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return _attackPathController;
     }
 
-    private void StopAndHideAttackPath()
+    private GridLine ResolveGridLine()
     {
-        SetShowAttackPathWaypointsActive(false);
-        HideAttackPathControllerImmediate();
+        if (_gridLine == null)
+        {
+            _gridLine = FindFirstObjectByType<GridLine>(FindObjectsInactive.Include);
+        }
 
+        return _gridLine;
     }
 
+    /// <summary>进入攻击路径级：按 AttackChainData.nodes 零件名显隐；无名单则显示全部。</summary>
+    private void ApplyAttackPathPartsVisibilityFromCache()
+    {
+        List<string> partNames = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
+        ShowPartsByNames(partNames);
+    }
 
+    private void StopAndHideAttackPath()
+    {
+        HideAttackPathControllerImmediate();
+    }
 
-    /// <summary>仅停止并隐藏攻击路径控制器物体，不影响路点标记显隐。</summary>
+    /// <summary>仅停止并隐藏攻击路径控制器物体，不影响零部件显隐。</summary>
     private void HideAttackPathControllerImmediate()
     {
         AttackPathController controller = ResolveAttackPathController();
@@ -1029,24 +994,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         if (controller.gameObject.activeSelf)
         {
             controller.gameObject.SetActive(false);
-        }
-    }
-
-    /// <summary>统一设置 _showAttackPath 中路点物体的显隐。</summary>
-    private void SetShowAttackPathWaypointsActive(bool active)
-    {
-        if (_showAttackPath == null)
-        {
-            return;
-        }
-
-        for (int i = 0; i < _showAttackPath.Count; i++)
-        {
-            Transform waypoint = _showAttackPath[i];
-            if (waypoint != null)
-            {
-                waypoint.gameObject.SetActive(active);
-            }
         }
     }
 

@@ -87,6 +87,53 @@ public class GridLine : MonoBehaviour
         return partTransform != null;
     }
 
+    /// <summary>
+    /// 按零件名设置 LineBindings 中 start3D 的显隐。
+    /// visiblePartNames 为 null 或空：全部显示；否则仅名单内显示。
+    /// </summary>
+    public void SetPartTransformsVisible(IReadOnlyList<string> visiblePartNames)
+    {
+        if (_bindingCache.Count == 0)
+        {
+            BuildBindingCache();
+        }
+
+        bool showAll = visiblePartNames == null || visiblePartNames.Count == 0;
+        HashSet<string> nameSet = null;
+        if (!showAll)
+        {
+            nameSet = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            for (int i = 0; i < visiblePartNames.Count; i++)
+            {
+                string name = visiblePartNames[i];
+                if (!string.IsNullOrWhiteSpace(name))
+                {
+                    nameSet.Add(name.Trim());
+                }
+            }
+
+            if (nameSet.Count == 0)
+            {
+                showAll = true;
+            }
+        }
+
+        foreach (KeyValuePair<string, GridLineBinding> pair in _bindingCache)
+        {
+            Transform start3D = pair.Value?.Start3D;
+            if (start3D == null)
+            {
+                continue;
+            }
+
+            bool visible = showAll || nameSet.Contains(pair.Key);
+            if (start3D.gameObject.activeSelf != visible)
+            {
+                start3D.gameObject.SetActive(visible);
+            }
+        }
+    }
+
     /// <summary>当前激活连线绑定的消息面板。</summary>
     public MessageListPanel ActiveEndMessageListPanel
     {

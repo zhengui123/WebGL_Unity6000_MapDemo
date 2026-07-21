@@ -325,6 +325,12 @@ public class CarVehicleDataController : MonoBehaviour
             Debug.Log($"[CarVehicleDataController] 已加载 {added} 条攻击路径。");
         }
 
+        VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+        if (transition != null)
+        {
+            transition.ShowPartsByNames(Store.BuildAttackChainNodePartNames());
+        }
+
         return added > 0;
     }
 

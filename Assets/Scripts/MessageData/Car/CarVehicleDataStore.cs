@@ -77,6 +77,35 @@ public sealed class CarVehicleDataStore
         return BuildAttackPathEntries().Count > 0;
     }
 
+    /// <summary>从 AttackChainData.nodes 收集全部零件名（partTypeName）。</summary>
+    public List<string> BuildAttackChainNodePartNames()
+    {
+        List<string> names = new List<string>();
+        AttackChainNode[] nodes = AttackChain?.data?.nodes;
+        if (nodes == null || nodes.Length == 0)
+        {
+            return names;
+        }
+
+        HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            AttackChainNode node = nodes[i];
+            if (node == null || string.IsNullOrWhiteSpace(node.partTypeName))
+            {
+                continue;
+            }
+
+            string name = node.partTypeName.Trim();
+            if (unique.Add(name))
+            {
+                names.Add(name);
+            }
+        }
+
+        return names;
+    }
+
     /// <summary>
     /// 将攻击链路 links 的 sourceIp / targetIp 转为零件名对（依赖 nodes 中 partsIp 对照）。
     /// 无法映射的 link 会跳过。

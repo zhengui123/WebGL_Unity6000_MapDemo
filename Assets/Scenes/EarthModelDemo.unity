@@ -80652,8 +80652,8 @@ MonoBehaviour:
   _kjDissolveDuration: 1.5
   _kjDissolveEase: 7
   _dissolveNoiseScale: 12
-  _attackPathController: {fileID: 4425666108067810529}
-  _showAttackPath: []
+  _attackPathController: {fileID: 0}
+  _gridLine: {fileID: 0}
   _attackPathCamera: {fileID: 0}
   _attackPathCameraTarget: {fileID: 784622256}
   _attackPathCameraMoveDuration: 1.2
@@ -199362,7 +199362,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c4e9a1b2d3f4056a8b9c0d1e2f30456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AttackPathDemo
-  _attackPathController: {fileID: 4425666108067810529}
+  _attackPathController: {fileID: 0}
   _waypoints:
   - {fileID: 8379530433142618740}
   - {fileID: 2304905186093475792}
