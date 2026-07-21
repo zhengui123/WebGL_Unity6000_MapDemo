@@ -17,4 +17,10 @@ public static class ThreatAlertSettings
 
     /// <summary>车辆级别停留秒数（Vin≥3 下钻后）；可被 Runner Inspector 覆盖。</summary>
     public const float VehicleLevelHoldSeconds = 10f;
+
+    /// <summary>攻击链路级别停留秒数；可被 Runner Inspector 覆盖。</summary>
+    public const float AttackPathLevelHoldSeconds = 10f;
+
+    /// <summary>零部件级别单件停留秒数；可被 Runner Inspector 覆盖。</summary>
+    public const float PartLevelHoldSeconds = 10f;
 }

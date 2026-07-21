@@ -68,10 +68,18 @@ public static class ThreatProvinceAlertController
         }
 
         _isProcessing = true;
-        if (!runner.TryStartThreatFlow())
+        bool resumeFromVehicle = ThreatAlertFlowRunner.IsInVehicleDrillControlState();
+        if (!runner.TryStartThreatFlow(resumeFromVehicleDrillSubtree: resumeFromVehicle))
         {
             _isProcessing = false;
             Debug.LogWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行）。");
+            return;
+        }
+
+        if (resumeFromVehicle)
+        {
+            Debug.Log(
+                "[ThreatProvinceAlertController] 已在车辆/攻击链路/零件级，从当前级别继续 Vin 下钻（跳过国家/省级停留）。");
         }
     }
 

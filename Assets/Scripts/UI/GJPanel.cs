@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
+/// 该面板数据使用外网数据，后面需调整内网
 /// 告警面板（UI/Canvas/GJ_Panel）：仅负责显隐与字段赋值，不发起 HTTP 请求。
 /// </summary>
 [DisallowMultipleComponent]

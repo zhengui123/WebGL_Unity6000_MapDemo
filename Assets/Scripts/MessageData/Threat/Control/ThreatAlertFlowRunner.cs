@@ -5,8 +5,8 @@ using UnityEngine;
 
 /// <summary>
 /// 威胁告警流程协程宿主：
-/// 瞬时回国家级 → 国家停留 → 省级停留 →（同 Vin≥3 则完整动画进车辆 + 拉车辆数据 + 可配置停留）→ 回国家再评估。
-/// 处理中若数据再次入库：只刷新当前阶段画面，不重入流程。
+/// 瞬时回国家 → 国家停留 → 省级停留 → 按 Vin≥3 轮流下钻（车辆 → 攻击链路 → 零部件）→ 回国家再评估。
+/// 省级/车辆/攻击链路停留期间若数据再次入库：刷新当前阶段画面与缓存，不重入流程。
 /// </summary>
 public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 {
@@ -16,25 +16,51 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         CountryHold = 1,
         ProvinceHold = 2,
         VehicleHold = 3,
+        AttackPathHold = 4,
+        PartHold = 5,
     }
 
-    [Header("车辆阶段")]
-    [Tooltip("Vin≥3 进入车辆级后的停留秒数；默认取 ThreatAlertSettings.VehicleLevelHoldSeconds")]
+    [Header("下钻停留（秒，可分别配置）")]
+    [Tooltip("车辆级停留")]
     [SerializeField] private float _vehicleLevelHoldSeconds = ThreatAlertSettings.VehicleLevelHoldSeconds;
+    [Tooltip("攻击链路级停留")]
+    [SerializeField] private float _attackPathLevelHoldSeconds = ThreatAlertSettings.AttackPathLevelHoldSeconds;
+    [Tooltip("每个零部件级停留")]
+    [SerializeField] private float _partLevelHoldSeconds = ThreatAlertSettings.PartLevelHoldSeconds;
 
     private Coroutine _flowRoutine;
     private bool _skipCurrentHold;
     private bool _provinceFocusSignal;
+    private bool _transitionStepDone;
     private ThreatVisualStage _visualStage = ThreatVisualStage.None;
     private string _activeProvinceCode;
+    private string _activePlateModuleName;
+    private string _activeEncryptVin;
+    private bool _resumeFromVehicleDrillSubtree;
+    private bool _lastTransitionSucceeded;
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
 
-    /// <summary>Vin≥3 时请求进入车辆大屏（预留，参数为 Vin）。</summary>
+    /// <summary>当前是否处于车辆/攻击链路/零件级（威胁下钻子树）。</summary>
+    public static bool IsInVehicleDrillControlState()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            return false;
+        }
+
+        GameManager.ControlState state = gm.CurrentState;
+        return state == GameManager.ControlState.VehicleLevel
+               || state == GameManager.ControlState.PartLevel
+               || state == GameManager.ControlState.AttackPathLevel;
+    }
+
+    /// <summary>Vin≥3 时请求进入车辆大屏（参数为 Vin）。</summary>
     public static event Action<string> ThreatVehicleEntryRequested;
 
-    /// <summary>省级 60s 之后的威胁下钻预留钩子（具体动作等后续指令）。</summary>
+    /// <summary>省级全部 Vin 下钻完成后的钩子。</summary>
     public static event Action<ThreatProvinceAlertContext> ThreatProvinceDrillReserved;
 
     private void OnEnable()
@@ -61,32 +87,33 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     }
 
     /// <summary>启动一轮威胁流程（进行中则忽略）。</summary>
-    public bool TryStartThreatFlow()
+    /// <param name="resumeFromVehicleDrillSubtree">已在车辆/攻击链路/零件级时跳过国家与省级停留，直接 Vin 下钻。</param>
+    public bool TryStartThreatFlow(bool resumeFromVehicleDrillSubtree = false)
     {
         if (_flowRoutine != null)
         {
             return false;
         }
 
+        _resumeFromVehicleDrillSubtree = resumeFromVehicleDrillSubtree;
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
         return true;
     }
 
-    /// <summary>跳过当前国家/省级停留计时（Demo「结束当前告警」可用）。</summary>
+    /// <summary>跳过当前停留计时（Demo「结束当前告警」可用）。</summary>
     public void SkipCurrentHold()
     {
         _skipCurrentHold = true;
     }
 
-    /// <summary>车辆阶段可提前结束停留（外部对接完成后调用）。</summary>
+    /// <summary>车辆/攻击链路/零件阶段可提前结束停留。</summary>
     public void NotifyVehicleStageFinished()
     {
         SkipCurrentHold();
     }
 
     /// <summary>
-    /// 数据已刷新时：按当前阶段重绘 POI/高亮，不重启流程。
-    /// 国家停留若已无达标省，会跳过剩余停留以便尽快结束。
+    /// 数据已刷新时：按当前阶段重绘画面，不重启流程。
     /// </summary>
     public void RefreshVisualsFromCache()
     {
@@ -113,26 +140,26 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             }
             case ThreatVisualStage.ProvinceHold:
             {
-                if (string.IsNullOrWhiteSpace(_activeProvinceCode))
-                {
-                    break;
-                }
-
-                IReadOnlyList<HighRiskSecurityEventItem> events =
-                    store.GetEventsByProvince(_activeProvinceCode);
-                ApplyProvinceStageVisuals(_activeProvinceCode, events);
-
-                ThreatProvinceAlertContext context = ThreatProvinceAlertController.CurrentContext;
-                if (context != null &&
-                    string.Equals(context.ProvinceCode, _activeProvinceCode, StringComparison.Ordinal))
-                {
-                    context.Events = events;
-                }
-
+                RefreshProvinceStageVisuals(store);
+                break;
+            }
+            case ThreatVisualStage.VehicleHold:
+            {
+                RefreshVehicleStageVisuals();
+                break;
+            }
+            case ThreatVisualStage.AttackPathHold:
+            {
+                RefreshAttackPathStageVisuals();
+                break;
+            }
+            case ThreatVisualStage.PartHold:
+            {
+                Debug.Log("[ThreatAlertFlowRunner] 零件级停留中收到新数据，保持当前零件展示。");
                 break;
             }
             default:
-                Debug.Log("[ThreatAlertFlowRunner] 数据已刷新，当前非停留阶段，画面待后续步骤使用最新缓存。");
+                Debug.Log("[ThreatAlertFlowRunner] 过渡动画中收到新数据，待当前步骤完成后使用最新缓存。");
                 break;
         }
     }
@@ -156,6 +183,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _skipCurrentHold = false;
         _visualStage = ThreatVisualStage.None;
         _activeProvinceCode = null;
+        _activePlateModuleName = null;
+        _activeEncryptVin = null;
     }
 
     private IEnumerator ThreatFlowRoutine()
@@ -176,10 +205,20 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
                 GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Threat);
 
-                yield return EnsureCountryLevel();
-                yield return PlayCountryStage();
+                bool skipToVinDrill = _resumeFromVehicleDrillSubtree || IsInVehicleDrillControlState();
+                _resumeFromVehicleDrillSubtree = false;
 
-                // 每次用最新达标列表的第一条（无长期队列）
+                if (!skipToVinDrill)
+                {
+                    yield return EnsureCountryLevel();
+                    yield return PlayCountryStage();
+                }
+                else
+                {
+                    Debug.Log(
+                        "[ThreatAlertFlowRunner] 已在车辆/攻击链路/零件级，跳过国家阶段，直接进入省级 Vin 下钻。");
+                }
+
                 qualified = store.GetProvincesMeetingThreshold(ThreatAlertSettings.EventsPerProvinceThreshold);
                 if (qualified == null || qualified.Count == 0)
                 {
@@ -188,9 +227,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 }
 
                 string provinceCode = qualified[0];
-                yield return PlayProvinceStage(provinceCode);
+                yield return PlayProvinceStage(provinceCode, skipToVinDrill);
 
-                // 省阶段结束后回到国家，用最新缓存再评估
                 yield return EnsureCountryLevelFromProvince();
             }
         }
@@ -198,23 +236,17 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         {
             _visualStage = ThreatVisualStage.None;
             _activeProvinceCode = null;
+            _activePlateModuleName = null;
+            _activeEncryptVin = null;
             _flowRoutine = null;
             ThreatProvinceAlertController.NotifyFlowStopped();
         }
     }
 
-    /// <summary>
-    /// 若不在国家级：经层级控制器瞬时逐步跳回 CountryLevel，完成后再继续威胁逻辑。
-    /// </summary>
     private IEnumerator EnsureCountryLevel()
     {
         GameManager gm = GameManager.Instance;
-        if (gm == null)
-        {
-            yield break;
-        }
-
-        if (gm.CurrentState == GameManager.ControlState.CountryLevel)
+        if (gm == null || gm.CurrentState == GameManager.ControlState.CountryLevel)
         {
             yield break;
         }
@@ -228,61 +260,15 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
-        while (hierarchy.IsBootstrapping)
-        {
-            yield return null;
-        }
-
-        if (gm.CurrentState == GameManager.ControlState.CountryLevel)
-        {
-            yield break;
-        }
-
-        GameManager.ControlState from = gm.CurrentState;
-        bool started = hierarchy.TransitionToState(
-            useInstantTransition: true,
-            targetState: GameManager.ControlState.CountryLevel);
-        if (!started)
-        {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 从 {from} 瞬时跳转国家级失败。");
-            yield break;
-        }
-
-        Debug.Log($"[ThreatAlertFlowRunner] 瞬时跳转回国家级：{from} → CountryLevel");
-
-        const float bootstrapStartTimeoutSeconds = 3f;
-        float elapsed = 0f;
-        while (!hierarchy.IsBootstrapping && elapsed < bootstrapStartTimeoutSeconds)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            yield return null;
-        }
-
-        while (hierarchy.IsBootstrapping)
-        {
-            yield return null;
-        }
-
-        while (ControlStateHierarchyTransitionController.IsAnyTransitionAnimationBusy())
-        {
-            yield return null;
-        }
-
-        float confirmTimeout = 5f;
-        while (gm.CurrentState != GameManager.ControlState.CountryLevel && confirmTimeout > 0f)
-        {
-            confirmTimeout -= Time.deltaTime;
-            yield return null;
-        }
-
-        if (gm.CurrentState != GameManager.ControlState.CountryLevel)
-        {
-            Debug.LogWarning(
-                $"[ThreatAlertFlowRunner] 跳转后仍非国家级：{gm.CurrentState}，继续尝试后续步骤。");
-        }
+        yield return WaitForHierarchyTransition(
+            hierarchy,
+            GameManager.ControlState.CountryLevel,
+            useInstant: true,
+            provinceName: null,
+            provinceModuleName: null,
+            confirmTimeoutSeconds: 5f);
     }
 
-    /// <summary>省阶段结束后回国家：与任意级别回国家同一套瞬时层级跳转。</summary>
     private IEnumerator EnsureCountryLevelFromProvince()
     {
         yield return EnsureCountryLevel();
@@ -306,7 +292,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _visualStage = ThreatVisualStage.None;
     }
 
-    private IEnumerator PlayProvinceStage(string provinceCode)
+    private IEnumerator PlayProvinceStage(string provinceCode, bool skipToVinDrill)
     {
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
         IReadOnlyList<HighRiskSecurityEventItem> events = store.GetEventsByProvince(provinceCode);
@@ -326,87 +312,197 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             plateModuleName = plateName;
         }
 
-        _provinceFocusSignal = false;
-        GameManager.Instance?.SwitchToProvinceLevel(plateModuleName);
+        _activePlateModuleName = plateModuleName;
+        _activeProvinceCode = provinceCode;
 
-        float focusTimeout = 30f;
-        while (!_provinceFocusSignal && focusTimeout > 0f)
+        if (!skipToVinDrill)
         {
-            focusTimeout -= Time.deltaTime;
-            yield return null;
+            _provinceFocusSignal = false;
+            GameManager.Instance?.SwitchToProvinceLevel(plateModuleName);
+
+            float focusTimeout = 30f;
+            while (!_provinceFocusSignal && focusTimeout > 0f)
+            {
+                focusTimeout -= Time.deltaTime;
+                yield return null;
+            }
+
+            _visualStage = ThreatVisualStage.ProvinceHold;
+            events = store.GetEventsByProvince(provinceCode);
+            context.Events = events;
+            ApplyProvinceStageVisuals(provinceCode, events);
+
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
+                $"停留={ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s");
+
+            yield return WaitHoldSeconds(ThreatAlertSettings.ProvinceLevelHoldSeconds);
+            _visualStage = ThreatVisualStage.None;
+        }
+        else
+        {
+            events = store.GetEventsByProvince(provinceCode);
+            context.Events = events;
+            ApplyProvinceStageVisuals(provinceCode, events);
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 跳过省级停留，自当前车辆级继续 Vin 下钻 | province={provinceCode}");
         }
 
-        _visualStage = ThreatVisualStage.ProvinceHold;
-        _activeProvinceCode = provinceCode;
-        // 聚焦完成后用最新缓存绘制（可能在跳转期间已刷新）
         events = store.GetEventsByProvince(provinceCode);
         context.Events = events;
-        ApplyProvinceStageVisuals(provinceCode, events);
+        yield return PlayProvinceVinDrillLoop(provinceCode, plateModuleName, context);
+    }
 
-        Debug.Log(
-            $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
-            $"停留={ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s");
+    private IEnumerator PlayProvinceVinDrillLoop(
+        string provinceCode,
+        string plateModuleName,
+        ThreatProvinceAlertContext context)
+    {
+        HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
+        IReadOnlyList<HighRiskSecurityEventItem> events = store.GetEventsByProvince(provinceCode);
+        List<string> qualifyingVins = CollectVinsMeetingThreshold(events);
 
-        yield return WaitHoldSeconds(ThreatAlertSettings.ProvinceLevelHoldSeconds);
-        _visualStage = ThreatVisualStage.None;
-
-        // 停留结束后再读最新缓存做 Vin 判定
-        events = store.GetEventsByProvince(provinceCode);
-        context.Events = events;
-
-        if (TryFindVinMeetingThreshold(events, out string targetVin))
+        if (qualifyingVins.Count > 0)
         {
             Debug.Log(
-                $"[ThreatAlertFlowRunner] 同 Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle}，" +
-                $"进入车辆级 | province={provinceCode} | vin={targetVin}");
-            ThreatVehicleEntryRequested?.Invoke(targetVin);
+                $"[ThreatAlertFlowRunner] 省级达标 Vin 数={qualifyingVins.Count}，开始轮流下钻 | province={provinceCode}");
 
-            yield return PlayVehicleStage(provinceCode, plateModuleName, targetVin);
+            string provinceDisplayName = ResolveProvinceDisplayName(provinceCode, plateModuleName);
+            for (int i = 0; i < qualifyingVins.Count; i++)
+            {
+                string encryptVin = qualifyingVins[i];
+                bool hasNextVin = i < qualifyingVins.Count - 1;
+                Debug.Log(
+                    $"[ThreatAlertFlowRunner] Vin 下钻 ({i + 1}/{qualifyingVins.Count}) | vin={encryptVin} | " +
+                    $"hasNextVin={hasNextVin}");
+                ThreatVehicleEntryRequested?.Invoke(encryptVin);
+                yield return PlayVinDrillChain(
+                    provinceCode,
+                    provinceDisplayName,
+                    plateModuleName,
+                    encryptVin,
+                    hasNextVin);
+            }
 
             store.RemoveProvinceEventsAndExclude(provinceCode);
-            Debug.Log($"[ThreatAlertFlowRunner] 车辆阶段结束，已排除该省数据：{provinceCode}");
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 该省全部 Vin 下钻完成，将回国家级处理下一达标省 | province={provinceCode}");
         }
         else
         {
             store.RemoveProvinceEventsAndExclude(provinceCode);
-            Debug.Log($"[ThreatAlertFlowRunner] Vin 未达阈值，已删除并排除该省告警：{provinceCode}");
+            Debug.Log($"[ThreatAlertFlowRunner] 无 Vin 达阈值，已删除并排除该省告警：{provinceCode}");
         }
 
-        // —— 威胁下钻预留（零件/攻击路径等后续判定；当前直接回国家）——
         ThreatProvinceDrillReserved?.Invoke(context);
-        Debug.Log("[ThreatAlertFlowRunner][预留] 威胁后续下钻钩子已触发；本次返回国家继续。");
-
         ThreatProvinceAlertController.NotifyProvinceAlertCompleted(context);
         _activeProvinceCode = null;
+        _activePlateModuleName = null;
+        _activeEncryptVin = null;
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
     }
 
-    /// <summary>
-    /// 完整动画进入车辆级 → 请求车辆态势双接口（vin 作 encryptVin）→ 可配置停留 → 结束。
-    /// </summary>
-    private IEnumerator PlayVehicleStage(string provinceCode, string plateModuleName, string encryptVin)
+    /// <summary>单 Vin：车辆级 → 攻击链路级 → 轮流零件级；结束后回车辆级（有下一 Vin）或交由省阶段回国家。</summary>
+    private IEnumerator PlayVinDrillChain(
+        string provinceCode,
+        string provinceDisplayName,
+        string plateModuleName,
+        string encryptVin,
+        bool hasNextVin)
     {
-        string provinceDisplayName = ResolveProvinceDisplayName(provinceCode, plateModuleName);
-        yield return TransitionToVehicleLevel(provinceDisplayName, plateModuleName);
+        _activeEncryptVin = encryptVin;
+        _activeProvinceCode = provinceCode;
+        _activePlateModuleName = plateModuleName;
 
-        RequestVehicleDataWithLogs(encryptVin);
+        yield return EnsureAtVehicleLevel(provinceDisplayName, plateModuleName);
+        yield return RequestVehicleDataAndWait(encryptVin);
 
         _visualStage = ThreatVisualStage.VehicleHold;
-        float holdSeconds = Mathf.Max(0.1f, _vehicleLevelHoldSeconds);
-        Debug.Log(
-            $"[ThreatAlertFlowRunner] 车辆级停留开始 | vin={encryptVin} | " +
-            $"seconds={holdSeconds:F0}（Inspector 可调 _vehicleLevelHoldSeconds）");
-
-        yield return WaitHoldSeconds(holdSeconds);
+        float vehicleHold = Mathf.Max(0.1f, _vehicleLevelHoldSeconds);
+        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留 | vin={encryptVin} | {vehicleHold:F0}s");
+        yield return WaitHoldSeconds(vehicleHold);
         _visualStage = ThreatVisualStage.None;
-        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留结束 | vin={encryptVin}");
+
+        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留结束，进入攻击链路 | vin={encryptVin}");
+        yield return TransitionToAttackPathLevelAndWait();
+        bool atAttackPathLevel = IsAtAttackPathLevel();
+        if (!atAttackPathLevel)
+        {
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 车辆→攻击链路过渡未完成，仍继续后续阶段（使用已有缓存） | vin={encryptVin} | " +
+                $"control={GameManager.Instance?.CurrentState}");
+        }
+
+        ApplyAttackPathStageVisuals(atAttackPathLevel);
+
+        _visualStage = ThreatVisualStage.AttackPathHold;
+        float attackHold = Mathf.Max(0.1f, _attackPathLevelHoldSeconds);
+        Debug.Log($"[ThreatAlertFlowRunner] 攻击链路级停留 | vin={encryptVin} | {attackHold:F0}s");
+        yield return WaitHoldSeconds(attackHold);
+        _visualStage = ThreatVisualStage.None;
+
+        List<string> partIds = ResolvePartIdsForDrill();
+        if (partIds.Count == 0)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
+            yield return ReturnToVehicleLevelFromDrill();
+            yield break;
+        }
+
+        for (int i = 0; i < partIds.Count; i++)
+        {
+            string partId = partIds[i];
+            bool fromAttackPath = i == 0 &&
+                                  GameManager.Instance != null &&
+                                  GameManager.Instance.CurrentState == GameManager.ControlState.AttackPathLevel;
+
+            if (fromAttackPath)
+            {
+                yield return TransitionAttackPathToPartAndWait(partId);
+            }
+            else
+            {
+                yield return TransitionToPartLevelAndWait(partId);
+            }
+
+            _visualStage = ThreatVisualStage.PartHold;
+            float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partIds.Count}) | part={partId} | {partHold:F0}s");
+            yield return WaitHoldSeconds(partHold);
+            _visualStage = ThreatVisualStage.None;
+        }
+
+        yield return ReturnToVehicleLevelFromDrill();
+
+        if (hasNextVin)
+        {
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 本 Vin 全部零件展示完毕，已回车辆级，即将用下一 Vin 重新请求车辆数据 | vin={encryptVin}");
+        }
+        else
+        {
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 省内最后一辆 Vin 展示完毕，已回车辆级，随后回国家级 | vin={encryptVin}");
+        }
     }
 
-    private IEnumerator TransitionToVehicleLevel(string provinceName, string provinceModuleName)
+    private IEnumerator EnsureAtVehicleLevel(string provinceDisplayName, string plateModuleName)
     {
         GameManager gm = GameManager.Instance;
-        if (gm != null && gm.CurrentState == GameManager.ControlState.VehicleLevel)
+        if (gm == null)
+        {
+            yield break;
+        }
+
+        if (gm.CurrentState == GameManager.ControlState.PartLevel ||
+            gm.CurrentState == GameManager.ControlState.AttackPathLevel)
+        {
+            yield return ReturnToVehicleLevelFromDrill();
+        }
+
+        if (gm.CurrentState == GameManager.ControlState.VehicleLevel)
         {
             yield break;
         }
@@ -415,32 +511,321 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             ControlStateHierarchyTransitionController.Instance;
         if (hierarchy == null)
         {
-            Debug.LogWarning(
-                "[ThreatAlertFlowRunner] 未找到 ControlStateHierarchyTransitionController，无法进入车辆级。");
+            Debug.LogWarning("[ThreatAlertFlowRunner] 无法进入车辆级：缺少层级过渡控制器。");
             yield break;
         }
 
+        yield return WaitForHierarchyTransition(
+            hierarchy,
+            GameManager.ControlState.VehicleLevel,
+            useInstant: false,
+            provinceName: provinceDisplayName,
+            provinceModuleName: plateModuleName,
+            confirmTimeoutSeconds: 15f);
+    }
+
+    private IEnumerator ReturnToVehicleLevelFromDrill()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            yield break;
+        }
+
+        if (gm.CurrentState == GameManager.ControlState.VehicleLevel)
+        {
+            yield break;
+        }
+
+        yield return WaitForTransitionControllersIdle();
+
+        if (gm.CurrentState == GameManager.ControlState.PartLevel)
+        {
+            yield return WaitForBoolStringTransition(
+                h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted += h,
+                h => EventManager.Instance.OnVehicleToPartTransitionReverseCompleted -= h,
+                () => MapApi.Instance.TransitionPartToVehicle(),
+                "零件 → 车辆");
+            yield break;
+        }
+
+        if (gm.CurrentState == GameManager.ControlState.AttackPathLevel)
+        {
+            yield return WaitForVoidTransition(
+                h => EventManager.Instance.OnAttackPathToVehicleTransitionCompleted += h,
+                h => EventManager.Instance.OnAttackPathToVehicleTransitionCompleted -= h,
+                () => MapApi.Instance.TransitionAttackPathToVehicle(),
+                "攻击路径 → 车辆");
+        }
+    }
+
+    private IEnumerator TransitionToAttackPathLevelAndWait()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm != null && gm.CurrentState == GameManager.ControlState.AttackPathLevel)
+        {
+            ApplyAttackPathStageVisuals();
+            _lastTransitionSucceeded = true;
+            yield break;
+        }
+
+        if (gm != null && gm.CurrentState == GameManager.ControlState.PartLevel)
+        {
+            yield return ReturnToVehicleLevelFromDrill();
+        }
+
+        if (gm != null && gm.CurrentState != GameManager.ControlState.VehicleLevel)
+        {
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 车辆→攻击链路取消：当前非车辆级 ({gm.CurrentState})。");
+            _lastTransitionSucceeded = false;
+            yield break;
+        }
+
+        yield return WaitForTransitionControllersIdle();
+
+        bool mapStarted = MapApi.Instance != null && MapApi.Instance.TransitionVehicleToAttackPath();
+        if (mapStarted)
+        {
+            yield return WaitForVoidTransition(
+                h => EventManager.Instance.OnVehicleToAttackPathTransitionCompleted += h,
+                h => EventManager.Instance.OnVehicleToAttackPathTransitionCompleted -= h,
+                () => true,
+                "车辆 → 攻击路径（等待完成）");
+        }
+        else
+        {
+            Debug.LogWarning("[ThreatAlertFlowRunner] MapApi 车辆→攻击路径启动失败，尝试层级控制器。");
+            ControlStateHierarchyTransitionController hierarchy =
+                ControlStateHierarchyTransitionController.Instance;
+            if (hierarchy != null)
+            {
+                yield return WaitForHierarchyTransition(
+                    hierarchy,
+                    GameManager.ControlState.AttackPathLevel,
+                    useInstant: false,
+                    provinceName: null,
+                    provinceModuleName: null,
+                    confirmTimeoutSeconds: 20f);
+            }
+        }
+
+        _lastTransitionSucceeded = IsAtAttackPathLevel();
+        if (!_lastTransitionSucceeded)
+        {
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 车辆→攻击链路未完成 | control={gm?.CurrentState}");
+        }
+    }
+
+    private static bool IsAtAttackPathLevel()
+    {
+        GameManager gm = GameManager.Instance;
+        return gm != null && gm.CurrentState == GameManager.ControlState.AttackPathLevel;
+    }
+
+    private IEnumerator TransitionAttackPathToPartAndWait(string partId)
+    {
+        yield return WaitForTransitionControllersIdle();
+        yield return WaitForBoolStringStringTransition(
+            h => EventManager.Instance.OnAttackPathToPartTransitionCompleted += h,
+            h => EventManager.Instance.OnAttackPathToPartTransitionCompleted -= h,
+            () => MapApi.Instance.TransitionAttackPathToPart(partId),
+            $"攻击路径 → 零件 {partId}");
+    }
+
+    private IEnumerator TransitionToPartLevelAndWait(string partId)
+    {
+        yield return WaitForTransitionControllersIdle();
+        yield return WaitForBoolStringTransition(
+            h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
+            h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
+            () => MapApi.Instance.TransitionVehicleToPart(partId),
+            $"车辆 → 零件 {partId}");
+    }
+
+    private IEnumerator RequestVehicleDataAndWait(string encryptVin)
+    {
+        CarVehicleDataController controller = CarVehicleDataController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[ThreatAlertFlowRunner] 未找到 CarVehicleDataController，跳过车辆信息请求。");
+            yield break;
+        }
+
+        float waitRequestTimeout = 30f;
+        while (controller.IsRequesting && waitRequestTimeout > 0f)
+        {
+            waitRequestTimeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        bool done = false;
+        bool ok = false;
+        Debug.Log($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
+        controller.Request(
+            encryptVin,
+            startTime: null,
+            endTime: null,
+            onCompleted: (success, error) =>
+            {
+                done = true;
+                ok = success;
+                if (!success)
+                {
+                    Debug.LogWarning(
+                        $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续 | vin={encryptVin} | error={error}");
+                }
+            });
+
+        float timeout = 45f;
+        while (!done && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        if (controller.TryShowVehicleUiFromCache())
+        {
+            int slideCount = CarVehicleDataStore.Instance.BuildPartSlides().Count;
+            if (ok)
+            {
+                Debug.Log(
+                    $"[ThreatAlertFlowRunner] 车辆信息已刷新并展示 | vin={encryptVin} | slides={slideCount}");
+            }
+            else
+            {
+                string reason = !done ? "请求超时" : "接口失败";
+                Debug.LogWarning(
+                    $"[ThreatAlertFlowRunner] {reason}，使用已有缓存展示车辆信息 | vin={encryptVin} | slides={slideCount}");
+            }
+        }
+        else if (!ok)
+        {
+            string reason = !done ? "请求超时" : "接口失败";
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] {reason}且无可用车辆缓存，流程仍继续 | vin={encryptVin}");
+        }
+    }
+
+    private static List<string> ResolvePartIdsForDrill()
+    {
+        List<string> partIds = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
+        if (partIds.Count > 0)
+        {
+            return partIds;
+        }
+
+        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
+        List<string> fallback = new List<string>(slides.Count);
+        HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < slides.Count; i++)
+        {
+            string name = slides[i].PartTypeName;
+            if (string.IsNullOrWhiteSpace(name) || !unique.Add(name.Trim()))
+            {
+                continue;
+            }
+
+            fallback.Add(name.Trim());
+        }
+
+        return fallback;
+    }
+
+    private void RefreshProvinceStageVisuals(HighRiskSecurityEventDataStore store)
+    {
+        if (string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            return;
+        }
+
+        IReadOnlyList<HighRiskSecurityEventItem> events =
+            store.GetEventsByProvince(_activeProvinceCode);
+        ApplyProvinceStageVisuals(_activeProvinceCode, events);
+
+        ThreatProvinceAlertContext context = ThreatProvinceAlertController.CurrentContext;
+        if (context != null &&
+            string.Equals(context.ProvinceCode, _activeProvinceCode, StringComparison.Ordinal))
+        {
+            context.Events = events;
+        }
+
+        List<string> vins = CollectVinsMeetingThreshold(events);
+        Debug.Log(
+            $"[ThreatAlertFlowRunner] 省级数据已刷新 | province={_activeProvinceCode} | " +
+            $"events={events?.Count ?? 0} | qualifyingVins={vins.Count}");
+    }
+
+    private void RefreshVehicleStageVisuals()
+    {
+        if (string.IsNullOrWhiteSpace(_activeEncryptVin))
+        {
+            return;
+        }
+
+        Debug.Log($"[ThreatAlertFlowRunner] 车辆级数据刷新 | vin={_activeEncryptVin}");
+        StartCoroutine(RequestVehicleDataAndWait(_activeEncryptVin));
+    }
+
+    private void RefreshAttackPathStageVisuals()
+    {
+        ApplyAttackPathStageVisuals(IsAtAttackPathLevel());
+        Debug.Log("[ThreatAlertFlowRunner] 攻击链路画面已按最新缓存刷新。");
+    }
+
+    private static void ApplyAttackPathStageVisuals(bool preferAttackPathLevel = true)
+    {
+        CarVehicleDataController controller = CarVehicleDataController.Instance;
+        if (controller == null)
+        {
+            return;
+        }
+
+        bool shown = preferAttackPathLevel
+            ? controller.TryShowAttackPathsFromCache()
+            : controller.ApplyAttackPathsFromCacheForTransition();
+        if (!shown && preferAttackPathLevel)
+        {
+            // 接口失败时仍尝试用缓存绘制攻击链路
+            controller.ApplyAttackPathsFromCacheForTransition();
+        }
+
+        VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+        if (transition != null)
+        {
+            transition.SetPartNameLabelsVisible(true);
+        }
+    }
+
+    private IEnumerator WaitForHierarchyTransition(
+        ControlStateHierarchyTransitionController hierarchy,
+        GameManager.ControlState targetState,
+        bool useInstant,
+        string provinceName,
+        string provinceModuleName,
+        float confirmTimeoutSeconds)
+    {
         while (hierarchy.IsBootstrapping)
         {
             yield return null;
         }
 
+        GameManager gm = GameManager.Instance;
         GameManager.ControlState from = gm != null
             ? gm.CurrentState
-            : GameManager.ControlState.ProvinceLevel;
+            : GameManager.ControlState.CountryLevel;
 
         bool started = hierarchy.TransitionToState(
-            useInstantTransition: false,
-            targetState: GameManager.ControlState.VehicleLevel,
+            useInstantTransition: useInstant,
+            targetState: targetState,
             provinceName: provinceName,
             provinceModuleName: provinceModuleName);
         if (!started)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 从 {from} 跳转车辆级失败。");
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 跳转 {from} → {targetState} 启动失败。");
             yield break;
         }
-
-        Debug.Log($"[ThreatAlertFlowRunner] 完整动画跳转车辆级：{from} → VehicleLevel | province={provinceName}");
 
         const float bootstrapStartTimeoutSeconds = 3f;
         float elapsed = 0f;
@@ -460,60 +845,155 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield return null;
         }
 
-        float confirmTimeout = 15f;
         while (gm != null &&
-               gm.CurrentState != GameManager.ControlState.VehicleLevel &&
-               confirmTimeout > 0f)
+               gm.CurrentState != targetState &&
+               confirmTimeoutSeconds > 0f)
         {
-            confirmTimeout -= Time.deltaTime;
+            confirmTimeoutSeconds -= Time.deltaTime;
             yield return null;
-        }
-
-        if (gm != null && gm.CurrentState != GameManager.ControlState.VehicleLevel)
-        {
-            Debug.LogWarning(
-                $"[ThreatAlertFlowRunner] 跳转后仍非车辆级：{gm.CurrentState}，继续车辆数据请求与停留。");
         }
     }
 
-    private static void RequestVehicleDataWithLogs(string encryptVin)
+    private IEnumerator WaitForTransitionControllersIdle()
     {
-        Debug.Log(
-            $"[ThreatAlertFlowRunner] 调用车辆信息加载接口（防护状态+攻击链路）| encryptVin={encryptVin}");
-
-        CarVehicleDataController controller = CarVehicleDataController.Instance;
-        if (controller == null)
+        float timeout = 30f;
+        while (ControlStateHierarchyTransitionController.IsAnyTransitionAnimationBusy() && timeout > 0f)
         {
-            Debug.LogWarning(
-                "[ThreatAlertFlowRunner] 未找到 CarVehicleDataController，跳过车辆信息请求（请确认 Manager 下已挂载）。");
-            return;
+            timeout -= Time.deltaTime;
+            yield return null;
         }
 
-        if (controller.IsRequesting)
+        VehicleToPartTransitionController partController = VehicleToPartTransitionController.Instance;
+        timeout = 30f;
+        while (partController != null && partController.IsTransitioning && timeout > 0f)
         {
-            Debug.LogWarning(
-                $"[ThreatAlertFlowRunner] 车辆接口已有请求进行中，跳过本次 | vin={encryptVin}");
-            return;
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+    }
+
+    private IEnumerator WaitForVoidTransition(
+        Action<Action> subscribe,
+        Action<Action> unsubscribe,
+        Func<bool> tryStart,
+        string stepName)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            yield break;
         }
 
-        controller.Request(
-            encryptVin,
-            startTime: null,
-            endTime: null,
-            onCompleted: (ok, error) =>
-            {
-                if (ok)
-                {
-                    Debug.Log(
-                        $"[ThreatAlertFlowRunner] 车辆信息加载成功 | encryptVin={encryptVin} | " +
-                        $"slides={CarVehicleDataStore.Instance.BuildPartSlides().Count}");
-                    return;
-                }
+        _transitionStepDone = false;
+        subscribe(OnTransitionStepDone);
+        yield return WaitForTransitionControllersIdle();
 
-                Debug.LogWarning(
-                    $"[ThreatAlertFlowRunner] 车辆信息加载失败（网络可能不通，流程继续）| " +
-                    $"encryptVin={encryptVin} | error={error}");
-            });
+        if (!tryStart())
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            _lastTransitionSucceeded = false;
+            unsubscribe(OnTransitionStepDone);
+            yield break;
+        }
+
+        float timeout = 60f;
+        while (!_transitionStepDone && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        _lastTransitionSucceeded = _transitionStepDone;
+        if (!_lastTransitionSucceeded)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 等待完成超时。");
+        }
+
+        unsubscribe(OnTransitionStepDone);
+    }
+
+    private IEnumerator WaitForBoolStringTransition(
+        Action<Action<string>> subscribe,
+        Action<Action<string>> unsubscribe,
+        Func<bool> tryStart,
+        string stepName)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            yield break;
+        }
+
+        _transitionStepDone = false;
+        subscribe(OnTransitionStepDoneWithName);
+        yield return WaitForTransitionControllersIdle();
+
+        if (!tryStart())
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            unsubscribe(OnTransitionStepDoneWithName);
+            yield break;
+        }
+
+        float timeout = 60f;
+        while (!_transitionStepDone && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        unsubscribe(OnTransitionStepDoneWithName);
+    }
+
+    private IEnumerator WaitForBoolStringStringTransition(
+        Action<Action<string, string>> subscribe,
+        Action<Action<string, string>> unsubscribe,
+        Func<bool> tryStart,
+        string stepName)
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            yield break;
+        }
+
+        _transitionStepDone = false;
+        subscribe(OnTransitionStepDoneWithPart);
+        yield return WaitForTransitionControllersIdle();
+
+        if (!tryStart())
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            unsubscribe(OnTransitionStepDoneWithPart);
+            yield break;
+        }
+
+        float timeout = 60f;
+        while (!_transitionStepDone && timeout > 0f)
+        {
+            timeout -= Time.deltaTime;
+            yield return null;
+        }
+
+        unsubscribe(OnTransitionStepDoneWithPart);
+    }
+
+    private void OnTransitionStepDone()
+    {
+        _transitionStepDone = true;
+    }
+
+    private void OnTransitionStepDoneWithName(string _)
+    {
+        _transitionStepDone = true;
+    }
+
+    private void OnTransitionStepDoneWithPart(string _, string __)
+    {
+        _transitionStepDone = true;
     }
 
     private static string ResolveProvinceDisplayName(string provinceCode, string plateModuleName)
@@ -599,12 +1079,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    private static bool TryFindVinMeetingThreshold(IReadOnlyList<HighRiskSecurityEventItem> events, out string vin)
+    /// <summary>收集省内 Vin 出现次数 ≥ 阈值的全部车辆（按次数降序、Vin 升序）。</summary>
+    private static List<string> CollectVinsMeetingThreshold(IReadOnlyList<HighRiskSecurityEventItem> events)
     {
-        vin = null;
+        List<string> result = new List<string>();
         if (events == null || events.Count == 0)
         {
-            return false;
+            return result;
         }
 
         Dictionary<string, int> counts = new Dictionary<string, int>();
@@ -618,16 +1099,36 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
             string key = item.vin.Trim();
             counts.TryGetValue(key, out int count);
-            count++;
-            counts[key] = count;
-            if (count >= ThreatAlertSettings.SameVinCountToEnterVehicle)
+            counts[key] = count + 1;
+        }
+
+        List<KeyValuePair<string, int>> qualifying = new List<KeyValuePair<string, int>>();
+        foreach (KeyValuePair<string, int> pair in counts)
+        {
+            if (pair.Value >= ThreatAlertSettings.SameVinCountToEnterVehicle)
             {
-                vin = key;
-                return true;
+                qualifying.Add(pair);
             }
         }
 
-        return false;
+        qualifying.Sort(CompareVinCountDescending);
+        for (int i = 0; i < qualifying.Count; i++)
+        {
+            result.Add(qualifying[i].Key);
+        }
+
+        return result;
+    }
+
+    private static int CompareVinCountDescending(KeyValuePair<string, int> a, KeyValuePair<string, int> b)
+    {
+        int byCount = b.Value.CompareTo(a.Value);
+        if (byCount != 0)
+        {
+            return byCount;
+        }
+
+        return string.Compare(a.Key, b.Key, StringComparison.Ordinal);
     }
 
     private IEnumerator WaitHoldSeconds(float seconds)

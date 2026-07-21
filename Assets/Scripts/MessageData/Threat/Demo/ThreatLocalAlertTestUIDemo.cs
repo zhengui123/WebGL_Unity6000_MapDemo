@@ -191,8 +191,9 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     private void HandleVehicleEntryRequested(string vin)
     {
         RefreshStatus(
-            $"同Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle} → 车辆大屏 | vin={vin} | " +
-            $"停留≈{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s 后回国家");
+            $"Vin 下钻 | vin={vin} | 车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s → " +
+            $"攻击链路{ThreatAlertSettings.AttackPathLevelHoldSeconds:F0}s → " +
+            $"零件各{ThreatAlertSettings.PartLevelHoldSeconds:F0}s");
         Debug.Log($"[ThreatLocalAlertTestUIDemo] ThreatVehicleEntryRequested vin={vin}");
     }
 
@@ -218,7 +219,9 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         builder.AppendLine(
             $"停留：国家{ThreatAlertSettings.CountryLevelHoldSeconds:F0}s / " +
             $"省{ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s / " +
-            $"车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s");
+            $"车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s / " +
+            $"攻击链路{ThreatAlertSettings.AttackPathLevelHoldSeconds:F0}s / " +
+            $"零件{ThreatAlertSettings.PartLevelHoldSeconds:F0}s（每件）");
         builder.AppendLine("--- 分省 ---");
 
         if (store != null)
