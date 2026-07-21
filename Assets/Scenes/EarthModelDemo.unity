@@ -74944,6 +74944,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThreatAlertFlowRunner
   _vehicleLevelHoldSeconds: 10
+  _attackPathLevelHoldSeconds: 10
+  _partLevelHoldSeconds: 10
 --- !u!4 &1112964611
 Transform:
   m_ObjectHideFlags: 0
