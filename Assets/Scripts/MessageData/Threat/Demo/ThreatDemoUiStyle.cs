@@ -23,6 +23,9 @@ public static class ThreatDemoUiStyle
     /// <summary>结果列表（深色滚动区域内，对齐 HttpApi JSON 区）。</summary>
     public static readonly Color ResultTextColor = new Color(0.85f, 0.92f, 0.85f, 1f);
 
+    /// <summary>流程状态/倒计时（高亮）。</summary>
+    public static readonly Color FlowStateTextColor = new Color(1f, 0.88f, 0.45f, 1f);
+
     public static void ApplyPanelLabel(Text text, Font font = null)
     {
         if (text == null)
@@ -85,6 +88,20 @@ public static class ThreatDemoUiStyle
         text.raycastTarget = false;
     }
 
+    public static void ApplyFlowStateLabel(Text text, Font font = null)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        ApplyFont(text, font);
+        text.color = FlowStateTextColor;
+        text.fontStyle = FontStyle.Bold;
+        ApplyWrap(text);
+        text.raycastTarget = false;
+    }
+
     public static void ApplyPanelTree(GameObject panelRoot, Font font = null)
     {
         if (panelRoot == null)
@@ -110,6 +127,12 @@ public static class ThreatDemoUiStyle
             if (text.name == "ResultListText")
             {
                 ApplyResultText(text, font);
+                continue;
+            }
+
+            if (text.name == "FlowStateLabel")
+            {
+                ApplyFlowStateLabel(text, font);
                 continue;
             }
 

@@ -19,6 +19,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _backButton;
 
     [Header("展示")]
+    [SerializeField] private Text _flowStateLabel;
     [SerializeField] private Text _statusLabel;
     [SerializeField] private Text _resultListText;
     [SerializeField] private ScrollRect _resultScroll;
@@ -45,6 +46,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
         ApplyRuntimeTextStyle();
         RefreshStatus("就绪：注入本地 JSON 开始测试威胁流程。");
+        RefreshFlowStateLabel();
         RefreshResultList();
     }
 
@@ -66,6 +68,11 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     private void OnDestroy()
     {
         BindButtons(false);
+    }
+
+    private void Update()
+    {
+        RefreshFlowStateLabel();
     }
 
     private void BindButtons(bool bind)
@@ -201,10 +208,19 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void HandleVehicleEntryRequested(string vin)
     {
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        float vehicleHold = runner != null
+            ? runner.ConfiguredVehicleHoldSeconds
+            : ThreatAlertSettings.VehicleLevelHoldSeconds;
+        float attackHold = runner != null
+            ? runner.ConfiguredAttackPathHoldSeconds
+            : ThreatAlertSettings.AttackPathLevelHoldSeconds;
+        float partHold = runner != null
+            ? runner.ConfiguredPartHoldSeconds
+            : ThreatAlertSettings.PartLevelHoldSeconds;
+
         RefreshStatus(
-            $"Vin 下钻 | vin={vin} | 车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s → " +
-            $"攻击链路{ThreatAlertSettings.AttackPathLevelHoldSeconds:F0}s → " +
-            $"零件各{ThreatAlertSettings.PartLevelHoldSeconds:F0}s");
+            $"Vin 下钻 | vin={vin} | 车{vehicleHold:F1}s → 攻击链路{attackHold:F1}s → 零件各{partHold:F1}s");
         Debug.Log($"[ThreatLocalAlertTestUIDemo] ThreatVehicleEntryRequested vin={vin}");
     }
 
@@ -227,12 +243,34 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         builder.AppendLine($"排除 eventId 数={ThreatExcludedEventIdStore.Count}");
         builder.AppendLine($"缓存事件总数={store?.Count ?? 0}");
         builder.AppendLine($"阈值≥{ThreatAlertSettings.EventsPerProvinceThreshold}，同Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle}");
+
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        float countryHold = runner != null
+            ? runner.ConfiguredCountryHoldSeconds
+            : ThreatAlertSettings.CountryLevelHoldSeconds;
+        float provinceHold = runner != null
+            ? runner.ConfiguredProvinceHoldSeconds
+            : ThreatAlertSettings.ProvinceLevelHoldSeconds;
+        float vehicleHold = runner != null
+            ? runner.ConfiguredVehicleHoldSeconds
+            : ThreatAlertSettings.VehicleLevelHoldSeconds;
+        float attackHold = runner != null
+            ? runner.ConfiguredAttackPathHoldSeconds
+            : ThreatAlertSettings.AttackPathLevelHoldSeconds;
+        float partHold = runner != null
+            ? runner.ConfiguredPartHoldSeconds
+            : ThreatAlertSettings.PartLevelHoldSeconds;
+        string runnerHint = runner != null ? "（Runner Inspector）" : "（默认常量）";
+
         builder.AppendLine(
-            $"停留：国家{ThreatAlertSettings.CountryLevelHoldSeconds:F0}s / " +
-            $"省{ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s / " +
-            $"车{ThreatAlertSettings.VehicleLevelHoldSeconds:F0}s / " +
-            $"攻击链路{ThreatAlertSettings.AttackPathLevelHoldSeconds:F0}s / " +
-            $"零件{ThreatAlertSettings.PartLevelHoldSeconds:F0}s（每件）");
+            $"停留{runnerHint}：国家{countryHold:F1}s / 省{provinceHold:F1}s / " +
+            $"车{vehicleHold:F1}s / 攻击链路{attackHold:F1}s / 零件{partHold:F1}s（每件）");
+        if (runner != null && runner.IsRunning)
+        {
+            builder.AppendLine($"当前阶段={runner.GetFlowStatusText()}");
+        }
+
+        builder.AppendLine("Console 过滤 [计时] 可查看过渡/停留实际耗时");
         builder.AppendLine("--- 分省 ---");
 
         if (store != null)
@@ -288,6 +326,19 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         }
     }
 
+    private void RefreshFlowStateLabel()
+    {
+        if (_flowStateLabel == null)
+        {
+            return;
+        }
+
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        _flowStateLabel.text = runner != null
+            ? runner.GetFlowStatusText()
+            : "流程：空闲";
+    }
+
     private void EnsureFlowRunnerExists()
     {
         if (ThreatAlertFlowRunner.Instance != null)
@@ -303,12 +354,18 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void ApplyRuntimeTextStyle()
     {
+        ThreatDemoUiStyle.ApplyFlowStateLabel(_flowStateLabel);
         ThreatDemoUiStyle.ApplyPanelLabel(_statusLabel);
         ThreatDemoUiStyle.ApplyResultText(_resultListText);
     }
 
     private void EnsureReferences()
     {
+        if (_flowStateLabel == null)
+        {
+            _flowStateLabel = transform.Find("FlowStateLabel")?.GetComponent<Text>();
+        }
+
         if (_injectMultiProvinceButton == null)
         {
             _injectMultiProvinceButton = transform.Find("InjectMultiProvinceButton")?.GetComponent<Button>();

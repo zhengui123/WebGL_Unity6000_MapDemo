@@ -20,6 +20,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         PartHold = 5,
     }
 
+    [Header("国家/省级停留（秒）")]
+    [Tooltip("国家级停留")]
+    [SerializeField] private float _countryLevelHoldSeconds = ThreatAlertSettings.CountryLevelHoldSeconds;
+    [Tooltip("省级（板块）停留")]
+    [SerializeField] private float _provinceLevelHoldSeconds = ThreatAlertSettings.ProvinceLevelHoldSeconds;
+
     [Header("下钻停留（秒，可分别配置）")]
     [Tooltip("车辆级停留")]
     [SerializeField] private float _vehicleLevelHoldSeconds = ThreatAlertSettings.VehicleLevelHoldSeconds;
@@ -27,6 +33,10 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     [SerializeField] private float _attackPathLevelHoldSeconds = ThreatAlertSettings.AttackPathLevelHoldSeconds;
     [Tooltip("每个零部件级停留")]
     [SerializeField] private float _partLevelHoldSeconds = ThreatAlertSettings.PartLevelHoldSeconds;
+
+    [Header("调试")]
+    [Tooltip("Console 输出 [计时] 日志，区分过渡耗时与停留耗时")]
+    [SerializeField] private bool _logStageTiming = true;
 
     private Coroutine _flowRoutine;
     private bool _skipCurrentHold;
@@ -38,9 +48,32 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activeEncryptVin;
     private bool _resumeFromVehicleDrillSubtree;
     private bool _lastTransitionSucceeded;
+    private float _holdCountdownRemaining;
+    private float _holdCountdownTotal;
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
+
+    /// <summary>Inspector 配置的国家级停留秒数。</summary>
+    public float ConfiguredCountryHoldSeconds => _countryLevelHoldSeconds;
+
+    /// <summary>Inspector 配置的省级停留秒数。</summary>
+    public float ConfiguredProvinceHoldSeconds => _provinceLevelHoldSeconds;
+
+    /// <summary>Inspector 配置的车辆级停留秒数。</summary>
+    public float ConfiguredVehicleHoldSeconds => _vehicleLevelHoldSeconds;
+
+    /// <summary>Inspector 配置的攻击链路级停留秒数。</summary>
+    public float ConfiguredAttackPathHoldSeconds => _attackPathLevelHoldSeconds;
+
+    /// <summary>Inspector 配置的零件级停留秒数。</summary>
+    public float ConfiguredPartHoldSeconds => _partLevelHoldSeconds;
+
+    /// <summary>当前停留倒计时剩余秒数（向上取整展示）。</summary>
+    public float HoldCountdownRemaining => _holdCountdownRemaining;
+
+    /// <summary>当前停留配置总秒数。</summary>
+    public float HoldCountdownTotal => _holdCountdownTotal;
 
     /// <summary>当前是否处于车辆/攻击链路/零件级（威胁下钻子树）。</summary>
     public static bool IsInVehicleDrillControlState()
@@ -121,6 +154,34 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _ => "过渡/请求中（将跳过下一停留）",
     };
 
+    /// <summary>Demo 面板用：当前流程状态与倒计时文案。</summary>
+    public string GetFlowStatusText()
+    {
+        if (!IsRunning)
+        {
+            return "流程：空闲";
+        }
+
+        string detail = CurrentHoldStageLabel;
+        if (!string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            detail += $" | 省={_activeProvinceCode}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(_activeEncryptVin))
+        {
+            detail += $" | vin={_activeEncryptVin}";
+        }
+
+        if (IsInHoldStage && _holdCountdownTotal > 0f)
+        {
+            return
+                $"流程：{detail} | 倒计时 {Mathf.Ceil(_holdCountdownRemaining):F0}s / {_holdCountdownTotal:F0}s";
+        }
+
+        return $"流程：{detail}";
+    }
+
     /// <summary>车辆/攻击链路/零件阶段可提前结束停留。</summary>
     public void NotifyVehicleStageFinished()
     {
@@ -200,6 +261,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        ClearHoldCountdown();
     }
 
     private IEnumerator ThreatFlowRoutine()
@@ -299,11 +361,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         ApplyCountryStageVisuals(qualified);
 
+        float countryHold = Mathf.Max(0.1f, _countryLevelHoldSeconds);
         Debug.Log(
             $"[ThreatAlertFlowRunner] 国家阶段：达标省={qualified?.Count ?? 0}，" +
-            $"停留={ThreatAlertSettings.CountryLevelHoldSeconds:F0}s");
+            $"停留={countryHold:F1}s");
 
-        yield return WaitHoldSeconds(ThreatAlertSettings.CountryLevelHoldSeconds);
+        yield return WaitHoldSeconds(countryHold, "国家级停留");
         _visualStage = ThreatVisualStage.None;
     }
 
@@ -338,7 +401,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             float focusTimeout = 30f;
             while (!_provinceFocusSignal && focusTimeout > 0f)
             {
-                focusTimeout -= Time.deltaTime;
+                focusTimeout -= Time.unscaledDeltaTime;
                 yield return null;
             }
 
@@ -347,11 +410,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             context.Events = events;
             ApplyProvinceStageVisuals(provinceCode, events);
 
+            float provinceHold = Mathf.Max(0.1f, _provinceLevelHoldSeconds);
             Debug.Log(
                 $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
-                $"停留={ThreatAlertSettings.ProvinceLevelHoldSeconds:F0}s");
+                $"停留={provinceHold:F1}s");
 
-            yield return WaitHoldSeconds(ThreatAlertSettings.ProvinceLevelHoldSeconds);
+            yield return WaitHoldSeconds(provinceHold, $"省级停留 province={provinceCode}");
             _visualStage = ThreatVisualStage.None;
         }
         else
@@ -430,17 +494,17 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = provinceCode;
         _activePlateModuleName = plateModuleName;
 
-        yield return EnsureAtVehicleLevel(provinceDisplayName, plateModuleName);
-        yield return RequestVehicleDataAndWait(encryptVin);
+        yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceDisplayName, plateModuleName));
+        yield return RunTimedStep("车辆数据请求(非阻塞)", RequestVehicleDataAndWait(encryptVin));
 
         _visualStage = ThreatVisualStage.VehicleHold;
         float vehicleHold = Mathf.Max(0.1f, _vehicleLevelHoldSeconds);
-        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留 | vin={encryptVin} | {vehicleHold:F0}s");
-        yield return WaitHoldSeconds(vehicleHold);
+        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留 | vin={encryptVin} | {vehicleHold:F1}s");
+        yield return WaitHoldSeconds(vehicleHold, $"车辆级停留 vin={encryptVin}");
         _visualStage = ThreatVisualStage.None;
 
         Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留结束，进入攻击链路 | vin={encryptVin}");
-        yield return TransitionToAttackPathLevelAndWait();
+        yield return RunTimedStep($"车辆→攻击链路 vin={encryptVin}", TransitionToAttackPathLevelAndWait());
         bool atAttackPathLevel = IsAtAttackPathLevel();
         if (!atAttackPathLevel)
         {
@@ -453,8 +517,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _visualStage = ThreatVisualStage.AttackPathHold;
         float attackHold = Mathf.Max(0.1f, _attackPathLevelHoldSeconds);
-        Debug.Log($"[ThreatAlertFlowRunner] 攻击链路级停留 | vin={encryptVin} | {attackHold:F0}s");
-        yield return WaitHoldSeconds(attackHold);
+        Debug.Log($"[ThreatAlertFlowRunner] 攻击链路级停留 | vin={encryptVin} | {attackHold:F1}s");
+        yield return WaitHoldSeconds(attackHold, $"攻击链路级停留 vin={encryptVin}");
         _visualStage = ThreatVisualStage.None;
 
         List<string> partIds = ResolvePartIdsForDrill();
@@ -474,18 +538,24 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
             if (fromAttackPath)
             {
-                yield return TransitionAttackPathToPartAndWait(partId);
+                yield return RunTimedStep(
+                    $"攻击路径→零件 {partId}",
+                    TransitionAttackPathToPartAndWait(partId));
             }
             else
             {
-                yield return TransitionToPartLevelAndWait(partId);
+                yield return RunTimedStep(
+                    $"车辆→零件 {partId}",
+                    TransitionToPartLevelAndWait(partId));
             }
 
             _visualStage = ThreatVisualStage.PartHold;
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
             Debug.Log(
-                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partIds.Count}) | part={partId} | {partHold:F0}s");
-            yield return WaitHoldSeconds(partHold);
+                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partIds.Count}) | part={partId} | {partHold:F1}s");
+            yield return WaitHoldSeconds(
+                partHold,
+                $"零件级停留 ({i + 1}/{partIds.Count}) part={partId}");
             _visualStage = ThreatVisualStage.None;
         }
 
@@ -668,59 +738,33 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
-        float waitRequestTimeout = 30f;
-        while (controller.IsRequesting && waitRequestTimeout > 0f)
+        Debug.Log($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
+        // 关键点：不要阻塞车辆停留计时。
+        // 先用已有缓存立即刷新车辆 UI；接口成功/失败都让流程按停留秒数继续跳转。
+        controller.TryShowVehicleUiFromCache();
+
+        if (controller.IsRequesting)
         {
-            waitRequestTimeout -= Time.deltaTime;
-            yield return null;
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 检测到已有车辆请求进行中，跳过本次请求启动（仍继续用当前缓存） | vin={encryptVin}");
+            yield break;
         }
 
-        bool done = false;
-        bool ok = false;
-        Debug.Log($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
         controller.Request(
             encryptVin,
             startTime: null,
             endTime: null,
             onCompleted: (success, error) =>
             {
-                done = true;
-                ok = success;
                 if (!success)
                 {
                     Debug.LogWarning(
-                        $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续 | vin={encryptVin} | error={error}");
+                        $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续（继续使用已有缓存） | vin={encryptVin} | error={error}");
                 }
             });
 
-        float timeout = 45f;
-        while (!done && timeout > 0f)
-        {
-            timeout -= Time.deltaTime;
-            yield return null;
-        }
-
-        if (controller.TryShowVehicleUiFromCache())
-        {
-            int slideCount = CarVehicleDataStore.Instance.BuildPartSlides().Count;
-            if (ok)
-            {
-                Debug.Log(
-                    $"[ThreatAlertFlowRunner] 车辆信息已刷新并展示 | vin={encryptVin} | slides={slideCount}");
-            }
-            else
-            {
-                string reason = !done ? "请求超时" : "接口失败";
-                Debug.LogWarning(
-                    $"[ThreatAlertFlowRunner] {reason}，使用已有缓存展示车辆信息 | vin={encryptVin} | slides={slideCount}");
-            }
-        }
-        else if (!ok)
-        {
-            string reason = !done ? "请求超时" : "接口失败";
-            Debug.LogWarning(
-                $"[ThreatAlertFlowRunner] {reason}且无可用车辆缓存，流程仍继续 | vin={encryptVin}");
-        }
+        // 给一帧，避免后续阶段与请求回调在同一帧内竞争。
+        yield return null;
     }
 
     private static List<string> ResolvePartIdsForDrill()
@@ -864,7 +908,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                gm.CurrentState != targetState &&
                confirmTimeoutSeconds > 0f)
         {
-            confirmTimeoutSeconds -= Time.deltaTime;
+            confirmTimeoutSeconds -= Time.unscaledDeltaTime;
             yield return null;
         }
     }
@@ -874,7 +918,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         float timeout = 30f;
         while (ControlStateHierarchyTransitionController.IsAnyTransitionAnimationBusy() && timeout > 0f)
         {
-            timeout -= Time.deltaTime;
+            timeout -= Time.unscaledDeltaTime;
             yield return null;
         }
 
@@ -882,7 +926,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         timeout = 30f;
         while (partController != null && partController.IsTransitioning && timeout > 0f)
         {
-            timeout -= Time.deltaTime;
+            timeout -= Time.unscaledDeltaTime;
             yield return null;
         }
     }
@@ -912,18 +956,16 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
+        float waitStart = Time.unscaledTime;
         float timeout = 60f;
         while (!_transitionStepDone && timeout > 0f)
         {
-            timeout -= Time.deltaTime;
+            timeout -= Time.unscaledDeltaTime;
             yield return null;
         }
 
         _lastTransitionSucceeded = _transitionStepDone;
-        if (!_lastTransitionSucceeded)
-        {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 等待完成超时。");
-        }
+        LogTransitionWaitResult(stepName, waitStart, _transitionStepDone);
 
         unsubscribe(OnTransitionStepDone);
     }
@@ -952,13 +994,15 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
+        float waitStart = Time.unscaledTime;
         float timeout = 60f;
         while (!_transitionStepDone && timeout > 0f)
         {
-            timeout -= Time.deltaTime;
+            timeout -= Time.unscaledDeltaTime;
             yield return null;
         }
 
+        LogTransitionWaitResult(stepName, waitStart, _transitionStepDone);
         unsubscribe(OnTransitionStepDoneWithName);
     }
 
@@ -986,13 +1030,15 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
+        float waitStart = Time.unscaledTime;
         float timeout = 60f;
         while (!_transitionStepDone && timeout > 0f)
         {
-            timeout -= Time.deltaTime;
+            timeout -= Time.unscaledDeltaTime;
             yield return null;
         }
 
+        LogTransitionWaitResult(stepName, waitStart, _transitionStepDone);
         unsubscribe(OnTransitionStepDoneWithPart);
     }
 
@@ -1146,23 +1192,100 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return string.Compare(a.Key, b.Key, StringComparison.Ordinal);
     }
 
-    private IEnumerator WaitHoldSeconds(float seconds)
+    private IEnumerator RunTimedStep(string stepName, IEnumerator step)
     {
-        // 过渡/请求期间已点的跳过，进入停留后立即生效（不在此处清零）。
-        if (_skipCurrentHold)
+        float start = Time.unscaledTime;
+        if (_logStageTiming)
         {
+            Debug.Log($"[ThreatAlertFlowRunner][计时] 开始 | {stepName}");
+        }
+
+        yield return step;
+
+        if (_logStageTiming)
+        {
+            Debug.Log(
+                $"[ThreatAlertFlowRunner][计时] 结束 | {stepName} | 实际={Time.unscaledTime - start:F2}s");
+        }
+    }
+
+    private void LogTransitionWaitResult(string stepName, float waitStart, bool completed)
+    {
+        if (!completed)
+        {
+            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 等待完成超时。");
+        }
+
+        if (!_logStageTiming)
+        {
+            return;
+        }
+
+        float elapsed = Time.unscaledTime - waitStart;
+        Debug.Log(
+            $"[ThreatAlertFlowRunner][计时] 过渡等待 | {stepName} | 实际={elapsed:F2}s | " +
+            $"完成={completed} | control={GameManager.Instance?.CurrentState}");
+    }
+
+    private IEnumerator WaitHoldSeconds(float seconds, string stepName = null)
+    {
+        float start = Time.unscaledTime;
+        if (_logStageTiming && !string.IsNullOrEmpty(stepName))
+        {
+            Debug.Log($"[ThreatAlertFlowRunner][计时] 停留开始 | {stepName} | 配置={seconds:F2}s");
+        }
+
+        _holdCountdownTotal = seconds;
+        _holdCountdownRemaining = seconds;
+
+        try
+        {
+            // 过渡/请求期间已点的跳过，进入停留后立即生效（不在此处清零）。
+            if (_skipCurrentHold)
+            {
+                _skipCurrentHold = false;
+                LogHoldResult(stepName, start, seconds, skipped: true);
+                yield break;
+            }
+
+            float remain = Mathf.Max(0f, seconds);
+            while (remain > 0f && !_skipCurrentHold)
+            {
+                _holdCountdownRemaining = Mathf.Max(0f, remain);
+                // 使用非缩放时间，避免 GameManager 暂停/慢动作导致停留计时失真。
+                remain -= Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            bool skipped = _skipCurrentHold;
             _skipCurrentHold = false;
-            yield break;
+            LogHoldResult(stepName, start, seconds, skipped);
         }
-
-        float remain = Mathf.Max(0f, seconds);
-        while (remain > 0f && !_skipCurrentHold)
+        finally
         {
-            remain -= Time.deltaTime;
-            yield return null;
+            ClearHoldCountdown();
+        }
+    }
+
+    private void ClearHoldCountdown()
+    {
+        _holdCountdownTotal = 0f;
+        _holdCountdownRemaining = 0f;
+    }
+
+    private void LogHoldResult(string stepName, float start, float configuredSeconds, bool skipped)
+    {
+        if (!_logStageTiming || string.IsNullOrEmpty(stepName))
+        {
+            return;
         }
 
-        _skipCurrentHold = false;
+        float elapsed = Time.unscaledTime - start;
+        float delta = elapsed - configuredSeconds;
+        string skipTag = skipped ? " | 已跳过" : string.Empty;
+        Debug.Log(
+            $"[ThreatAlertFlowRunner][计时] 停留结束 | {stepName} | 实际={elapsed:F2}s | " +
+            $"配置={configuredSeconds:F2}s | 偏差={delta:+#.##;-#.##;0.00}s{skipTag}");
     }
 
     private void ApplyNoThreatIdleState()

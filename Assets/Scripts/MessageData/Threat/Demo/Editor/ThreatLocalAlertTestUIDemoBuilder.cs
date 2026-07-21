@@ -43,6 +43,20 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         CreateLabel(panel.transform, UiTitle, 12f, y, PanelWidth - 24f, 28f, DemoTextFontSize, FontStyle.Bold);
         y -= 32f;
 
+        GameObject flowStateLabelGo = CreateLabelObject(
+            panel.transform,
+            "FlowStateLabel",
+            "流程：空闲",
+            12f,
+            y,
+            PanelWidth - 24f,
+            36f,
+            DemoTextFontSize,
+            FontStyle.Bold);
+        Text flowStateLabel = flowStateLabelGo.GetComponent<Text>();
+        flowStateLabel.color = ThreatDemoUiStyle.FlowStateTextColor;
+        y -= 40f;
+
         GameObject statusLabelGo = CreateLabelObject(
             panel.transform,
             "StatusLabel",
@@ -100,6 +114,7 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             resetGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue =
             backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_flowStateLabel").objectReferenceValue = flowStateLabel;
         serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
         serializedDemo.FindProperty("_resultListText").objectReferenceValue = resultListText;
         serializedDemo.FindProperty("_resultScroll").objectReferenceValue = resultScroll;
