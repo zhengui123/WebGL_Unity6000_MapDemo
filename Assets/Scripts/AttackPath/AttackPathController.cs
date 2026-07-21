@@ -16,7 +16,7 @@ public class AttackPathController : MonoBehaviour
     [SerializeField] private Transform _pathLocalRoot;
     [Tooltip("零件名对照来源；留空则运行时自动查找")]
     [SerializeField] private GridLine _gridLine;
-    [Tooltip("滚动动画基准速度（世界单位/秒）；Play Mode 下修改 Inspector 会实时刷新正在播放的线条")]
+    [Tooltip("材质 Offset X 滚动速度（单位/秒）；与线长无关，所有线速度一致")]
     [SerializeField] private float _speed = 8f;
     [Tooltip("勾选后路径首尾相连（闭合路径）")]
     [SerializeField] private bool _closePath;
@@ -26,13 +26,17 @@ public class AttackPathController : MonoBehaviour
     [Header("线条样式")]
     [Tooltip("LineRenderer 线宽（widthMultiplier）；Play Mode 下修改会实时生效")]
     [SerializeField] private float _lineWidth = 0.26f;
+    [Tooltip("首尾是否圆头；关闭=平头（numCapVertices=0），开启=圆头")]
+    [SerializeField] private bool _useRoundedCaps;
+    [Tooltip("圆头细分顶点数量（仅勾选圆头时生效）")]
+    [SerializeField] private int _roundedCapVertices = 4;
 
     [Header("材质滚动动画")]
     [Tooltip("留空则从 LineRenderer 材质获取并实例化")]
     [SerializeField] private Material _lineMaterial;
-    [Tooltip("单次滚动 MainTex Offset X 的增量；Play Mode 下可实时调整")]
+    [Tooltip("单次滚动 MainTex Offset X 的绝对值；方向由「起点→终点」固定为负向 Offset")]
     [SerializeField] private float _endTextureOffsetX = 1f;
-    [Tooltip("Offset 增速 = 基准速度 × 该系数；Play Mode 下可实时调整")]
+    [Tooltip("Offset 速率 = 速度 × 该系数；与线长无关")]
     [SerializeField] private float _endOffsetSpeedCoefficient = 1f;
 
     private readonly List<LineInstance> _addedLines = new List<LineInstance>();
@@ -84,7 +88,8 @@ public class AttackPathController : MonoBehaviour
         }
 
         _lineWidth = Mathf.Max(0.001f, _lineWidth);
-        ApplyLineWidthToAllInstances();
+        _roundedCapVertices = Mathf.Max(1, _roundedCapVertices);
+        ApplyLineStyleToAllInstances();
 
         if (!Application.isPlaying)
         {
@@ -134,7 +139,18 @@ public class AttackPathController : MonoBehaviour
     public void ApplyLineWidth(float width)
     {
         _lineWidth = Mathf.Max(0.001f, width);
-        ApplyLineWidthToAllInstances();
+        ApplyLineStyleToAllInstances();
+    }
+
+    /// <summary>是否使用圆头；false 为平头。</summary>
+    public bool UseRoundedCaps
+    {
+        get => _useRoundedCaps;
+        set
+        {
+            _useRoundedCaps = value;
+            ApplyLineStyleToAllInstances();
+        }
     }
 
     /// <summary>
@@ -180,7 +196,7 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        ApplyLineWidthToAllInstances();
+        ApplyLineStyleToAllInstances();
         RefreshLineInstanceScroll(_legacyLine);
         for (int i = 0; i < _addedLines.Count; i++)
         {
@@ -340,7 +356,7 @@ public class AttackPathController : MonoBehaviour
         instance.LineTransform.localPosition = Vector3.zero;
         instance.LineTransform.localRotation = Quaternion.identity;
         ConfigureLineRenderer(instance, path);
-        ResetTextureOffset(instance);
+        ApplyStretchFillAndAlignStart(instance);
         SetLineVisible(instance, true);
 
         float pathLength = CalculatePathWorldLength(path, pathLocalSpace);
@@ -350,7 +366,7 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        StartMaterialScrollAnimation(instance, settings, pathLength);
+        StartMaterialScrollAnimation(instance, settings);
         instance.LocalPath = new List<Vector3>(path);
         instance.PathLength = pathLength;
         instance.HasActivePath = true;
@@ -368,13 +384,17 @@ public class AttackPathController : MonoBehaviour
         }
 
         PlayPathSettings settings = ResolvePlayPathSettings(null, null, null);
-        ResetTextureOffset(instance);
-        StartMaterialScrollAnimation(instance, settings, instance.PathLength);
+        ApplyStretchFillAndAlignStart(instance);
+        StartMaterialScrollAnimation(instance, settings);
     }
 
-    private void StartMaterialScrollAnimation(LineInstance instance, PlayPathSettings settings, float pathLength)
+    /// <summary>
+    /// Stretch 模式下一张贴图铺满整线（TilingX=1），Offset=0 使贴图边缘对齐起点，
+    /// 再沿负 Offset X 滚动（起点→终点）。滚动速率与线长无关，各线速度一致。
+    /// </summary>
+    private void StartMaterialScrollAnimation(LineInstance instance, PlayPathSettings settings)
     {
-        if (_endTextureOffsetX <= 0f || _endOffsetSpeedCoefficient <= 0f)
+        if (_endTextureOffsetX <= 0f || _endOffsetSpeedCoefficient <= 0f || settings.Speed <= 0f)
         {
             return;
         }
@@ -385,15 +405,17 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        float offsetSpeed = settings.Speed * _endOffsetSpeedCoefficient;
-        float duration = pathLength / offsetSpeed;
+        // Offset 单位/秒恒定，不随线长变化，保证长短线滚动速度一致。
+        float offsetUnitsPerSecond = settings.Speed * _endOffsetSpeedCoefficient;
+        float duration = _endTextureOffsetX / offsetUnitsPerSecond;
         if (duration <= 0f)
         {
-            duration = _endTextureOffsetX / offsetSpeed;
+            return;
         }
 
+        // Stretch + UV 从起点→终点增大时，负向 Offset 使图案向终点流动。
         Vector2 startOffset = material.mainTextureOffset;
-        Vector2 targetOffset = new Vector2(startOffset.x + _endTextureOffsetX, startOffset.y);
+        Vector2 targetOffset = new Vector2(startOffset.x - _endTextureOffsetX, startOffset.y);
 
         instance.MaterialTween?.Kill();
         Tweener tween = material
@@ -408,15 +430,34 @@ public class AttackPathController : MonoBehaviour
         instance.MaterialTween = tween;
     }
 
-    private static void ConfigureLineRenderer(LineInstance instance, IReadOnlyList<Vector3> localPath)
+    private void ConfigureLineRenderer(LineInstance instance, IReadOnlyList<Vector3> localPath)
     {
+        Debug.Log("-----------!!!!!!!!!!!!");
         LineRenderer lineRenderer = instance.LineRenderer;
         lineRenderer.useWorldSpace = false;
+        lineRenderer.textureMode = LineTextureMode.Stretch;
+        ApplyCapStyle(lineRenderer);
         lineRenderer.positionCount = localPath.Count;
         for (int i = 0; i < localPath.Count; i++)
         {
             lineRenderer.SetPosition(i, localPath[i]);
         }
+    }
+
+    /// <summary>Stretch + TilingX=1 铺满整线，Offset X=0 对齐起点贴图边缘。</summary>
+    private void ApplyStretchFillAndAlignStart(LineInstance instance)
+    {
+        Material material = GetOrCreateRuntimeMaterial(instance);
+        if (material == null)
+        {
+            return;
+        }
+
+        Vector2 scale = material.mainTextureScale;
+        material.mainTextureScale = new Vector2(1f, scale.y);
+
+        Vector2 offset = material.mainTextureOffset;
+        material.mainTextureOffset = new Vector2(0f, offset.y);
     }
 
     private GridLine ResolveGridLine()
@@ -485,10 +526,20 @@ public class AttackPathController : MonoBehaviour
     private void ConfigureLineRendererDefaults(LineRenderer lineRenderer)
     {
         lineRenderer.useWorldSpace = false;
-        lineRenderer.textureMode = LineTextureMode.Tile;
+        lineRenderer.textureMode = LineTextureMode.Stretch;
         lineRenderer.numCornerVertices = 4;
-        lineRenderer.numCapVertices = 4;
+        ApplyCapStyle(lineRenderer);
         lineRenderer.alignment = LineAlignment.View;
+    }
+
+    private void ApplyCapStyle(LineRenderer lineRenderer)
+    {
+        if (lineRenderer == null)
+        {
+            return;
+        }
+
+        lineRenderer.numCapVertices = _useRoundedCaps ? Mathf.Max(1, _roundedCapVertices) : 0;
     }
 
     private void ApplyLineWidthToRenderer(LineRenderer lineRenderer)
@@ -499,9 +550,11 @@ public class AttackPathController : MonoBehaviour
         }
 
         lineRenderer.widthMultiplier = _lineWidth;
+        ApplyCapStyle(lineRenderer);
+        lineRenderer.textureMode = LineTextureMode.Stretch;
     }
 
-    private void ApplyLineWidthToAllInstances()
+    private void ApplyLineStyleToAllInstances()
     {
         ApplyLineWidthToRenderer(_legacyLine?.LineRenderer);
         if (_legacyLine?.LineTransform != null && _legacyLine.LineRenderer == null)
@@ -623,18 +676,6 @@ public class AttackPathController : MonoBehaviour
         return path;
     }
 
-    private void ResetTextureOffset(LineInstance instance)
-    {
-        Material material = GetOrCreateRuntimeMaterial(instance);
-        if (material == null)
-        {
-            return;
-        }
-
-        Vector2 offset = material.mainTextureOffset;
-        material.mainTextureOffset = new Vector2(0f, offset.y);
-    }
-
     private Material GetOrCreateRuntimeMaterial(LineInstance instance)
     {
         if (instance.RuntimeMaterial != null)
@@ -655,9 +696,16 @@ public class AttackPathController : MonoBehaviour
             return null;
         }
 
+        // 清除材质资产上残留的 Tiling/Offset，保证 Stretch 下整线一张贴图且边缘在起点。
+        Vector2 scale = instance.RuntimeMaterial.mainTextureScale;
+        instance.RuntimeMaterial.mainTextureScale = new Vector2(1f, scale.y);
+        Vector2 offset = instance.RuntimeMaterial.mainTextureOffset;
+        instance.RuntimeMaterial.mainTextureOffset = new Vector2(0f, offset.y);
+
         if (instance.LineRenderer != null)
         {
             instance.LineRenderer.material = instance.RuntimeMaterial;
+            instance.LineRenderer.textureMode = LineTextureMode.Stretch;
         }
 
         return instance.RuntimeMaterial;
