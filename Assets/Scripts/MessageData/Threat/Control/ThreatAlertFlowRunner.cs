@@ -100,11 +100,26 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return true;
     }
 
-    /// <summary>跳过当前停留计时（Demo「结束当前告警」可用）。</summary>
+    /// <summary>跳过当前停留计时（国家/省/车辆/攻击链路/零件；Demo「跳过停留」可用）。</summary>
     public void SkipCurrentHold()
     {
         _skipCurrentHold = true;
     }
+
+    /// <summary>当前是否处于任一停留阶段。</summary>
+    public bool IsInHoldStage =>
+        _flowRoutine != null && _visualStage != ThreatVisualStage.None;
+
+    /// <summary>当前停留阶段描述（Demo 展示用）。</summary>
+    public string CurrentHoldStageLabel => _visualStage switch
+    {
+        ThreatVisualStage.CountryHold => "国家级停留",
+        ThreatVisualStage.ProvinceHold => "省级停留",
+        ThreatVisualStage.VehicleHold => "车辆级停留",
+        ThreatVisualStage.AttackPathHold => "攻击链路停留",
+        ThreatVisualStage.PartHold => "零件级停留",
+        _ => "过渡/请求中（将跳过下一停留）",
+    };
 
     /// <summary>车辆/攻击链路/零件阶段可提前结束停留。</summary>
     public void NotifyVehicleStageFinished()
@@ -1133,7 +1148,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private IEnumerator WaitHoldSeconds(float seconds)
     {
-        _skipCurrentHold = false;
+        // 过渡/请求期间已点的跳过，进入停留后立即生效（不在此处清零）。
+        if (_skipCurrentHold)
+        {
+            _skipCurrentHold = false;
+            yield break;
+        }
+
         float remain = Mathf.Max(0f, seconds);
         while (remain > 0f && !_skipCurrentHold)
         {

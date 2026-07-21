@@ -103,7 +103,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void OnInjectSameVinClicked()
     {
-        InjectJson(ThreatLocalAlertTestMockJson.BuildSameVinQualifiedJson(), "同 Vin≥3（山东）");
+        InjectJson(ThreatLocalAlertTestMockJson.BuildSameVinQualifiedJson(), "多省多车 Vin≥3（鲁+黑+粤+苏）");
     }
 
     private void InjectJson(string json, string label)
@@ -123,14 +123,25 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         string mode = wasProcessing
             ? "处理中已刷新数据/画面（未重入流程）"
             : "空闲已触发告警评估并启动流程";
-        RefreshStatus($"已注入 {label}，{mode}。可用「跳过停留」加快 10s/60s。");
+        RefreshStatus($"已注入 {label}，{mode}。可用「跳过停留」跳过国家/省/车辆/攻击链路/零件等待。");
         RefreshResultList();
     }
 
     private void OnSkipHoldClicked()
     {
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        if (runner == null || !runner.IsRunning)
+        {
+            RefreshStatus("当前没有进行中的威胁流程，无法跳过停留。");
+            return;
+        }
+
         ThreatProvinceAlertController.CompleteCurrentProvinceAlert();
-        RefreshStatus("已请求跳过当前国家/省级停留。");
+        string stage = runner.CurrentHoldStageLabel;
+        RefreshStatus(
+            runner.IsInHoldStage
+                ? $"已跳过：{stage}"
+                : $"已记录跳过请求：{stage}");
     }
 
     private void OnClearExcludedClicked()

@@ -84,7 +84,7 @@ public static class ThreatProvinceAlertController
     }
 
     /// <summary>
-    /// 跳过当前停留并尽快进入本省收尾（Demo/外部调用）。
+    /// 跳过当前停留并尽快进入下一阶段（国家/省/车辆/攻击链路/零件；Demo/外部调用）。
     /// </summary>
     public static void CompleteCurrentProvinceAlert()
     {

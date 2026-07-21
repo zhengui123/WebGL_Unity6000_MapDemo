@@ -61,10 +61,10 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             resources, panel.transform, "InjectMultiProvinceButton", "注入多省达标 JSON", 12f, y, buttonWidth);
         y -= 40f;
         GameObject injectVinGo = CreateFullWidthButton(
-            resources, panel.transform, "InjectSameVinButton", "注入同Vin≥3 JSON", 12f, y, buttonWidth);
+            resources, panel.transform, "InjectSameVinButton", "注入多省多车 Vin≥3 JSON", 12f, y, buttonWidth);
         y -= 40f;
         GameObject skipHoldGo = CreateFullWidthButton(
-            resources, panel.transform, "SkipHoldButton", "跳过停留(10s/60s)", 12f, y, buttonWidth);
+            resources, panel.transform, "SkipHoldButton", "跳过停留", 12f, y, buttonWidth);
         y -= 40f;
         GameObject clearExcludedGo = CreateFullWidthButton(
             resources, panel.transform, "ClearExcludedButton", "清空排除 eventId", 12f, y, buttonWidth);

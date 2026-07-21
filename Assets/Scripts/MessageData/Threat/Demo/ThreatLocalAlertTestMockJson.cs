@@ -42,6 +42,40 @@ public static class ThreatLocalAlertTestMockJson
         (126.9687, 45.8905, "阿城"),
     };
 
+    /// <summary>广东省内主要城市。</summary>
+    private static readonly (double Lon, double Lat, string City)[] GuangdongCities =
+    {
+        (113.2644, 23.1291, "广州"),
+        (114.0579, 22.5431, "深圳"),
+        (113.5767, 22.2707, "珠海"),
+        (113.1220, 23.0218, "佛山"),
+        (113.7518, 23.0207, "东莞"),
+        (116.1225, 24.2886, "梅州"),
+        (114.4165, 23.1115, "惠州"),
+        (113.3824, 22.5211, "中山"),
+        (110.3594, 21.2707, "湛江"),
+        (111.9822, 21.8579, "阳江"),
+        (113.5945, 24.8104, "韶关"),
+        (116.6819, 23.3541, "汕头"),
+    };
+
+    /// <summary>江苏省内主要城市。</summary>
+    private static readonly (double Lon, double Lat, string City)[] JiangsuCities =
+    {
+        (118.7969, 32.0603, "南京"),
+        (120.5853, 31.2989, "苏州"),
+        (120.3119, 31.4912, "无锡"),
+        (119.9469, 31.7720, "常州"),
+        (120.8646, 32.0162, "南通"),
+        (119.0153, 33.6104, "淮安"),
+        (117.1848, 34.2618, "徐州"),
+        (119.4210, 32.3932, "扬州"),
+        (119.4528, 32.2044, "镇江"),
+        (120.1399, 33.3776, "盐城"),
+        (118.2752, 33.9630, "宿迁"),
+        (119.9152, 32.4849, "泰州"),
+    };
+
     /// <summary>山东+黑龙江各 10 条，用于测试国家多省高亮与取第一条进省。</summary>
     public static string BuildMultiProvinceQualifiedJson()
     {
@@ -51,14 +85,139 @@ public static class ThreatLocalAlertTestMockJson
         return WrapResponse(items);
     }
 
-    /// <summary>山东 12 条，其中同一 Vin 出现 ≥3 次，用于车辆大屏预留。</summary>
+    /// <summary>
+    /// 多省达标且每省多辆「热车」：每辆 Vin 出现 ≥3 次，省总条数 ≥10。
+    /// 鲁 3 辆 / 黑 4 辆 / 粤 3 辆 / 苏 3 辆，共 13 个可下钻 Vin。
+    /// </summary>
     public static string BuildSameVinQualifiedJson()
     {
-        List<string> items = new List<string>(16);
-        const string hotVin = "VIN_THREAT_HOT_001";
-        AppendProvinceEventsFromCities(items, "370000", "山东", ShandongCities, 3, hotVin, distinctVin: false);
-        AppendProvinceEventsFromCities(items, "370000", "山东", ShandongCities, 9, "VIN_SD_OTHER_", distinctVin: true, cityOffset: 3);
+        List<string> items = new List<string>(48);
+
+        AppendProvinceWithHotVins(
+            items,
+            "370000",
+            "山东",
+            ShandongCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_SD_HOT_01", 4),
+                ("VIN_SD_HOT_02", 3),
+                ("VIN_SD_HOT_03", 3),
+            });
+
+        AppendProvinceWithHotVins(
+            items,
+            "230000",
+            "黑龙江",
+            HeilongjiangCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_HLJ_HOT_01", 3),
+                ("VIN_HLJ_HOT_02", 3),
+                ("VIN_HLJ_HOT_03", 3),
+                ("VIN_HLJ_HOT_04", 3),
+            });
+
+        AppendProvinceWithHotVins(
+            items,
+            "440000",
+            "广东",
+            GuangdongCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_GD_HOT_01", 4),
+                ("VIN_GD_HOT_02", 4),
+                ("VIN_GD_HOT_03", 3),
+            });
+
+        AppendProvinceWithHotVins(
+            items,
+            "320000",
+            "江苏",
+            JiangsuCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_JS_HOT_01", 3),
+                ("VIN_JS_HOT_02", 4),
+                ("VIN_JS_HOT_03", 4),
+            });
+
         return WrapResponse(items);
+    }
+
+    /// <summary>按热车 Vin 重复次数撒点；可选补充若干单次出现的冷车 Vin 抬高省条数。</summary>
+    private static void AppendProvinceWithHotVins(
+        List<string> target,
+        string provinceCode,
+        string provinceName,
+        (double Lon, double Lat, string City)[] cities,
+        (string Vin, int Count)[] hotVins,
+        int fillerDistinctCount = 0,
+        string fillerVinPrefix = null)
+    {
+        if (cities == null || cities.Length == 0 || hotVins == null || hotVins.Length == 0)
+        {
+            return;
+        }
+
+        int eventSerial = 0;
+        int cityCursor = 0;
+        for (int v = 0; v < hotVins.Length; v++)
+        {
+            string vin = hotVins[v].Vin;
+            int count = hotVins[v].Count;
+            if (string.IsNullOrWhiteSpace(vin) || count <= 0)
+            {
+                continue;
+            }
+
+            for (int r = 0; r < count; r++)
+            {
+                eventSerial++;
+                AppendEventAtCity(
+                    target,
+                    provinceCode,
+                    provinceName,
+                    cities,
+                    ref cityCursor,
+                    eventSerial,
+                    vin.Trim());
+            }
+        }
+
+        if (fillerDistinctCount > 0 && !string.IsNullOrWhiteSpace(fillerVinPrefix))
+        {
+            AppendProvinceEventsFromCities(
+                target,
+                provinceCode,
+                provinceName,
+                cities,
+                fillerDistinctCount,
+                fillerVinPrefix,
+                distinctVin: true,
+                cityOffset: cityCursor,
+                eventSerialStart: eventSerial);
+        }
+    }
+
+    private static void AppendEventAtCity(
+        List<string> target,
+        string provinceCode,
+        string provinceName,
+        (double Lon, double Lat, string City)[] cities,
+        ref int cityCursor,
+        int eventSerial,
+        string vin)
+    {
+        int cityIndex = cityCursor % cities.Length;
+        (double lon, double lat, string city) = cities[cityIndex];
+        int dup = cityCursor / cities.Length;
+        lon += dup * 0.008d;
+        lat += dup * 0.006d;
+        cityCursor++;
+
+        string eventId = $"LOCAL_{provinceCode}_{eventSerial:D3}_{city}_{vin}";
+        target.Add(BuildItemJson(eventId, vin, provinceCode, provinceName, lon, lat));
     }
 
     private static void AppendProvinceEventsFromCities(
@@ -69,7 +228,8 @@ public static class ThreatLocalAlertTestMockJson
         int count,
         string vinPrefixOrFixed,
         bool distinctVin,
-        int cityOffset = 0)
+        int cityOffset = 0,
+        int eventSerialStart = 0)
     {
         if (cities == null || cities.Length == 0 || count <= 0)
         {
@@ -80,13 +240,12 @@ public static class ThreatLocalAlertTestMockJson
         {
             int cityIndex = (cityOffset + i) % cities.Length;
             (double lon, double lat, string city) = cities[cityIndex];
-            // 同一城市多次出现时加极小抖动，仍落在市辖区内
             int dup = (cityOffset + i) / cities.Length;
             lon += dup * 0.008d;
             lat += dup * 0.006d;
 
             string vin = distinctVin ? $"{vinPrefixOrFixed}{i + 1:D2}" : vinPrefixOrFixed;
-            string eventId = $"LOCAL_{provinceCode}_{i + 1:D3}_{city}_{vin}";
+            string eventId = $"LOCAL_{provinceCode}_{eventSerialStart + i + 1:D3}_{city}_{vin}";
             target.Add(BuildItemJson(
                 eventId,
                 vin,
