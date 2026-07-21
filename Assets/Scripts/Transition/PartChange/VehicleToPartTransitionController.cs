@@ -41,6 +41,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private AttackPathController _attackPathController;
     [Tooltip("零件显隐数据源（LineBindings.start3D）；留空则运行时查找")]
     [SerializeField] private GridLine _gridLine;
+
+    [Tooltip("零部件名称文本生成器；留空则运行时查找")]
+    [SerializeField] private PartNameLabelGenerator _partNameLabelGenerator;
     [SerializeField] private Transform _attackPathCamera;
     [Tooltip("车辆 → 攻击路径时相机移动到的目标位姿（世界坐标）")]
     [SerializeField] private Transform _attackPathCameraTarget;
@@ -974,11 +977,37 @@ public class VehicleToPartTransitionController : MonoBehaviour
     {
         List<string> partNames = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
         ShowPartsByNames(partNames);
+        // 仅攻击链路级显示零件名；隐藏零件上文字由零件 SetActive 自然带掉
+        SetPartNameLabelsVisible(true);
     }
 
     private void StopAndHideAttackPath()
     {
         HideAttackPathControllerImmediate();
+        SetPartNameLabelsVisible(false);
+    }
+
+    /// <summary>开关零部件名称文字（零件级/车辆级隐藏，攻击链路级显示）。</summary>
+    public void SetPartNameLabelsVisible(bool visible)
+    {
+        PartNameLabelGenerator generator = ResolvePartNameLabelGenerator();
+        if (generator == null)
+        {
+            return;
+        }
+
+        generator.SetAllLabelsVisible(visible);
+    }
+
+    private PartNameLabelGenerator ResolvePartNameLabelGenerator()
+    {
+        if (_partNameLabelGenerator != null)
+        {
+            return _partNameLabelGenerator;
+        }
+
+        _partNameLabelGenerator = FindFirstObjectByType<PartNameLabelGenerator>(FindObjectsInactive.Include);
+        return _partNameLabelGenerator;
     }
 
     /// <summary>仅停止并隐藏攻击路径控制器物体，不影响零部件显隐。</summary>

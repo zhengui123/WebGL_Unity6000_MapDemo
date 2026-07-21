@@ -61,6 +61,28 @@ public class PartNameLabelGenerator : MonoBehaviour
         ClearLabelsInternal(log: true);
     }
 
+    /// <summary>批量开关零部件名称文字（仅 PartNameLabel，不动零件）。</summary>
+    public void SetAllLabelsVisible(bool visible)
+    {
+        Transform[] targets = ResolveTargets();
+        for (int i = 0; i < targets.Length; i++)
+        {
+            Transform part = targets[i];
+            if (part == null)
+            {
+                continue;
+            }
+
+            PartNameLabelBillboard label = part.GetComponent<PartNameLabelBillboard>();
+            if (label == null)
+            {
+                continue;
+            }
+
+            label.SetLabelVisible(visible);
+        }
+    }
+
     /// <summary>把当前样式参数应用到已存在的标签（不重新创建）。</summary>
     [ContextMenu("应用文字大小与粗细")]
     public void ApplyStyleToExistingLabels()

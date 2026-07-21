@@ -99,6 +99,18 @@ public class PartNameLabelBillboard : MonoBehaviour
         RefreshLabelContent();
     }
 
+    /// <summary>只开关文字子物体，不影响零件本体显隐。</summary>
+    public void SetLabelVisible(bool visible)
+    {
+        EnsureLabel();
+        if (_labelRoot == null)
+        {
+            return;
+        }
+
+        _labelRoot.gameObject.SetActive(visible);
+    }
+
     /// <summary>销毁文字子物体（供 Generator 删除/重置）。</summary>
     public void DestroyLabelObject()
     {

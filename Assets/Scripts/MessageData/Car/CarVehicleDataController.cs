@@ -329,6 +329,7 @@ public class CarVehicleDataController : MonoBehaviour
         if (transition != null)
         {
             transition.ShowPartsByNames(Store.BuildAttackChainNodePartNames());
+            transition.SetPartNameLabelsVisible(true);
         }
 
         return added > 0;
