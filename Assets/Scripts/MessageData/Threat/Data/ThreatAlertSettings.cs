@@ -23,4 +23,7 @@ public static class ThreatAlertSettings
 
     /// <summary>零部件级别单件停留秒数；可被 Runner Inspector 覆盖。</summary>
     public const float PartLevelHoldSeconds = 10f;
+
+    /// <summary>主动退出/打断威胁下钻后的冷却秒数；可被 Runner Inspector 覆盖。</summary>
+    public const float InterruptCooldownSeconds = 180f;
 }

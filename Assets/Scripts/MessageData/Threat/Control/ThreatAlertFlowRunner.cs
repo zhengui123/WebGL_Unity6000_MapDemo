@@ -34,11 +34,16 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     [Tooltip("每个零部件级停留")]
     [SerializeField] private float _partLevelHoldSeconds = ThreatAlertSettings.PartLevelHoldSeconds;
 
+    [Header("主动退出冷却（秒）")]
+    [Tooltip("主动退出/打断威胁下钻后，暂停威胁检测的冷却时长")]
+    [SerializeField] private float _interruptCooldownSeconds = ThreatAlertSettings.InterruptCooldownSeconds;
+
     [Header("调试")]
     [Tooltip("Console 输出 [计时] 日志，区分过渡耗时与停留耗时")]
     [SerializeField] private bool _logStageTiming = true;
 
     private Coroutine _flowRoutine;
+    private Coroutine _interruptCooldownRoutine;
     private bool _skipCurrentHold;
     private bool _provinceFocusSignal;
     private bool _transitionStepDone;
@@ -50,9 +55,19 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
+    private float _interruptCooldownRemaining;
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
+
+    /// <summary>是否处于主动打断后的冷却期。</summary>
+    public bool IsInInterruptCooldown => _interruptCooldownRoutine != null;
+
+    /// <summary>冷却剩余秒数。</summary>
+    public float InterruptCooldownRemaining => Mathf.Max(0f, _interruptCooldownRemaining);
+
+    /// <summary>Inspector 配置的打断冷却秒数。</summary>
+    public float ConfiguredInterruptCooldownSeconds => _interruptCooldownSeconds;
 
     /// <summary>Inspector 配置的国家级停留秒数。</summary>
     public float ConfiguredCountryHoldSeconds => _countryLevelHoldSeconds;
@@ -117,9 +132,11 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         em.OnPlateMapFocusModuleCompleted -= HandleProvinceFocusCompleted;
         StopFlowInternal();
+        CancelInterruptCooldown();
+        ThreatProvinceAlertController.NotifyFlowStopped();
     }
 
-    /// <summary>启动一轮威胁流程（进行中则忽略）。</summary>
+    /// <summary>启动一轮威胁流程（进行中或冷却中则忽略）。</summary>
     /// <param name="resumeFromVehicleDrillSubtree">已在车辆/攻击链路/零件级时跳过国家与省级停留，直接 Vin 下钻。</param>
     public bool TryStartThreatFlow(bool resumeFromVehicleDrillSubtree = false)
     {
@@ -128,7 +145,21 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return false;
         }
 
+        if (IsInInterruptCooldown)
+        {
+            Debug.LogWarning(
+                $"[ThreatAlertFlowRunner] 威胁冷却中，拒绝启动流程 | 剩余={_interruptCooldownRemaining:F0}s");
+            return false;
+        }
+
         _resumeFromVehicleDrillSubtree = resumeFromVehicleDrillSubtree;
+
+        // 威胁下钻开始时关闭自动轮播，避免与流程抢控。
+        if (MapApi.Instance != null)
+        {
+            MapApi.Instance.SetBigScreenAutoCarouselEnabled(false);
+        }
+
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
         return true;
     }
@@ -157,6 +188,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     /// <summary>Demo 面板用：当前流程状态与倒计时文案。</summary>
     public string GetFlowStatusText()
     {
+        if (IsInInterruptCooldown)
+        {
+            return
+                $"流程：威胁冷却中 | 倒计时 {Mathf.Ceil(_interruptCooldownRemaining):F0}s / " +
+                $"{Mathf.Max(0.1f, _interruptCooldownSeconds):F0}s";
+        }
+
         if (!IsRunning)
         {
             return "流程：空闲";
@@ -180,6 +218,44 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         return $"流程：{detail}";
+    }
+
+    /// <summary>
+    /// 主动退出威胁下钻：停在当前级别，清理威胁 POI/高亮，进入冷却（不启动轮播）。
+    /// </summary>
+    public bool ExitThreatDrill()
+    {
+        bool wasRunning = IsRunning;
+        StopFlowInternal();
+        ThreatProvinceAlertController.NotifyFlowStopped();
+
+        POI_Manager.Instance?.RemoveAllPoi();
+        PlateMapHighlightController.Instance?.ClearHighlight();
+        GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
+
+        // 退出打断不改 ControlState，保持当前级别。
+        StartInterruptCooldown();
+        Debug.Log(
+            $"[ThreatAlertFlowRunner] 已退出威胁下钻 | wasRunning={wasRunning} | " +
+            $"control={GameManager.Instance?.CurrentState} | 冷却={_interruptCooldownSeconds:F0}s");
+        return true;
+    }
+
+    /// <summary>
+    /// 刷新威胁冷却：仅冷却中有效，重新计满配置秒数。
+    /// </summary>
+    public bool RefreshThreatCooldown()
+    {
+        if (!IsInInterruptCooldown)
+        {
+            Debug.LogWarning("[ThreatAlertFlowRunner] 当前不在威胁冷却中，忽略刷新冷却。");
+            return false;
+        }
+
+        StartInterruptCooldown();
+        Debug.Log(
+            $"[ThreatAlertFlowRunner] 已刷新威胁冷却 | {_interruptCooldownSeconds:F0}s");
+        return true;
     }
 
     /// <summary>车辆/攻击链路/零件阶段可提前结束停留。</summary>
@@ -240,10 +316,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    /// <summary>停止流程并清理 POI/高亮（调试重置）。</summary>
+    /// <summary>停止流程并清理 POI/高亮（调试重置，同时取消冷却）。</summary>
     public void StopAndResetVisuals()
     {
         StopFlowInternal();
+        CancelInterruptCooldown();
+        ThreatProvinceAlertController.NotifyFlowStopped();
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
     }
@@ -262,6 +340,41 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activePlateModuleName = null;
         _activeEncryptVin = null;
         ClearHoldCountdown();
+    }
+
+    private void StartInterruptCooldown()
+    {
+        CancelInterruptCooldown();
+        _interruptCooldownRoutine = StartCoroutine(InterruptCooldownRoutine());
+    }
+
+    private void CancelInterruptCooldown()
+    {
+        if (_interruptCooldownRoutine != null)
+        {
+            StopCoroutine(_interruptCooldownRoutine);
+            _interruptCooldownRoutine = null;
+        }
+
+        _interruptCooldownRemaining = 0f;
+    }
+
+    private IEnumerator InterruptCooldownRoutine()
+    {
+        float total = Mathf.Max(0.1f, _interruptCooldownSeconds);
+        _interruptCooldownRemaining = total;
+        Debug.Log($"[ThreatAlertFlowRunner] 威胁冷却开始 | {total:F0}s（期间不检测）");
+
+        while (_interruptCooldownRemaining > 0f)
+        {
+            _interruptCooldownRemaining -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        _interruptCooldownRemaining = 0f;
+        _interruptCooldownRoutine = null;
+        Debug.Log("[ThreatAlertFlowRunner] 威胁冷却结束，恢复威胁数据检测。");
+        ThreatProvinceAlertController.EvaluateAfterDataUpdated();
     }
 
     private IEnumerator ThreatFlowRoutine()
@@ -1371,7 +1484,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         PlateMapHighlightController.Instance?.ClearHighlight();
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
         ThreatProvinceAlertController.NotifyAllAlertsCompleted();
-        Debug.Log("[ThreatAlertFlowRunner] 无达标省，GameManager → Default。");
+
+        // 自然跑完：进入自动轮播循环（不进冷却）。
+        if (MapApi.Instance != null)
+        {
+            MapApi.Instance.SetBigScreenAutoCarouselEnabled(true, bypassDelayedStart: true);
+        }
+
+        Debug.Log("[ThreatAlertFlowRunner] 无达标省，GameManager → Default，已开启自动轮播。");
     }
 
     private void HandleProvinceFocusCompleted(string _)

@@ -13,6 +13,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _injectMultiProvinceButton;
     [SerializeField] private Button _injectSameVinButton;
     [SerializeField] private Button _skipHoldButton;
+    [SerializeField] private Button _exitThreatButton;
+    [SerializeField] private Button _refreshCooldownButton;
     [SerializeField] private Button _clearExcludedButton;
     [SerializeField] private Button _refreshButton;
     [SerializeField] private Button _resetFlowButton;
@@ -80,6 +82,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         Bind(_injectMultiProvinceButton, OnInjectMultiProvinceClicked, bind);
         Bind(_injectSameVinButton, OnInjectSameVinClicked, bind);
         Bind(_skipHoldButton, OnSkipHoldClicked, bind);
+        Bind(_exitThreatButton, OnExitThreatClicked, bind);
+        Bind(_refreshCooldownButton, OnRefreshCooldownClicked, bind);
         Bind(_clearExcludedButton, OnClearExcludedClicked, bind);
         Bind(_refreshButton, RefreshResultList, bind);
         Bind(_resetFlowButton, OnResetFlowClicked, bind);
@@ -129,8 +133,10 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
         string mode = wasProcessing
             ? "处理中已刷新数据/画面（未重入流程）"
-            : "空闲已触发告警评估并启动流程";
-        RefreshStatus($"已注入 {label}，{mode}。可用「跳过停留」跳过国家/省/车辆/攻击链路/零件等待。");
+            : ThreatProvinceAlertController.IsInInterruptCooldown
+                ? "冷却中仅入库（不检测，冷却结束后自动评估）"
+                : "空闲已触发告警评估并启动流程";
+        RefreshStatus($"已注入 {label}，{mode}。");
         RefreshResultList();
     }
 
@@ -149,6 +155,40 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
             runner.IsInHoldStage
                 ? $"已跳过：{stage}"
                 : $"已记录跳过请求：{stage}");
+    }
+
+    private void OnExitThreatClicked()
+    {
+        EnsureFlowRunnerExists();
+        if (!ThreatProvinceAlertController.ExitThreatDrill())
+        {
+            RefreshStatus("退出威胁下钻失败。");
+            return;
+        }
+
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        float cooldown = runner != null
+            ? runner.ConfiguredInterruptCooldownSeconds
+            : ThreatAlertSettings.InterruptCooldownSeconds;
+        RefreshStatus($"已退出威胁下钻（保持当前级别），进入冷却 {cooldown:F0}s。");
+        RefreshResultList();
+    }
+
+    private void OnRefreshCooldownClicked()
+    {
+        EnsureFlowRunnerExists();
+        if (!ThreatProvinceAlertController.RefreshThreatCooldown())
+        {
+            RefreshStatus("当前不在冷却中，无法刷新冷却。");
+            return;
+        }
+
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        float cooldown = runner != null
+            ? runner.ConfiguredInterruptCooldownSeconds
+            : ThreatAlertSettings.InterruptCooldownSeconds;
+        RefreshStatus($"已刷新威胁冷却，重新计时 {cooldown:F0}s。");
+        RefreshResultList();
     }
 
     private void OnClearExcludedClicked()
@@ -239,6 +279,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         builder.AppendLine($"Control={GameManager.Instance?.CurrentState}");
         builder.AppendLine(
             $"流程={(ThreatProvinceAlertController.IsProcessing ? "进行中" : "空闲")}，" +
+            $"冷却={(ThreatProvinceAlertController.IsInInterruptCooldown ? "是" : "否")}，" +
             $"当前省={ThreatProvinceAlertController.CurrentProvinceCode ?? "-"}");
         builder.AppendLine($"排除 eventId 数={ThreatExcludedEventIdStore.Count}");
         builder.AppendLine($"缓存事件总数={store?.Count ?? 0}");
@@ -260,12 +301,16 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         float partHold = runner != null
             ? runner.ConfiguredPartHoldSeconds
             : ThreatAlertSettings.PartLevelHoldSeconds;
+        float interruptCooldown = runner != null
+            ? runner.ConfiguredInterruptCooldownSeconds
+            : ThreatAlertSettings.InterruptCooldownSeconds;
         string runnerHint = runner != null ? "（Runner Inspector）" : "（默认常量）";
 
         builder.AppendLine(
             $"停留{runnerHint}：国家{countryHold:F1}s / 省{provinceHold:F1}s / " +
             $"车{vehicleHold:F1}s / 攻击链路{attackHold:F1}s / 零件{partHold:F1}s（每件）");
-        if (runner != null && runner.IsRunning)
+        builder.AppendLine($"打断冷却{runnerHint}：{interruptCooldown:F0}s");
+        if (runner != null)
         {
             builder.AppendLine($"当前阶段={runner.GetFlowStatusText()}");
         }
@@ -379,6 +424,16 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (_skipHoldButton == null)
         {
             _skipHoldButton = transform.Find("SkipHoldButton")?.GetComponent<Button>();
+        }
+
+        if (_exitThreatButton == null)
+        {
+            _exitThreatButton = transform.Find("ExitThreatButton")?.GetComponent<Button>();
+        }
+
+        if (_refreshCooldownButton == null)
+        {
+            _refreshCooldownButton = transform.Find("RefreshCooldownButton")?.GetComponent<Button>();
         }
 
         if (_clearExcludedButton == null)

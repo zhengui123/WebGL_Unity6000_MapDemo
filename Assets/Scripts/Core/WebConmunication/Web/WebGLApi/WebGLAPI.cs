@@ -572,6 +572,38 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(ResumeGame), "已恢复");
     }
 
+    /// <summary>
+    /// 宿主调用：主动退出威胁下钻（保持当前级别，进入冷却）。arg 传 ""。
+    /// </summary>
+    public void ExitThreatDrill()
+    {
+        LogCommunication("← Host", nameof(ExitThreatDrill), string.Empty);
+
+        if (!MapApi.Instance.ExitThreatDrill())
+        {
+            Debug.LogWarning("[WebGLAPI] ExitThreatDrill 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(ExitThreatDrill), "已退出并进入冷却");
+    }
+
+    /// <summary>
+    /// 宿主调用：刷新威胁冷却倒计时（仅冷却中有效）。arg 传 ""。
+    /// </summary>
+    public void RefreshThreatCooldown()
+    {
+        LogCommunication("← Host", nameof(RefreshThreatCooldown), string.Empty);
+
+        if (!MapApi.Instance.RefreshThreatCooldown())
+        {
+            Debug.LogWarning("[WebGLAPI] RefreshThreatCooldown 失败（可能未在冷却中）。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(RefreshThreatCooldown), "已刷新冷却");
+    }
+
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
     public void CloseCarUI()
     {

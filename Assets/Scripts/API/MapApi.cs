@@ -474,4 +474,20 @@ public class MapApi : UnitySingle<MapApi>
         GameManager.Instance.ResumeGame();
         return true;
     }
+
+    /// <summary>
+    /// 主动退出威胁下钻：停在当前级别，进入冷却（默认 180s，期间不检测威胁）。
+    /// </summary>
+    public bool ExitThreatDrill()
+    {
+        return ThreatProvinceAlertController.ExitThreatDrill();
+    }
+
+    /// <summary>
+    /// 刷新威胁冷却倒计时（仅冷却中有效，重新计满配置秒数）。
+    /// </summary>
+    public bool RefreshThreatCooldown()
+    {
+        return ThreatProvinceAlertController.RefreshThreatCooldown();
+    }
 }

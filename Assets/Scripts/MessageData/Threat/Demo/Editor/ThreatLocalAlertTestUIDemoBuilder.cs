@@ -80,6 +80,12 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         GameObject skipHoldGo = CreateFullWidthButton(
             resources, panel.transform, "SkipHoldButton", "跳过停留", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject exitThreatGo = CreateFullWidthButton(
+            resources, panel.transform, "ExitThreatButton", "退出威胁下钻(进冷却)", 12f, y, buttonWidth);
+        y -= 40f;
+        GameObject refreshCooldownGo = CreateFullWidthButton(
+            resources, panel.transform, "RefreshCooldownButton", "刷新威胁冷却", 12f, y, buttonWidth);
+        y -= 40f;
         GameObject clearExcludedGo = CreateFullWidthButton(
             resources, panel.transform, "ClearExcludedButton", "清空排除 eventId", 12f, y, buttonWidth);
         y -= 40f;
@@ -106,6 +112,10 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             injectVinGo.GetComponent<Button>();
         serializedDemo.FindProperty("_skipHoldButton").objectReferenceValue =
             skipHoldGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_exitThreatButton").objectReferenceValue =
+            exitThreatGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_refreshCooldownButton").objectReferenceValue =
+            refreshCooldownGo.GetComponent<Button>();
         serializedDemo.FindProperty("_clearExcludedButton").objectReferenceValue =
             clearExcludedGo.GetComponent<Button>();
         serializedDemo.FindProperty("_refreshButton").objectReferenceValue =

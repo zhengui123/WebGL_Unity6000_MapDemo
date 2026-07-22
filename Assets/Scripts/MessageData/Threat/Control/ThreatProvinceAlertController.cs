@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 威胁态势告警控制入口：数据达标后启动 <see cref="ThreatAlertFlowRunner"/>。
 /// 不维护长期省份队列；每轮国家停留后取「当前最新达标列表第一条」。
+/// 主动退出后进入冷却：冷却期内不检测；仅通过刷新冷却接口重置计时。
 /// </summary>
 public static class ThreatProvinceAlertController
 {
@@ -12,7 +13,18 @@ public static class ThreatProvinceAlertController
     private static ThreatProvinceAlertContext _currentContext;
 
     /// <summary>是否正在执行告警处理流程。</summary>
-    public static bool IsProcessing => _isProcessing || (ThreatAlertFlowRunner.Instance != null && ThreatAlertFlowRunner.Instance.IsRunning);
+    public static bool IsProcessing =>
+        _isProcessing || (ThreatAlertFlowRunner.Instance != null && ThreatAlertFlowRunner.Instance.IsRunning);
+
+    /// <summary>是否处于主动打断后的冷却期（期间不启动威胁检测）。</summary>
+    public static bool IsInInterruptCooldown =>
+        ThreatAlertFlowRunner.Instance != null && ThreatAlertFlowRunner.Instance.IsInInterruptCooldown;
+
+    /// <summary>冷却剩余秒数；非冷却中为 0。</summary>
+    public static float InterruptCooldownRemaining =>
+        ThreatAlertFlowRunner.Instance != null
+            ? ThreatAlertFlowRunner.Instance.InterruptCooldownRemaining
+            : 0f;
 
     /// <summary>当前正在处理的省级 code；无则 null。</summary>
     public static string CurrentProvinceCode => _currentContext?.ProvinceCode;
@@ -31,10 +43,17 @@ public static class ThreatProvinceAlertController
 
     /// <summary>
     /// 数据入库后评估是否触发告警。
-    /// 处理中：仅刷新当前阶段画面，不重新进入流程；空闲且达标：启动流程。
+    /// 冷却中：不检测；处理中：仅刷新画面；空闲且达标：启动流程。
     /// </summary>
     public static void EvaluateAfterDataUpdated()
     {
+        if (IsInInterruptCooldown)
+        {
+            Debug.Log(
+                $"[ThreatProvinceAlertController] 威胁冷却中，跳过检测 | 剩余={InterruptCooldownRemaining:F0}s");
+            return;
+        }
+
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
         IReadOnlyList<string> qualifiedProvinces = store.GetProvincesMeetingThreshold(
             ThreatAlertSettings.EventsPerProvinceThreshold);
@@ -72,7 +91,7 @@ public static class ThreatProvinceAlertController
         if (!runner.TryStartThreatFlow(resumeFromVehicleDrillSubtree: resumeFromVehicle))
         {
             _isProcessing = false;
-            Debug.LogWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行）。");
+            Debug.LogWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行或冷却中）。");
             return;
         }
 
@@ -81,6 +100,36 @@ public static class ThreatProvinceAlertController
             Debug.Log(
                 "[ThreatProvinceAlertController] 已在车辆/攻击链路/零件级，从当前级别继续 Vin 下钻（跳过国家/省级停留）。");
         }
+    }
+
+    /// <summary>
+    /// 主动退出威胁下钻：停在当前级别，进入冷却（默认 180s）。
+    /// </summary>
+    public static bool ExitThreatDrill()
+    {
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        if (runner == null)
+        {
+            Debug.LogWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法退出威胁下钻。");
+            return false;
+        }
+
+        return runner.ExitThreatDrill();
+    }
+
+    /// <summary>
+    /// 刷新威胁冷却倒计时（仅冷却中有效，重新计满配置秒数）。
+    /// </summary>
+    public static bool RefreshThreatCooldown()
+    {
+        ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
+        if (runner == null)
+        {
+            Debug.LogWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法刷新冷却。");
+            return false;
+        }
+
+        return runner.RefreshThreatCooldown();
     }
 
     /// <summary>
@@ -98,7 +147,7 @@ public static class ThreatProvinceAlertController
         runner.SkipCurrentHold();
     }
 
-    /// <summary>清空处理状态（调试）。</summary>
+    /// <summary>清空处理状态与冷却（调试）。</summary>
     public static void ResetProcessingState()
     {
         _currentContext = null;

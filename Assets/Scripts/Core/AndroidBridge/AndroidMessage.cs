@@ -623,6 +623,30 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：主动退出威胁下钻（保持当前级别，进入冷却）。
+    /// UnitySendMessage("AndroidBridge", "ExitThreatDrill", "");
+    /// </summary>
+    public void ExitThreatDrill()
+    {
+        if (!MapApi.Instance.ExitThreatDrill())
+        {
+            Debug.LogWarning("[AndroidMessage] ExitThreatDrill 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：刷新威胁冷却倒计时（仅冷却中有效）。
+    /// UnitySendMessage("AndroidBridge", "RefreshThreatCooldown", "");
+    /// </summary>
+    public void RefreshThreatCooldown()
+    {
+        if (!MapApi.Instance.RefreshThreatCooldown())
+        {
+            Debug.LogWarning("[AndroidMessage] RefreshThreatCooldown 失败（可能未在冷却中）。");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。
     /// UnitySendMessage("AndroidBridge", "CloseCarUI", "");
     /// </summary>
