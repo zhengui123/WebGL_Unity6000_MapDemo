@@ -18,9 +18,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     [Tooltip("勾选后将过渡动画时长临时置 0，跳转结束后自动恢复")]
     [SerializeField] private bool _useInstantTransition = true;
 
-    [Header("过渡参数（与正式流程一致；空则用 GameManager 默认省）")]
-    [SerializeField] private string _provinceName = "";
-    [SerializeField] private string _provinceModuleName = "";
+    [Header("过渡参数")]
     [SerializeField] private string _partId;
 
     [Header("启动时机")]
@@ -34,22 +32,25 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private bool _stepDone;
 
+    /// <summary>本次跳转使用的省名（调用参数优先，否则 GameManager 默认）。</summary>
+    private string _activeProvinceName;
+
+    /// <summary>本次跳转使用的板块模块名（调用参数优先，否则由默认省 code 解析）。</summary>
+    private string _activeProvinceModuleName;
+
     public override void Awake()
     {
         base.Awake();
     }
 
- 
-
     private void Start()
     {
-        EnsureDefaultProvinceParameters();
-
         if (!_applyOnPlay)
         {
             return;
         }
 
+        ResolveActiveProvinceParameters(null, null);
         StartCoroutine(BootstrapAfterWarmup(_ensureEarthBaselineOnPlay, _startState));
     }
 
@@ -61,7 +62,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return;
         }
 
-        EnsureDefaultProvinceParameters();
+        ResolveActiveProvinceParameters(null, null);
         StartCoroutine(BootstrapAfterWarmup(false, _startState));
     }
 
@@ -84,8 +85,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// </summary>
     /// <param name="useInstantTransition">是否启用瞬时过渡（临时将动画时长置 0）。</param>
     /// <param name="targetState">目标操控级别。</param>
-    /// <param name="provinceName">省份名；为 null 时沿用 Inspector 配置。</param>
-    /// <param name="provinceModuleName">省级模块名；为 null 时沿用 Inspector 配置。</param>
+    /// <param name="provinceName">省份名；空/null 时使用 <see cref="GameManager.DefaultProvinceName"/>。</param>
+    /// <param name="provinceModuleName">省级模块名；空/null 时用默认省 code 解析板块名。</param>
     /// <param name="partId">业务零部件 ID；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
     /// <returns>已启动跳转返回 true；正在跳转中返回 false。</returns>
@@ -113,60 +114,47 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         string partIdForTransition = currentState == GameManager.ControlState.PartLevel
             ? null
             : partId;
-        ApplyOptionalTransitionParameters(provinceName, provinceModuleName, partIdForTransition);
-        EnsureDefaultProvinceParameters();
+        if (partIdForTransition != null)
+        {
+            _partId = partIdForTransition;
+        }
+
+        ResolveActiveProvinceParameters(provinceName, provinceModuleName);
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
     }
 
-    private void ApplyOptionalTransitionParameters(
-        string provinceName,
-        string provinceModuleName,
-        string partId)
+    /// <summary>
+    /// 解析本次跳转省名/板块模块名：调用参数优先，否则读 GameManager 默认省。
+    /// </summary>
+    private void ResolveActiveProvinceParameters(string provinceName, string provinceModuleName)
     {
-        // null/空：不覆盖，后续由 EnsureDefaultProvinceParameters 回退 GameManager 默认。
+        GameManager gm = GameManager.Instance;
+
         if (!string.IsNullOrWhiteSpace(provinceName))
         {
-            _provinceName = provinceName.Trim();
+            _activeProvinceName = provinceName.Trim();
+        }
+        else if (gm != null)
+        {
+            _activeProvinceName = gm.DefaultProvinceName;
+        }
+        else
+        {
+            _activeProvinceName = "浙江";
         }
 
         if (!string.IsNullOrWhiteSpace(provinceModuleName))
         {
-            _provinceModuleName = provinceModuleName.Trim();
+            _activeProvinceModuleName = provinceModuleName.Trim();
         }
-
-        if (partId != null)
+        else if (gm != null)
         {
-            _partId = partId;
+            _activeProvinceModuleName = gm.ResolveProvinceModuleName(null);
         }
-    }
-
-    /// <summary>省名/板块模块名为空时，回退到 GameManager 默认省（浙江/330000）。</summary>
-    private void EnsureDefaultProvinceParameters()
-    {
-        GameManager gm = GameManager.Instance;
-        if (gm == null)
+        else
         {
-            if (string.IsNullOrWhiteSpace(_provinceName))
-            {
-                _provinceName = "浙江";
-            }
-
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_provinceName))
-        {
-            _provinceName = gm.DefaultProvinceName;
-        }
-
-        if (string.IsNullOrWhiteSpace(_provinceModuleName))
-        {
-            string moduleName = gm.ResolveProvinceModuleName(null);
-            if (!string.IsNullOrWhiteSpace(moduleName))
-            {
-                _provinceModuleName = moduleName;
-            }
+            _activeProvinceModuleName = string.Empty;
         }
     }
 
@@ -357,14 +345,14 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (from == GameManager.ControlState.CountryLevel
             && to == GameManager.ControlState.ProvinceLevel)
         {
-            yield return GoToProvinceLevel(_provinceModuleName);
+            yield return GoToProvinceLevel(_activeProvinceModuleName);
             yield break;
         }
 
         if (from == GameManager.ControlState.ProvinceLevel
             && to == GameManager.ControlState.VehicleLevel)
         {
-            yield return GoToVehicleLevel(_provinceName);
+            yield return GoToVehicleLevel(_activeProvinceName);
             yield break;
         }
 
@@ -388,7 +376,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             yield return WaitForBoolStringEvent(
                 h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted += h,
                 h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted -= h,
-                () => MapApi.Instance.TransitionCityToPlateMap(_provinceName),
+                () => MapApi.Instance.TransitionCityToPlateMap(ResolveActiveProvinceName()),
                 "车辆 → 板块聚焦倒播");
             yield break;
         }
@@ -456,20 +444,17 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private IEnumerator GoToProvinceLevel(string moduleName)
     {
-        string key = moduleName;
-        if (string.IsNullOrWhiteSpace(key) && GameManager.Instance != null)
-        {
-            key = GameManager.Instance.ResolveProvinceModuleName(null);
-        }
+        string key = !string.IsNullOrWhiteSpace(moduleName)
+            ? moduleName.Trim()
+            : ResolveActiveProvinceModuleName();
 
         if (string.IsNullOrWhiteSpace(key))
         {
             Debug.LogWarning(
-                "[ControlStateHierarchyTransitionController] 未配置省级模块名，且默认省未解析到板块。");
+                "[ControlStateHierarchyTransitionController] 默认省未解析到板块模块名，无法进入省级。");
             yield break;
         }
 
-        key = key.Trim();
         yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnPlateMapFocusModuleCompleted += h,
             h => EventManager.Instance.OnPlateMapFocusModuleCompleted -= h,
@@ -479,22 +464,37 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private IEnumerator GoToVehicleLevel(string provinceName)
     {
-        string name = provinceName;
-        if (string.IsNullOrWhiteSpace(name) && GameManager.Instance != null)
-        {
-            name = GameManager.Instance.DefaultProvinceName;
-        }
-
-        if (string.IsNullOrWhiteSpace(name))
-        {
-            name = "浙江";
-        }
+        string name = !string.IsNullOrWhiteSpace(provinceName)
+            ? provinceName.Trim()
+            : ResolveActiveProvinceName();
 
         yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnPlateToVehicleViewTransitionCompleted += h,
             h => EventManager.Instance.OnPlateToVehicleViewTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionPlateMapToCity(name.Trim()),
-            $"板块聚焦 → 城市 → 车辆 ({name.Trim()})");
+            () => MapApi.Instance.TransitionPlateMapToCity(name),
+            $"板块聚焦 → 城市 → 车辆 ({name})");
+    }
+
+    private string ResolveActiveProvinceName()
+    {
+        if (!string.IsNullOrWhiteSpace(_activeProvinceName))
+        {
+            return _activeProvinceName.Trim();
+        }
+
+        GameManager gm = GameManager.Instance;
+        return gm != null ? gm.DefaultProvinceName : "浙江";
+    }
+
+    private string ResolveActiveProvinceModuleName()
+    {
+        if (!string.IsNullOrWhiteSpace(_activeProvinceModuleName))
+        {
+            return _activeProvinceModuleName.Trim();
+        }
+
+        GameManager gm = GameManager.Instance;
+        return gm != null ? gm.ResolveProvinceModuleName(null) : string.Empty;
     }
 
     private IEnumerator GoToPartLevel()
