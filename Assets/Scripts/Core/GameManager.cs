@@ -39,6 +39,12 @@ public class GameManager : UnitySingle<GameManager>
     [Header("引用（可留空，运行时查找）")]
     [SerializeField] private PlateMapDisplayController _plateMapDisplayController;
 
+    [Header("默认省级（省名为空时使用）")]
+    [Tooltip("默认省 adcode，如浙江 330000")]
+    [SerializeField] private string _defaultProvinceCode = "330000";
+    [Tooltip("默认省名（由 code 自动解析；也可 Inspector 预填）")]
+    [SerializeField] private string _defaultProvinceName = "浙江";
+
     [Header("国家级别点击板块效果")]
     [Tooltip("进入国家级别后是否允许点击板块模块（默认不允许）")]
     [SerializeField] private bool _enablePlateClickAtCountryLevel = false;
@@ -49,6 +55,14 @@ public class GameManager : UnitySingle<GameManager>
     public ControlState CurrentState => _currentState;
 
     public BigScreenPlaybackState CurrentPlaybackState => _currentPlaybackState;
+
+    /// <summary>默认省 adcode（如 330000）。</summary>
+    public string DefaultProvinceCode =>
+        string.IsNullOrWhiteSpace(_defaultProvinceCode) ? "330000" : _defaultProvinceCode.Trim();
+
+    /// <summary>默认省中文名（如 浙江）。</summary>
+    public string DefaultProvinceName =>
+        string.IsNullOrWhiteSpace(_defaultProvinceName) ? "浙江" : _defaultProvinceName.Trim();
 
     /// <summary>是否处于暂停。</summary>
     public bool IsPaused => _isPaused;
@@ -69,6 +83,8 @@ public class GameManager : UnitySingle<GameManager>
         {
             _plateMapDisplayController = PlateMapDisplayController.Instance;
         }
+
+        EnsureDefaultProvinceNameFromCode();
     }
 
     private void OnEnable()
@@ -301,6 +317,7 @@ public class GameManager : UnitySingle<GameManager>
     /// <summary>
     /// 国家级别 → 省级：触发聚焦某个省模块（moduleName 默认使用场景 GameObject 名）。
     /// 注意：最终进入省级状态在 <see cref="EventManager.OnPlateMapFocusModuleCompleted"/> 里完成。
+    /// moduleName 为空时，用默认省 code 解析板块名。
     /// </summary>
     public void SwitchToProvinceLevel(string provinceModuleName)
     {
@@ -309,7 +326,121 @@ public class GameManager : UnitySingle<GameManager>
             return;
         }
 
-        MapApi.Instance.FocusPlateMapModule(provinceModuleName);
+        string moduleName = ResolveProvinceModuleName(provinceModuleName);
+        if (string.IsNullOrWhiteSpace(moduleName))
+        {
+            Debug.LogWarning(
+                $"[GameManager] 无法聚焦省级：模块名为空，且默认省 code={DefaultProvinceCode} 未解析到板块。");
+            return;
+        }
+
+        MapApi.Instance.FocusPlateMapModule(moduleName);
+    }
+
+    /// <summary>
+    /// 按省 code 设置默认省；自动查找并保存省名。
+    /// </summary>
+    /// <param name="provinceCode">省级 adcode，如 330000。</param>
+    public bool SetDefaultProvinceCode(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            Debug.LogWarning("[GameManager] SetDefaultProvinceCode: provinceCode 为空。");
+            return false;
+        }
+
+        string code = provinceCode.Trim();
+        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(code, out string normalized))
+        {
+            normalized = code;
+        }
+
+        if (!TryResolveProvinceNameByCode(normalized, out string provinceName))
+        {
+            Debug.LogWarning($"[GameManager] SetDefaultProvinceCode: 未找到 code={normalized} 对应省名。");
+            return false;
+        }
+
+        _defaultProvinceCode = normalized;
+        _defaultProvinceName = provinceName;
+        Debug.Log($"[GameManager] 默认省已更新 | code={_defaultProvinceCode} | name={_defaultProvinceName}");
+        return true;
+    }
+
+    /// <summary>省名为空时返回默认省名。</summary>
+    public string ResolveProvinceName(string provinceName)
+    {
+        return string.IsNullOrWhiteSpace(provinceName) ? DefaultProvinceName : provinceName.Trim();
+    }
+
+    /// <summary>省 code 为空时返回默认省 code。</summary>
+    public string ResolveProvinceCode(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return DefaultProvinceCode;
+        }
+
+        string code = provinceCode.Trim();
+        return PlateMapBoundaryDatabase.TryNormalizeProvinceCode(code, out string normalized)
+            ? normalized
+            : code;
+    }
+
+    /// <summary>
+    /// 板块模块名为空时，用默认省 code 解析场景板块名；解析失败则返回空。
+    /// </summary>
+    public string ResolveProvinceModuleName(string provinceModuleName)
+    {
+        if (!string.IsNullOrWhiteSpace(provinceModuleName))
+        {
+            return provinceModuleName.Trim();
+        }
+
+        if (PlateMapAPI.Instance != null &&
+            PlateMapAPI.Instance.TryResolvePlateMapName(DefaultProvinceCode, out string plateName) &&
+            !string.IsNullOrWhiteSpace(plateName))
+        {
+            return plateName.Trim();
+        }
+
+        return string.Empty;
+    }
+
+    private void EnsureDefaultProvinceNameFromCode()
+    {
+        string code = DefaultProvinceCode;
+        if (TryResolveProvinceNameByCode(code, out string name))
+        {
+            _defaultProvinceCode = code;
+            _defaultProvinceName = name;
+        }
+    }
+
+    private static bool TryResolveProvinceNameByCode(string provinceCode, out string provinceName)
+    {
+        provinceName = null;
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return false;
+        }
+
+        if (GaodeProvinceAdcodeConverter.TryAdcodeToProvinceName(provinceCode, out string adcodeName) &&
+            !string.IsNullOrWhiteSpace(adcodeName))
+        {
+            provinceName = adcodeName.Trim();
+            return true;
+        }
+
+        if (PlateMapAPI.Instance != null &&
+            PlateMapAPI.Instance.TryGetProvinceName(provinceCode, out string boundaryName) &&
+            !string.IsNullOrWhiteSpace(boundaryName))
+        {
+            provinceName = boundaryName.Trim();
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>省级 → 国家级别：还原相机并回到国家视图。</summary>

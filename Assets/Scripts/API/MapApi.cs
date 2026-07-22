@@ -490,4 +490,35 @@ public class MapApi : UnitySingle<MapApi>
     {
         return ThreatProvinceAlertController.RefreshThreatCooldown();
     }
+
+    /// <summary>
+    /// 设置默认省（参数为省 code，自动查找并保存省名）。
+    /// </summary>
+    /// <param name="provinceCode">省级 adcode，如 330000（浙江）。</param>
+    public bool SetDefaultProvinceCode(string provinceCode)
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GameManager，无法设置默认省。");
+            return false;
+        }
+
+        return GameManager.Instance.SetDefaultProvinceCode(provinceCode);
+    }
+
+    /// <summary>当前默认省 code。</summary>
+    public string GetDefaultProvinceCode()
+    {
+        return GameManager.Instance != null
+            ? GameManager.Instance.DefaultProvinceCode
+            : "330000";
+    }
+
+    /// <summary>当前默认省中文名。</summary>
+    public string GetDefaultProvinceName()
+    {
+        return GameManager.Instance != null
+            ? GameManager.Instance.DefaultProvinceName
+            : "浙江";
+    }
 }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -20,6 +21,14 @@ public struct TransitionToControlStateRequest
 
     /// <summary>（可空）是否瞬时过渡（各过渡动画时长临时置 0）。</summary>
     public bool useInstantTransition;
+}
+
+/// <summary>设置默认省请求体（传省 code）。</summary>
+[System.Serializable]
+public struct DefaultProvinceCodeRequest
+{
+    /// <summary>省级 adcode，如 330000（浙江）。</summary>
+    public string provinceCode;
 }
 
 /// <summary>
@@ -644,6 +653,43 @@ public class AndroidMessage : MonoBehaviour
         {
             Debug.LogWarning("[AndroidMessage] RefreshThreatCooldown 失败（可能未在冷却中）。");
         }
+    }
+
+    /// <summary>
+    /// Android 调用：设置默认省（传省 code，自动查找省名）。
+    /// UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode", "330000");
+    /// 也可传 JSON：{"provinceCode":"330000"}
+    /// </summary>
+    public void SetDefaultProvinceCode(string arg)
+    {
+        string provinceCode = ExtractProvinceCodeArg(arg);
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            Debug.LogWarning("[AndroidMessage] SetDefaultProvinceCode: provinceCode 为空。");
+            return;
+        }
+
+        if (!MapApi.Instance.SetDefaultProvinceCode(provinceCode))
+        {
+            Debug.LogWarning($"[AndroidMessage] SetDefaultProvinceCode 失败: {provinceCode}");
+        }
+    }
+
+    private static string ExtractProvinceCodeArg(string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+        {
+            return null;
+        }
+
+        string trimmed = arg.Trim();
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            DefaultProvinceCodeRequest request = JsonUtility.FromJson<DefaultProvinceCodeRequest>(trimmed);
+            return NormalizeOptionalString(request.provinceCode);
+        }
+
+        return trimmed;
     }
 
     /// <summary>

@@ -604,6 +604,50 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(RefreshThreatCooldown), "已刷新冷却");
     }
 
+    /// <summary>
+    /// 宿主调用：设置默认省（传省 code，自动查找省名）。
+    /// arg 可直接传 "330000"，或 JSON：{"provinceCode":"330000"}
+    /// </summary>
+    public void SetDefaultProvinceCode(string arg)
+    {
+        LogCommunication("← Host", nameof(SetDefaultProvinceCode), arg);
+
+        string provinceCode = ExtractProvinceCodeArg(arg);
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            Debug.LogWarning("[WebGLAPI] SetDefaultProvinceCode: provinceCode 为空。");
+            return;
+        }
+
+        if (!MapApi.Instance.SetDefaultProvinceCode(provinceCode))
+        {
+            Debug.LogWarning($"[WebGLAPI] SetDefaultProvinceCode 失败: {provinceCode}");
+            return;
+        }
+
+        LogCommunication(
+            "← Host",
+            nameof(SetDefaultProvinceCode),
+            $"code={MapApi.Instance.GetDefaultProvinceCode()} name={MapApi.Instance.GetDefaultProvinceName()}");
+    }
+
+    private static string ExtractProvinceCodeArg(string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+        {
+            return null;
+        }
+
+        string trimmed = arg.Trim();
+        if (trimmed.StartsWith("{", StringComparison.Ordinal))
+        {
+            DefaultProvinceCodeRequest request = JsonUtility.FromJson<DefaultProvinceCodeRequest>(trimmed);
+            return NormalizeOptionalString(request.provinceCode);
+        }
+
+        return trimmed;
+    }
+
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
     public void CloseCarUI()
     {
