@@ -87,7 +87,9 @@ public static class ThreatProvinceAlertController
         }
 
         _isProcessing = true;
-        bool resumeFromVehicle = ThreatAlertFlowRunner.IsInVehicleDrillControlState();
+
+        bool carouselActive = IsAutoCarouselOrDelayedStartActive();
+        bool resumeFromVehicle = !carouselActive && ThreatAlertFlowRunner.IsInVehicleDrillControlState();
         if (!runner.TryStartThreatFlow(resumeFromVehicleDrillSubtree: resumeFromVehicle))
         {
             _isProcessing = false;
@@ -95,11 +97,28 @@ public static class ThreatProvinceAlertController
             return;
         }
 
-        if (resumeFromVehicle)
+        if (carouselActive)
+        {
+            Debug.Log(
+                "[ThreatProvinceAlertController] 检测到自动轮播/延时等待，已停轮播并从全国进入威胁下钻。");
+        }
+        else if (resumeFromVehicle)
         {
             Debug.Log(
                 "[ThreatProvinceAlertController] 已在车辆/攻击链路/零件级，从当前级别继续 Vin 下钻（跳过国家/省级停留）。");
         }
+    }
+
+    private static bool IsAutoCarouselOrDelayedStartActive()
+    {
+        BigScreenCarouselController carousel = BigScreenCarouselController.Instance;
+        if (carousel != null)
+        {
+            return carousel.IsAutoCarouselEnabled || carousel.IsWaitingDelayedStart;
+        }
+
+        MapApi mapApi = MapApi.Instance;
+        return mapApi != null && mapApi.IsBigScreenAutoCarouselEnabled();
     }
 
     /// <summary>

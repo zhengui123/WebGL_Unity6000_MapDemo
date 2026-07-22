@@ -52,6 +52,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activePlateModuleName;
     private string _activeEncryptVin;
     private bool _resumeFromVehicleDrillSubtree;
+    private bool _forceStartFromCountry;
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
@@ -152,15 +153,70 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return false;
         }
 
-        _resumeFromVehicleDrillSubtree = resumeFromVehicleDrillSubtree;
+        bool interruptedCarousel = TryStopAutoCarouselForThreatDrill(out string carouselMode);
+        // 轮播/延时等待被打断时：必须从全国开始，不允许续钻车辆子树。
+        _forceStartFromCountry = interruptedCarousel;
+        _resumeFromVehicleDrillSubtree = resumeFromVehicleDrillSubtree && !interruptedCarousel;
 
-        // 威胁下钻开始时关闭自动轮播，避免与流程抢控。
-        if (MapApi.Instance != null)
+        if (interruptedCarousel)
         {
-            MapApi.Instance.SetBigScreenAutoCarouselEnabled(false);
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 已停止自动轮播（{carouselMode}），威胁下钻从全国开始。");
         }
 
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
+        return true;
+    }
+
+    /// <summary>
+    /// 若正在自动轮播或延时等待开轮播，则停止并取消延时；返回是否打断了轮播相关状态。
+    /// </summary>
+    private static bool TryStopAutoCarouselForThreatDrill(out string modeLabel)
+    {
+        modeLabel = null;
+        BigScreenCarouselController carousel = BigScreenCarouselController.Instance;
+        MapApi mapApi = MapApi.Instance;
+
+        bool wasCarouselEnabled = carousel != null && carousel.IsAutoCarouselEnabled;
+        bool wasDelayedWaiting = carousel != null && carousel.IsWaitingDelayedStart;
+        if (!wasCarouselEnabled && !wasDelayedWaiting)
+        {
+            // 无轮播控制器时仍尝试关一次，兼容仅 MapApi 路径。
+            if (mapApi != null && mapApi.IsBigScreenAutoCarouselEnabled())
+            {
+                mapApi.SetBigScreenAutoCarouselEnabled(false);
+                mapApi.CancelBigScreenAutoCarouselDelayedStart();
+                modeLabel = "轮播开启";
+                return true;
+            }
+
+            return false;
+        }
+
+        if (wasCarouselEnabled && wasDelayedWaiting)
+        {
+            modeLabel = "轮播中+延时等待";
+        }
+        else if (wasCarouselEnabled)
+        {
+            modeLabel = "轮播中";
+        }
+        else
+        {
+            modeLabel = "延时等待开轮播";
+        }
+
+        if (mapApi != null)
+        {
+            mapApi.SetBigScreenAutoCarouselEnabled(false);
+            mapApi.CancelBigScreenAutoCarouselDelayedStart();
+        }
+        else if (carousel != null)
+        {
+            carousel.SetAutoCarouselEnabled(false);
+            carousel.CancelDelayedStart();
+        }
+
         return true;
     }
 
@@ -339,6 +395,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        _resumeFromVehicleDrillSubtree = false;
+        _forceStartFromCountry = false;
         ClearHoldCountdown();
     }
 
@@ -395,8 +453,11 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
                 GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Threat);
 
-                bool skipToVinDrill = _resumeFromVehicleDrillSubtree || IsInVehicleDrillControlState();
+                // 轮播打断后强制从全国进入；否则才允许车辆子树续钻。
+                bool skipToVinDrill = !_forceStartFromCountry &&
+                                     (_resumeFromVehicleDrillSubtree || IsInVehicleDrillControlState());
                 _resumeFromVehicleDrillSubtree = false;
+                _forceStartFromCountry = false;
 
                 if (!skipToVinDrill)
                 {
