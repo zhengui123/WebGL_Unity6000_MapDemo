@@ -1310,17 +1310,11 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private static string ResolveProvinceDisplayName(string provinceCode, string plateModuleName)
     {
-        if (GaodeProvinceAdcodeConverter.TryAdcodeToProvinceName(provinceCode, out string adcodeName) &&
-            !string.IsNullOrWhiteSpace(adcodeName))
+        string name = WorldMapPlateResolver.ResolveUnitDisplayName(provinceCode);
+        if (!string.IsNullOrWhiteSpace(name) &&
+            !string.Equals(name, provinceCode, System.StringComparison.Ordinal))
         {
-            return adcodeName.Trim();
-        }
-
-        if (PlateMapAPI.Instance != null &&
-            PlateMapAPI.Instance.TryGetProvinceName(provinceCode, out string boundaryName) &&
-            !string.IsNullOrWhiteSpace(boundaryName))
-        {
-            return boundaryName.Trim();
+            return name;
         }
 
         if (!string.IsNullOrWhiteSpace(plateModuleName))

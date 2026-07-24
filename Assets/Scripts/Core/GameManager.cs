@@ -367,28 +367,31 @@ public class GameManager : UnitySingle<GameManager>
         return true;
     }
 
-    /// <summary>省名为空时返回默认省名。</summary>
+    /// <summary>省名为空时经 WorldMap 返回当前默认单元显示名。</summary>
     public string ResolveProvinceName(string provinceName)
     {
-        return string.IsNullOrWhiteSpace(provinceName) ? DefaultProvinceName : provinceName.Trim();
-    }
-
-    /// <summary>省 code 为空时返回默认省 code。</summary>
-    public string ResolveProvinceCode(string provinceCode)
-    {
-        if (string.IsNullOrWhiteSpace(provinceCode))
+        if (!string.IsNullOrWhiteSpace(provinceName))
         {
-            return DefaultProvinceCode;
+            return provinceName.Trim();
         }
 
-        string code = provinceCode.Trim();
-        return PlateMapBoundaryDatabase.TryNormalizeProvinceCode(code, out string normalized)
-            ? normalized
-            : code;
+        if (WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign)
+        {
+            string code = WorldMapPlateResolver.ResolveUnitCode(null);
+            return WorldMapPlateResolver.ResolveUnitDisplayName(code);
+        }
+
+        return DefaultProvinceName;
+    }
+
+    /// <summary>省/国家 code 为空时经 WorldMap 返回当前区域默认单元 code。</summary>
+    public string ResolveProvinceCode(string provinceCode)
+    {
+        return WorldMapPlateResolver.ResolveUnitCode(provinceCode);
     }
 
     /// <summary>
-    /// 板块模块名为空时，用默认省 code 解析场景板块名；解析失败则返回空。
+    /// 板块模块名为空时，经 WorldMap 用默认单元 code 解析场景模块名；解析失败则返回空。
     /// </summary>
     public string ResolveProvinceModuleName(string provinceModuleName)
     {
@@ -397,14 +400,31 @@ public class GameManager : UnitySingle<GameManager>
             return provinceModuleName.Trim();
         }
 
-        if (PlateMapAPI.Instance != null &&
-            PlateMapAPI.Instance.TryResolvePlateMapName(DefaultProvinceCode, out string plateName) &&
-            !string.IsNullOrWhiteSpace(plateName))
+        string unitCode = WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign
+            ? WorldMapPlateResolver.ResolveUnitCode(null)
+            : DefaultProvinceCode;
+
+        if (WorldMapPlateResolver.TryResolveUnitModuleName(unitCode, out string moduleName) &&
+            !string.IsNullOrWhiteSpace(moduleName))
         {
-            return plateName.Trim();
+            return moduleName.Trim();
         }
 
         return string.Empty;
+    }
+
+    /// <summary>
+    /// 世界地图切换板块后：逻辑态瞬时回到「全国」（CountryLevel），不播省级还原链。
+    /// </summary>
+    public void NotifyRegionSwitchedToNational()
+    {
+        if (_currentState != ControlState.ProvinceLevel)
+        {
+            return;
+        }
+
+        SetState(ControlState.CountryLevel);
+        ApplyStateSideEffects(ControlState.CountryLevel);
     }
 
     private void EnsureDefaultProvinceNameFromCode()

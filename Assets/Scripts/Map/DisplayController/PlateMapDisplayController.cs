@@ -177,13 +177,53 @@ public class PlateMapDisplayController : MonoBehaviour
         }
     }
 
-    /// <summary>重新收集子级模块。</summary>
+    /// <summary>重新收集子级模块（相对当前板块根）。</summary>
     public void RefreshModuleList()
     {
         if (_modules == null || _modules.Length == 0)
         {
-            _modules = GetComponentsInChildren<PlateMapDisplayModule>(true);
+            Transform root = _plateMapRoot != null ? _plateMapRoot : transform;
+            _modules = root.GetComponentsInChildren<PlateMapDisplayModule>(true);
         }
+    }
+
+    /// <summary>
+    /// 切换世界地图板块根：重绑模块收集范围并瞬时清除聚焦状态。
+    /// 用于国内/国外大板块切换后只显示当前板块下的模块。
+    /// </summary>
+    public void BindPlateMapRoot(Transform plateRoot)
+    {
+        _plateMapRoot = plateRoot != null ? plateRoot : transform;
+        KillCameraTweens();
+        _focusedModule = null;
+        _transitionCachedModule = null;
+        _hasPreFocusPose = false;
+        PlateProvinceFocusResolver.ClearCache();
+        _cameraZoomController?.ResetZoomLimitOverrides();
+        _modules = _plateMapRoot.GetComponentsInChildren<PlateMapDisplayModule>(true);
+
+        PlateMapDisplayModule[] modules = _modules;
+        if (modules == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < modules.Length; i++)
+        {
+            modules[i]?.KillAlphaTween();
+            modules[i]?.ApplyAlphaImmediate(1f);
+        }
+    }
+
+    /// <summary>瞬时清除聚焦状态（不播还原动画）。</summary>
+    public void ClearFocusState()
+    {
+        KillCameraTweens();
+        _focusedModule = null;
+        _transitionCachedModule = null;
+        _hasPreFocusPose = false;
+        PlateProvinceFocusResolver.ClearCache();
+        _cameraZoomController?.ResetZoomLimitOverrides();
     }
 
     /// <summary>

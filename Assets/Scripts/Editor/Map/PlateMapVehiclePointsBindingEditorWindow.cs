@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// 板块车辆点绑定控制面板：扫描场景、批量从 Hierarchy 加入、按对象名匹配省份、一键绑定三组件。
+/// 国内-板块车辆点绑定控制面板：扫描场景、批量从 Hierarchy 加入、按对象名匹配省份、一键绑定三组件。
 /// 持久化：Assets/Scripts/Editor/Map/PlateMapVehiclePointsBindingStore.asset
 /// </summary>
 public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
@@ -21,7 +21,9 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
     private const float RowHeight = 88f;
 
+    private bool _foreignMode;
     private PlateMapVehiclePointsBindingStore _store;
+    private ForeignPlateMapVehiclePointsBindingStore _foreignStore;
     private List<PlateMapBoundaryData> _provinceOptions;
     private List<PlateMapVehiclePointsBindingUtility.BindingRow> _rows = new List<PlateMapVehiclePointsBindingUtility.BindingRow>();
     private Vector2 _scrollPosition;
@@ -30,18 +32,57 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
     private SortColumn _sortColumn = SortColumn.None;
     private bool _sortAscending = true;
 
-    [MenuItem("Tools/地图/板块车辆点绑定面板")]
-    public static void OpenWindow()
+    [MenuItem("Tools/地图/国内-板块车辆点绑定")]
+    public static void OpenDomesticWindow()
     {
-        PlateMapVehiclePointsBindingEditorWindow window = GetWindow<PlateMapVehiclePointsBindingEditorWindow>();
-        window.titleContent = new GUIContent("板块车辆点绑定");
+        OpenWindow(foreignMode: false);
+    }
+
+    [MenuItem("Tools/地图/国外-车辆点绑定")]
+    public static void OpenForeignWindow()
+    {
+        OpenWindow(foreignMode: true);
+    }
+
+    private static void OpenWindow(bool foreignMode)
+    {
+        // 国内外分两个窗口实例，避免互相覆盖
+        string typeKey = foreignMode ? "Foreign" : "Domestic";
+        PlateMapVehiclePointsBindingEditorWindow window =
+            GetWindow<PlateMapVehiclePointsBindingEditorWindow>($"PlateBind_{typeKey}");
+        window._foreignMode = foreignMode;
+        window.titleContent = new GUIContent(foreignMode ? "国外-车辆点绑定" : "国内-板块车辆点绑定");
         window.minSize = new Vector2(760f, 420f);
         window.Show();
+        window.ReloadStoreAndRows();
     }
 
     private void OnEnable()
     {
-        _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
+        if (titleContent != null &&
+            !string.IsNullOrEmpty(titleContent.text) &&
+            titleContent.text.IndexOf("国外", System.StringComparison.Ordinal) >= 0)
+        {
+            _foreignMode = true;
+        }
+
+        ReloadStoreAndRows();
+    }
+
+    private void ReloadStoreAndRows()
+    {
+        if (_foreignMode)
+        {
+            WorldMapRegionCodeTable.ReloadForEditor();
+            _foreignStore = ForeignPlateMapVehiclePointsBindingStore.LoadOrCreate();
+            _store = null;
+        }
+        else
+        {
+            _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
+            _foreignStore = null;
+        }
+
         RefreshProvinceOptions();
         RefreshRows();
     }
@@ -114,8 +155,9 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
         if (GUILayout.Button("选中 Store", EditorStyles.toolbarButton, GUILayout.Width(88f)))
         {
-            Selection.activeObject = _store;
-            EditorGUIUtility.PingObject(_store);
+            UnityEngine.Object storeObject = _foreignMode ? (UnityEngine.Object)_foreignStore : _store;
+            Selection.activeObject = storeObject;
+            EditorGUIUtility.PingObject(storeObject);
         }
 
         EditorGUILayout.EndHorizontal();
@@ -124,10 +166,22 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
     private void DrawSummary()
     {
         int issueCount = CountIssueRows();
-        EditorGUILayout.LabelField("持久化文件", PlateMapVehiclePointsBindingStore.AssetPath, EditorStyles.miniLabel);
+        string storePath = _foreignMode
+            ? ForeignPlateMapVehiclePointsBindingStore.AssetPath
+            : PlateMapVehiclePointsBindingStore.AssetPath;
+        string scopeLabel = _foreignMode ? "【国外·secondClassCode】" : "【国内·省级adcode】";
+        EditorGUILayout.LabelField("持久化文件", storePath, EditorStyles.miniLabel);
         EditorGUILayout.LabelField(
-            $"已扫描 {_rows.Count} 行 | 已勾选 {CountSelectedRows()} | 含 GeoConverter 的板块 {CountBoundRows()} 个 | 异常 {issueCount} 个",
+            $"{scopeLabel} 已扫描 {_rows.Count} 行 | 已勾选 {CountSelectedRows()} | 含 GeoConverter 的板块 {CountBoundRows()} 个 | 异常 {issueCount} 个",
             EditorStyles.boldLabel);
+
+        if (_foreignMode)
+        {
+            EditorGUILayout.HelpBox(
+                "国家 code 与国内省表同构：大板块=firstClassCode，国家=secondClassCode。" +
+                "绑定/更新默认数据时会合并该国全部子 Renderer 的 XZ 外接盒并强制刷新 Left/Right 坐标。",
+                MessageType.Info);
+        }
 
         if (issueCount > 0)
         {
@@ -158,7 +212,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
         x += checkWidth;
         DrawSortableHeaderButton(new Rect(x, headerRect.y, objectWidth, 20f), "板块对象", SortColumn.ObjectName);
         x += objectWidth;
-        DrawSortableHeaderButton(new Rect(x, headerRect.y, provinceWidth, 20f), "省份", SortColumn.Province);
+        DrawSortableHeaderButton(new Rect(x, headerRect.y, provinceWidth, 20f), _foreignMode ? "国家/板块" : "省份", SortColumn.Province);
         x += provinceWidth;
         DrawSortableHeaderButton(new Rect(x, headerRect.y, statusWidth, 20f), "状态", SortColumn.Status);
         x += statusWidth;
@@ -251,7 +305,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             {
                 EditorUtility.DisplayDialog("绑定失败", "请先指定板块对象。", "确定");
             }
-            else if (PlateMapVehiclePointsBindingUtility.ApplyBinding(row))
+            else if (PlateMapVehiclePointsBindingUtility.ApplyBinding(row, forceRecalculateLeftRight: _foreignMode))
             {
                 RefreshRows();
             }
@@ -372,7 +426,9 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
     private void RefreshProvinceOptions()
     {
-        _provinceOptions = PlateMapVehiclePointsBindingUtility.BuildProvinceOptions();
+        _provinceOptions = _foreignMode
+            ? PlateMapVehiclePointsBindingUtility.BuildForeignCountryOptions()
+            : PlateMapVehiclePointsBindingUtility.BuildProvinceOptions();
         _provinceLabels = new string[_provinceOptions.Count];
         for (int i = 0; i < _provinceOptions.Count; i++)
         {
@@ -414,7 +470,11 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
             }
         }
 
-        _rows = PlateMapVehiclePointsBindingUtility.BuildRows(_store);
+        _rows = _foreignMode
+            ? PlateMapVehiclePointsBindingUtility.BuildRows(
+                _foreignStore != null ? _foreignStore.Entries : null,
+                foreignMode: true)
+            : PlateMapVehiclePointsBindingUtility.BuildRows(_store);
         _rows.AddRange(manualRows);
 
         for (int i = 0; i < _rows.Count; i++)
@@ -668,7 +728,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 continue;
             }
 
-            if (PlateMapVehiclePointsBindingUtility.ApplyBinding(row))
+            if (PlateMapVehiclePointsBindingUtility.ApplyBinding(row, forceRecalculateLeftRight: _foreignMode))
             {
                 success++;
             }
@@ -716,7 +776,7 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                     continue;
                 }
 
-                if (!PlateMapVehiclePointsBindingUtility.ApplyBinding(row))
+                if (!PlateMapVehiclePointsBindingUtility.ApplyBinding(row, forceRecalculateLeftRight: _foreignMode))
                 {
                     skipped++;
                     continue;
@@ -798,12 +858,25 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
 
     private void SavePersistence()
     {
-        if (_store == null)
+        if (_foreignMode)
         {
-            _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
+            if (_foreignStore == null)
+            {
+                _foreignStore = ForeignPlateMapVehiclePointsBindingStore.LoadOrCreate();
+            }
+
+            PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_foreignStore, _rows);
+        }
+        else
+        {
+            if (_store == null)
+            {
+                _store = PlateMapVehiclePointsBindingStore.LoadOrCreate();
+            }
+
+            PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
         }
 
-        PlateMapVehiclePointsBindingUtility.SyncStoreFromRows(_store, _rows);
         ShowNotification(new GUIContent("已保存持久化"));
         RefreshRows();
     }

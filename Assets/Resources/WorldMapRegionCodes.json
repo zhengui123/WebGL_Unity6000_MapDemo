@@ -1,0 +1,1406 @@
+{
+  "code": 10000,
+  "msg": "操作成功！",
+  "data": [
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "156",
+      "secondClass": "中国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "158",
+      "secondClass": "中国台湾地区",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "392",
+      "secondClass": "日本",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "410",
+      "secondClass": "韩国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "408",
+      "secondClass": "朝鲜",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_ASIA",
+      "firstClass": "东亚",
+      "secondClassCode": "496",
+      "secondClass": "蒙古",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "704",
+      "secondClass": "越南",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "764",
+      "secondClass": "泰国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "458",
+      "secondClass": "马来西亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "702",
+      "secondClass": "新加坡",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "360",
+      "secondClass": "印度尼西亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "608",
+      "secondClass": "菲律宾",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "116",
+      "secondClass": "柬埔寨",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "418",
+      "secondClass": "老挝",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "104",
+      "secondClass": "缅甸",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "096",
+      "secondClass": "文莱",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHEAST_ASIA",
+      "firstClass": "东南亚",
+      "secondClassCode": "626",
+      "secondClass": "东帝汶",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "356",
+      "secondClass": "印度",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "586",
+      "secondClass": "巴基斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "050",
+      "secondClass": "孟加拉国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "524",
+      "secondClass": "尼泊尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "144",
+      "secondClass": "斯里兰卡",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "064",
+      "secondClass": "不丹",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_ASIA",
+      "firstClass": "南亚",
+      "secondClassCode": "462",
+      "secondClass": "马尔代夫",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_ASIA",
+      "firstClass": "中亚",
+      "secondClassCode": "398",
+      "secondClass": "哈萨克斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_ASIA",
+      "firstClass": "中亚",
+      "secondClassCode": "860",
+      "secondClass": "乌兹别克斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_ASIA",
+      "firstClass": "中亚",
+      "secondClassCode": "795",
+      "secondClass": "土库曼斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_ASIA",
+      "firstClass": "中亚",
+      "secondClassCode": "417",
+      "secondClass": "吉尔吉斯斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_ASIA",
+      "firstClass": "中亚",
+      "secondClassCode": "762",
+      "secondClass": "塔吉克斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "682",
+      "secondClass": "沙特阿拉伯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "364",
+      "secondClass": "伊朗",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "784",
+      "secondClass": "阿联酋",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "376",
+      "secondClass": "以色列",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "792",
+      "secondClass": "土耳其",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "368",
+      "secondClass": "伊拉克",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "634",
+      "secondClass": "卡塔尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "414",
+      "secondClass": "科威特",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "512",
+      "secondClass": "阿曼",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "048",
+      "secondClass": "巴林",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "422",
+      "secondClass": "黎巴嫩",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "400",
+      "secondClass": "约旦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "887",
+      "secondClass": "也门",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "760",
+      "secondClass": "叙利亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "275",
+      "secondClass": "巴勒斯坦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "004",
+      "secondClass": "阿富汗",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_ASIA",
+      "firstClass": "西亚（中东）",
+      "secondClassCode": "196",
+      "secondClass": "塞浦路斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "826",
+      "secondClass": "英国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "276",
+      "secondClass": "德国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "250",
+      "secondClass": "法国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "528",
+      "secondClass": "荷兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "056",
+      "secondClass": "比利时",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "442",
+      "secondClass": "卢森堡",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "372",
+      "secondClass": "爱尔兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WESTERN_EUROPE",
+      "firstClass": "西欧",
+      "secondClassCode": "492",
+      "secondClass": "摩纳哥",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "578",
+      "secondClass": "挪威",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "752",
+      "secondClass": "瑞典",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "246",
+      "secondClass": "芬兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "208",
+      "secondClass": "丹麦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "352",
+      "secondClass": "冰岛",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "233",
+      "secondClass": "爱沙尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "428",
+      "secondClass": "拉脱维亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTHERN_EUROPE",
+      "firstClass": "北欧",
+      "secondClassCode": "440",
+      "secondClass": "立陶宛",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "756",
+      "secondClass": "瑞士",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "040",
+      "secondClass": "奥地利",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "616",
+      "secondClass": "波兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "203",
+      "secondClass": "捷克",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "703",
+      "secondClass": "斯洛伐克",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "348",
+      "secondClass": "匈牙利",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_EUROPE",
+      "firstClass": "中欧",
+      "secondClassCode": "438",
+      "secondClass": "列支敦士登",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "380",
+      "secondClass": "意大利",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "724",
+      "secondClass": "西班牙",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "620",
+      "secondClass": "葡萄牙",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "300",
+      "secondClass": "希腊",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "336",
+      "secondClass": "梵蒂冈",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "674",
+      "secondClass": "圣马力诺",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "470",
+      "secondClass": "马耳他",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_EUROPE",
+      "firstClass": "南欧",
+      "secondClassCode": "020",
+      "secondClass": "安道尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "643",
+      "secondClass": "俄罗斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "804",
+      "secondClass": "乌克兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "112",
+      "secondClass": "白俄罗斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "498",
+      "secondClass": "摩尔多瓦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "642",
+      "secondClass": "罗马尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "100",
+      "secondClass": "保加利亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "688",
+      "secondClass": "塞尔维亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "191",
+      "secondClass": "克罗地亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "705",
+      "secondClass": "斯洛文尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "070",
+      "secondClass": "波黑",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "499",
+      "secondClass": "黑山",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "807",
+      "secondClass": "北马其顿",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EASTERN_EUROPE",
+      "firstClass": "东欧",
+      "secondClassCode": "008",
+      "secondClass": "阿尔巴尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "818",
+      "secondClass": "埃及",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "434",
+      "secondClass": "利比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "788",
+      "secondClass": "突尼斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "012",
+      "secondClass": "阿尔及利亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "504",
+      "secondClass": "摩洛哥",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AFRICA",
+      "firstClass": "北非",
+      "secondClassCode": "729",
+      "secondClass": "苏丹",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "566",
+      "secondClass": "尼日利亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "288",
+      "secondClass": "加纳",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "384",
+      "secondClass": "科特迪瓦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "686",
+      "secondClass": "塞内加尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "466",
+      "secondClass": "马里",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "324",
+      "secondClass": "几内亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "854",
+      "secondClass": "布基纳法索",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "204",
+      "secondClass": "贝宁",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "768",
+      "secondClass": "多哥",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "562",
+      "secondClass": "尼日尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "430",
+      "secondClass": "利比里亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "694",
+      "secondClass": "塞拉利昂",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "270",
+      "secondClass": "冈比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "624",
+      "secondClass": "几内亚比绍",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "132",
+      "secondClass": "佛得角",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "WEST_AFRICA",
+      "firstClass": "西非",
+      "secondClassCode": "478",
+      "secondClass": "毛里塔尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "231",
+      "secondClass": "埃塞俄比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "404",
+      "secondClass": "肯尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "834",
+      "secondClass": "坦桑尼亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "800",
+      "secondClass": "乌干达",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "646",
+      "secondClass": "卢旺达",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "108",
+      "secondClass": "布隆迪",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "706",
+      "secondClass": "索马里",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "728",
+      "secondClass": "南苏丹",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "262",
+      "secondClass": "吉布提",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "EAST_AFRICA",
+      "firstClass": "东非",
+      "secondClassCode": "232",
+      "secondClass": "厄立特里亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "180",
+      "secondClass": "刚果（金）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "178",
+      "secondClass": "刚果（布）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "120",
+      "secondClass": "喀麦隆",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "266",
+      "secondClass": "加蓬",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "226",
+      "secondClass": "赤道几内亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "148",
+      "secondClass": "乍得",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "140",
+      "secondClass": "中非共和国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AFRICA",
+      "firstClass": "中非",
+      "secondClassCode": "678",
+      "secondClass": "圣多美和普林西比",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "710",
+      "secondClass": "南非",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "516",
+      "secondClass": "纳米比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "072",
+      "secondClass": "博茨瓦纳",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "716",
+      "secondClass": "津巴布韦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "508",
+      "secondClass": "莫桑比克",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "024",
+      "secondClass": "安哥拉",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "894",
+      "secondClass": "赞比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "454",
+      "secondClass": "马拉维",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "450",
+      "secondClass": "马达加斯加",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "480",
+      "secondClass": "毛里求斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "748",
+      "secondClass": "斯威士兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "426",
+      "secondClass": "莱索托",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTHERN_AFRICA",
+      "firstClass": "南部非洲",
+      "secondClassCode": "174",
+      "secondClass": "科摩罗",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AMERICA_REGION",
+      "firstClass": "北美",
+      "secondClassCode": "840",
+      "secondClass": "美国",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "NORTH_AMERICA_REGION",
+      "firstClass": "北美",
+      "secondClassCode": "124",
+      "secondClass": "加拿大",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "484",
+      "secondClass": "墨西哥",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "320",
+      "secondClass": "危地马拉",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "084",
+      "secondClass": "伯利兹",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "340",
+      "secondClass": "洪都拉斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "222",
+      "secondClass": "萨尔瓦多",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "558",
+      "secondClass": "尼加拉瓜",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "188",
+      "secondClass": "哥斯达黎加",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CENTRAL_AMERICA",
+      "firstClass": "中美洲",
+      "secondClassCode": "591",
+      "secondClass": "巴拿马",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "192",
+      "secondClass": "古巴",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "388",
+      "secondClass": "牙买加",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "332",
+      "secondClass": "海地",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "214",
+      "secondClass": "多米尼加",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "630",
+      "secondClass": "波多黎各（美）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "044",
+      "secondClass": "巴哈马",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "780",
+      "secondClass": "特立尼达和多巴哥",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "052",
+      "secondClass": "巴巴多斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "662",
+      "secondClass": "圣卢西亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "308",
+      "secondClass": "格林纳达",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "028",
+      "secondClass": "安提瓜和巴布达",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "659",
+      "secondClass": "圣基茨和尼维斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "212",
+      "secondClass": "多米尼克",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "CARIBBEAN",
+      "firstClass": "加勒比地区",
+      "secondClassCode": "670",
+      "secondClass": "圣文森特和格林纳丁斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "076",
+      "secondClass": "巴西",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "032",
+      "secondClass": "阿根廷",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "170",
+      "secondClass": "哥伦比亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "152",
+      "secondClass": "智利",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "604",
+      "secondClass": "秘鲁",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "862",
+      "secondClass": "委内瑞拉",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "218",
+      "secondClass": "厄瓜多尔",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "068",
+      "secondClass": "玻利维亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "600",
+      "secondClass": "巴拉圭",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "858",
+      "secondClass": "乌拉圭",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "328",
+      "secondClass": "圭亚那",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "740",
+      "secondClass": "苏里南",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "SOUTH_AMERICA_REGION",
+      "firstClass": "南美",
+      "secondClassCode": "254",
+      "secondClass": "法属圭亚那（法）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "AUSTRALASIA",
+      "firstClass": "澳新",
+      "secondClassCode": "036",
+      "secondClass": "澳大利亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "AUSTRALASIA",
+      "firstClass": "澳新",
+      "secondClassCode": "554",
+      "secondClass": "新西兰",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MELANESIA",
+      "firstClass": "美拉尼西亚",
+      "secondClassCode": "598",
+      "secondClass": "巴布亚新几内亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MELANESIA",
+      "firstClass": "美拉尼西亚",
+      "secondClassCode": "242",
+      "secondClass": "斐济",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MELANESIA",
+      "firstClass": "美拉尼西亚",
+      "secondClassCode": "090",
+      "secondClass": "所罗门群岛",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MELANESIA",
+      "firstClass": "美拉尼西亚",
+      "secondClassCode": "548",
+      "secondClass": "瓦努阿图",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MELANESIA",
+      "firstClass": "美拉尼西亚",
+      "secondClassCode": "540",
+      "secondClass": "新喀里多尼亚（法）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "316",
+      "secondClass": "关岛（美）",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "584",
+      "secondClass": "马绍尔群岛",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "583",
+      "secondClass": "密克罗尼西亚联邦",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "585",
+      "secondClass": "帕劳",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "296",
+      "secondClass": "基里巴斯",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "MICRONESIA",
+      "firstClass": "密克罗尼西亚",
+      "secondClassCode": "520",
+      "secondClass": "瑙鲁",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "882",
+      "secondClass": "萨摩亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "776",
+      "secondClass": "汤加",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "184",
+      "secondClass": "库克群岛",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "798",
+      "secondClass": "图瓦卢",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "258",
+      "secondClass": "法属波利尼西亚",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "POLYNESIA",
+      "firstClass": "波利尼西亚",
+      "secondClassCode": "876",
+      "secondClass": "瓦利斯和富图纳",
+      "isChina": false
+    },
+    {
+      "firstClassCode": "ANTARCTICA",
+      "firstClass": "南极洲",
+      "secondClassCode": "010",
+      "secondClass": "南极（多国主张，冻结状态）",
+      "isChina": false
+    }
+  ]
+}

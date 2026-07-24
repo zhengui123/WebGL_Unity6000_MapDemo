@@ -1,0 +1,1797 @@
+{
+  "note": "国外国家/大板块外接矩形(W/E/S/N)。国家code=WorldMapRegionCodes.secondClassCode(ISO数字)。高德海外以SOC(alpha-3)渲染，无公开同构国家矩形表；本数据按ISO数字对齐公开边界生成。中国156与国内全国矩形对齐。大板块为成员国并集。",
+  "entries": [
+    {
+      "provinceCode": "EAST_ASIA",
+      "provinceName": "东亚",
+      "westLongitude": 73.502,
+      "eastLongitude": 145.54,
+      "southLatitude": 18.159,
+      "northLatitude": 53.558
+    },
+    {
+      "provinceCode": "SOUTHEAST_ASIA",
+      "provinceName": "东南亚",
+      "westLongitude": 92.3,
+      "eastLongitude": 141.03,
+      "southLatitude": -10.36,
+      "northLatitude": 28.34
+    },
+    {
+      "provinceCode": "SOUTH_ASIA",
+      "provinceName": "南亚",
+      "westLongitude": 60.87,
+      "eastLongitude": 97.4,
+      "southLatitude": -0.7,
+      "northLatitude": 37.13
+    },
+    {
+      "provinceCode": "CENTRAL_ASIA",
+      "provinceName": "中亚",
+      "westLongitude": 46.47,
+      "eastLongitude": 87.36,
+      "southLatitude": 35.27,
+      "northLatitude": 55.39
+    },
+    {
+      "provinceCode": "WEST_ASIA",
+      "provinceName": "西亚（中东）",
+      "westLongitude": 26.04,
+      "eastLongitude": 75.16,
+      "southLatitude": 12.59,
+      "northLatitude": 42.14
+    },
+    {
+      "provinceCode": "WESTERN_EUROPE",
+      "provinceName": "西欧",
+      "westLongitude": -9.98,
+      "eastLongitude": 15.02,
+      "southLatitude": 42.5,
+      "northLatitude": 58.64
+    },
+    {
+      "provinceCode": "NORTHERN_EUROPE",
+      "provinceName": "北欧",
+      "westLongitude": -24.33,
+      "eastLongitude": 31.52,
+      "southLatitude": 53.91,
+      "northLatitude": 70.92
+    },
+    {
+      "provinceCode": "CENTRAL_EUROPE",
+      "provinceName": "中欧",
+      "westLongitude": 6.02,
+      "eastLongitude": 24.03,
+      "southLatitude": 45.76,
+      "northLatitude": 54.85
+    },
+    {
+      "provinceCode": "SOUTHERN_EUROPE",
+      "provinceName": "南欧",
+      "westLongitude": -9.53,
+      "eastLongitude": 26.6,
+      "southLatitude": 34.92,
+      "northLatitude": 47.12
+    },
+    {
+      "provinceCode": "EASTERN_EUROPE",
+      "provinceName": "东欧",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": 39.62,
+      "northLatitude": 81.25
+    },
+    {
+      "provinceCode": "NORTH_AFRICA",
+      "provinceName": "北非",
+      "westLongitude": -17.02,
+      "eastLongitude": 38.41,
+      "southLatitude": 8.62,
+      "northLatitude": 37.35
+    },
+    {
+      "provinceCode": "WEST_AFRICA",
+      "provinceName": "西非",
+      "westLongitude": -25.36,
+      "eastLongitude": 15.9,
+      "southLatitude": 4.24,
+      "northLatitude": 27.4
+    },
+    {
+      "provinceCode": "EAST_AFRICA",
+      "provinceName": "东非",
+      "westLongitude": 23.89,
+      "eastLongitude": 51.13,
+      "southLatitude": -11.72,
+      "northLatitude": 18.0
+    },
+    {
+      "provinceCode": "CENTRAL_AFRICA",
+      "provinceName": "中非",
+      "westLongitude": 6.46,
+      "eastLongitude": 31.17,
+      "southLatitude": -13.26,
+      "northLatitude": 23.41
+    },
+    {
+      "provinceCode": "SOUTHERN_AFRICA",
+      "provinceName": "南部非洲",
+      "westLongitude": 11.64,
+      "eastLongitude": 57.8,
+      "southLatitude": -34.82,
+      "northLatitude": -4.44
+    },
+    {
+      "provinceCode": "NORTH_AMERICA_REGION",
+      "provinceName": "北美",
+      "westLongitude": -141.0,
+      "eastLongitude": -52.65,
+      "southLatitude": 25.0,
+      "northLatitude": 73.23
+    },
+    {
+      "provinceCode": "CENTRAL_AMERICA",
+      "provinceName": "中美洲",
+      "westLongitude": -117.13,
+      "eastLongitude": -77.24,
+      "southLatitude": 7.22,
+      "northLatitude": 32.72
+    },
+    {
+      "provinceCode": "CARIBBEAN",
+      "provinceName": "加勒比地区",
+      "westLongitude": -84.97,
+      "eastLongitude": -59.42,
+      "southLatitude": 10.0,
+      "northLatitude": 27.04
+    },
+    {
+      "provinceCode": "SOUTH_AMERICA_REGION",
+      "provinceName": "南美",
+      "westLongitude": -81.41,
+      "eastLongitude": -34.73,
+      "southLatitude": -55.61,
+      "northLatitude": 12.44
+    },
+    {
+      "provinceCode": "AUSTRALASIA",
+      "provinceName": "澳新",
+      "westLongitude": 113.34,
+      "eastLongitude": 178.52,
+      "southLatitude": -46.64,
+      "northLatitude": -10.67
+    },
+    {
+      "provinceCode": "MELANESIA",
+      "provinceName": "美拉尼西亚",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": -22.4,
+      "northLatitude": -2.5
+    },
+    {
+      "provinceCode": "MICRONESIA",
+      "provinceName": "密克罗尼西亚",
+      "westLongitude": 131.12,
+      "eastLongitude": 172.0,
+      "southLatitude": -11.5,
+      "northLatitude": 14.7
+    },
+    {
+      "provinceCode": "POLYNESIA",
+      "provinceName": "波利尼西亚",
+      "westLongitude": -178.3,
+      "eastLongitude": 179.9,
+      "southLatitude": -27.65,
+      "northLatitude": -5.6
+    },
+    {
+      "provinceCode": "ANTARCTICA",
+      "provinceName": "南极洲",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": -90.0,
+      "northLatitude": -63.27
+    },
+    {
+      "provinceCode": "156",
+      "provinceName": "中国",
+      "westLongitude": 73.502,
+      "eastLongitude": 135.095,
+      "southLatitude": 18.159,
+      "northLatitude": 53.558
+    },
+    {
+      "provinceCode": "158",
+      "provinceName": "中国台湾地区",
+      "westLongitude": 120.11,
+      "eastLongitude": 121.95,
+      "southLatitude": 21.97,
+      "northLatitude": 25.3
+    },
+    {
+      "provinceCode": "392",
+      "provinceName": "日本",
+      "westLongitude": 129.41,
+      "eastLongitude": 145.54,
+      "southLatitude": 31.03,
+      "northLatitude": 45.55
+    },
+    {
+      "provinceCode": "410",
+      "provinceName": "韩国",
+      "westLongitude": 126.12,
+      "eastLongitude": 129.47,
+      "southLatitude": 34.39,
+      "northLatitude": 38.61
+    },
+    {
+      "provinceCode": "408",
+      "provinceName": "朝鲜",
+      "westLongitude": 124.27,
+      "eastLongitude": 130.78,
+      "southLatitude": 37.67,
+      "northLatitude": 42.99
+    },
+    {
+      "provinceCode": "496",
+      "provinceName": "蒙古",
+      "westLongitude": 87.75,
+      "eastLongitude": 119.77,
+      "southLatitude": 41.6,
+      "northLatitude": 52.05
+    },
+    {
+      "provinceCode": "704",
+      "provinceName": "越南",
+      "westLongitude": 102.17,
+      "eastLongitude": 109.34,
+      "southLatitude": 8.6,
+      "northLatitude": 23.35
+    },
+    {
+      "provinceCode": "764",
+      "provinceName": "泰国",
+      "westLongitude": 97.38,
+      "eastLongitude": 105.59,
+      "southLatitude": 5.69,
+      "northLatitude": 20.42
+    },
+    {
+      "provinceCode": "458",
+      "provinceName": "马来西亚",
+      "westLongitude": 100.09,
+      "eastLongitude": 119.18,
+      "southLatitude": 0.77,
+      "northLatitude": 6.93
+    },
+    {
+      "provinceCode": "702",
+      "provinceName": "新加坡",
+      "westLongitude": 103.6,
+      "eastLongitude": 104.1,
+      "southLatitude": 1.16,
+      "northLatitude": 1.48
+    },
+    {
+      "provinceCode": "360",
+      "provinceName": "印度尼西亚",
+      "westLongitude": 95.29,
+      "eastLongitude": 141.03,
+      "southLatitude": -10.36,
+      "northLatitude": 5.48
+    },
+    {
+      "provinceCode": "608",
+      "provinceName": "菲律宾",
+      "westLongitude": 117.17,
+      "eastLongitude": 126.54,
+      "southLatitude": 5.58,
+      "northLatitude": 18.51
+    },
+    {
+      "provinceCode": "116",
+      "provinceName": "柬埔寨",
+      "westLongitude": 102.35,
+      "eastLongitude": 107.61,
+      "southLatitude": 10.49,
+      "northLatitude": 14.57
+    },
+    {
+      "provinceCode": "418",
+      "provinceName": "老挝",
+      "westLongitude": 100.12,
+      "eastLongitude": 107.56,
+      "southLatitude": 13.88,
+      "northLatitude": 22.46
+    },
+    {
+      "provinceCode": "104",
+      "provinceName": "缅甸",
+      "westLongitude": 92.3,
+      "eastLongitude": 101.18,
+      "southLatitude": 9.93,
+      "northLatitude": 28.34
+    },
+    {
+      "provinceCode": "096",
+      "provinceName": "文莱",
+      "westLongitude": 114.2,
+      "eastLongitude": 115.45,
+      "southLatitude": 4.01,
+      "northLatitude": 5.45
+    },
+    {
+      "provinceCode": "626",
+      "provinceName": "东帝汶",
+      "westLongitude": 124.97,
+      "eastLongitude": 127.34,
+      "southLatitude": -9.39,
+      "northLatitude": -8.27
+    },
+    {
+      "provinceCode": "356",
+      "provinceName": "印度",
+      "westLongitude": 68.18,
+      "eastLongitude": 97.4,
+      "southLatitude": 7.97,
+      "northLatitude": 35.49
+    },
+    {
+      "provinceCode": "586",
+      "provinceName": "巴基斯坦",
+      "westLongitude": 60.87,
+      "eastLongitude": 77.84,
+      "southLatitude": 23.69,
+      "northLatitude": 37.13
+    },
+    {
+      "provinceCode": "050",
+      "provinceName": "孟加拉国",
+      "westLongitude": 88.08,
+      "eastLongitude": 92.67,
+      "southLatitude": 20.67,
+      "northLatitude": 26.45
+    },
+    {
+      "provinceCode": "524",
+      "provinceName": "尼泊尔",
+      "westLongitude": 80.09,
+      "eastLongitude": 88.17,
+      "southLatitude": 26.4,
+      "northLatitude": 30.42
+    },
+    {
+      "provinceCode": "144",
+      "provinceName": "斯里兰卡",
+      "westLongitude": 79.7,
+      "eastLongitude": 81.79,
+      "southLatitude": 5.97,
+      "northLatitude": 9.82
+    },
+    {
+      "provinceCode": "064",
+      "provinceName": "不丹",
+      "westLongitude": 88.81,
+      "eastLongitude": 92.1,
+      "southLatitude": 26.72,
+      "northLatitude": 28.3
+    },
+    {
+      "provinceCode": "462",
+      "provinceName": "马尔代夫",
+      "westLongitude": 72.69,
+      "eastLongitude": 73.7,
+      "southLatitude": -0.7,
+      "northLatitude": 7.1
+    },
+    {
+      "provinceCode": "398",
+      "provinceName": "哈萨克斯坦",
+      "westLongitude": 46.47,
+      "eastLongitude": 87.36,
+      "southLatitude": 40.66,
+      "northLatitude": 55.39
+    },
+    {
+      "provinceCode": "860",
+      "provinceName": "乌兹别克斯坦",
+      "westLongitude": 55.93,
+      "eastLongitude": 73.06,
+      "southLatitude": 37.14,
+      "northLatitude": 45.59
+    },
+    {
+      "provinceCode": "795",
+      "provinceName": "土库曼斯坦",
+      "westLongitude": 52.5,
+      "eastLongitude": 66.55,
+      "southLatitude": 35.27,
+      "northLatitude": 42.75
+    },
+    {
+      "provinceCode": "417",
+      "provinceName": "吉尔吉斯斯坦",
+      "westLongitude": 69.46,
+      "eastLongitude": 80.26,
+      "southLatitude": 39.28,
+      "northLatitude": 43.3
+    },
+    {
+      "provinceCode": "762",
+      "provinceName": "塔吉克斯坦",
+      "westLongitude": 67.44,
+      "eastLongitude": 74.98,
+      "southLatitude": 36.74,
+      "northLatitude": 40.96
+    },
+    {
+      "provinceCode": "682",
+      "provinceName": "沙特阿拉伯",
+      "westLongitude": 34.63,
+      "eastLongitude": 55.67,
+      "southLatitude": 16.35,
+      "northLatitude": 32.16
+    },
+    {
+      "provinceCode": "364",
+      "provinceName": "伊朗",
+      "westLongitude": 44.11,
+      "eastLongitude": 63.32,
+      "southLatitude": 25.08,
+      "northLatitude": 39.71
+    },
+    {
+      "provinceCode": "784",
+      "provinceName": "阿联酋",
+      "westLongitude": 51.58,
+      "eastLongitude": 56.4,
+      "southLatitude": 22.5,
+      "northLatitude": 26.06
+    },
+    {
+      "provinceCode": "376",
+      "provinceName": "以色列",
+      "westLongitude": 34.27,
+      "eastLongitude": 35.84,
+      "southLatitude": 29.5,
+      "northLatitude": 33.28
+    },
+    {
+      "provinceCode": "792",
+      "provinceName": "土耳其",
+      "westLongitude": 26.04,
+      "eastLongitude": 44.79,
+      "southLatitude": 35.82,
+      "northLatitude": 42.14
+    },
+    {
+      "provinceCode": "368",
+      "provinceName": "伊拉克",
+      "westLongitude": 38.79,
+      "eastLongitude": 48.57,
+      "southLatitude": 29.1,
+      "northLatitude": 37.39
+    },
+    {
+      "provinceCode": "634",
+      "provinceName": "卡塔尔",
+      "westLongitude": 50.74,
+      "eastLongitude": 51.61,
+      "southLatitude": 24.56,
+      "northLatitude": 26.11
+    },
+    {
+      "provinceCode": "414",
+      "provinceName": "科威特",
+      "westLongitude": 46.57,
+      "eastLongitude": 48.42,
+      "southLatitude": 28.53,
+      "northLatitude": 30.06
+    },
+    {
+      "provinceCode": "512",
+      "provinceName": "阿曼",
+      "westLongitude": 52.0,
+      "eastLongitude": 59.81,
+      "southLatitude": 16.65,
+      "northLatitude": 26.4
+    },
+    {
+      "provinceCode": "048",
+      "provinceName": "巴林",
+      "westLongitude": 50.45,
+      "eastLongitude": 50.66,
+      "southLatitude": 25.79,
+      "northLatitude": 26.28
+    },
+    {
+      "provinceCode": "422",
+      "provinceName": "黎巴嫩",
+      "westLongitude": 35.13,
+      "eastLongitude": 36.61,
+      "southLatitude": 33.09,
+      "northLatitude": 34.64
+    },
+    {
+      "provinceCode": "400",
+      "provinceName": "约旦",
+      "westLongitude": 34.92,
+      "eastLongitude": 39.2,
+      "southLatitude": 29.2,
+      "northLatitude": 33.38
+    },
+    {
+      "provinceCode": "887",
+      "provinceName": "也门",
+      "westLongitude": 42.6,
+      "eastLongitude": 53.11,
+      "southLatitude": 12.59,
+      "northLatitude": 19.0
+    },
+    {
+      "provinceCode": "760",
+      "provinceName": "叙利亚",
+      "westLongitude": 35.7,
+      "eastLongitude": 42.35,
+      "southLatitude": 32.31,
+      "northLatitude": 37.23
+    },
+    {
+      "provinceCode": "275",
+      "provinceName": "巴勒斯坦",
+      "westLongitude": 34.93,
+      "eastLongitude": 35.55,
+      "southLatitude": 31.35,
+      "northLatitude": 32.53
+    },
+    {
+      "provinceCode": "004",
+      "provinceName": "阿富汗",
+      "westLongitude": 60.53,
+      "eastLongitude": 75.16,
+      "southLatitude": 29.32,
+      "northLatitude": 38.49
+    },
+    {
+      "provinceCode": "196",
+      "provinceName": "塞浦路斯",
+      "westLongitude": 32.26,
+      "eastLongitude": 34.0,
+      "southLatitude": 34.57,
+      "northLatitude": 35.17
+    },
+    {
+      "provinceCode": "826",
+      "provinceName": "英国",
+      "westLongitude": -7.57,
+      "eastLongitude": 1.68,
+      "southLatitude": 49.96,
+      "northLatitude": 58.64
+    },
+    {
+      "provinceCode": "276",
+      "provinceName": "德国",
+      "westLongitude": 5.99,
+      "eastLongitude": 15.02,
+      "southLatitude": 47.3,
+      "northLatitude": 54.98
+    },
+    {
+      "provinceCode": "250",
+      "provinceName": "法国",
+      "westLongitude": -5.0,
+      "eastLongitude": 9.56,
+      "southLatitude": 42.5,
+      "northLatitude": 51.15
+    },
+    {
+      "provinceCode": "528",
+      "provinceName": "荷兰",
+      "westLongitude": 3.31,
+      "eastLongitude": 7.09,
+      "southLatitude": 50.8,
+      "northLatitude": 53.51
+    },
+    {
+      "provinceCode": "056",
+      "provinceName": "比利时",
+      "westLongitude": 2.51,
+      "eastLongitude": 6.16,
+      "southLatitude": 49.53,
+      "northLatitude": 51.48
+    },
+    {
+      "provinceCode": "442",
+      "provinceName": "卢森堡",
+      "westLongitude": 5.67,
+      "eastLongitude": 6.24,
+      "southLatitude": 49.44,
+      "northLatitude": 50.13
+    },
+    {
+      "provinceCode": "372",
+      "provinceName": "爱尔兰",
+      "westLongitude": -9.98,
+      "eastLongitude": -6.03,
+      "southLatitude": 51.67,
+      "northLatitude": 55.13
+    },
+    {
+      "provinceCode": "492",
+      "provinceName": "摩纳哥",
+      "westLongitude": 7.41,
+      "eastLongitude": 7.44,
+      "southLatitude": 43.72,
+      "northLatitude": 43.75
+    },
+    {
+      "provinceCode": "578",
+      "provinceName": "挪威",
+      "westLongitude": 4.99,
+      "eastLongitude": 31.29,
+      "southLatitude": 58.08,
+      "northLatitude": 70.92
+    },
+    {
+      "provinceCode": "752",
+      "provinceName": "瑞典",
+      "westLongitude": 11.03,
+      "eastLongitude": 23.9,
+      "southLatitude": 55.36,
+      "northLatitude": 69.11
+    },
+    {
+      "provinceCode": "246",
+      "provinceName": "芬兰",
+      "westLongitude": 20.65,
+      "eastLongitude": 31.52,
+      "southLatitude": 59.85,
+      "northLatitude": 70.16
+    },
+    {
+      "provinceCode": "208",
+      "provinceName": "丹麦",
+      "westLongitude": 8.09,
+      "eastLongitude": 12.69,
+      "southLatitude": 54.8,
+      "northLatitude": 57.73
+    },
+    {
+      "provinceCode": "352",
+      "provinceName": "冰岛",
+      "westLongitude": -24.33,
+      "eastLongitude": -13.61,
+      "southLatitude": 63.5,
+      "northLatitude": 66.53
+    },
+    {
+      "provinceCode": "233",
+      "provinceName": "爱沙尼亚",
+      "westLongitude": 23.34,
+      "eastLongitude": 28.13,
+      "southLatitude": 57.47,
+      "northLatitude": 59.61
+    },
+    {
+      "provinceCode": "428",
+      "provinceName": "拉脱维亚",
+      "westLongitude": 21.06,
+      "eastLongitude": 28.18,
+      "southLatitude": 55.62,
+      "northLatitude": 57.97
+    },
+    {
+      "provinceCode": "440",
+      "provinceName": "立陶宛",
+      "westLongitude": 21.06,
+      "eastLongitude": 26.59,
+      "southLatitude": 53.91,
+      "northLatitude": 56.37
+    },
+    {
+      "provinceCode": "756",
+      "provinceName": "瑞士",
+      "westLongitude": 6.02,
+      "eastLongitude": 10.44,
+      "southLatitude": 45.78,
+      "northLatitude": 47.83
+    },
+    {
+      "provinceCode": "040",
+      "provinceName": "奥地利",
+      "westLongitude": 9.48,
+      "eastLongitude": 16.98,
+      "southLatitude": 46.43,
+      "northLatitude": 49.04
+    },
+    {
+      "provinceCode": "616",
+      "provinceName": "波兰",
+      "westLongitude": 14.07,
+      "eastLongitude": 24.03,
+      "southLatitude": 49.03,
+      "northLatitude": 54.85
+    },
+    {
+      "provinceCode": "203",
+      "provinceName": "捷克",
+      "westLongitude": 12.24,
+      "eastLongitude": 18.85,
+      "southLatitude": 48.56,
+      "northLatitude": 51.12
+    },
+    {
+      "provinceCode": "703",
+      "provinceName": "斯洛伐克",
+      "westLongitude": 16.88,
+      "eastLongitude": 22.56,
+      "southLatitude": 47.76,
+      "northLatitude": 49.57
+    },
+    {
+      "provinceCode": "348",
+      "provinceName": "匈牙利",
+      "westLongitude": 16.2,
+      "eastLongitude": 22.71,
+      "southLatitude": 45.76,
+      "northLatitude": 48.62
+    },
+    {
+      "provinceCode": "438",
+      "provinceName": "列支敦士登",
+      "westLongitude": 9.47,
+      "eastLongitude": 9.64,
+      "southLatitude": 47.05,
+      "northLatitude": 47.27
+    },
+    {
+      "provinceCode": "380",
+      "provinceName": "意大利",
+      "westLongitude": 6.75,
+      "eastLongitude": 18.48,
+      "southLatitude": 36.62,
+      "northLatitude": 47.12
+    },
+    {
+      "provinceCode": "724",
+      "provinceName": "西班牙",
+      "westLongitude": -9.39,
+      "eastLongitude": 3.04,
+      "southLatitude": 35.95,
+      "northLatitude": 43.75
+    },
+    {
+      "provinceCode": "620",
+      "provinceName": "葡萄牙",
+      "westLongitude": -9.53,
+      "eastLongitude": -6.39,
+      "southLatitude": 36.84,
+      "northLatitude": 42.28
+    },
+    {
+      "provinceCode": "300",
+      "provinceName": "希腊",
+      "westLongitude": 20.15,
+      "eastLongitude": 26.6,
+      "southLatitude": 34.92,
+      "northLatitude": 41.83
+    },
+    {
+      "provinceCode": "336",
+      "provinceName": "梵蒂冈",
+      "westLongitude": 12.44,
+      "eastLongitude": 12.46,
+      "southLatitude": 41.9,
+      "northLatitude": 41.91
+    },
+    {
+      "provinceCode": "674",
+      "provinceName": "圣马力诺",
+      "westLongitude": 12.4,
+      "eastLongitude": 12.52,
+      "southLatitude": 43.89,
+      "northLatitude": 43.99
+    },
+    {
+      "provinceCode": "470",
+      "provinceName": "马耳他",
+      "westLongitude": 14.18,
+      "eastLongitude": 14.58,
+      "southLatitude": 35.8,
+      "northLatitude": 36.09
+    },
+    {
+      "provinceCode": "020",
+      "provinceName": "安道尔",
+      "westLongitude": 1.41,
+      "eastLongitude": 1.79,
+      "southLatitude": 42.43,
+      "northLatitude": 42.66
+    },
+    {
+      "provinceCode": "643",
+      "provinceName": "俄罗斯",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": 41.15,
+      "northLatitude": 81.25
+    },
+    {
+      "provinceCode": "804",
+      "provinceName": "乌克兰",
+      "westLongitude": 22.09,
+      "eastLongitude": 40.08,
+      "southLatitude": 44.36,
+      "northLatitude": 52.34
+    },
+    {
+      "provinceCode": "112",
+      "provinceName": "白俄罗斯",
+      "westLongitude": 23.2,
+      "eastLongitude": 32.69,
+      "southLatitude": 51.32,
+      "northLatitude": 56.17
+    },
+    {
+      "provinceCode": "498",
+      "provinceName": "摩尔多瓦",
+      "westLongitude": 26.62,
+      "eastLongitude": 30.02,
+      "southLatitude": 45.49,
+      "northLatitude": 48.47
+    },
+    {
+      "provinceCode": "642",
+      "provinceName": "罗马尼亚",
+      "westLongitude": 20.22,
+      "eastLongitude": 29.63,
+      "southLatitude": 43.69,
+      "northLatitude": 48.22
+    },
+    {
+      "provinceCode": "100",
+      "provinceName": "保加利亚",
+      "westLongitude": 22.38,
+      "eastLongitude": 28.56,
+      "southLatitude": 41.23,
+      "northLatitude": 44.23
+    },
+    {
+      "provinceCode": "688",
+      "provinceName": "塞尔维亚",
+      "westLongitude": 18.83,
+      "eastLongitude": 22.99,
+      "southLatitude": 42.25,
+      "northLatitude": 46.17
+    },
+    {
+      "provinceCode": "191",
+      "provinceName": "克罗地亚",
+      "westLongitude": 13.66,
+      "eastLongitude": 19.39,
+      "southLatitude": 42.48,
+      "northLatitude": 46.5
+    },
+    {
+      "provinceCode": "705",
+      "provinceName": "斯洛文尼亚",
+      "westLongitude": 13.7,
+      "eastLongitude": 16.56,
+      "southLatitude": 45.45,
+      "northLatitude": 46.85
+    },
+    {
+      "provinceCode": "070",
+      "provinceName": "波黑",
+      "westLongitude": 15.75,
+      "eastLongitude": 19.6,
+      "southLatitude": 42.65,
+      "northLatitude": 45.23
+    },
+    {
+      "provinceCode": "499",
+      "provinceName": "黑山",
+      "westLongitude": 18.45,
+      "eastLongitude": 20.34,
+      "southLatitude": 41.88,
+      "northLatitude": 43.52
+    },
+    {
+      "provinceCode": "807",
+      "provinceName": "北马其顿",
+      "westLongitude": 20.46,
+      "eastLongitude": 22.95,
+      "southLatitude": 40.84,
+      "northLatitude": 42.32
+    },
+    {
+      "provinceCode": "008",
+      "provinceName": "阿尔巴尼亚",
+      "westLongitude": 19.3,
+      "eastLongitude": 21.02,
+      "southLatitude": 39.62,
+      "northLatitude": 42.69
+    },
+    {
+      "provinceCode": "818",
+      "provinceName": "埃及",
+      "westLongitude": 24.7,
+      "eastLongitude": 36.87,
+      "southLatitude": 22.0,
+      "northLatitude": 31.59
+    },
+    {
+      "provinceCode": "434",
+      "provinceName": "利比亚",
+      "westLongitude": 9.32,
+      "eastLongitude": 25.16,
+      "southLatitude": 19.58,
+      "northLatitude": 33.14
+    },
+    {
+      "provinceCode": "788",
+      "provinceName": "突尼斯",
+      "westLongitude": 7.52,
+      "eastLongitude": 11.49,
+      "southLatitude": 30.31,
+      "northLatitude": 37.35
+    },
+    {
+      "provinceCode": "012",
+      "provinceName": "阿尔及利亚",
+      "westLongitude": -8.68,
+      "eastLongitude": 12.0,
+      "southLatitude": 19.06,
+      "northLatitude": 37.12
+    },
+    {
+      "provinceCode": "504",
+      "provinceName": "摩洛哥",
+      "westLongitude": -17.02,
+      "eastLongitude": -1.12,
+      "southLatitude": 21.42,
+      "northLatitude": 35.76
+    },
+    {
+      "provinceCode": "729",
+      "provinceName": "苏丹",
+      "westLongitude": 21.94,
+      "eastLongitude": 38.41,
+      "southLatitude": 8.62,
+      "northLatitude": 22.0
+    },
+    {
+      "provinceCode": "566",
+      "provinceName": "尼日利亚",
+      "westLongitude": 2.69,
+      "eastLongitude": 14.58,
+      "southLatitude": 4.24,
+      "northLatitude": 13.87
+    },
+    {
+      "provinceCode": "288",
+      "provinceName": "加纳",
+      "westLongitude": -3.24,
+      "eastLongitude": 1.06,
+      "southLatitude": 4.71,
+      "northLatitude": 11.1
+    },
+    {
+      "provinceCode": "384",
+      "provinceName": "科特迪瓦",
+      "westLongitude": -8.6,
+      "eastLongitude": -2.56,
+      "southLatitude": 4.34,
+      "northLatitude": 10.52
+    },
+    {
+      "provinceCode": "686",
+      "provinceName": "塞内加尔",
+      "westLongitude": -17.63,
+      "eastLongitude": -11.47,
+      "southLatitude": 12.33,
+      "northLatitude": 16.6
+    },
+    {
+      "provinceCode": "466",
+      "provinceName": "马里",
+      "westLongitude": -12.17,
+      "eastLongitude": 4.27,
+      "southLatitude": 10.1,
+      "northLatitude": 24.97
+    },
+    {
+      "provinceCode": "324",
+      "provinceName": "几内亚",
+      "westLongitude": -15.13,
+      "eastLongitude": -7.83,
+      "southLatitude": 7.31,
+      "northLatitude": 12.59
+    },
+    {
+      "provinceCode": "854",
+      "provinceName": "布基纳法索",
+      "westLongitude": -5.47,
+      "eastLongitude": 2.18,
+      "southLatitude": 9.61,
+      "northLatitude": 15.12
+    },
+    {
+      "provinceCode": "204",
+      "provinceName": "贝宁",
+      "westLongitude": 0.77,
+      "eastLongitude": 3.8,
+      "southLatitude": 6.14,
+      "northLatitude": 12.24
+    },
+    {
+      "provinceCode": "768",
+      "provinceName": "多哥",
+      "westLongitude": -0.05,
+      "eastLongitude": 1.87,
+      "southLatitude": 5.93,
+      "northLatitude": 11.02
+    },
+    {
+      "provinceCode": "562",
+      "provinceName": "尼日尔",
+      "westLongitude": 0.3,
+      "eastLongitude": 15.9,
+      "southLatitude": 11.66,
+      "northLatitude": 23.47
+    },
+    {
+      "provinceCode": "430",
+      "provinceName": "利比里亚",
+      "westLongitude": -11.44,
+      "eastLongitude": -7.54,
+      "southLatitude": 4.36,
+      "northLatitude": 8.54
+    },
+    {
+      "provinceCode": "694",
+      "provinceName": "塞拉利昂",
+      "westLongitude": -13.25,
+      "eastLongitude": -10.23,
+      "southLatitude": 6.79,
+      "northLatitude": 10.05
+    },
+    {
+      "provinceCode": "270",
+      "provinceName": "冈比亚",
+      "westLongitude": -16.84,
+      "eastLongitude": -13.84,
+      "southLatitude": 13.13,
+      "northLatitude": 13.88
+    },
+    {
+      "provinceCode": "624",
+      "provinceName": "几内亚比绍",
+      "westLongitude": -16.68,
+      "eastLongitude": -13.7,
+      "southLatitude": 11.04,
+      "northLatitude": 12.63
+    },
+    {
+      "provinceCode": "132",
+      "provinceName": "佛得角",
+      "westLongitude": -25.36,
+      "eastLongitude": -22.67,
+      "southLatitude": 14.8,
+      "northLatitude": 17.2
+    },
+    {
+      "provinceCode": "478",
+      "provinceName": "毛里塔尼亚",
+      "westLongitude": -17.06,
+      "eastLongitude": -4.92,
+      "southLatitude": 14.62,
+      "northLatitude": 27.4
+    },
+    {
+      "provinceCode": "231",
+      "provinceName": "埃塞俄比亚",
+      "westLongitude": 32.95,
+      "eastLongitude": 47.79,
+      "southLatitude": 3.42,
+      "northLatitude": 14.96
+    },
+    {
+      "provinceCode": "404",
+      "provinceName": "肯尼亚",
+      "westLongitude": 33.89,
+      "eastLongitude": 41.86,
+      "southLatitude": -4.68,
+      "northLatitude": 5.51
+    },
+    {
+      "provinceCode": "834",
+      "provinceName": "坦桑尼亚",
+      "westLongitude": 29.34,
+      "eastLongitude": 40.32,
+      "southLatitude": -11.72,
+      "northLatitude": -0.95
+    },
+    {
+      "provinceCode": "800",
+      "provinceName": "乌干达",
+      "westLongitude": 29.58,
+      "eastLongitude": 35.04,
+      "southLatitude": -1.44,
+      "northLatitude": 4.25
+    },
+    {
+      "provinceCode": "646",
+      "provinceName": "卢旺达",
+      "westLongitude": 29.02,
+      "eastLongitude": 30.82,
+      "southLatitude": -2.92,
+      "northLatitude": -1.13
+    },
+    {
+      "provinceCode": "108",
+      "provinceName": "布隆迪",
+      "westLongitude": 29.02,
+      "eastLongitude": 30.75,
+      "southLatitude": -4.5,
+      "northLatitude": -2.35
+    },
+    {
+      "provinceCode": "706",
+      "provinceName": "索马里",
+      "westLongitude": 40.98,
+      "eastLongitude": 51.13,
+      "southLatitude": -1.68,
+      "northLatitude": 12.02
+    },
+    {
+      "provinceCode": "728",
+      "provinceName": "南苏丹",
+      "westLongitude": 23.89,
+      "eastLongitude": 35.3,
+      "southLatitude": 3.51,
+      "northLatitude": 12.25
+    },
+    {
+      "provinceCode": "262",
+      "provinceName": "吉布提",
+      "westLongitude": 41.66,
+      "eastLongitude": 43.32,
+      "southLatitude": 10.93,
+      "northLatitude": 12.7
+    },
+    {
+      "provinceCode": "232",
+      "provinceName": "厄立特里亚",
+      "westLongitude": 36.32,
+      "eastLongitude": 43.08,
+      "southLatitude": 12.46,
+      "northLatitude": 18.0
+    },
+    {
+      "provinceCode": "180",
+      "provinceName": "刚果（金）",
+      "westLongitude": 12.18,
+      "eastLongitude": 31.17,
+      "southLatitude": -13.26,
+      "northLatitude": 5.26
+    },
+    {
+      "provinceCode": "178",
+      "provinceName": "刚果（布）",
+      "westLongitude": 11.09,
+      "eastLongitude": 18.45,
+      "southLatitude": -5.04,
+      "northLatitude": 3.73
+    },
+    {
+      "provinceCode": "120",
+      "provinceName": "喀麦隆",
+      "westLongitude": 8.49,
+      "eastLongitude": 16.01,
+      "southLatitude": 1.73,
+      "northLatitude": 12.86
+    },
+    {
+      "provinceCode": "266",
+      "provinceName": "加蓬",
+      "westLongitude": 8.8,
+      "eastLongitude": 14.43,
+      "southLatitude": -3.98,
+      "northLatitude": 2.33
+    },
+    {
+      "provinceCode": "226",
+      "provinceName": "赤道几内亚",
+      "westLongitude": 9.31,
+      "eastLongitude": 11.29,
+      "southLatitude": 1.01,
+      "northLatitude": 2.28
+    },
+    {
+      "provinceCode": "148",
+      "provinceName": "乍得",
+      "westLongitude": 13.54,
+      "eastLongitude": 23.89,
+      "southLatitude": 7.42,
+      "northLatitude": 23.41
+    },
+    {
+      "provinceCode": "140",
+      "provinceName": "中非共和国",
+      "westLongitude": 14.46,
+      "eastLongitude": 27.37,
+      "southLatitude": 2.27,
+      "northLatitude": 11.14
+    },
+    {
+      "provinceCode": "678",
+      "provinceName": "圣多美和普林西比",
+      "westLongitude": 6.46,
+      "eastLongitude": 7.46,
+      "southLatitude": 0.02,
+      "northLatitude": 1.7
+    },
+    {
+      "provinceCode": "710",
+      "provinceName": "南非",
+      "westLongitude": 16.34,
+      "eastLongitude": 32.83,
+      "southLatitude": -34.82,
+      "northLatitude": -22.09
+    },
+    {
+      "provinceCode": "516",
+      "provinceName": "纳米比亚",
+      "westLongitude": 11.73,
+      "eastLongitude": 25.08,
+      "southLatitude": -29.05,
+      "northLatitude": -16.94
+    },
+    {
+      "provinceCode": "072",
+      "provinceName": "博茨瓦纳",
+      "westLongitude": 19.9,
+      "eastLongitude": 29.43,
+      "southLatitude": -26.83,
+      "northLatitude": -17.66
+    },
+    {
+      "provinceCode": "716",
+      "provinceName": "津巴布韦",
+      "westLongitude": 25.26,
+      "eastLongitude": 32.85,
+      "southLatitude": -22.27,
+      "northLatitude": -15.51
+    },
+    {
+      "provinceCode": "508",
+      "provinceName": "莫桑比克",
+      "westLongitude": 30.18,
+      "eastLongitude": 40.78,
+      "southLatitude": -26.74,
+      "northLatitude": -10.32
+    },
+    {
+      "provinceCode": "024",
+      "provinceName": "安哥拉",
+      "westLongitude": 11.64,
+      "eastLongitude": 24.08,
+      "southLatitude": -17.93,
+      "northLatitude": -4.44
+    },
+    {
+      "provinceCode": "894",
+      "provinceName": "赞比亚",
+      "westLongitude": 21.89,
+      "eastLongitude": 33.49,
+      "southLatitude": -17.96,
+      "northLatitude": -8.24
+    },
+    {
+      "provinceCode": "454",
+      "provinceName": "马拉维",
+      "westLongitude": 32.69,
+      "eastLongitude": 35.77,
+      "southLatitude": -16.8,
+      "northLatitude": -9.23
+    },
+    {
+      "provinceCode": "450",
+      "provinceName": "马达加斯加",
+      "westLongitude": 43.25,
+      "eastLongitude": 50.48,
+      "southLatitude": -25.6,
+      "northLatitude": -12.04
+    },
+    {
+      "provinceCode": "748",
+      "provinceName": "斯威士兰",
+      "westLongitude": 30.68,
+      "eastLongitude": 32.07,
+      "southLatitude": -27.29,
+      "northLatitude": -25.66
+    },
+    {
+      "provinceCode": "426",
+      "provinceName": "莱索托",
+      "westLongitude": 27.0,
+      "eastLongitude": 29.33,
+      "southLatitude": -30.65,
+      "northLatitude": -28.65
+    },
+    {
+      "provinceCode": "174",
+      "provinceName": "科摩罗",
+      "westLongitude": 43.22,
+      "eastLongitude": 44.53,
+      "southLatitude": -12.42,
+      "northLatitude": -11.36
+    },
+    {
+      "provinceCode": "840",
+      "provinceName": "美国",
+      "westLongitude": -125.0,
+      "eastLongitude": -66.96,
+      "southLatitude": 25.0,
+      "northLatitude": 49.5
+    },
+    {
+      "provinceCode": "124",
+      "provinceName": "加拿大",
+      "westLongitude": -141.0,
+      "eastLongitude": -52.65,
+      "southLatitude": 41.68,
+      "northLatitude": 73.23
+    },
+    {
+      "provinceCode": "484",
+      "provinceName": "墨西哥",
+      "westLongitude": -117.13,
+      "eastLongitude": -86.81,
+      "southLatitude": 14.54,
+      "northLatitude": 32.72
+    },
+    {
+      "provinceCode": "320",
+      "provinceName": "危地马拉",
+      "westLongitude": -92.23,
+      "eastLongitude": -88.23,
+      "southLatitude": 13.74,
+      "northLatitude": 17.82
+    },
+    {
+      "provinceCode": "084",
+      "provinceName": "伯利兹",
+      "westLongitude": -89.23,
+      "eastLongitude": -88.11,
+      "southLatitude": 15.89,
+      "northLatitude": 18.5
+    },
+    {
+      "provinceCode": "340",
+      "provinceName": "洪都拉斯",
+      "westLongitude": -89.35,
+      "eastLongitude": -83.15,
+      "southLatitude": 12.98,
+      "northLatitude": 16.01
+    },
+    {
+      "provinceCode": "222",
+      "provinceName": "萨尔瓦多",
+      "westLongitude": -90.1,
+      "eastLongitude": -87.72,
+      "southLatitude": 13.15,
+      "northLatitude": 14.42
+    },
+    {
+      "provinceCode": "558",
+      "provinceName": "尼加拉瓜",
+      "westLongitude": -87.67,
+      "eastLongitude": -83.15,
+      "southLatitude": 10.73,
+      "northLatitude": 15.02
+    },
+    {
+      "provinceCode": "188",
+      "provinceName": "哥斯达黎加",
+      "westLongitude": -85.94,
+      "eastLongitude": -82.55,
+      "southLatitude": 8.23,
+      "northLatitude": 11.22
+    },
+    {
+      "provinceCode": "591",
+      "provinceName": "巴拿马",
+      "westLongitude": -82.97,
+      "eastLongitude": -77.24,
+      "southLatitude": 7.22,
+      "northLatitude": 9.61
+    },
+    {
+      "provinceCode": "192",
+      "provinceName": "古巴",
+      "westLongitude": -84.97,
+      "eastLongitude": -74.18,
+      "southLatitude": 19.86,
+      "northLatitude": 23.19
+    },
+    {
+      "provinceCode": "388",
+      "provinceName": "牙买加",
+      "westLongitude": -78.34,
+      "eastLongitude": -76.2,
+      "southLatitude": 17.7,
+      "northLatitude": 18.52
+    },
+    {
+      "provinceCode": "332",
+      "provinceName": "海地",
+      "westLongitude": -74.46,
+      "eastLongitude": -71.62,
+      "southLatitude": 18.03,
+      "northLatitude": 19.92
+    },
+    {
+      "provinceCode": "214",
+      "provinceName": "多米尼加",
+      "westLongitude": -71.95,
+      "eastLongitude": -68.32,
+      "southLatitude": 17.6,
+      "northLatitude": 19.88
+    },
+    {
+      "provinceCode": "630",
+      "provinceName": "波多黎各（美）",
+      "westLongitude": -67.24,
+      "eastLongitude": -65.59,
+      "southLatitude": 17.95,
+      "northLatitude": 18.52
+    },
+    {
+      "provinceCode": "044",
+      "provinceName": "巴哈马",
+      "westLongitude": -78.98,
+      "eastLongitude": -77.0,
+      "southLatitude": 23.71,
+      "northLatitude": 27.04
+    },
+    {
+      "provinceCode": "780",
+      "provinceName": "特立尼达和多巴哥",
+      "westLongitude": -61.95,
+      "eastLongitude": -60.9,
+      "southLatitude": 10.0,
+      "northLatitude": 10.89
+    },
+    {
+      "provinceCode": "052",
+      "provinceName": "巴巴多斯",
+      "westLongitude": -59.66,
+      "eastLongitude": -59.42,
+      "southLatitude": 13.04,
+      "northLatitude": 13.34
+    },
+    {
+      "provinceCode": "662",
+      "provinceName": "圣卢西亚",
+      "westLongitude": -61.08,
+      "eastLongitude": -60.87,
+      "southLatitude": 13.7,
+      "northLatitude": 14.11
+    },
+    {
+      "provinceCode": "308",
+      "provinceName": "格林纳达",
+      "westLongitude": -61.8,
+      "eastLongitude": -61.58,
+      "southLatitude": 11.98,
+      "northLatitude": 12.24
+    },
+    {
+      "provinceCode": "028",
+      "provinceName": "安提瓜和巴布达",
+      "westLongitude": -61.91,
+      "eastLongitude": -61.66,
+      "southLatitude": 16.99,
+      "northLatitude": 17.73
+    },
+    {
+      "provinceCode": "659",
+      "provinceName": "圣基茨和尼维斯",
+      "westLongitude": -62.87,
+      "eastLongitude": -62.54,
+      "southLatitude": 17.09,
+      "northLatitude": 17.42
+    },
+    {
+      "provinceCode": "212",
+      "provinceName": "多米尼克",
+      "westLongitude": -61.48,
+      "eastLongitude": -61.24,
+      "southLatitude": 15.2,
+      "northLatitude": 15.64
+    },
+    {
+      "provinceCode": "670",
+      "provinceName": "圣文森特和格林纳丁斯",
+      "westLongitude": -61.46,
+      "eastLongitude": -61.11,
+      "southLatitude": 12.58,
+      "northLatitude": 13.38
+    },
+    {
+      "provinceCode": "076",
+      "provinceName": "巴西",
+      "westLongitude": -73.99,
+      "eastLongitude": -34.73,
+      "southLatitude": -33.77,
+      "northLatitude": 5.24
+    },
+    {
+      "provinceCode": "032",
+      "provinceName": "阿根廷",
+      "westLongitude": -73.42,
+      "eastLongitude": -53.63,
+      "southLatitude": -55.25,
+      "northLatitude": -21.83
+    },
+    {
+      "provinceCode": "170",
+      "provinceName": "哥伦比亚",
+      "westLongitude": -78.99,
+      "eastLongitude": -66.88,
+      "southLatitude": -4.3,
+      "northLatitude": 12.44
+    },
+    {
+      "provinceCode": "152",
+      "provinceName": "智利",
+      "westLongitude": -75.64,
+      "eastLongitude": -66.96,
+      "southLatitude": -55.61,
+      "northLatitude": -17.58
+    },
+    {
+      "provinceCode": "604",
+      "provinceName": "秘鲁",
+      "westLongitude": -81.41,
+      "eastLongitude": -68.67,
+      "southLatitude": -18.35,
+      "northLatitude": -0.06
+    },
+    {
+      "provinceCode": "862",
+      "provinceName": "委内瑞拉",
+      "westLongitude": -73.3,
+      "eastLongitude": -59.76,
+      "southLatitude": 0.72,
+      "northLatitude": 12.16
+    },
+    {
+      "provinceCode": "218",
+      "provinceName": "厄瓜多尔",
+      "westLongitude": -80.97,
+      "eastLongitude": -75.23,
+      "southLatitude": -4.96,
+      "northLatitude": 1.38
+    },
+    {
+      "provinceCode": "068",
+      "provinceName": "玻利维亚",
+      "westLongitude": -69.59,
+      "eastLongitude": -57.5,
+      "southLatitude": -22.87,
+      "northLatitude": -9.76
+    },
+    {
+      "provinceCode": "600",
+      "provinceName": "巴拉圭",
+      "westLongitude": -62.69,
+      "eastLongitude": -54.29,
+      "southLatitude": -27.55,
+      "northLatitude": -19.34
+    },
+    {
+      "provinceCode": "858",
+      "provinceName": "乌拉圭",
+      "westLongitude": -58.43,
+      "eastLongitude": -53.21,
+      "southLatitude": -34.95,
+      "northLatitude": -30.11
+    },
+    {
+      "provinceCode": "328",
+      "provinceName": "圭亚那",
+      "westLongitude": -61.41,
+      "eastLongitude": -56.54,
+      "southLatitude": 1.27,
+      "northLatitude": 8.37
+    },
+    {
+      "provinceCode": "740",
+      "provinceName": "苏里南",
+      "westLongitude": -58.04,
+      "eastLongitude": -53.96,
+      "southLatitude": 1.82,
+      "northLatitude": 6.03
+    },
+    {
+      "provinceCode": "036",
+      "provinceName": "澳大利亚",
+      "westLongitude": 113.34,
+      "eastLongitude": 153.57,
+      "southLatitude": -43.63,
+      "northLatitude": -10.67
+    },
+    {
+      "provinceCode": "554",
+      "provinceName": "新西兰",
+      "westLongitude": 166.51,
+      "eastLongitude": 178.52,
+      "southLatitude": -46.64,
+      "northLatitude": -34.45
+    },
+    {
+      "provinceCode": "598",
+      "provinceName": "巴布亚新几内亚",
+      "westLongitude": 141.0,
+      "eastLongitude": 156.02,
+      "southLatitude": -10.65,
+      "northLatitude": -2.5
+    },
+    {
+      "provinceCode": "242",
+      "provinceName": "斐济",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": -18.29,
+      "northLatitude": -16.02
+    },
+    {
+      "provinceCode": "090",
+      "provinceName": "所罗门群岛",
+      "westLongitude": 156.49,
+      "eastLongitude": 162.4,
+      "southLatitude": -10.83,
+      "northLatitude": -6.6
+    },
+    {
+      "provinceCode": "548",
+      "provinceName": "瓦努阿图",
+      "westLongitude": 166.63,
+      "eastLongitude": 167.84,
+      "southLatitude": -16.6,
+      "northLatitude": -14.63
+    },
+    {
+      "provinceCode": "540",
+      "provinceName": "新喀里多尼亚（法）",
+      "westLongitude": 164.03,
+      "eastLongitude": 167.12,
+      "southLatitude": -22.4,
+      "northLatitude": -20.11
+    },
+    {
+      "provinceCode": "316",
+      "provinceName": "关岛（美）",
+      "westLongitude": 144.6,
+      "eastLongitude": 144.96,
+      "southLatitude": 13.23,
+      "northLatitude": 13.65
+    },
+    {
+      "provinceCode": "584",
+      "provinceName": "马绍尔群岛",
+      "westLongitude": 165.5,
+      "eastLongitude": 172.0,
+      "southLatitude": 4.6,
+      "northLatitude": 14.7
+    },
+    {
+      "provinceCode": "583",
+      "provinceName": "密克罗尼西亚联邦",
+      "westLongitude": 138.0,
+      "eastLongitude": 163.0,
+      "southLatitude": 1.0,
+      "northLatitude": 10.0
+    },
+    {
+      "provinceCode": "585",
+      "provinceName": "帕劳",
+      "westLongitude": 131.12,
+      "eastLongitude": 134.72,
+      "southLatitude": 2.97,
+      "northLatitude": 8.09
+    },
+    {
+      "provinceCode": "296",
+      "provinceName": "基里巴斯",
+      "westLongitude": 169.5,
+      "eastLongitude": -150.2,
+      "southLatitude": -11.5,
+      "northLatitude": 4.7
+    },
+    {
+      "provinceCode": "520",
+      "provinceName": "瑙鲁",
+      "westLongitude": 166.9,
+      "eastLongitude": 166.96,
+      "southLatitude": -0.55,
+      "northLatitude": -0.5
+    },
+    {
+      "provinceCode": "882",
+      "provinceName": "萨摩亚",
+      "westLongitude": -172.8,
+      "eastLongitude": -171.4,
+      "southLatitude": -14.05,
+      "northLatitude": -13.4
+    },
+    {
+      "provinceCode": "776",
+      "provinceName": "汤加",
+      "westLongitude": -175.68,
+      "eastLongitude": -173.9,
+      "southLatitude": -22.35,
+      "northLatitude": -15.56
+    },
+    {
+      "provinceCode": "184",
+      "provinceName": "库克群岛",
+      "westLongitude": -165.9,
+      "eastLongitude": -157.3,
+      "southLatitude": -22.0,
+      "northLatitude": -8.9
+    },
+    {
+      "provinceCode": "798",
+      "provinceName": "图瓦卢",
+      "westLongitude": 176.06,
+      "eastLongitude": 179.9,
+      "southLatitude": -9.5,
+      "northLatitude": -5.6
+    },
+    {
+      "provinceCode": "010",
+      "provinceName": "南极（多国主张，冻结状态）",
+      "westLongitude": -180.0,
+      "eastLongitude": 180.0,
+      "southLatitude": -90.0,
+      "northLatitude": -63.27
+    },
+    {
+      "provinceCode": "480",
+      "provinceName": "毛里求斯",
+      "westLongitude": 57.3,
+      "eastLongitude": 57.8,
+      "southLatitude": -20.53,
+      "northLatitude": -19.98
+    },
+    {
+      "provinceCode": "254",
+      "provinceName": "法属圭亚那（法）",
+      "westLongitude": -54.6,
+      "eastLongitude": -51.6,
+      "southLatitude": 2.11,
+      "northLatitude": 5.78
+    },
+    {
+      "provinceCode": "258",
+      "provinceName": "法属波利尼西亚",
+      "westLongitude": -154.7,
+      "eastLongitude": -134.9,
+      "southLatitude": -27.65,
+      "northLatitude": -7.9
+    },
+    {
+      "provinceCode": "876",
+      "provinceName": "瓦利斯和富图纳",
+      "westLongitude": -178.3,
+      "eastLongitude": -176.1,
+      "southLatitude": -14.4,
+      "northLatitude": -13.18
+    }
+  ]
+}

@@ -18,7 +18,7 @@ public class PlateMapGeoConverter : MonoBehaviour
     }
 
     [Header("板块标识")]
-    [Tooltip("省级 adcode；仅用于事件总线 provinceCode→板块名 映射，不参与几何计算。")]
+    [Tooltip("单元 code：国内=省级 adcode；国外=国家 secondClassCode（如 392）；全国/大板块根可用 \"0\" 或 firstClassCode。仅用于事件总线映射。")]
     [SerializeField] private string _provinceCode = "370000";
 
     [Header("地图根节点")]

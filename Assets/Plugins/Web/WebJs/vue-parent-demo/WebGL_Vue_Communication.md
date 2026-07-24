@@ -141,6 +141,9 @@ handlers: {
 | `SetBigScreenAutoCarouselEnabled` | `{"enabled":bool}` | `SetBigScreenAutoCarouselEnabled(string)` | `SetBigScreenAutoCarouselEnabled` | ✅ |
 | `PauseGame` | `""` | `PauseGame()` | `PauseGame` | ✅ |
 | `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
+| `ExitThreatDrill` | `""` | `ExitThreatDrill()` | `ExitThreatDrill` | 按需 |
+| `RefreshThreatCooldown` | `""` | `RefreshThreatCooldown()` | `RefreshThreatCooldown` | 按需 |
+| `SetDefaultProvinceCode` | code / JSON | `SetDefaultProvinceCode(string)` | `SetDefaultProvinceCode` | 按需 |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
 | `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
 
@@ -358,6 +361,9 @@ callUnity('TransitionToControlState', '{"targetState":3}');
 callUnity('SetBigScreenAutoCarouselEnabled', '{"enabled":true}');
 callUnity('PauseGame', '');
 callUnity('ResumeGame', '');
+callUnity('ExitThreatDrill', '');
+callUnity('RefreshThreatCooldown', '');
+callUnity('SetDefaultProvinceCode', '330000');
 callUnity('RequestCarVehicleData', '');
 callUnity('RequestCarVehicleData', JSON.stringify({
   encryptVin: 'ed49f47afa23e45b18d342767495643c',

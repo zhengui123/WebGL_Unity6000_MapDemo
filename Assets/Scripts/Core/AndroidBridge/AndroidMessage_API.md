@@ -5,6 +5,8 @@
 实现脚本：`Assets/Scripts/Core/AndroidBridge/AndroidMessage.cs`  
 Unity 场景中需存在名为 **`AndroidBridge`** 的 GameObject，并挂载 `AndroidMessage` 组件。
 
+> WebGL 同源业务接口见：`Assets/Plugins/Web/WebJs/vue-parent-demo/WebGL_Iframe_API.md`（方法名与本表对齐，通信通道不同）。
+
 ---
 
 ## 一、通信约定
@@ -121,7 +123,78 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetBigScreenAutoCarouselEnabled",
 
 ---
 
-### 2.5 `RequestCarVehicleData` — 请求车辆态势数据
+### 2.5 `PauseGame` / `ResumeGame` — 暂停 / 恢复游戏
+
+暂停或恢复 `Time.timeScale`，并暂停/播放全部 DOTween。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "PauseGame", "");
+UnityPlayer.UnitySendMessage("AndroidBridge", "ResumeGame", "");
+```
+
+对应 Unity：`MapApi.PauseGame` / `MapApi.ResumeGame` → `GameManager`。
+
+---
+
+### 2.6 `ExitThreatDrill` — 主动退出威胁下钻
+
+保持**当前操控级别**，退出威胁下钻流程并进入冷却（默认约 180s，冷却期间不再检测威胁）。自然跑完威胁流程不会进入冷却。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "ExitThreatDrill", "");
+```
+
+对应 Unity：`MapApi.ExitThreatDrill` → `ThreatProvinceAlertController.ExitThreatDrill`。
+
+---
+
+### 2.7 `RefreshThreatCooldown` — 刷新威胁冷却
+
+仅在**威胁冷却中**有效：重新计满配置的冷却秒数。未在冷却中时调用会失败（Unity Console 警告）。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "RefreshThreatCooldown", "");
+```
+
+对应 Unity：`MapApi.RefreshThreatCooldown`。
+
+---
+
+### 2.8 `SetDefaultProvinceCode` — 设置默认省
+
+按省级 adcode 设置默认省；Unity 自动查找并保存省名（如 `330000` → 浙江）。
+
+```java
+// 直接传 code
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode", "330000");
+
+// 或传 JSON
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode",
+    "{\"provinceCode\":\"330000\"}");
+```
+
+| 字段 / 参数 | 类型 | 必填 | 说明 |
+|-------------|------|------|------|
+| 第 3 参数整串 | string | 是 | 可直接为 `"330000"` |
+| `provinceCode` | string | JSON 时是 | 省级 adcode |
+
+对应 Unity：`MapApi.SetDefaultProvinceCode` → `GameManager.SetDefaultProvinceCode`。
+
+---
+
+### 2.9 `CloseCarUI` — 关闭车辆 UI
+
+停止零部件轮播并关闭车辆 UI / 连线面板。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "CloseCarUI", "");
+```
+
+对应 Unity：`MapApi.CloseCarVehicleDataUi`。
+
+---
+
+### 2.10 `RequestCarVehicleData` — 请求车辆态势数据
 
 同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
 
@@ -144,7 +217,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.6 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.11 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android 侧在正式业务中无需调用本接口。**  
@@ -177,6 +250,19 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
     "{\"yawAngle\":90.0,\"instant\":true}");
 ```
+
+---
+
+### 2.12 其它地图过渡（可选 / 联调）
+
+以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
+
+| 方法名 | 第 3 参数 | 说明 |
+|--------|-----------|------|
+| `TransitionToPlateMap` | `""` | 地球 → 板块过渡 |
+| `TransitionToEarth` | `""` | 板块 → 地球过渡 |
+| `FocusPlateMapModule` | 模块名字符串 | 聚焦指定板块模块 |
+| `RestorePlateMapCamera` | `""` | 还原板块相机 |
 
 ---
 
@@ -340,8 +426,13 @@ public void onUnityCarYawRotationChanged(String json) {
 | `TransitionToNextControlState` | `""` | 进入下一级别 |
 | `TransitionToPreviousControlState` | `""` | 返回上一级别 |
 | `SetBigScreenAutoCarouselEnabled` | JSON | 开启/关闭大屏自动轮播 |
-| `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
+| `PauseGame` | `""` | 暂停游戏 |
+| `ResumeGame` | `""` | 恢复游戏 |
+| `ExitThreatDrill` | `""` | 主动退出威胁下钻并进入冷却 |
+| `RefreshThreatCooldown` | `""` | 刷新威胁冷却（仅冷却中有效） |
+| `SetDefaultProvinceCode` | code / JSON | 设置默认省（adcode） |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
+| `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
 | `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
 
 ---
@@ -353,5 +444,6 @@ public void onUnityCarYawRotationChanged(String json) {
 3. 收到 `onUnityControlStateTransition` 且 `from=-1` 时，表示目标级别已可交互。
 4. 车辆旋转：Android **监听** `onUnityCarYawRotationChanged` 即可，**勿调用** `SetCarYawRotation`。
 5. 需要主动跳转时调用 `TransitionToControlState`。
-6. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
-7. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。
+6. 威胁下钻：用户主动打断用 `ExitThreatDrill`；冷却中续期用 `RefreshThreatCooldown`。
+7. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
+8. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。

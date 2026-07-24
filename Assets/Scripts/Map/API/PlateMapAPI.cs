@@ -1,8 +1,9 @@
+using System;
 using UnityEngine;
 
 /// <summary>
-/// 板块地图统一 API：按省级 adcode（string）路由车辆热力图与 POI 绘制。
-/// provinceCode 为 "0" 时表示全国整体大板块，其余与 GaodeProvinceAdcode 一致。
+/// 板块地图统一 API：按单元 code 路由车辆热力图与 POI 绘制（经 WorldMap 解析）。
+/// 国内：省级 adcode；"0"=全国。国外：secondClassCode 国家数字码；大板块用 firstClassCode。
 /// </summary>
 public class PlateMapAPI : UnitySingle<PlateMapAPI>
 {
@@ -100,31 +101,33 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
             out northLatitude);
     }
 
-    /// <summary>解析 provinceCode 对应的场景板块 GameObject 名称。</summary>
+    /// <summary>解析单元 code（国内省 adcode / 国外国家 SOC）对应的场景板块 GameObject 名称（经 WorldMap）。</summary>
     public bool TryResolvePlateMapName(string provinceCode, out string plateMapName)
     {
         plateMapName = null;
-        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
-        if (hub == null)
+        if (WorldMapPlateResolver.TryResolveUnitModuleName(provinceCode, out plateMapName) &&
+            !string.IsNullOrWhiteSpace(plateMapName))
         {
-            Debug.LogWarning("[PlateMapAPI] PlateMapVehiclePointEvents 未初始化。");
-            return false;
+            return true;
         }
 
-        plateMapName = hub.ResolvePlateMapNameByProvinceCode(provinceCode);
-        if (string.IsNullOrWhiteSpace(plateMapName))
-        {
-            Debug.LogWarning($"[PlateMapAPI] 未找到 provinceCode={provinceCode} 对应的场景板块（请确认 GeoConverter 已挂载并填写 code）。");
-            return false;
-        }
-
-        return true;
+        Debug.LogWarning(
+            $"[PlateMapAPI] 未找到 code={provinceCode} 对应场景板块（WorldMap：请确认 GeoConverter 已注册或对照表有中文名）。");
+        return false;
     }
 
-    /// <summary>从边界数据库读取省级中文名。</summary>
+    /// <summary>从边界库 / WorldMap 对照表读取单元中文名。</summary>
     public bool TryGetProvinceName(string provinceCode, out string provinceName)
     {
         provinceName = null;
+        if (WorldMapRegionCodeTable.TryResolveUnitDisplayName(provinceCode, out string displayName) &&
+            !string.IsNullOrWhiteSpace(displayName) &&
+            !string.Equals(displayName, "全国", StringComparison.Ordinal))
+        {
+            provinceName = displayName;
+            return true;
+        }
+
         if (!PlateMapBoundaryDatabase.TryGet(provinceCode, out PlateMapBoundaryData boundary))
         {
             return false;

@@ -1,8 +1,9 @@
 using System;
 
 /// <summary>
-/// 板块地图边界配置（与 Resources/PlateMapBoundaries.json 结构一致）。
-/// provinceCode 为高德省级 adcode 字符串；"0" 表示全国整体大板块。
+/// 板块地图边界配置（与 Resources/PlateMapBoundaries.json /
+/// Resources/PlateMapForeignBoundaries.json 结构一致）。
+/// provinceCode：国内为省级 adcode / "0"；国外为国家 ISO 数字码或大板块 firstClassCode。
 /// </summary>
 [Serializable]
 public class PlateMapBoundaryResponse

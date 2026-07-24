@@ -132,6 +132,89 @@ public static class PlateMapVehiclePointsBindingUtility
             .ToList();
     }
 
+    /// <summary>
+    /// 国外国家选项：secondClassCode + 中文名；可选按 firstClassCode 过滤。
+    /// </summary>
+    public static List<PlateMapBoundaryData> BuildForeignCountryOptions(string plateCodeFilter = null)
+    {
+        WorldMapRegionCodeTable.EnsureLoaded();
+        List<PlateMapBoundaryData> list = new List<PlateMapBoundaryData>();
+
+        if (!string.IsNullOrWhiteSpace(plateCodeFilter) &&
+            WorldMapRegionCodeTable.TryGetPlateByCode(plateCodeFilter.Trim(), out WorldMapPlateCodeEntry onePlate) &&
+            onePlate.countries != null)
+        {
+            AppendForeignPlateCountries(list, onePlate);
+            return list
+                .OrderBy(item => item.provinceName)
+                .ToList();
+        }
+
+        foreach (WorldMapPlateCodeEntry plate in WorldMapRegionCodeTable.AllPlates)
+        {
+            AppendForeignPlateCountries(list, plate);
+        }
+
+        // 去重国家 code（多板块理论不应重复，仍做保护）
+        Dictionary<string, PlateMapBoundaryData> unique =
+            new Dictionary<string, PlateMapBoundaryData>(System.StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < list.Count; i++)
+        {
+            PlateMapBoundaryData item = list[i];
+            if (item == null || string.IsNullOrWhiteSpace(item.provinceCode))
+            {
+                continue;
+            }
+
+            if (!unique.ContainsKey(item.provinceCode))
+            {
+                unique[item.provinceCode] = item;
+            }
+        }
+
+        return unique.Values.OrderBy(item => item.provinceName).ToList();
+    }
+
+    private static void AppendForeignPlateCountries(List<PlateMapBoundaryData> list, WorldMapPlateCodeEntry plate)
+    {
+        if (plate == null)
+        {
+            return;
+        }
+
+        // 板块根本身也可绑定（对应国外「全国」）
+        if (!string.IsNullOrWhiteSpace(plate.plateCode) && !string.IsNullOrWhiteSpace(plate.plateName))
+        {
+            list.Add(new PlateMapBoundaryData
+            {
+                provinceCode = plate.plateCode.Trim(),
+                provinceName = plate.plateName.Trim() + "（大板块根）"
+            });
+        }
+
+        if (plate.countries == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < plate.countries.Length; i++)
+        {
+            WorldMapCountryCodeEntry country = plate.countries[i];
+            if (country == null || string.IsNullOrWhiteSpace(country.countryCode))
+            {
+                continue;
+            }
+
+            list.Add(new PlateMapBoundaryData
+            {
+                provinceCode = country.countryCode.Trim(),
+                provinceName = string.IsNullOrWhiteSpace(country.countryName)
+                    ? country.countryCode
+                    : country.countryName.Trim()
+            });
+        }
+    }
+
     public static string FormatProvinceLabel(PlateMapBoundaryData data)
     {
         if (data == null)
@@ -381,6 +464,13 @@ public static class PlateMapVehiclePointsBindingUtility
 
     public static List<BindingRow> BuildRows(PlateMapVehiclePointsBindingStore store)
     {
+        return BuildRows(store != null ? store.Entries : null, foreignMode: false);
+    }
+
+    public static List<BindingRow> BuildRows(
+        IReadOnlyList<PlateMapVehiclePointsBindingStore.Entry> persistedEntries,
+        bool foreignMode)
+    {
         List<BindingRow> rows = new List<BindingRow>(16);
         Dictionary<string, BindingRow> keyed = new Dictionary<string, BindingRow>();
 
@@ -392,6 +482,11 @@ public static class PlateMapVehiclePointsBindingUtility
         {
             PlateMapGeoConverter converter = converters[i];
             if (converter == null)
+            {
+                continue;
+            }
+
+            if (!ShouldIncludeCodeInBindingPanel(converter.ProvinceCode, foreignMode))
             {
                 continue;
             }
@@ -409,13 +504,18 @@ public static class PlateMapVehiclePointsBindingUtility
             rows.Add(row);
         }
 
-        IReadOnlyList<PlateMapVehiclePointsBindingStore.Entry> persisted = store != null ? store.Entries : null;
+        IReadOnlyList<PlateMapVehiclePointsBindingStore.Entry> persisted = persistedEntries;
         if (persisted != null)
         {
             for (int i = 0; i < persisted.Count; i++)
             {
                 PlateMapVehiclePointsBindingStore.Entry entry = persisted[i];
                 if (entry == null)
+                {
+                    continue;
+                }
+
+                if (!ShouldIncludeCodeInBindingPanel(entry.provinceCode, foreignMode))
                 {
                     continue;
                 }
@@ -480,7 +580,46 @@ public static class PlateMapVehiclePointsBindingUtility
         return rows;
     }
 
-    public static bool ApplyBinding(BindingRow row)
+    /// <summary>国外：国家 SOC / 自定义板块 code。当前为：大板块 firstClassCode / 国家 secondClassCode（数字）。</summary>
+    private static bool ShouldIncludeCodeInBindingPanel(string unitCode, bool foreignMode)
+    {
+        if (string.IsNullOrWhiteSpace(unitCode))
+        {
+            return true;
+        }
+
+        bool domesticLike = IsLikelyDomesticUnitCode(unitCode);
+        return foreignMode ? !domesticLike : domesticLike;
+    }
+
+    private static bool IsLikelyDomesticUnitCode(string unitCode)
+    {
+        string code = unitCode.Trim();
+        if (code == "0" || code == PlateMapBoundaryDatabase.NationalProvinceCode)
+        {
+            return true;
+        }
+
+        if (code.Length != 6)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < code.Length; i++)
+        {
+            if (!char.IsDigit(code[i]))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <param name="forceRecalculateLeftRight">
+    /// true 时强制按全部子 Renderer AABB 合并重算 Left/Right 本地坐标（国外绑定固定为 true）。
+    /// </param>
+    public static bool ApplyBinding(BindingRow row, bool forceRecalculateLeftRight = false)
     {
         if (row == null || row.Target == null)
         {
@@ -514,7 +653,21 @@ public static class PlateMapVehiclePointsBindingUtility
         SetComponentReference(controller, "_instancedRenderer", renderer);
         AssignDefaultInstancedMaterial(renderer);
 
-        EnsureLeftRightMarkersFromChildMeshes(geoConverter, mapRoot);
+        // 合并该国（绑定目标）下全部子 Renderer 的 XZ 外接盒，再写 Left/Right
+        EnsureLeftRightMarkersFromChildMeshes(
+            geoConverter,
+            mapRoot,
+            forceRecalculatePositions: forceRecalculateLeftRight);
+
+        // 关闭按 X 自动绑西东，避免覆盖已写入的经纬度对角约定
+        SerializedObject geoSo = new SerializedObject(geoConverter);
+        SerializedProperty autoBindProp = geoSo.FindProperty("_autoBindWestEastByLocalX");
+        if (autoBindProp != null)
+        {
+            autoBindProp.boolValue = false;
+            geoSo.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         SetProvinceCode(geoConverter, row.ProvinceCode);
         geoConverter.Rebuild();
         TryApplyRandomVehiclePointsFromLeftRight(target);
@@ -532,6 +685,54 @@ public static class PlateMapVehiclePointsBindingUtility
     }
 
     public static void SyncStoreFromRows(PlateMapVehiclePointsBindingStore store, IReadOnlyList<BindingRow> rows)
+    {
+        if (store == null || rows == null)
+        {
+            return;
+        }
+
+        List<PlateMapVehiclePointsBindingStore.Entry> entries = new List<PlateMapVehiclePointsBindingStore.Entry>();
+        HashSet<string> keys = new HashSet<string>();
+
+        for (int i = 0; i < rows.Count; i++)
+        {
+            BindingRow row = rows[i];
+            if (row == null || row.Target == null)
+            {
+                continue;
+            }
+
+            if (!HasFullBinding(row.Target))
+            {
+                continue;
+            }
+
+            string scenePath = GetSceneAssetPath(row.Target);
+            string hierarchyPath = GetHierarchyPath(row.Target);
+            string key = BuildRowKey(scenePath, hierarchyPath);
+            if (!keys.Add(key))
+            {
+                continue;
+            }
+
+            PlateMapGeoConverter geo = row.Target.GetComponent<PlateMapGeoConverter>();
+            entries.Add(new PlateMapVehiclePointsBindingStore.Entry
+            {
+                sceneAssetPath = scenePath,
+                hierarchyPath = hierarchyPath,
+                objectName = row.Target.name,
+                provinceCode = geo != null ? geo.ProvinceCode : row.ProvinceCode
+            });
+        }
+
+        store.SetEntries(entries);
+        EditorUtility.SetDirty(store);
+        AssetDatabase.SaveAssets();
+    }
+
+    public static void SyncStoreFromRows(
+        ForeignPlateMapVehiclePointsBindingStore store,
+        IReadOnlyList<BindingRow> rows)
     {
         if (store == null || rows == null)
         {
@@ -634,6 +835,11 @@ public static class PlateMapVehiclePointsBindingUtility
 
     private static void SetProvinceCode(PlateMapGeoConverter converter, string provinceCode)
     {
+        if (converter == null)
+        {
+            return;
+        }
+
         SerializedObject serializedObject = new SerializedObject(converter);
         SerializedProperty property = serializedObject.FindProperty("_provinceCode");
         if (property != null)
@@ -641,35 +847,47 @@ public static class PlateMapVehiclePointsBindingUtility
             property.stringValue = provinceCode ?? string.Empty;
         }
 
-        // 编辑器写入锚点经纬度，供 GeoConverter 仿射映射使用（运行时不再读 Database）
+        // 编辑器写入锚点经纬度（Unity 将 double 序列化为 Float，须用 floatValue）
         if (PlateMapBoundaryDatabase.TryGet(provinceCode, out PlateMapBoundaryData boundary))
         {
-            SerializedProperty westLon = serializedObject.FindProperty("_westAnchor.longitude");
-            SerializedProperty westLat = serializedObject.FindProperty("_westAnchor.latitude");
-            SerializedProperty eastLon = serializedObject.FindProperty("_eastAnchor.longitude");
-            SerializedProperty eastLat = serializedObject.FindProperty("_eastAnchor.latitude");
-            if (westLon != null)
-            {
-                westLon.doubleValue = boundary.westLongitude;
-            }
-
-            if (westLat != null)
-            {
-                westLat.doubleValue = boundary.southLatitude;
-            }
-
-            if (eastLon != null)
-            {
-                eastLon.doubleValue = boundary.eastLongitude;
-            }
-
-            if (eastLat != null)
-            {
-                eastLat.doubleValue = boundary.northLatitude;
-            }
+            WriteAnchorLonLat(
+                serializedObject,
+                "_westAnchor",
+                boundary.westLongitude,
+                boundary.southLatitude);
+            WriteAnchorLonLat(
+                serializedObject,
+                "_eastAnchor",
+                boundary.eastLongitude,
+                boundary.northLatitude);
+        }
+        else
+        {
+            Debug.LogWarning(
+                $"[板块绑定] code={provinceCode} 未在 PlateMapBoundaries / PlateMapForeignBoundaries 中找到边界，锚点经纬度未写入。");
         }
 
         serializedObject.ApplyModifiedPropertiesWithoutUndo();
+        EditorUtility.SetDirty(converter);
+    }
+
+    private static void WriteAnchorLonLat(
+        SerializedObject serializedObject,
+        string anchorPropertyPath,
+        double longitude,
+        double latitude)
+    {
+        SerializedProperty lon = serializedObject.FindProperty(anchorPropertyPath + ".longitude");
+        SerializedProperty lat = serializedObject.FindProperty(anchorPropertyPath + ".latitude");
+        if (lon != null)
+        {
+            lon.floatValue = (float)longitude;
+        }
+
+        if (lat != null)
+        {
+            lat.floatValue = (float)latitude;
+        }
     }
 
     private static void SetTransformReference(Object component, string propertyName, Transform value)
@@ -759,6 +977,8 @@ public static class PlateMapVehiclePointsBindingUtility
             }
 
             EnsureLeftRightMarkersFromChildMeshes(geoConverter, mapRoot, forceRecalculatePositions: true);
+            // 刷新 Left/Right 后必须重新写入边界经纬度（否则 marker 赋值可能把 lon/lat 冲零）
+            SetProvinceCode(geoConverter, geoConverter.ProvinceCode);
             geoConverter.Rebuild();
             EditorUtility.SetDirty(geoConverter);
         }
@@ -945,8 +1165,8 @@ public static class PlateMapVehiclePointsBindingUtility
     }
 
     /// <summary>
-    /// 编辑器专用：按子物体 Renderer 的局部 XZ 外接盒创建/补齐 Left、Right 空物体，并挂到 GeoConverter 锚点。
-    /// forceRecalculatePositions=true 时即使已有 Left/Right 也按 mesh 边界重写坐标。
+    /// 编辑器专用：合并绑定目标下全部子 Renderer 的局部 XZ 外接盒，创建/刷新 Left、Right，并挂到 GeoConverter。
+    /// forceRecalculatePositions=true 时即使已有 Left/Right 也按合并边界重写坐标（国外绑定强制开启）。
     /// </summary>
     public static bool EnsureLeftRightMarkersFromChildMeshes(
         PlateMapGeoConverter converter,
@@ -971,7 +1191,7 @@ public static class PlateMapVehiclePointsBindingUtility
                 out float meshMinX, out float meshMaxX, out float meshMinZ, out float meshMaxZ))
         {
             Debug.LogWarning(
-                $"[板块绑定] 「{mapRoot.name}」无法从子模型计算 XZ 边界，跳过 Left/Right {(forceRecalculatePositions ? "刷新" : "创建")}。");
+                $"[板块绑定] 「{mapRoot.name}」无法从子模型合并 XZ 外接盒，跳过 Left/Right {(forceRecalculatePositions ? "刷新" : "创建")}。");
             if (existingLeft != null && existingRight != null)
             {
                 AssignAnchorMarkers(converter, existingLeft, existingRight);
@@ -984,6 +1204,7 @@ public static class PlateMapVehiclePointsBindingUtility
         float northLocalZ;
         ResolveSouthNorthLocalZ(mapRoot, meshMinZ, meshMaxZ, out southLocalZ, out northLocalZ);
 
+        // 约定：Left 取较大 X（几何西侧常见于本项目模型），Right 取较小 X；南/北 Z 已按世界北向解析
         float westLocalX = Mathf.Max(meshMinX, meshMaxX);
         float eastLocalX = Mathf.Min(meshMinX, meshMaxX);
         Vector3 leftPos = new Vector3(westLocalX, 0f, southLocalZ);
@@ -996,8 +1217,9 @@ public static class PlateMapVehiclePointsBindingUtility
         {
             left = CreateMarkerChild(mapRoot, "Left", leftPos);
         }
-        else if (forceRecalculatePositions)
+        else
         {
+            // 无 Left 时上面已创建；force 或首次补齐时写入合并后的坐标
             Undo.RecordObject(left, "刷新 Left 锚点坐标");
             left.localPosition = leftPos;
             left.localRotation = Quaternion.identity;
@@ -1009,7 +1231,7 @@ public static class PlateMapVehiclePointsBindingUtility
         {
             right = CreateMarkerChild(mapRoot, "Right", rightPos);
         }
-        else if (forceRecalculatePositions)
+        else
         {
             Undo.RecordObject(right, "刷新 Right 锚点坐标");
             right.localPosition = rightPos;
@@ -1024,6 +1246,13 @@ public static class PlateMapVehiclePointsBindingUtility
         }
 
         AssignAnchorMarkers(converter, left, right);
+        if (forceRecalculatePositions)
+        {
+            Debug.Log(
+                $"[板块绑定] 「{mapRoot.name}」已合并子物体外接盒并刷新 Left/Right | " +
+                $"Left={leftPos} Right={rightPos}");
+        }
+
         return true;
     }
 
@@ -1036,6 +1265,12 @@ public static class PlateMapVehiclePointsBindingUtility
         bool leftIsWest = leftOrWest.localPosition.x >= rightOrEast.localPosition.x;
         Transform west = leftIsWest ? leftOrWest : rightOrEast;
         Transform east = leftIsWest ? rightOrEast : leftOrWest;
+
+        // 先读出经纬度，避免 SerializedObject 只改 marker 时把 lon/lat 冲成 0
+        double westLon = converter.WestAnchor.longitude;
+        double westLat = converter.WestAnchor.latitude;
+        double eastLon = converter.EastAnchor.longitude;
+        double eastLat = converter.EastAnchor.latitude;
 
         SerializedObject so = new SerializedObject(converter);
         SerializedProperty westMarker = so.FindProperty("_westAnchor.marker");
@@ -1050,6 +1285,8 @@ public static class PlateMapVehiclePointsBindingUtility
             eastMarker.objectReferenceValue = east;
         }
 
+        WriteAnchorLonLat(so, "_westAnchor", westLon, westLat);
+        WriteAnchorLonLat(so, "_eastAnchor", eastLon, eastLat);
         so.ApplyModifiedPropertiesWithoutUndo();
         EditorUtility.SetDirty(converter);
     }

@@ -380,7 +380,73 @@ callUnity('ResumeGame', '');
 
 ---
 
-### 4.6 CloseCarUI
+### 4.6 ExitThreatDrill
+
+主动退出威胁下钻：保持**当前操控级别**，进入冷却（默认约 180s，冷却期间不再检测威胁）。自然跑完威胁流程不会进入冷却。
+
+
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `ExitThreatDrill` |
+| `arg`    | `""` |
+| Unity 方法 | `WebGLAPI.ExitThreatDrill()` |
+| MapApi   | `ExitThreatDrill()` |
+
+
+```javascript
+callUnity('ExitThreatDrill', '');
+```
+
+---
+
+### 4.7 RefreshThreatCooldown
+
+刷新威胁冷却倒计时（**仅冷却中有效**，重新计满配置秒数）。未在冷却中时 Unity Console 警告并失败。
+
+
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `RefreshThreatCooldown` |
+| `arg`    | `""` |
+| Unity 方法 | `WebGLAPI.RefreshThreatCooldown()` |
+| MapApi   | `RefreshThreatCooldown()` |
+
+
+```javascript
+callUnity('RefreshThreatCooldown', '');
+```
+
+---
+
+### 4.8 SetDefaultProvinceCode
+
+按省级 adcode 设置默认省；Unity 自动查找并保存省名（如 `330000` → 浙江）。
+
+
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `SetDefaultProvinceCode` |
+| `arg`    | 省 code 字符串，或 JSON |
+| Unity 方法 | `WebGLAPI.SetDefaultProvinceCode(string arg)` |
+| MapApi   | `SetDefaultProvinceCode(provinceCode)` |
+
+
+| 字段 / 参数 | 类型 | 必填 | 说明 |
+|-------------|------|------|------|
+| `arg` 整串 | string | 是 | 可直接传 `"330000"` |
+| `provinceCode` | string | JSON 时是 | 省级 adcode |
+
+```javascript
+// 直接传 code
+callUnity('SetDefaultProvinceCode', '330000');
+
+// 或传 JSON
+callUnity('SetDefaultProvinceCode', JSON.stringify({ provinceCode: '330000' }));
+```
+
+---
+
+### 4.9 CloseCarUI
 
 停止零部件防护状态轮播，并关闭车辆 UI / 连线。
 
@@ -399,7 +465,7 @@ callUnity('CloseCarUI', '');
 
 ---
 
-### 4.7 RequestCarVehicleData
+### 4.10 RequestCarVehicleData
 
 请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
@@ -434,7 +500,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 
 
-### 4.8 接口汇总表（父 → Unity）
+### 4.11 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -444,10 +510,14 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 | `SetBigScreenAutoCarouselEnabled`  | JSON | ✅    | 大屏轮播开关    |
 | `PauseGame`                        | `""` |      | 暂停游戏      |
 | `ResumeGame`                       | `""` |      | 恢复游戏      |
+| `ExitThreatDrill`                  | `""` |      | 退出威胁下钻并进入冷却 |
+| `RefreshThreatCooldown`             | `""` |      | 刷新威胁冷却（仅冷却中） |
+| `SetDefaultProvinceCode`           | code / JSON | ✅ | 设置默认省 adcode |
 | `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
 | `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
 
-> 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。
+> 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  
+> WebGL **不**暴露 `SetCarYawRotation` / `onUnityCarYawRotationChanged`（仅 Android 侧有）。
 
 ---
 
@@ -672,7 +742,10 @@ function onUnityControlStateTransition(json) {
 | 切换零件 Group03 | `{"targetState":4,"partId":"Group03"}`                                      |
 | 查看攻击路径   | `{"targetState":5}`                                                         |
 | 攻击路径下看零件 | `{"targetState":4,"partId":"Group01"}`                                      |
-| 关闭大屏轮播   | `{"enabled":false}`                                                         |
+| 关闭大屏轮播   | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`                     |
+| 设置默认省浙江 | `SetDefaultProvinceCode` → `"330000"` 或 `{"provinceCode":"330000"}`         |
+| 退出威胁下钻   | `ExitThreatDrill` → `""`                                                    |
+| 刷新威胁冷却   | `RefreshThreatCooldown` → `""`（仅冷却中）                                       |
 
 
 ---
@@ -742,6 +815,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期      | 说明                                                  |
 | ------- | --------------------------------------------------- |
+| 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode` |
 | 2026-07 | `ControlStateTransitionNotify` 增加预留字段 `status`（大屏状态） |
 | 2026-07 | `partId` 示例统一为 `Group01`、`Group02`、`Group03`          |
 | 2026-07 | 父页面 `source` 由 `parent-app` 改为 `webgl-unity-parent` |
