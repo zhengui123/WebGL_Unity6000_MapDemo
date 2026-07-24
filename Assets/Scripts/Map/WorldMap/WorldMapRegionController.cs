@@ -29,7 +29,7 @@ public class WorldMapRegionController : MonoBehaviour
     [Header("启动")]
     [SerializeField] private WorldMapRegionMode _startMode = WorldMapRegionMode.Domestic;
 
-    [Tooltip("启动为国外时使用的板块 firstClassCode，如 EAST_ASIA")]
+    [Tooltip("启动为国外时使用的大板块；Inspector 下拉仅显示已绑定板块名，内部存 plateCode")]
     [SerializeField] private string _startForeignPlateCode = "EAST_ASIA";
 
     [Header("国内")]
@@ -42,6 +42,9 @@ public class WorldMapRegionController : MonoBehaviour
     [Header("显示")]
     [Tooltip("场景中的板块显示控制器；切换时会重绑 plateRoot 并清聚焦")]
     [SerializeField] private PlateMapDisplayController _displayController;
+
+    [Tooltip("世界模式背景线（如「世界地图边界线」）；国内关闭，国外打开")]
+    [SerializeField] private GameObject _worldModeBackgroundLine;
 
     [Tooltip("切换板块后是否立即还原到全国相机")]
     [SerializeField] private bool _restoreNationalViewOnSwitch = true;
@@ -163,8 +166,11 @@ public class WorldMapRegionController : MonoBehaviour
         DefaultForeignCountryCode = string.Empty;
         ActivePlateRoot = _domesticPlateRoot;
         SetRootsVisibility(activeForeign: null);
+        SetWorldModeBackgroundLineVisible(false);
         WorldMapRegionContext.ApplyDomestic();
         RebindDisplayController(_domesticPlateRoot);
+        // 国内不居中：若曾被错误居中，恢复缓存的原始本地位姿
+        RestorePlateRootOriginalPose(_domesticPlateRoot);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }
@@ -195,10 +201,25 @@ public class WorldMapRegionController : MonoBehaviour
             : binding.defaultCountryCode.Trim();
         ActivePlateRoot = binding.plateRoot;
         SetRootsVisibility(activeForeign: binding);
+        SetWorldModeBackgroundLineVisible(true);
         WorldMapRegionContext.ApplyForeignPlate(plateCode, plateName);
         RebindDisplayController(binding.plateRoot);
+        CenterActivePlateOnScreen(binding.plateRoot);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
+    }
+
+    private void SetWorldModeBackgroundLineVisible(bool visible)
+    {
+        if (_worldModeBackgroundLine == null)
+        {
+            return;
+        }
+
+        if (_worldModeBackgroundLine.activeSelf != visible)
+        {
+            _worldModeBackgroundLine.SetActive(visible);
+        }
     }
 
     private void SetRootsVisibility(ForeignPlateBinding activeForeign)
@@ -237,6 +258,39 @@ public class WorldMapRegionController : MonoBehaviour
         }
 
         controller.BindPlateMapRoot(plateRoot);
+    }
+
+    /// <summary>将当前激活板块平移到屏幕中心（不改相机高度）。仅国外使用。</summary>
+    private void CenterActivePlateOnScreen(Transform plateRoot)
+    {
+        if (plateRoot == null)
+        {
+            return;
+        }
+
+        PlateMapDisplayController controller = _displayController != null
+            ? _displayController
+            : PlateMapDisplayController.Instance;
+        if (controller == null)
+        {
+            return;
+        }
+
+        controller.CenterPlateRootOnScreen(plateRoot);
+    }
+
+    /// <summary>恢复板块根缓存的原始本地位姿（国内回退用）。</summary>
+    private void RestorePlateRootOriginalPose(Transform plateRoot)
+    {
+        if (plateRoot == null)
+        {
+            return;
+        }
+
+        PlateMapDisplayController controller = _displayController != null
+            ? _displayController
+            : PlateMapDisplayController.Instance;
+        controller?.RestorePlateRootOriginalLocalPose(plateRoot);
     }
 
     /// <summary>切换前清聚焦并还原全国相机（须在重绑 root 之前调用，以免丢失 pre-focus 位姿）。</summary>

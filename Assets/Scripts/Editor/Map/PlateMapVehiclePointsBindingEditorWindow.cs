@@ -783,7 +783,10 @@ public class PlateMapVehiclePointsBindingEditorWindow : EditorWindow
                 }
             }
 
-            if (PlateMapVehiclePointsBindingUtility.ApplyDefaultVisualData(row.Target, forceOverwriteColors: true))
+            if (PlateMapVehiclePointsBindingUtility.ApplyDefaultVisualData(
+                    row.Target,
+                    forceOverwriteColors: true,
+                    ensureDisplayModule: _foreignMode))
             {
                 success++;
             }

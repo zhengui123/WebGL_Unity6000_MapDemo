@@ -647,6 +647,12 @@ public static class PlateMapVehiclePointsBindingUtility
             renderer = Undo.AddComponent<PlateMapVehiclePointInstancedRenderer>(target);
         }
 
+        // 国外绑定：在国家根上确保可点击显示模块（对齐国内省根挂载方式）
+        if (forceRecalculateLeftRight)
+        {
+            EnsurePlateMapDisplayModuleOnRoot(target);
+        }
+
         Transform mapRoot = target.transform;
         SetTransformReference(geoConverter, "_mapRoot", mapRoot);
         SetTransformReference(controller, "_mapRoot", mapRoot);
@@ -917,7 +923,11 @@ public static class PlateMapVehiclePointsBindingUtility
     /// 取消 _autoBindWestEastByLocalX；并按子 mesh 边界强制刷新 Left/Right 坐标后 Rebuild；
     /// 再按 Left/Right 经纬度外接矩形随机写入 3 个车辆测试点。
     /// </summary>
-    public static bool ApplyDefaultVisualData(GameObject target, bool forceOverwriteColors = true)
+    /// <param name="ensureDisplayModule">为 true 时在目标根上确保 PlateMapDisplayModule（国外更新用）。</param>
+    public static bool ApplyDefaultVisualData(
+        GameObject target,
+        bool forceOverwriteColors = true,
+        bool ensureDisplayModule = false)
     {
         if (target == null)
         {
@@ -934,6 +944,10 @@ public static class PlateMapVehiclePointsBindingUtility
 
         Undo.RegisterFullObjectHierarchyUndo(target, "更新车辆点默认数据");
 
+        if (ensureDisplayModule)
+        {
+            EnsurePlateMapDisplayModuleOnRoot(target);
+        }
         if (controller != null && forceOverwriteColors)
         {
             SerializedObject controllerSo = new SerializedObject(controller);
@@ -1162,6 +1176,26 @@ public static class PlateMapVehiclePointsBindingUtility
         }
 
         return material;
+    }
+
+    /// <summary>
+    /// 在绑定目标根节点上确保存在 PlateMapDisplayModule（国外国家根，对齐国内省根）。
+    /// </summary>
+    public static bool EnsurePlateMapDisplayModuleOnRoot(GameObject target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        if (target.GetComponent<PlateMapDisplayModule>() != null)
+        {
+            return false;
+        }
+
+        Undo.AddComponent<PlateMapDisplayModule>(target);
+        EditorUtility.SetDirty(target);
+        return true;
     }
 
     /// <summary>
