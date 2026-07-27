@@ -1,0 +1,78 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b6de248ee8f2ae4aabac0b491ea34a6, type: 3}
+  m_Name: EarthPlateMapPositionConfig
+  m_EditorClassIdentifier: Assembly-CSharp::EarthPlateMapPositionConfig
+  _entries:
+  - plateCode: EAST_ASIA
+    plateName: "\u4E1C\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: SOUTHEAST_ASIA
+    plateName: "\u4E1C\u5357\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: SOUTH_ASIA
+    plateName: "\u5357\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: CENTRAL_ASIA
+    plateName: "\u4E2D\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: WA
+    plateName: "\u897F\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: WESTERN_EUROPE
+    plateName: "\u897F\u6B27"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: NORTHERN_EUROPE
+    plateName: "\u5317\u6B27"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: CENTRAL_EUROPE
+    plateName: "\u4E2D\u6B27"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: SOUTHERN_EUROPE
+    plateName: "\u5357\u6B27"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: EASTERN_EUROPE
+    plateName: "\u4E1C\u6B27"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: NORTH_AFRICA
+    plateName: "\u5317\u975E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: WEST_AFRICA
+    plateName: "\u897F\u975E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: EAST_AFRICA
+    plateName: "\u4E1C\u975E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: CENTRAL_AFRICA
+    plateName: "\u4E2D\u975E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: SOUTHERN_AFRICA
+    plateName: "\u5357\u90E8\u975E\u6D32"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: NORTH_AMERICA_REGION
+    plateName: "\u5317\u7F8E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: CENTRAL_AMERICA
+    plateName: "\u4E2D\u7F8E\u6D32"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: CARIBBEAN
+    plateName: "\u52A0\u52D2\u6BD4\u5730\u533A"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: SOUTH_AMERICA_REGION
+    plateName: "\u5357\u7F8E"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: AUSTRALASIA
+    plateName: "\u6FB3\u65B0"
+    localPosition: {x: 0, y: 0, z: 0}
+  - plateCode: MELANESIA
+    plateName: "\u7F8E\u62C9\u5C3C\u897F\u4E9A"
+    localPosition: {x: 0, y: 0, z: 0}

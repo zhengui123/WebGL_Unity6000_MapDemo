@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -68,6 +69,32 @@ public class WorldMapRegionController : MonoBehaviour
 
     /// <summary>当前激活的板块根。</summary>
     public Transform ActivePlateRoot { get; private set; }
+
+    /// <summary>Inspector 绑定的国外大板块列表（只读视图）。</summary>
+    public IReadOnlyList<ForeignPlateBinding> ForeignPlates =>
+        _foreignPlates ?? Array.Empty<ForeignPlateBinding>();
+
+    /// <summary>
+    /// 当前激活国外板块 code；国内或未激活时为空。
+    /// </summary>
+    public string ActiveForeignPlateCode
+    {
+        get
+        {
+            if (WorldMapRegionContext.Mode != WorldMapRegionMode.Foreign)
+            {
+                return string.Empty;
+            }
+
+            return WorldMapRegionContext.PlateCode ?? string.Empty;
+        }
+    }
+
+    /// <summary>按 code 查找绑定（忽略大小写）。</summary>
+    public bool TryGetForeignBinding(string plateCode, out ForeignPlateBinding binding)
+    {
+        return TryFindForeignBinding(plateCode, out binding);
+    }
 
     private void Awake()
     {
@@ -175,6 +202,7 @@ public class WorldMapRegionController : MonoBehaviour
             : PlateMapDisplayController.Instance;
         display?.SnapCameraToCountryHomeImmediate();
         RestorePlateRootOriginalPose(_domesticPlateRoot);
+        EarthTransition.Instance?.ApplyPlateMapInitialPosition(WorldMapRegionCodeTable.DomesticNationalCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }
@@ -214,7 +242,7 @@ public class WorldMapRegionController : MonoBehaviour
             : PlateMapDisplayController.Instance;
         display?.SnapCameraToCountryHomeImmediate();
         RestorePlateRootOriginalPose(binding.plateRoot);
-        EarthTransition.Instance?.ApplyPlateMapInitialPosition();
+        EarthTransition.Instance?.ApplyPlateMapInitialPosition(plateCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }

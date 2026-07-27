@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 using VolumetricFogAndMist;
@@ -22,11 +23,15 @@ public class EarthTransition : UnitySingle<EarthTransition>
     [SerializeField] private float plateMapCenterDistance = 800f;
 
     [Header("AllPlateMap 初始位置")]
-    [Tooltip("开启：使用下方手动局部坐标重置 AllPlateMap；关闭：沿相机前方自动生成世界位置")]
+    [Tooltip("开启：使用下方手动局部坐标重置 AllPlateMap（仅国内）；关闭：沿相机前方自动生成世界位置")]
     [SerializeField] private bool _useManualPlateMapPosition = false;
-    [Tooltip("开启手动时写入 AllPlateMap 的局部坐标（相对父节点，不改旋转/缩放）")]
+    [Tooltip("开启手动时写入 AllPlateMap 的局部坐标（相对父节点，不改旋转/缩放）；仅国内使用")]
     [FormerlySerializedAs("_manualPlateMapWorldPosition")]
     [SerializeField] private Vector3 _manualPlateMapLocalPosition = Vector3.zero;
+    [Tooltip("开启后，国外板块优先使用下方 Config 中的自定义 local；关闭则国外一律相机前方自动")]
+    [SerializeField] private bool _useForeignPlateMapPositionConfig = true;
+    [Tooltip("国外各大板块 AllPlateMap 局部坐标表；未配置的国外板块走相机前方自动")]
+    [SerializeField] private EarthPlateMapPositionConfig _foreignPlateMapPositionConfig;
 
     [Header("动画时长")]
     public float goEarthAnimTime = 1f;
@@ -179,16 +184,87 @@ public class EarthTransition : UnitySingle<EarthTransition>
     }
 
     /// <summary>
-    /// 重置 AllPlateMap 位置：手动局部坐标，或沿相机前方自动生成。
-    /// 地球→板块过渡、以及世界地图国内外切换后可再次调用。
+    /// 重置 AllPlateMap 位置。
+    /// 无参时按 <see cref="WorldMapRegionContext"/> 当前板块同步（国内外）。
     /// </summary>
     public void ApplyPlateMapInitialPosition()
+    {
+        string plateCode = null;
+        if (WorldMapRegionContext.IsInitialized)
+        {
+            plateCode = WorldMapRegionContext.PlateCode;
+        }
+
+        ApplyPlateMapInitialPosition(plateCode);
+    }
+
+    /// <param name="plateCode">国外大板块 code（如 EAST_ASIA）；空或 "0" 视为国内。</param>
+    public void ApplyPlateMapInitialPosition(string plateCode)
     {
         if (plateMapObj == null)
         {
             return;
         }
 
+        if (IsForeignPlateCode(plateCode))
+        {
+            ApplyForeignPlateMapPosition(plateCode.Trim());
+            return;
+        }
+
+        ApplyDomesticPlateMapPosition();
+    }
+
+    /// <summary>国外板块位置配置资源（编辑器可赋）。</summary>
+    public EarthPlateMapPositionConfig ForeignPlateMapPositionConfig
+    {
+        get => _foreignPlateMapPositionConfig;
+        set => _foreignPlateMapPositionConfig = value;
+    }
+
+    /// <summary>是否启用国外自定义 AllPlateMap 初始位置（Config）。</summary>
+    public bool UseForeignPlateMapPositionConfig
+    {
+        get => _useForeignPlateMapPositionConfig;
+        set => _useForeignPlateMapPositionConfig = value;
+    }
+
+    /// <summary>当前 AllPlateMap 物体（编辑器保存坐标用）。</summary>
+    public GameObject PlateMapObj => plateMapObj;
+
+    private static bool IsForeignPlateCode(string plateCode)
+    {
+        if (string.IsNullOrWhiteSpace(plateCode))
+        {
+            return false;
+        }
+
+        string key = plateCode.Trim();
+        return !string.Equals(key, "0", StringComparison.OrdinalIgnoreCase) &&
+               !string.Equals(key, WorldMapRegionCodeTable.DomesticNationalCode, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void ApplyForeignPlateMapPosition(string plateCode)
+    {
+        if (_useForeignPlateMapPositionConfig &&
+            _foreignPlateMapPositionConfig != null &&
+            _foreignPlateMapPositionConfig.TryGetLocalPosition(plateCode, out Vector3 localPosition))
+        {
+            plateMapObj.transform.localPosition = localPosition;
+            Debug.Log(
+                $"[EarthTransition] AllPlateMap 国外配置 | code={plateCode} | local={localPosition}");
+            return;
+        }
+
+        string reason = !_useForeignPlateMapPositionConfig
+            ? "开关已关闭"
+            : "未配置";
+        ApplyAutoPlateMapPositionAlongCamera(
+            $"[EarthTransition] AllPlateMap 国外{reason}，相机前方自动 | code={plateCode}");
+    }
+
+    private void ApplyDomesticPlateMapPosition()
+    {
         if (_useManualPlateMapPosition)
         {
             plateMapObj.transform.localPosition = _manualPlateMapLocalPosition;
@@ -196,14 +272,20 @@ public class EarthTransition : UnitySingle<EarthTransition>
             return;
         }
 
+        ApplyAutoPlateMapPositionAlongCamera("[EarthTransition] AllPlateMap 自动初始位置");
+    }
+
+    private void ApplyAutoPlateMapPositionAlongCamera(string logPrefix)
+    {
         if (mainCameraTransform == null)
         {
             return;
         }
 
-        Vector3 viewCenterWorldPos = mainCameraTransform.position + mainCameraTransform.forward * plateMapCenterDistance;
+        Vector3 viewCenterWorldPos =
+            mainCameraTransform.position + mainCameraTransform.forward * plateMapCenterDistance;
         plateMapObj.transform.position = viewCenterWorldPos;
-        Debug.Log($"[EarthTransition] AllPlateMap 自动初始位置：{viewCenterWorldPos}");
+        Debug.Log($"{logPrefix}：{viewCenterWorldPos}");
     }
 
     /// <summary>运行时设置 AllPlateMap 手动局部坐标，并开启手动开关（不改旋转/缩放）。</summary>
