@@ -20461,7 +20461,7 @@ MonoBehaviour:
   secondTargetLocalPos: {x: 0, y: 1000, z: 0}
   plateViewLocalPos: {x: 0, y: 900, z: 0}
   plateMapCenterDistance: 1200
-  _useManualPlateMapPosition: 1
+  _useManualPlateMapPosition: 0
   _manualPlateMapLocalPosition: {x: -309, y: -1612, z: -216}
   goEarthAnimTime: 1
   showFogAnimTime: 0.5
@@ -94854,7 +94854,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13638fab4c9b1944cbf6e03dc5ccd0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
-  _startMode: 1
+  _startMode: 0
   _startForeignPlateCode: EAST_ASIA
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
@@ -306940,7 +306940,7 @@ MonoBehaviour:
   _cameraRig: {fileID: 2100000101}
   _cameraTransform: {fileID: 314520379}
   _pickCamera: {fileID: 314520384}
-  _cameraZoomController: {fileID: 0}
+  _cameraZoomController: {fileID: 2100000102}
   _raycastMaxDistance: 5000
   _clickMaxDragPixels: 8
   _pickLayerMask:
@@ -306959,7 +306959,18 @@ MonoBehaviour:
   _restoreKey: 27
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
-  _modules: []
+  _modules:
+  - {fileID: 4432052227112162901}
+  - {fileID: 8981667473303216210}
+  - {fileID: 7535473885383727978}
+  - {fileID: 4198646370206883476}
+  - {fileID: 5922029539976543715}
+  - {fileID: 7796478742660769599}
+  - {fileID: 3910955263952393467}
+  - {fileID: 9173034352644410018}
+  - {fileID: 3167467945279984079}
+  - {fileID: 6635464102890680421}
+  - {fileID: 4676833567596346260}
 --- !u!4 &9124198653555941067
 Transform:
   m_ObjectHideFlags: 0

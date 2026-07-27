@@ -24,7 +24,7 @@ public class PlateMapDisplayController : MonoBehaviour
         public Vector3 LocalScale;
     }
 
-    [Header("板块根（收集模块；世界地图切换时可平移居中）")]
+    [Header("板块根（收集模块）")]
     [SerializeField] private Transform _plateMapRoot;
 
     [Header("摄像机")]
@@ -77,9 +77,13 @@ public class PlateMapDisplayController : MonoBehaviour
     private CameraPoseSnapshot _preFocusPose;
     private bool _hasPreFocusPose;
 
-    /// <summary>各板块根首次居中前的本地位姿，避免多次切换累加偏移。</summary>
+    /// <summary>各板块根首次记录的本地位姿，切回国内时可还原。</summary>
     private readonly Dictionary<int, PlateRootLocalPose> _plateRootOriginalLocalPoses =
         new Dictionary<int, PlateRootLocalPose>(32);
+
+    /// <summary>国家级 Home 下的相机 LocalY（首次 Snap 时缓存，切回国内/切板块前恢复）。</summary>
+    private float _countryHomeZoomLocalY = 2000f;
+    private bool _hasCountryHomeZoomLocalY;
 
     /// <summary>当前聚焦的模块；无则为 null。</summary>
     public PlateMapDisplayModule FocusedModule => _focusedModule;
@@ -228,40 +232,63 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 将板块根显示到屏幕中心（平移对齐包围盒中心；不改相机、不改板块旋转）。
-    /// 包围盒优先合并子级 PlateMapDisplayModule 模型；无 Module 时回退全部 Renderer。
-    /// 使用相机当前视距作为落点深度。
+    /// 瞬时归位国家级相机（杀 Tween、恢复 Home 缩放、不播还原动画）。
     /// </summary>
-    public bool CenterPlateRootOnScreen(Transform plateRoot)
+    public void SnapCameraToCountryHomeImmediate()
     {
-        if (plateRoot == null)
-        {
-            return false;
-        }
-
         ResolveCameraReferences();
-        Camera viewCamera = _pickCamera != null ? _pickCamera : Camera.main;
-        if (viewCamera == null)
+        KillCameraTweens();
+
+        CacheCountryHomeZoomIfNeeded();
+        if (_hasCountryHomeZoomLocalY && _cameraZoomController != null)
         {
-            Debug.LogWarning("[PlateMapDisplayController] CenterPlateRootOnScreen: 无可用相机。");
-            return false;
+            _cameraZoomController.SetTargetZoomY(_countryHomeZoomLocalY, immediate: true, clampToLimits: true);
         }
 
-        EnsurePlateRootOriginalLocalPose(plateRoot);
-        RestorePlateRootOriginalLocalPose(plateRoot);
-
-        float distance = ResolvePlateCenterViewDistance();
-        Vector3 screenCenterWorld = viewCamera.transform.position + viewCamera.transform.forward * distance;
-
-        if (!TryGetPlateDisplayWorldBounds(plateRoot, out Bounds bounds) ||
-            bounds.size.sqrMagnitude <= 1e-8f)
+        CountryMapZoomController countryZoom = CountryMapZoomController.Instance;
+        if (countryZoom != null &&
+            countryZoom.TryGetCountryHomePose(out Vector3 homePos, out Quaternion homeRot) &&
+            _cameraRig != null)
         {
-            plateRoot.position = screenCenterWorld;
-            return true;
+            _cameraRig.SetPositionAndRotation(homePos, homeRot);
+            countryZoom.ResetToCountryHomeAfterProvinceRestore();
+        }
+        else if (_hasPreFocusPose && _cameraRig != null && _cameraTransform != null)
+        {
+            _cameraRig.SetPositionAndRotation(_preFocusPose.RigWorldPosition, _preFocusPose.RigWorldRotation);
+            _cameraTransform.localPosition = _preFocusPose.CameraLocalPosition;
+            _cameraTransform.localRotation = _preFocusPose.CameraLocalRotation;
         }
 
-        plateRoot.position += screenCenterWorld - bounds.center;
-        return true;
+        _focusedModule = null;
+        _transitionCachedModule = null;
+        _hasPreFocusPose = false;
+        PlateProvinceFocusResolver.ClearCache();
+        _cameraZoomController?.ResetZoomLimitOverrides();
+        KillAllModuleAlphaTweens();
+        PlateMapDisplayModule[] modules = CollectAllModules(forceRefresh: true);
+        if (modules != null)
+        {
+            for (int i = 0; i < modules.Length; i++)
+            {
+                modules[i]?.ApplyAlphaImmediate(1f);
+            }
+        }
+    }
+
+    private void CacheCountryHomeZoomIfNeeded()
+    {
+        if (_hasCountryHomeZoomLocalY || _cameraZoomController == null)
+        {
+            return;
+        }
+
+        float y = _cameraZoomController.CurrentCameraLocalY;
+        if (y > 1f && y < float.MaxValue * 0.5f)
+        {
+            _countryHomeZoomLocalY = y;
+            _hasCountryHomeZoomLocalY = true;
+        }
     }
 
     /// <summary>瞬时清除聚焦状态（不播还原动画）。</summary>
@@ -273,22 +300,6 @@ public class PlateMapDisplayController : MonoBehaviour
         _hasPreFocusPose = false;
         PlateProvinceFocusResolver.ClearCache();
         _cameraZoomController?.ResetZoomLimitOverrides();
-    }
-
-    private void EnsurePlateRootOriginalLocalPose(Transform plateRoot)
-    {
-        int id = plateRoot.GetInstanceID();
-        if (_plateRootOriginalLocalPoses.ContainsKey(id))
-        {
-            return;
-        }
-
-        _plateRootOriginalLocalPoses[id] = new PlateRootLocalPose
-        {
-            LocalPosition = plateRoot.localPosition,
-            LocalRotation = plateRoot.localRotation,
-            LocalScale = plateRoot.localScale
-        };
     }
 
     /// <summary>若已缓存过原始本地位姿则还原（用于国内板块回退）。</summary>
@@ -309,81 +320,6 @@ public class PlateMapDisplayController : MonoBehaviour
         plateRoot.localRotation = pose.LocalRotation;
         plateRoot.localScale = pose.LocalScale;
         return true;
-    }
-
-    /// <summary>优先 Module 合并包围盒；无有效 Module 时回退全部 Active Renderer。</summary>
-    private static bool TryGetPlateDisplayWorldBounds(Transform plateRoot, out Bounds bounds)
-    {
-        PlateMapDisplayModule[] modules =
-            plateRoot.GetComponentsInChildren<PlateMapDisplayModule>(true);
-        if (PlateMapCameraFitUtility.TryGetModulesWorldBounds(modules, out bounds) &&
-            bounds.size.sqrMagnitude > 1e-8f)
-        {
-            return true;
-        }
-
-        bounds = CalculateActiveRendererWorldBounds(plateRoot);
-        return bounds.size.sqrMagnitude > 1e-8f;
-    }
-
-    private float ResolvePlateCenterViewDistance()
-    {
-        if (_cameraZoomController != null)
-        {
-            float cameraY = _cameraZoomController.CurrentCameraLocalY;
-            if (cameraY > 1f && cameraY < float.MaxValue * 0.5f)
-            {
-                return cameraY;
-            }
-        }
-
-        if (_cameraTransform != null)
-        {
-            float localY = Mathf.Abs(_cameraTransform.localPosition.y);
-            if (localY > 1f)
-            {
-                return localY;
-            }
-        }
-
-        return 1200f;
-    }
-
-    private static Bounds CalculateActiveRendererWorldBounds(Transform root)
-    {
-        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(false);
-        if (renderers == null || renderers.Length == 0)
-        {
-            return new Bounds(root.position, Vector3.zero);
-        }
-
-        bool has = false;
-        Bounds bounds = new Bounds();
-        for (int i = 0; i < renderers.Length; i++)
-        {
-            Renderer renderer = renderers[i];
-            if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy)
-            {
-                continue;
-            }
-
-            if (renderer.bounds.size.sqrMagnitude <= 1e-12f)
-            {
-                continue;
-            }
-
-            if (!has)
-            {
-                bounds = renderer.bounds;
-                has = true;
-            }
-            else
-            {
-                bounds.Encapsulate(renderer.bounds);
-            }
-        }
-
-        return has ? bounds : new Bounds(root.position, Vector3.zero);
     }
 
     /// <summary>

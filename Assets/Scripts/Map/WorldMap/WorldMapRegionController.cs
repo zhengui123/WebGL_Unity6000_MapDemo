@@ -169,7 +169,11 @@ public class WorldMapRegionController : MonoBehaviour
         SetWorldModeBackgroundLineVisible(false);
         WorldMapRegionContext.ApplyDomestic();
         RebindDisplayController(_domesticPlateRoot);
-        // 国内不居中：若曾被错误居中，恢复缓存的原始本地位姿
+        // 国内不居中板块；瞬时归位相机与国家级缩放
+        PlateMapDisplayController display = _displayController != null
+            ? _displayController
+            : PlateMapDisplayController.Instance;
+        display?.SnapCameraToCountryHomeImmediate();
         RestorePlateRootOriginalPose(_domesticPlateRoot);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
@@ -204,7 +208,13 @@ public class WorldMapRegionController : MonoBehaviour
         SetWorldModeBackgroundLineVisible(true);
         WorldMapRegionContext.ApplyForeignPlate(plateCode, plateName);
         RebindDisplayController(binding.plateRoot);
-        CenterActivePlateOnScreen(binding.plateRoot);
+        // 国外整体位置只走 EarthTransition（AllPlateMap），不改各大板块自身 transform
+        PlateMapDisplayController display = _displayController != null
+            ? _displayController
+            : PlateMapDisplayController.Instance;
+        display?.SnapCameraToCountryHomeImmediate();
+        RestorePlateRootOriginalPose(binding.plateRoot);
+        EarthTransition.Instance?.ApplyPlateMapInitialPosition();
         GameManager.Instance?.NotifyRegionSwitchedToNational();
         Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }
@@ -260,25 +270,6 @@ public class WorldMapRegionController : MonoBehaviour
         controller.BindPlateMapRoot(plateRoot);
     }
 
-    /// <summary>将当前激活板块平移到屏幕中心（不改相机高度）。仅国外使用。</summary>
-    private void CenterActivePlateOnScreen(Transform plateRoot)
-    {
-        if (plateRoot == null)
-        {
-            return;
-        }
-
-        PlateMapDisplayController controller = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
-        if (controller == null)
-        {
-            return;
-        }
-
-        controller.CenterPlateRootOnScreen(plateRoot);
-    }
-
     /// <summary>恢复板块根缓存的原始本地位姿（国内回退用）。</summary>
     private void RestorePlateRootOriginalPose(Transform plateRoot)
     {
@@ -293,7 +284,7 @@ public class WorldMapRegionController : MonoBehaviour
         controller?.RestorePlateRootOriginalLocalPose(plateRoot);
     }
 
-    /// <summary>切换前清聚焦并还原全国相机（须在重绑 root 之前调用，以免丢失 pre-focus 位姿）。</summary>
+    /// <summary>切换前清聚焦并瞬时归位全国相机（不播 Tween，避免国外居中用错机位）。</summary>
     private void ClearFocusBeforeRebind()
     {
         if (!_restoreNationalViewOnSwitch)
@@ -309,15 +300,7 @@ public class WorldMapRegionController : MonoBehaviour
             return;
         }
 
-        if (controller.CanRestoreCamera)
-        {
-            controller.RestoreCameraPosition();
-        }
-        else
-        {
-            controller.ClearFocusState();
-            CountryMapZoomController.Instance?.ResetToCountryHomeAfterProvinceRestore();
-        }
+        controller.SnapCameraToCountryHomeImmediate();
     }
 
     private bool TryFindForeignBinding(string plateCode, out ForeignPlateBinding binding)

@@ -179,9 +179,10 @@ public class EarthTransition : UnitySingle<EarthTransition>
     }
 
     /// <summary>
-    /// 重置 AllPlateMap 位置：手动世界坐标，或沿相机前方自动生成。
+    /// 重置 AllPlateMap 位置：手动局部坐标，或沿相机前方自动生成。
+    /// 地球→板块过渡、以及世界地图国内外切换后可再次调用。
     /// </summary>
-    private void ApplyPlateMapInitialPosition()
+    public void ApplyPlateMapInitialPosition()
     {
         if (plateMapObj == null)
         {
