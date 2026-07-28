@@ -26,18 +26,18 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Alpha: 0.92
+    - _Alpha: 0.94
     - _CircuitIntensity: 0.238
     - _CircuitScale: 1
-    - _EmissionIntensity: 1.51
+    - _EmissionIntensity: 1.66
     - _GridIntensity: 1.38
-    - _GridLineWidth: 0.5
-    - _GridScale: 1
+    - _GridLineWidth: 0.47
+    - _GridScale: 0.0001
     - _NoiseIntensity: 0.08
     - _NoiseScale: 200
     - _PulseAmount: 0.114
     - _PulseSpeed: 1.7
-    - _RimIntensity: 4
+    - _RimIntensity: 0
     - _RimPower: 4.4
     m_Colors:
     - _BaseColor: {r: 0.02, g: 0.06, b: 0.18, a: 0.75}

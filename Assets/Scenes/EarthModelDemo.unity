@@ -93709,7 +93709,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13638fab4c9b1944cbf6e03dc5ccd0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
-  _startMode: 0
+  _startMode: 1
   _startForeignPlateCode: EAST_ASIA
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
@@ -232229,7 +232229,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6278343266996114505}
-  m_Mesh: {fileID: 4300000, guid: aa40b0bcad6c7404784b63438dd85ae0, type: 2}
+  m_Mesh: {fileID: 4141242707110958376, guid: cc309755e7fd68249b09f784aa7704ed, type: 3}
 --- !u!23 &3187643460119314875
 MeshRenderer:
   m_ObjectHideFlags: 0

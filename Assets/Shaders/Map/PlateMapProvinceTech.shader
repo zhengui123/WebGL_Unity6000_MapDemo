@@ -9,7 +9,7 @@ Shader "Custom/PlateMapProvinceTech"
         _RimPower ("边缘菲涅尔幂", Range(0.5, 8)) = 2.2
         _RimIntensity ("边缘强度", Range(0, 6)) = 3.5
         [HDR] _GridColor ("网格发光", Color) = (0.1, 0.55, 1.0, 1)
-        _GridScale ("网格密度", Range(1, 80)) = 22
+        _GridScale ("网格密度", Range(0, 80)) = 22
         _GridLineWidth ("网格线宽", Range(0.01, 0.5)) = 0.08
         _GridIntensity ("网格强度", Range(0, 2)) = 0.65
         _CircuitScale ("电路纹密度", Range(1, 120)) = 48
