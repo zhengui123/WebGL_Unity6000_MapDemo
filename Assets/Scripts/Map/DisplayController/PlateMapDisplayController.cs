@@ -8,6 +8,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class PlateMapDisplayController : MonoBehaviour
 {
+    private static readonly int BoundaryAlphaId = Shader.PropertyToID("_Alpha");
+
     private struct CameraPoseSnapshot
     {
         public Vector3 RigWorldPosition;
@@ -68,10 +70,12 @@ public class PlateMapDisplayController : MonoBehaviour
 
     [Header("可点击模块（留空则收集子级 PlateMapDisplayModule）")]
     [SerializeField] private PlateMapDisplayModule[] _modules;
+    [SerializeField] private GameObject _worldMapBoundaryLine;
 
 
     private Vector3 _mouseDownPosition;
     private Sequence _cameraTweenSequence;
+    private Tween _worldMapBoundaryLineAlphaTween;
     private PlateMapDisplayModule _focusedModule;
     private PlateMapDisplayModule _transitionCachedModule;
     private CameraPoseSnapshot _preFocusPose;
@@ -84,6 +88,9 @@ public class PlateMapDisplayController : MonoBehaviour
     /// <summary>国家级 Home 下的相机 LocalY（首次 Snap 时缓存，切回国内/切板块前恢复）。</summary>
     private float _countryHomeZoomLocalY = 2000f;
     private bool _hasCountryHomeZoomLocalY;
+    private Renderer[] _worldMapBoundaryLineRenderers;
+    private MaterialPropertyBlock _worldMapBoundaryPropertyBlock;
+    private float _worldMapBoundaryCurrentAlpha = 1f;
 
     /// <summary>当前聚焦的模块；无则为 null。</summary>
     public PlateMapDisplayModule FocusedModule => _focusedModule;
@@ -124,11 +131,13 @@ public class PlateMapDisplayController : MonoBehaviour
         }
 
         ResolveCameraReferences();
+        ResolveWorldMapBoundaryLine();
         RefreshModuleList();
     }
 
     private void OnDestroy()
     {
+        KillWorldMapBoundaryLineTween();
         if (_instance == this)
         {
             _instance = null;
@@ -145,6 +154,7 @@ public class PlateMapDisplayController : MonoBehaviour
         // 聚焦开始时 GameManager 会禁用本组件；此时尚未创建 DOTween，勿解除缩放抑制
         KillCameraTweens(releaseZoomSuppress: false);
         KillAllModuleAlphaTweens();
+        KillWorldMapBoundaryLineTween();
     }
 
     private void Update()
@@ -193,6 +203,32 @@ public class PlateMapDisplayController : MonoBehaviour
         }
     }
 
+    private void ResolveWorldMapBoundaryLine()
+    {
+        if (_worldMapBoundaryLine != null)
+        {
+            return;
+        }
+
+        _worldMapBoundaryLine = GameObject.Find("世界地图边界线");
+        CacheWorldMapBoundaryLineRenderers();
+    }
+
+    private void CacheWorldMapBoundaryLineRenderers()
+    {
+        if (_worldMapBoundaryLine == null)
+        {
+            _worldMapBoundaryLineRenderers = null;
+            return;
+        }
+
+        _worldMapBoundaryLineRenderers = _worldMapBoundaryLine.GetComponentsInChildren<Renderer>(true);
+        if (_worldMapBoundaryPropertyBlock == null)
+        {
+            _worldMapBoundaryPropertyBlock = new MaterialPropertyBlock();
+        }
+    }
+
     /// <summary>重新收集子级模块（相对当前板块根）。</summary>
     public void RefreshModuleList()
     {
@@ -237,6 +273,7 @@ public class PlateMapDisplayController : MonoBehaviour
     public void SnapCameraToCountryHomeImmediate()
     {
         ResolveCameraReferences();
+        ResolveWorldMapBoundaryLine();
         KillCameraTweens();
 
         CacheCountryHomeZoomIfNeeded();
@@ -274,6 +311,8 @@ public class PlateMapDisplayController : MonoBehaviour
                 modules[i]?.ApplyAlphaImmediate(1f);
             }
         }
+
+        FadeWorldMapBoundaryLineForCurrentRegion(immediate: true);
     }
 
     private void CacheCountryHomeZoomIfNeeded()
@@ -388,6 +427,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         // 进入省级时立即缓存 name/code，供下钻二维地图使用
         PlateProvinceFocusResolver.TryCacheFromModule(module);
+        FadeWorldMapBoundaryLine(0f, _otherModuleFadeDuration, _otherModuleFadeEase, disableWhenHidden: true);
 
         // 先硬关缩放；先发聚焦事件（会禁用组件并 OnDisable Kill 空 Tween）；再开 DOTween
         CountryMapZoomController.Instance?.SetSuppressed(true);
@@ -528,6 +568,7 @@ public class PlateMapDisplayController : MonoBehaviour
         KillCameraTweens();
         FadeAllModulesForRestore();
         CountryMapZoomController.Instance?.SetSuppressed(true);
+        FadeWorldMapBoundaryLineForCurrentRegion(immediate: false);
         EventManager.Instance?.TriggerPlateMapRestoreCameraStarted();
 
         // 省→国家：CameraPivot 终点用国家级缩放 Home，丢弃进省前缩放，避免与 CountryMapZoom 冲突
@@ -845,6 +886,95 @@ public class PlateMapDisplayController : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void FadeWorldMapBoundaryLineForCurrentRegion(bool immediate)
+    {
+        bool visible = WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign;
+        float targetAlpha = visible ? 1f : 0f;
+        FadeWorldMapBoundaryLine(
+            targetAlpha,
+            immediate ? 0f : _otherModuleFadeDuration,
+            _otherModuleFadeEase,
+            disableWhenHidden: true);
+    }
+
+    private void FadeWorldMapBoundaryLine(float targetAlpha, float duration, Ease ease, bool disableWhenHidden)
+    {
+        ResolveWorldMapBoundaryLine();
+        CacheWorldMapBoundaryLineRenderers();
+        if (_worldMapBoundaryLine == null || _worldMapBoundaryLineRenderers == null || _worldMapBoundaryLineRenderers.Length == 0)
+        {
+            return;
+        }
+
+        KillWorldMapBoundaryLineTween();
+        targetAlpha = Mathf.Clamp01(targetAlpha);
+
+        if (targetAlpha > 0f && !_worldMapBoundaryLine.activeSelf)
+        {
+            _worldMapBoundaryLine.SetActive(true);
+        }
+
+        if (duration <= 0f)
+        {
+            ApplyWorldMapBoundaryLineAlphaImmediate(targetAlpha);
+            if (disableWhenHidden && targetAlpha <= 0f && _worldMapBoundaryLine.activeSelf)
+            {
+                _worldMapBoundaryLine.SetActive(false);
+            }
+
+            return;
+        }
+
+        _worldMapBoundaryLineAlphaTween = DOTween
+            .To(() => _worldMapBoundaryCurrentAlpha, ApplyWorldMapBoundaryLineAlphaImmediate, targetAlpha, duration)
+            .SetEase(ease)
+            .OnComplete(() =>
+            {
+                _worldMapBoundaryLineAlphaTween = null;
+                if (disableWhenHidden && targetAlpha <= 0f && _worldMapBoundaryLine != null && _worldMapBoundaryLine.activeSelf)
+                {
+                    _worldMapBoundaryLine.SetActive(false);
+                }
+            });
+    }
+
+    private void ApplyWorldMapBoundaryLineAlphaImmediate(float alpha)
+    {
+        _worldMapBoundaryCurrentAlpha = Mathf.Clamp01(alpha);
+        if (_worldMapBoundaryLineRenderers == null || _worldMapBoundaryLineRenderers.Length == 0)
+        {
+            return;
+        }
+
+        if (_worldMapBoundaryPropertyBlock == null)
+        {
+            _worldMapBoundaryPropertyBlock = new MaterialPropertyBlock();
+        }
+
+        for (int i = 0; i < _worldMapBoundaryLineRenderers.Length; i++)
+        {
+            Renderer renderer = _worldMapBoundaryLineRenderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            renderer.GetPropertyBlock(_worldMapBoundaryPropertyBlock);
+            _worldMapBoundaryPropertyBlock.SetFloat(BoundaryAlphaId, _worldMapBoundaryCurrentAlpha);
+            renderer.SetPropertyBlock(_worldMapBoundaryPropertyBlock);
+        }
+    }
+
+    private void KillWorldMapBoundaryLineTween()
+    {
+        if (_worldMapBoundaryLineAlphaTween != null && _worldMapBoundaryLineAlphaTween.IsActive())
+        {
+            _worldMapBoundaryLineAlphaTween.Kill();
+        }
+
+        _worldMapBoundaryLineAlphaTween = null;
     }
 
 #if UNITY_EDITOR

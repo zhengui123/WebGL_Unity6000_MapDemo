@@ -434,8 +434,8 @@ public class CountryMapZoomController : MonoBehaviour
         mapCenter = Vector3.zero;
         ResolveReferences();
 
-        // 国外：当前激活大板块包围盒中心（优先可点击 Module）
-        if (TryGetForeignActivePlateCenter(out mapCenter))
+        // 国内/国外统一优先当前激活板块根的包围盒中心
+        if (TryGetActivePlateCenter(out mapCenter))
         {
             return true;
         }
@@ -456,17 +456,12 @@ public class CountryMapZoomController : MonoBehaviour
     }
 
     /// <summary>
-    /// 国外模式下取当前激活板块的世界包围盒中心。
+    /// 当前激活板块根的世界包围盒中心。
+    /// 国内为中国地图根，国外为当前激活大板块根。
     /// </summary>
-    private static bool TryGetForeignActivePlateCenter(out Vector3 mapCenter)
+    private static bool TryGetActivePlateCenter(out Vector3 mapCenter)
     {
         mapCenter = Vector3.zero;
-        if (!WorldMapRegionContext.IsInitialized ||
-            WorldMapRegionContext.Mode != WorldMapRegionMode.Foreign)
-        {
-            return false;
-        }
-
         WorldMapRegionController region = WorldMapRegionController.Instance;
         Transform plateRoot = region != null ? region.ActivePlateRoot : null;
         if (plateRoot == null)
