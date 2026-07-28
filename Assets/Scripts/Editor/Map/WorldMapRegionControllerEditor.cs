@@ -36,6 +36,7 @@ public class WorldMapRegionControllerEditor : Editor
         EditorGUILayout.LabelField("启动", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(_startMode);
         DrawStartForeignPlatePopup();
+        DrawApplyCurrentSelectionButton();
 
         EditorGUILayout.Space(6f);
         EditorGUILayout.LabelField("国内", EditorStyles.boldLabel);
@@ -148,6 +149,41 @@ public class WorldMapRegionControllerEditor : Editor
         }
 
         return -1;
+    }
+
+    private void DrawApplyCurrentSelectionButton()
+    {
+        WorldMapRegionController controller = target as WorldMapRegionController;
+        if (controller == null)
+        {
+            return;
+        }
+
+        string buttonLabel = "切换到当前所选状态";
+        string helpText = _startMode != null && _startMode.enumValueIndex == (int)WorldMapRegionMode.Foreign
+            ? "将切到当前选中的国外板块。"
+            : "将切到当前选中的国内状态。";
+
+        EditorGUILayout.HelpBox(helpText, MessageType.None);
+        if (!GUILayout.Button(buttonLabel))
+        {
+            return;
+        }
+
+        if (_startMode != null && _startMode.enumValueIndex == (int)WorldMapRegionMode.Foreign)
+        {
+            string plateCode = _startForeignPlateCode != null ? _startForeignPlateCode.stringValue : string.Empty;
+            if (!controller.SwitchToForeignPlate(plateCode))
+            {
+                EditorUtility.DisplayDialog("切换失败", $"未能切换到国外板块：{plateCode}", "确定");
+            }
+        }
+        else
+        {
+            controller.SwitchToDomestic();
+        }
+
+        EditorUtility.SetDirty(controller);
     }
 }
 #endif

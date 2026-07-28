@@ -16,3 +16,15 @@ MonoBehaviour:
   - plateCode: EAST_ASIA
     plateName: "\u4E1C\u4E9A"
     localPosition: {x: -451, y: -605, z: -10}
+  - plateCode: SOUTHEAST_ASIA
+    plateName: "\u4E1C\u5357\u4E9A"
+    localPosition: {x: -453, y: -513, z: 252}
+  - plateCode: CENTRAL_ASIA
+    plateName: "\u4E2D\u4E9A"
+    localPosition: {x: -162, y: -436, z: -34}
+  - plateCode: WA
+    plateName: "\u897F\u4E9A"
+    localPosition: {x: -33, y: -567, z: 56}
+  - plateCode: WESTERN_EUROPE
+    plateName: "\u897F\u6B27"
+    localPosition: {x: 272, y: -429, z: -87}

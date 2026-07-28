@@ -93709,8 +93709,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13638fab4c9b1944cbf6e03dc5ccd0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
-  _startMode: 0
-  _startForeignPlateCode: EAST_ASIA
+  _startMode: 1
+  _startForeignPlateCode: WESTERN_EUROPE
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
   - plateCode: EAST_ASIA
@@ -93798,7 +93798,7 @@ MonoBehaviour:
     plateRoot: {fileID: 8327109243502471772}
     defaultCountryCode: 598
   _displayController: {fileID: 384665545846310396}
-  _worldModeBackgroundLine: {fileID: 0}
+  _worldModeBackgroundLine: {fileID: 6278343266996114505}
   _restoreNationalViewOnSwitch: 1
 --- !u!1 &1286637348
 GameObject:
@@ -203514,7 +203514,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -203526,6 +203526,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &386682853802974345
 GameObject:
   m_ObjectHideFlags: 0
@@ -229354,7 +229355,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -229366,6 +229367,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &2946191705917157951
 Transform:
   m_ObjectHideFlags: 0
@@ -231972,7 +231974,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -231984,6 +231986,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &3173100836371484323
 Transform:
   m_ObjectHideFlags: 0
@@ -233133,7 +233136,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -233145,6 +233148,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &3274059939512728496
 GameObject:
   m_ObjectHideFlags: 0
@@ -235021,7 +235025,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -235033,6 +235037,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &3442012306748520096
 GameObject:
   m_ObjectHideFlags: 0
@@ -240733,7 +240738,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!33 &4000128032636375564
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -254443,7 +254448,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -254455,6 +254460,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!23 &5179743955546334801
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -255612,7 +255618,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -255624,6 +255630,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!33 &5283058791690939364
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -256155,7 +256162,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -256167,6 +256174,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!23 &5319829978007469483
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -258788,7 +258796,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -258800,6 +258808,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &5500429706171340962
 GameObject:
   m_ObjectHideFlags: 0
@@ -259256,7 +259265,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -259268,6 +259277,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &5542267298691078692
 GameObject:
   m_ObjectHideFlags: 0
@@ -261646,7 +261656,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -261658,6 +261668,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!33 &5771658074508745705
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -265566,7 +265577,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -265578,6 +265589,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &6131852383718074201
 GameObject:
   m_ObjectHideFlags: 0
@@ -270590,7 +270602,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -270602,6 +270614,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &6507362533722771066
 GameObject:
   m_ObjectHideFlags: 0
@@ -273147,7 +273160,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -273159,6 +273172,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &6682515019262029524
 GameObject:
   m_ObjectHideFlags: 0
@@ -279608,7 +279622,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -279620,6 +279634,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &7174354348666376002
 Transform:
   m_ObjectHideFlags: 0
@@ -280555,7 +280570,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -280567,6 +280582,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!1 &7268242082542411943
 GameObject:
   m_ObjectHideFlags: 0
@@ -282351,7 +282367,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -282363,6 +282379,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!33 &7402593032733337385
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -289672,7 +289689,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -289684,6 +289701,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &7953052741982026313
 Transform:
   m_ObjectHideFlags: 0
@@ -294294,7 +294312,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -294306,6 +294324,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &8327111372374282131
 Transform:
   m_ObjectHideFlags: 0
@@ -297205,7 +297224,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -297217,6 +297236,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!114 &8535988186209308998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304463,7 +304483,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -304475,6 +304495,7 @@ MonoBehaviour:
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
   _modules: []
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &9049563347041043407
 Transform:
   m_ObjectHideFlags: 0
@@ -305152,7 +305173,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1.2
+  _provinceViewportFillRatio: 1
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -305175,6 +305196,7 @@ MonoBehaviour:
   - {fileID: 3167467945279984079}
   - {fileID: 6635464102890680421}
   - {fileID: 4676833567596346260}
+  _worldMapBoundaryLine: {fileID: 0}
 --- !u!4 &9124198653555941067
 Transform:
   m_ObjectHideFlags: 0
