@@ -19,7 +19,7 @@ public static class PlateMapCameraFitUtility
             return 0f;
         }
 
-        float fill = Mathf.Clamp(viewportFillRatio, 0.05f, 1f);
+        float fill = Mathf.Clamp(viewportFillRatio, 0.05f, 3f);
         float halfFovV = camera.fieldOfView * 0.5f * Mathf.Deg2Rad;
         float halfFovH = Mathf.Atan(Mathf.Tan(halfFovV) * Mathf.Max(0.01f, camera.aspect));
 
@@ -68,7 +68,7 @@ public static class PlateMapCameraFitUtility
             return false;
         }
 
-        float fill = Mathf.Clamp(viewportFillRatio, 0.05f, 1f);
+        float fill = Mathf.Clamp(viewportFillRatio, 0.05f, 3f);
         float margin = (1f - fill) * 0.5f;
         float minUV = margin;
         float maxUV = 1f - margin;

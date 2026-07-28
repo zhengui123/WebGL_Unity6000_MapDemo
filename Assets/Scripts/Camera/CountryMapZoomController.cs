@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 仅国家级：以 AllPlateMap 包围盒中心为锚点，移动 CameraPivot 拉近/拉远。
+/// 仅国家级：以地图包围盒中心为锚点，移动 CameraPivot 拉近/拉远。
+/// 国内：AllPlateMap；国外：当前激活大板块（Module/Renderer 包围盒中心）。
 /// PC 滚轮、Android 双指捏合。缩放不会改写国家级初始机位；每次进入国家级都会还原该初始位。
 /// 层级跳转 / 板图相机 DOTween 期间关闭缩放，避免与动画抢 Transform。
 /// </summary>
@@ -111,37 +112,37 @@ public class CountryMapZoomController : MonoBehaviour
     private void OnEnable()
     {
         EventManager em = EventManager.Instance;
-        if (em == null)
+        if (em != null)
         {
-            return;
+            em.OnTransitionToPlateMapCompleted += HandleEnteredCountryView;
+            em.OnPlateMapRestoreCameraCompleted += HandleProvinceRestoreCompleted;
+            em.OnPlateMapDisplayFocus += HandlePlateCameraTweenStarted;
+            em.OnPlateMapRestoreCameraStarted += HandlePlateCameraTweenStarted;
+            em.OnTransitionToPlateMapStarted += HandleHierarchyTransitionStarted;
+            em.OnTransitionToEarthStarted += HandleHierarchyTransitionStarted;
+            em.OnPlateToVehicleViewTransitionStarted += HandleNamedTransitionStarted;
+            em.OnVehicleToPlateViewTransitionStarted += HandleNamedTransitionStarted;
         }
 
-        em.OnTransitionToPlateMapCompleted += HandleEnteredCountryView;
-        em.OnPlateMapRestoreCameraCompleted += HandleProvinceRestoreCompleted;
-        em.OnPlateMapDisplayFocus += HandlePlateCameraTweenStarted;
-        em.OnPlateMapRestoreCameraStarted += HandlePlateCameraTweenStarted;
-        em.OnTransitionToPlateMapStarted += HandleHierarchyTransitionStarted;
-        em.OnTransitionToEarthStarted += HandleHierarchyTransitionStarted;
-        em.OnPlateToVehicleViewTransitionStarted += HandleNamedTransitionStarted;
-        em.OnVehicleToPlateViewTransitionStarted += HandleNamedTransitionStarted;
+        WorldMapRegionContext.OnRegionChanged += HandleWorldRegionChanged;
     }
 
     private void OnDisable()
     {
         EventManager em = EventManager.Instance;
-        if (em == null)
+        if (em != null)
         {
-            return;
+            em.OnTransitionToPlateMapCompleted -= HandleEnteredCountryView;
+            em.OnPlateMapRestoreCameraCompleted -= HandleProvinceRestoreCompleted;
+            em.OnPlateMapDisplayFocus -= HandlePlateCameraTweenStarted;
+            em.OnPlateMapRestoreCameraStarted -= HandlePlateCameraTweenStarted;
+            em.OnTransitionToPlateMapStarted -= HandleHierarchyTransitionStarted;
+            em.OnTransitionToEarthStarted -= HandleHierarchyTransitionStarted;
+            em.OnPlateToVehicleViewTransitionStarted -= HandleNamedTransitionStarted;
+            em.OnVehicleToPlateViewTransitionStarted -= HandleNamedTransitionStarted;
         }
 
-        em.OnTransitionToPlateMapCompleted -= HandleEnteredCountryView;
-        em.OnPlateMapRestoreCameraCompleted -= HandleProvinceRestoreCompleted;
-        em.OnPlateMapDisplayFocus -= HandlePlateCameraTweenStarted;
-        em.OnPlateMapRestoreCameraStarted -= HandlePlateCameraTweenStarted;
-        em.OnTransitionToPlateMapStarted -= HandleHierarchyTransitionStarted;
-        em.OnTransitionToEarthStarted -= HandleHierarchyTransitionStarted;
-        em.OnPlateToVehicleViewTransitionStarted -= HandleNamedTransitionStarted;
-        em.OnVehicleToPlateViewTransitionStarted -= HandleNamedTransitionStarted;
+        WorldMapRegionContext.OnRegionChanged -= HandleWorldRegionChanged;
         RestoreFogZoomControl(true);
     }
 
@@ -239,6 +240,22 @@ public class CountryMapZoomController : MonoBehaviour
     private void HandleNamedTransitionStarted(string _)
     {
         StopZoomMotion();
+    }
+
+    /// <summary>国内外/国外大板块切换后：按新包围盒中心重同步缩放距离。</summary>
+    private void HandleWorldRegionChanged()
+    {
+        if (!IsCountryLevel() || _suppressedByPlateCamera || IsZoomBlocked())
+        {
+            return;
+        }
+
+        if (_cameraTransform == null)
+        {
+            ResolveReferences();
+        }
+
+        SyncDistanceFromCurrentPose();
     }
 
     private void StopZoomMotion()
@@ -415,9 +432,12 @@ public class CountryMapZoomController : MonoBehaviour
     private bool TryGetMapCenter(out Vector3 mapCenter)
     {
         mapCenter = Vector3.zero;
-        if (_allPlateMapRoot == null)
+        ResolveReferences();
+
+        // 国外：当前激活大板块包围盒中心（优先可点击 Module）
+        if (TryGetForeignActivePlateCenter(out mapCenter))
         {
-            ResolveReferences();
+            return true;
         }
 
         if (_allPlateMapRoot == null)
@@ -433,6 +453,83 @@ public class CountryMapZoomController : MonoBehaviour
 
         mapCenter = _allPlateMapRoot.transform.position;
         return true;
+    }
+
+    /// <summary>
+    /// 国外模式下取当前激活板块的世界包围盒中心。
+    /// </summary>
+    private static bool TryGetForeignActivePlateCenter(out Vector3 mapCenter)
+    {
+        mapCenter = Vector3.zero;
+        if (!WorldMapRegionContext.IsInitialized ||
+            WorldMapRegionContext.Mode != WorldMapRegionMode.Foreign)
+        {
+            return false;
+        }
+
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        Transform plateRoot = region != null ? region.ActivePlateRoot : null;
+        if (plateRoot == null)
+        {
+            return false;
+        }
+
+        PlateMapDisplayModule[] modules =
+            plateRoot.GetComponentsInChildren<PlateMapDisplayModule>(true);
+        if (PlateMapCameraFitUtility.TryGetModulesWorldBounds(modules, out Bounds moduleBounds) &&
+            moduleBounds.size.sqrMagnitude > 1e-8f)
+        {
+            mapCenter = moduleBounds.center;
+            return true;
+        }
+
+        if (TryGetActiveRenderersWorldBounds(plateRoot.gameObject, out Bounds rendererBounds) &&
+            rendererBounds.size.sqrMagnitude > 1e-8f)
+        {
+            mapCenter = rendererBounds.center;
+            return true;
+        }
+
+        mapCenter = plateRoot.position;
+        return true;
+    }
+
+    /// <summary>仅合并激活中的 Renderer 世界包围盒。</summary>
+    private static bool TryGetActiveRenderersWorldBounds(GameObject root, out Bounds bounds)
+    {
+        bounds = new Bounds();
+        if (root == null)
+        {
+            return false;
+        }
+
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>(false);
+        bool has = false;
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null || !renderer.enabled || !renderer.gameObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            if (renderer.bounds.size.sqrMagnitude <= 1e-12f)
+            {
+                continue;
+            }
+
+            if (!has)
+            {
+                bounds = renderer.bounds;
+                has = true;
+            }
+            else
+            {
+                bounds.Encapsulate(renderer.bounds);
+            }
+        }
+
+        return has;
     }
 
     private static bool IsCountryLevel()

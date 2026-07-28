@@ -44,8 +44,8 @@ public class PlateMapDisplayController : MonoBehaviour
     [SerializeField] private float _defaultFocusCameraLocalY = 650f;
     [Tooltip("勾选后按省份包围盒自动计算拉近高度，使省份占 Game 视图约 Viewport Fill Ratio")]
     [SerializeField] private bool _autoFitProvinceToViewport = true;
-    [Tooltip("省级聚焦时目标占视口比例（越小越远、越容易看全；0.55≈留边约 45%）")]
-    [Range(0.1f, 1f)]
+    [Tooltip("省级聚焦时目标占视口比例（越小越远；>1 更近，省可能超出视口；0.55≈留边约 45%）")]
+    [Range(0.1f, 3f)]
     [SerializeField] private float _provinceViewportFillRatio = 0.55f;
     [Tooltip("视距缩放（装框距离×此系数；俯视场景一般 1）")]
     [SerializeField] private float _provinceFitDistanceToLocalYScale = 1f;
