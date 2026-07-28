@@ -14698,6 +14698,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 182350419}
   m_Mesh: {fileID: 4300008, guid: e4aafaf7056bfc14d88ac105dee3c9fa, type: 3}
+--- !u!1 &184872307
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 184872308}
+  m_Layer: 0
+  m_Name: Left
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &184872308
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 184872307}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 9.644705, y: 0, z: 17.220963}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1928452689440517524}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &185265516
 GameObject:
   m_ObjectHideFlags: 0
@@ -15447,6 +15478,37 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8816869114282954351}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &195571480
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 195571481}
+  m_Layer: 0
+  m_Name: Right
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &195571481
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 195571480}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -9.642934, y: 0, z: -17.221043}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1928452689440517524}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &195704634
 GameObject:
@@ -22595,6 +22657,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 305682662}
   m_Mesh: {fileID: 4300010, guid: ceac1b6ce30c82f4092f1b298b41e446, type: 3}
+--- !u!1 &311877665
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 311877666}
+  m_Layer: 0
+  m_Name: Right
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &311877666
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 311877665}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -13.424163, y: 0, z: 0.000022828583}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5883069022477790368}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &314520378
 GameObject:
   m_ObjectHideFlags: 0
@@ -46041,6 +46134,37 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 605507796}
   m_Mesh: {fileID: 4300000, guid: c99cec0cf4adc2c4a8f78cc71d21a088, type: 3}
+--- !u!1 &607505069
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 607505070}
+  m_Layer: 0
+  m_Name: Left
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &607505070
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 607505069}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.430842, y: 0, z: 0.000019013885}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5883069022477790368}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &608700982
 GameObject:
   m_ObjectHideFlags: 0
@@ -93710,7 +93834,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
   _startMode: 1
-  _startForeignPlateCode: WESTERN_EUROPE
+  _startForeignPlateCode: CARIBBEAN
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
   - plateCode: EAST_ASIA
@@ -97103,7 +97227,7 @@ Transform:
   m_GameObject: {fileID: 1332108060}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 576.5071, y: -0.00001, z: 382.56998}
+  m_LocalPosition: {x: 497, y: -421, z: 117}
   m_LocalScale: {x: 15000, y: 15000, z: 15000}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -201570,7 +201694,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -201579,7 +201703,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &241557482512623249
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -203502,11 +203626,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa3c13916125daf41bd84cf9feb02085, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayController
-  _plateMapRoot: {fileID: 7168906387403574966}
+  _plateMapRoot: {fileID: 8327109243502471772}
   _cameraRig: {fileID: 2100000101}
   _cameraTransform: {fileID: 314520379}
   _pickCamera: {fileID: 314520384}
-  _cameraZoomController: {fileID: 0}
+  _cameraZoomController: {fileID: 2100000102}
   _raycastMaxDistance: 5000
   _clickMaxDragPixels: 8
   _pickLayerMask:
@@ -203525,8 +203649,11 @@ MonoBehaviour:
   _restoreKey: 27
   _otherModuleFadeDuration: 1
   _otherModuleFadeEase: 7
-  _modules: []
-  _worldMapBoundaryLine: {fileID: 0}
+  _modules:
+  - {fileID: 2719574728962701968}
+  - {fileID: 4362197425603261693}
+  - {fileID: 6808652615496743301}
+  _worldMapBoundaryLine: {fileID: 6278343266996114505}
 --- !u!1 &386682853802974345
 GameObject:
   m_ObjectHideFlags: 0
@@ -203978,7 +204105,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -203987,7 +204114,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &433489992607221418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -209783,7 +209910,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -209792,7 +209919,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &966374613229114578
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212786,7 +212913,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -212795,7 +212922,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &1332570280070328713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213146,7 +213273,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -213155,7 +213282,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &1353399687170455327
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215247,7 +215374,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -215256,7 +215383,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &1548316947814759775
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215539,7 +215666,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -215548,7 +215675,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &1561856550457341954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219213,6 +219340,8 @@ Transform:
   - {fileID: 8089303621841214858}
   - {fileID: 8464733384594743833}
   - {fileID: 2619271382281510778}
+  - {fileID: 184872308}
+  - {fileID: 195571481}
   m_Father: {fileID: 8327109243502471772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1933387657322902568
@@ -221310,7 +221439,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -221319,7 +221448,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &2149974021896628946
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -224676,7 +224805,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -224685,7 +224814,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &2516461283264190930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225650,7 +225779,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -225659,7 +225788,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &2618520028550396407
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -227173,7 +227302,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -227182,7 +227311,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &2719574728962701966
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230223,7 +230352,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -230232,7 +230361,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3029588625346748642
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230804,7 +230933,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -230813,7 +230942,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3101058713514736112
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231606,7 +231735,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -231615,7 +231744,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3165957616235779979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231737,7 +231866,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -231746,7 +231875,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3167467945279984077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233342,7 +233471,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -233351,7 +233480,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3291952305441658916
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233841,7 +233970,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -233850,7 +233979,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3314871514854689192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235936,7 +236065,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -235945,7 +236074,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3551347209524073686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -237035,7 +237164,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -237044,7 +237173,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3641354059146258123
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238175,7 +238304,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -238184,7 +238313,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3774706168349846304
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239240,7 +239369,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -239249,7 +239378,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3879762697208835002
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239742,7 +239871,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -239751,7 +239880,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &3910955263952393465
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -240738,7 +240867,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!33 &4000128032636375564
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -240992,7 +241121,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -241001,7 +241130,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4024260358103184701
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241192,7 +241321,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -241201,7 +241330,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4037258257540251744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241590,7 +241719,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -241599,7 +241728,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4071392509076841982
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242261,7 +242390,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -242270,7 +242399,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4137189341924856539
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242723,7 +242852,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -242732,7 +242861,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4198646370206883474
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243962,7 +244091,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -243971,7 +244100,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4279760446174722414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244748,7 +244877,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -244757,7 +244886,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4361139904065187546
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244868,7 +244997,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -244877,7 +245006,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4362197425603261691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244988,7 +245117,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -244997,7 +245126,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4365603570243797293
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245890,7 +246019,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -245899,7 +246028,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4432052227112162899
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246622,7 +246751,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -246631,7 +246760,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4488918586889929510
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247734,7 +247863,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -247743,7 +247872,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4581123956623153800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248248,7 +248377,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -248257,7 +248386,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4621470129922148460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248474,7 +248603,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -248483,7 +248612,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4636413200680920151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249077,7 +249206,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -249086,7 +249215,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4676833567596346258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250980,8 +251109,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5883069022477790368}
+  - component: {fileID: 5883069022477790372}
+  - component: {fileID: 5883069022477790371}
+  - component: {fileID: 5883069022477790370}
+  - component: {fileID: 5883069022477790369}
   m_Layer: 7
-  m_Name: "\u65B0\u54AF\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09"
+  m_Name: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -251467,7 +251600,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -251476,7 +251609,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4908126933083968973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251771,7 +251904,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -251780,7 +251913,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4925727630592883196
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251988,7 +252121,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -251997,7 +252130,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4944964965306875175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252214,7 +252347,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -252223,7 +252356,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &4957543911480542139
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253209,7 +253342,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -253218,7 +253351,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5070428541314890955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253496,7 +253629,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -253505,7 +253638,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5088941342507541756
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253793,7 +253926,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -253802,7 +253935,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5105889554242609210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254304,7 +254437,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -254313,7 +254446,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5164638365529546972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255141,7 +255274,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -255150,7 +255283,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5248293483842673836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255317,7 +255450,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -255326,7 +255459,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5261178584568137644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256566,7 +256699,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -256575,7 +256708,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5346878778091169429
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256878,7 +257011,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -256887,7 +257020,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5368463863346445436
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257978,7 +258111,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -257987,7 +258120,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5440904460607179019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258153,7 +258286,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -258162,7 +258295,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5450909351082029836
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258345,7 +258478,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -258354,7 +258487,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5457166156005131824
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259331,7 +259464,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -259340,7 +259473,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5542267298691078694
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260049,7 +260182,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -260058,7 +260191,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5610347696650033778
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260190,7 +260323,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -260199,7 +260332,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5615275304458358021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261869,7 +262002,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -261878,7 +262011,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5784418512645729695
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262044,7 +262177,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -262053,7 +262186,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5789563718260830979
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262348,7 +262481,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -262357,7 +262490,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5825998052999053895
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262806,8 +262939,110 @@ Transform:
   - {fileID: 7395550929410722704}
   - {fileID: 3917721683264526594}
   - {fileID: 6806342333781625898}
+  - {fileID: 607505070}
+  - {fileID: 311877666}
   m_Father: {fileID: 8327109243502471772}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5883069022477790369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4867310854512164534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
+--- !u!114 &5883069022477790370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4867310854512164534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
+  _mapRoot: {fileID: 5883069022477790368}
+  _instancedRenderer: {fileID: 5883069022477790371}
+  _vehiclePoints:
+  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-001"
+    longitude: 166.5813238031078
+    latitude: -21.748248862675894
+    alertValue: 0.2124058
+  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-002"
+    longitude: 166.2029215386301
+    latitude: -20.91211795577476
+    alertValue: 0.26786625
+  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-003"
+    longitude: 166.43783172391704
+    latitude: -20.61637474539839
+    alertValue: 0.13554314
+  _enableProximityMerge: 1
+  _mergeDistanceLocal: 0.002
+  _mergeUseAveragePosition: 0
+  _mergeScalePerExtraVehicle: 0.35
+  _mergeScaleMaxMultiplier: 3
+  _pointHeightOffset: 0.002
+  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
+  _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
+  _dataValueMin: 0
+  _dataValueMax: 1
+  _glowIntensityAtDataMin: 0.6
+  _glowIntensityAtDataMax: 2.8
+  _centerBrightness: 1
+  _rebuildOnStart: 1
+  _spawnMappedPointCubesOnce: 1
+--- !u!114 &5883069022477790371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4867310854512164534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c33c97b19b30de74494d5b4584750d0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointInstancedRenderer
+  _mapRoot: {fileID: 0}
+  _material: {fileID: 2100000, guid: 7c5d3e3bcd2e862429a795ec2f5bd091, type: 2}
+  _mesh: {fileID: 0}
+  _localRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
+  _baseLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointHeightOffset: 0.002
+  _centerBrightness: 1
+--- !u!114 &5883069022477790372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4867310854512164534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapGeoConverter
+  _provinceCode: 540
+  _mapRoot: {fileID: 5883069022477790368}
+  _westAnchor:
+    marker: {fileID: 607505070}
+    longitude: 164.02999877929688
+    latitude: -22.399999618530273
+  _eastAnchor:
+    marker: {fileID: 311877666}
+    longitude: 167.1199951171875
+    latitude: -20.110000610351562
+  _autoBindWestEastByLocalX: 0
 --- !u!23 &5883516275756535549
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -263308,7 +263543,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -263317,7 +263552,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &5922029539976543713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264181,7 +264416,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -264190,7 +264425,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6020960556320336134
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264605,7 +264840,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -264614,7 +264849,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6062050631461577104
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265382,7 +265617,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -265391,7 +265626,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6124886418030705363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265643,7 +265878,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -265652,7 +265887,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6131852383718074203
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265818,7 +266053,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -265827,7 +266062,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6144191041500885316
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266010,7 +266245,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -266019,7 +266254,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6150389149427541616
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266218,7 +266453,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -266227,7 +266462,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6157747202959213732
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266545,7 +266780,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -266554,7 +266789,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6178545764650972641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -267384,7 +267619,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -267393,7 +267628,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6271656618299331258
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268241,7 +268476,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -268250,7 +268485,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6325399393050639596
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268570,7 +268805,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -268579,7 +268814,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6364908866560139562
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269168,7 +269403,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -269177,7 +269412,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6410925255123783092
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269384,7 +269619,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -269393,7 +269628,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6421031082095518637
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269530,7 +269765,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -269539,7 +269774,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6424704025377961398
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269792,7 +270027,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -269801,7 +270036,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6432961279537339180
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270050,7 +270285,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -270059,7 +270294,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6456976923417490523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270415,7 +270650,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -270424,7 +270659,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6492717797218742766
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270752,7 +270987,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -270761,7 +270996,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6519204515245102846
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271272,7 +271507,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -271281,7 +271516,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6548677336089452498
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271392,7 +271627,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -271401,7 +271636,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6549004538626491557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271693,7 +271928,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -271702,7 +271937,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6564951844613894665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272240,7 +272475,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -272249,7 +272484,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6596769820318433384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272632,7 +272867,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -272641,7 +272876,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6635464102890680419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273569,7 +273804,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -273578,7 +273813,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6716939020807664387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273801,7 +274036,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -273810,7 +274045,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6727480344613933742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274467,7 +274702,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -274476,7 +274711,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6803707558033041520
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274610,7 +274845,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -274619,7 +274854,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6808652615496743299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274844,7 +275079,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -274853,7 +275088,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6823996524040304018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275685,7 +275920,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -275694,7 +275929,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6888240504463751338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275803,7 +276038,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -275812,7 +276047,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6890029679727466186
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276220,7 +276455,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -276229,7 +276464,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6917737026990871790
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276899,7 +277134,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -276908,7 +277143,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6978179792793046751
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277220,7 +277455,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -277229,7 +277464,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6985511052420569666
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277340,7 +277575,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -277349,7 +277584,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &6986575300067461941
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277658,7 +277893,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -277667,7 +277902,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7000456782889705372
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277803,7 +278038,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -277812,7 +278047,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7008667818838767438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278056,7 +278291,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -278065,7 +278300,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7035878546592642950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278392,7 +278627,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -278401,7 +278636,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7055496941902988952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278733,7 +278968,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -278742,7 +278977,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7080727307197271412
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279785,7 +280020,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -279794,7 +280029,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7195414605624088497
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279973,7 +280208,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -279982,7 +280217,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7205841017017055607
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280837,7 +281072,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -280846,7 +281081,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7282781857002196156
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281113,7 +281348,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -281122,7 +281357,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7302792090837798876
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281472,7 +281707,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -281481,7 +281716,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7334256489112484295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281970,7 +282205,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -281979,7 +282214,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7382534927156841584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282709,7 +282944,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -282718,7 +282953,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7435802166655454024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282982,7 +283217,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -282991,7 +283226,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7450508280021177340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283598,7 +283833,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -283607,7 +283842,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7491402301418264904
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283785,7 +284020,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -283794,7 +284029,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7498673067256165422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284136,7 +284371,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -284145,7 +284380,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7518954724434686028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284359,7 +284594,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -284368,7 +284603,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7533119905978980345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284506,7 +284741,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -284515,7 +284750,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7535473885383727976
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284833,7 +285068,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -284842,7 +285077,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7552315677985076220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284995,7 +285230,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -285004,7 +285239,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7558473787442630991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285330,7 +285565,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -285339,7 +285574,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7606192719114015600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285860,7 +286095,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -285869,7 +286104,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7626157302603377535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286176,7 +286411,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -286185,7 +286420,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7668530641855766857
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286492,7 +286727,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -286501,7 +286736,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7691492715868329487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287431,7 +287666,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -287440,7 +287675,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7793457546703625679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287569,7 +287804,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -287578,7 +287813,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7796478742660769597
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287986,7 +288221,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -287995,7 +288230,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7824461178475160338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288106,7 +288341,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -288115,7 +288350,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7824462855132288667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288224,7 +288459,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -288233,7 +288468,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7825899906559192367
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288459,7 +288694,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -288468,7 +288703,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7837595470036113147
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288973,7 +289208,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -288982,7 +289217,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7885902865230931280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289142,7 +289377,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -289151,7 +289386,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7890876522603860718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289753,7 +289988,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -289762,7 +289997,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7953052741982026315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289930,7 +290165,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -289939,7 +290174,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7963417792375899199
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290068,7 +290303,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -290077,7 +290312,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &7966149123579252190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290839,7 +291074,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -290848,7 +291083,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8021258785609111022
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292150,7 +292385,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -292159,7 +292394,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8150482682609722753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292407,7 +292642,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -292416,7 +292651,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8169909988107354477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292527,7 +292762,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -292536,7 +292771,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8171324873677915996
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292957,7 +293192,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -292966,7 +293201,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8221748176204315590
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293336,7 +293571,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -293345,7 +293580,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8256799809913877431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293705,7 +293940,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -293714,7 +293949,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8284759243366492378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294135,7 +294370,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -294144,7 +294379,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8324307648305689718
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294546,7 +294781,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -294555,7 +294790,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8332756404812303017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294707,7 +294942,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -294716,7 +294951,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8339840358005303667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294842,7 +295077,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -294851,7 +295086,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8346996401200622885
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295043,7 +295278,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -295052,7 +295287,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8354218801994410971
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295376,7 +295611,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -295385,7 +295620,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8381982010130283466
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296351,7 +296586,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -296360,7 +296595,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8464764715589474770
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296899,7 +297134,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -296908,7 +297143,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8504065294747315970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297331,7 +297566,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -297340,7 +297575,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8541998701696542087
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297500,7 +297735,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -297509,7 +297744,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8545971780916488241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297805,7 +298040,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -297814,7 +298049,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8565500177630785235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298661,7 +298896,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -298670,7 +298905,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8647538600651092513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298877,7 +299112,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -298886,7 +299121,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8655571267667747534
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299038,7 +299273,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -299047,7 +299282,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8659340998826957185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299202,7 +299437,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -299211,7 +299446,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8667496620251258223
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299379,13 +299614,117 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1928452689440517524}
+  - component: {fileID: 8681826712752102955}
+  - component: {fileID: 8681826712752102954}
+  - component: {fileID: 8681826712752102953}
+  - component: {fileID: 8681826712752102952}
   m_Layer: 7
-  m_Name: "\u80AF\u52AA\u963F\u56FE"
+  m_Name: "\u74E6\u52AA\u963F\u56FE"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!114 &8681826712752102952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8681826712752102951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c1a655eda8a1c74992f70915d02c867, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayModule
+  _displayName: 
+  _focusCameraLocalY: 650
+  _autoAddMeshColliderIfMissing: 1
+--- !u!114 &8681826712752102953
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8681826712752102951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345604, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
+  _mapRoot: {fileID: 1928452689440517524}
+  _instancedRenderer: {fileID: 8681826712752102954}
+  _vehiclePoints:
+  - vehicleId: "\u74E6\u52AA\u963F\u56FE-001"
+    longitude: 167.6352119054136
+    latitude: -15.184883346072809
+    alertValue: 0.893365
+  - vehicleId: "\u74E6\u52AA\u963F\u56FE-002"
+    longitude: 167.60509600466685
+    latitude: -14.649366622212028
+    alertValue: 0.29137474
+  - vehicleId: "\u74E6\u52AA\u963F\u56FE-003"
+    longitude: 167.23508160235906
+    latitude: -15.128936387576857
+    alertValue: 0.9025682
+  _enableProximityMerge: 1
+  _mergeDistanceLocal: 0.002
+  _mergeUseAveragePosition: 0
+  _mergeScalePerExtraVehicle: 0.35
+  _mergeScaleMaxMultiplier: 3
+  _pointHeightOffset: 0.002
+  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
+  _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
+  _dataValueMin: 0
+  _dataValueMax: 1
+  _glowIntensityAtDataMin: 0.6
+  _glowIntensityAtDataMax: 2.8
+  _centerBrightness: 1
+  _rebuildOnStart: 1
+  _spawnMappedPointCubesOnce: 1
+--- !u!114 &8681826712752102954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8681826712752102951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c33c97b19b30de74494d5b4584750d0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointInstancedRenderer
+  _mapRoot: {fileID: 0}
+  _material: {fileID: 2100000, guid: 7c5d3e3bcd2e862429a795ec2f5bd091, type: 2}
+  _mesh: {fileID: 0}
+  _localRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
+  _baseLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointHeightOffset: 0.002
+  _centerBrightness: 1
+--- !u!114 &8681826712752102955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8681826712752102951}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a1b2c3d4e5f6478990abcdef12345602, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlateMapGeoConverter
+  _provinceCode: 548
+  _mapRoot: {fileID: 1928452689440517524}
+  _westAnchor:
+    marker: {fileID: 184872308}
+    longitude: 166.6300048828125
+    latitude: -16.600000381469727
+  _eastAnchor:
+    marker: {fileID: 195571481}
+    longitude: 167.83999633789062
+    latitude: -14.630000114440918
+  _autoBindWestEastByLocalX: 0
 --- !u!33 &8682031070251202547
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -299814,7 +300153,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -299823,7 +300162,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8724724256819781039
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300140,7 +300479,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -300149,7 +300488,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8748795913242711512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300756,7 +301095,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -300765,7 +301104,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8787528427286860255
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301103,7 +301442,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -301112,7 +301451,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8800525521532850281
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301386,7 +301725,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -301395,7 +301734,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8816869114282954353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301699,7 +302038,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -301708,7 +302047,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8843060302294195711
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301860,7 +302199,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -301869,7 +302208,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8857572381588601698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302036,7 +302375,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -302045,7 +302384,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8869443204655592475
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302570,7 +302909,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -302579,7 +302918,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8911998209102751017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302863,7 +303202,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -302872,7 +303211,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8934227767495377041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302983,7 +303322,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -302992,7 +303331,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8935126481100451049
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303139,7 +303478,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -303148,7 +303487,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8942623687070959068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303294,7 +303633,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -303303,7 +303642,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8947724840272073785
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303608,7 +303947,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -303617,7 +303956,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &8981667473303216208
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304195,7 +304534,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -304204,7 +304543,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9041851086840221408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304547,7 +304886,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -304556,7 +304895,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9049563347041043409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305415,7 +305754,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -305424,7 +305763,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9140749760543917009
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305827,7 +306166,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -305836,7 +306175,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9173034352644410016
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306164,7 +306503,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -306173,7 +306512,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9202349199531945677
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306307,7 +306646,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -306316,7 +306655,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9203986903650867601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306535,7 +306874,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 0.01, y: 0.01, z: 0.01}
+  _pointLocalScale: {x: 10, y: 10, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0
@@ -306544,7 +306883,7 @@ MonoBehaviour:
   _glowIntensityAtDataMax: 2.8
   _centerBrightness: 1
   _rebuildOnStart: 1
-  _spawnMappedPointCubesOnce: 1
+  _spawnMappedPointCubesOnce: 0
 --- !u!114 &9209692697322412403
 MonoBehaviour:
   m_ObjectHideFlags: 0

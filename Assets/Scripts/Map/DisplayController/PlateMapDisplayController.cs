@@ -494,22 +494,17 @@ public class PlateMapDisplayController : MonoBehaviour
         if (_autoFitProvinceToViewport && _pickCamera != null)
         {
             Bounds bounds = module.GetWorldBounds();
-            float fitted = PlateMapCameraFitUtility.ComputeCameraLocalYVerified(
+            float depth = PlateMapCameraFitUtility.ComputeViewDistanceToFitBounds(
                 _pickCamera,
-                _cameraRig,
-                _cameraTransform,
                 bounds,
-                _provinceViewportFillRatio,
-                _provinceFitMinLocalY,
-                _provinceFitMaxLocalY,
-                _provinceFitDistanceToLocalYScale,
-                out float viewDistanceAlongForward);
+                _provinceViewportFillRatio);
+            depth *= Mathf.Max(0.01f, _provinceFitDistanceToLocalYScale);
+            depth = Mathf.Clamp(depth, _provinceFitMinLocalY, _provinceFitMaxLocalY);
 
-            if (viewDistanceAlongForward > 1f || fitted > 1f)
+            if (depth > 1f)
             {
-                float depth = Mathf.Max(viewDistanceAlongForward, fitted, 1f);
                 Debug.Log(
-                    $"[PlateMapDisplayController] 省聚焦自适应 | module={module.ModuleKey} | " +
+                    $"[PlateMapDisplayController] 省聚焦严格装框 | module={module.ModuleKey} | " +
                     $"fill={_provinceViewportFillRatio:P0} | viewDistance={depth:F1} | " +
                     $"boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1}) | size={bounds.size}");
                 return depth;

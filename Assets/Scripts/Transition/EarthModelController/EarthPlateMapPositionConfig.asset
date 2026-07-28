@@ -28,3 +28,51 @@ MonoBehaviour:
   - plateCode: WESTERN_EUROPE
     plateName: "\u897F\u6B27"
     localPosition: {x: 272, y: -429, z: -87}
+  - plateCode: SOUTH_ASIA
+    plateName: "\u5357\u4E9A"
+    localPosition: {x: -237, y: -493, z: 143}
+  - plateCode: NORTHERN_EUROPE
+    plateName: "\u5317\u6B27"
+    localPosition: {x: 237, y: -565, z: -260}
+  - plateCode: CENTRAL_EUROPE
+    plateName: "\u4E2D\u6B27"
+    localPosition: {x: 169, y: -332, z: -64}
+  - plateCode: SOUTHERN_EUROPE
+    plateName: "\u5357\u6B27"
+    localPosition: {x: 237, y: -399, z: 26}
+  - plateCode: EASTERN_EUROPE
+    plateName: "\u4E1C\u6B27"
+    localPosition: {x: -353, y: -992, z: -359}
+  - plateCode: NORTH_AFRICA
+    plateName: "\u5317\u975E"
+    localPosition: {x: 184, y: -527, z: 151}
+  - plateCode: WEST_AFRICA
+    plateName: "\u897F\u975E"
+    localPosition: {x: 296, y: -393, z: 218}
+  - plateCode: EAST_AFRICA
+    plateName: "\u4E1C\u975E"
+    localPosition: {x: 42, y: -523, z: 243}
+  - plateCode: CENTRAL_AFRICA
+    plateName: "\u4E2D\u975E"
+    localPosition: {x: 159, y: -545, z: 261}
+  - plateCode: SOUTHERN_AFRICA
+    plateName: "\u5357\u90E8\u975E\u6D32"
+    localPosition: {x: 102, y: -474, z: 460}
+  - plateCode: NORTH_AMERICA_REGION
+    plateName: "\u5317\u7F8E"
+    localPosition: {x: 965, y: -1166, z: -367}
+  - plateCode: CENTRAL_AMERICA
+    plateName: "\u4E2D\u7F8E\u6D32"
+    localPosition: {x: 944, y: -501, z: 170}
+  - plateCode: CARIBBEAN
+    plateName: "\u52A0\u52D2\u6BD4\u5730\u533A"
+    localPosition: {x: 776, y: -338, z: 175}
+  - plateCode: SOUTH_AMERICA_REGION
+    plateName: "\u5357\u7F8E"
+    localPosition: {x: 719, y: -881, z: 417}
+  - plateCode: AUSTRALASIA
+    plateName: "\u6FB3\u65B0"
+    localPosition: {x: -650, y: -661, z: 482}
+  - plateCode: MELANESIA
+    plateName: "\u7F8E\u62C9\u5C3C\u897F\u4E9A"
+    localPosition: {x: -752, y: -421, z: 389}
