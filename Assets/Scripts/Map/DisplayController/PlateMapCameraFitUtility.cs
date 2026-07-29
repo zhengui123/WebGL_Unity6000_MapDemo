@@ -8,6 +8,7 @@ public static class PlateMapCameraFitUtility
 {
     /// <summary>
     /// 计算使 bounds 落入视口 fillRatio 所需的沿视线观察距离（越大越远）。
+    /// 取子物体外包围盒 XZ 最长边，匹配同一通用屏幕占比区域。
     /// </summary>
     public static float ComputeViewDistanceToFitBounds(
         Camera camera,
@@ -22,19 +23,13 @@ public static class PlateMapCameraFitUtility
         float fill = Mathf.Clamp(viewportFillRatio, 0.05f, 3f);
         float halfFovV = camera.fieldOfView * 0.5f * Mathf.Deg2Rad;
         float halfFovH = Mathf.Atan(Mathf.Tan(halfFovV) * Mathf.Max(0.01f, camera.aspect));
+        // 用更紧的 FOV，让最长边落入统一可视区域
+        float tanMin = Mathf.Tan(Mathf.Min(halfFovV, halfFovH));
 
-        // XZ 水平范围 + 对角线，保证整省装进视口（宁可偏远）
-        float halfWidth = Mathf.Max(worldBounds.extents.x, 0.01f);
-        float halfDepth = Mathf.Max(worldBounds.extents.z, 0.01f);
-        float halfDiagonal = Mathf.Sqrt(halfWidth * halfWidth + halfDepth * halfDepth);
-        float halfHeight = Mathf.Max(worldBounds.extents.y, 0.01f);
+        float halfLongest = 0.5f * Mathf.Max(worldBounds.size.x, worldBounds.size.z);
+        halfLongest = Mathf.Max(halfLongest, 0.01f);
 
-        float distForDepth = halfDepth / (Mathf.Tan(halfFovV) * fill);
-        float distForWidth = halfWidth / (Mathf.Tan(halfFovH) * fill);
-        float distForDiag = halfDiagonal / (Mathf.Tan(Mathf.Min(halfFovV, halfFovH)) * fill);
-        float distForHeight = halfHeight / (Mathf.Tan(halfFovV) * fill);
-
-        return Mathf.Max(distForDepth, distForWidth, distForDiag, distForHeight, 1f);
+        return Mathf.Max(halfLongest / Mathf.Max(tanMin * fill, 1e-4f), 1f);
     }
 
     /// <summary>

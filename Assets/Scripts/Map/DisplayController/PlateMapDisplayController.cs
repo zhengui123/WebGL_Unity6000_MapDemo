@@ -486,7 +486,7 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 省级装框视距（沿视线）：按包围盒适配视口，并用角点验证保证整省可见。
+    /// 省级装框视距（沿视线）：按子物体外包围盒 XZ 最长边匹配通用屏幕占比。
     /// 该距离用于摆 CameraPivot，不写入 FogCamera。
     /// </summary>
     private float ResolveProvinceFocusViewDistance(PlateMapDisplayModule module)
@@ -503,10 +503,11 @@ public class PlateMapDisplayController : MonoBehaviour
 
             if (depth > 1f)
             {
+                float longestXZ = Mathf.Max(bounds.size.x, bounds.size.z);
                 Debug.Log(
                     $"[PlateMapDisplayController] 省聚焦严格装框 | module={module.ModuleKey} | " +
                     $"fill={_provinceViewportFillRatio:P0} | viewDistance={depth:F1} | " +
-                    $"boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1}) | size={bounds.size}");
+                    $"longestXZ={longestXZ:F1} | boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1})");
                 return depth;
             }
         }
