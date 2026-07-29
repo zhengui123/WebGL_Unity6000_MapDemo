@@ -12,6 +12,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [Header("操作")]
     [SerializeField] private Button _injectMultiProvinceButton;
     [SerializeField] private Button _injectSameVinButton;
+    [SerializeField] private Button _injectEastAsiaSameVinButton;
     [SerializeField] private Button _skipHoldButton;
     [SerializeField] private Button _exitThreatButton;
     [SerializeField] private Button _refreshCooldownButton;
@@ -81,6 +82,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     {
         Bind(_injectMultiProvinceButton, OnInjectMultiProvinceClicked, bind);
         Bind(_injectSameVinButton, OnInjectSameVinClicked, bind);
+        Bind(_injectEastAsiaSameVinButton, OnInjectEastAsiaSameVinClicked, bind);
         Bind(_skipHoldButton, OnSkipHoldClicked, bind);
         Bind(_exitThreatButton, OnExitThreatClicked, bind);
         Bind(_refreshCooldownButton, OnRefreshCooldownClicked, bind);
@@ -115,6 +117,39 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     private void OnInjectSameVinClicked()
     {
         InjectJson(ThreatLocalAlertTestMockJson.BuildSameVinQualifiedJson(), "多省多车 Vin≥3（鲁+黑+粤+苏）");
+    }
+
+    private void OnInjectEastAsiaSameVinClicked()
+    {
+        if (!TrySwitchToEastAsiaForeignPlate(out string switchError))
+        {
+            RefreshStatus($"注入前切换东亚失败：{switchError}");
+            return;
+        }
+
+        InjectJson(
+            ThreatLocalAlertTestMockJson.BuildEastAsiaSameVinQualifiedJson(),
+            "东亚多国多车 Vin≥3（日+韩+蒙+朝）");
+    }
+
+    /// <summary>注入东亚数据前切到国外·东亚大板块。</summary>
+    private static bool TrySwitchToEastAsiaForeignPlate(out string error)
+    {
+        error = null;
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        if (region == null)
+        {
+            error = "场景中未找到 WorldMapRegionController";
+            return false;
+        }
+
+        if (!region.SwitchToForeignPlate("EAST_ASIA"))
+        {
+            error = "SwitchToForeignPlate(EAST_ASIA) 失败，请检查 Inspector 国外板块绑定";
+            return false;
+        }
+
+        return true;
     }
 
     private void InjectJson(string json, string label)
@@ -419,6 +454,11 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (_injectSameVinButton == null)
         {
             _injectSameVinButton = transform.Find("InjectSameVinButton")?.GetComponent<Button>();
+        }
+
+        if (_injectEastAsiaSameVinButton == null)
+        {
+            _injectEastAsiaSameVinButton = transform.Find("InjectEastAsiaSameVinButton")?.GetComponent<Button>();
         }
 
         if (_skipHoldButton == null)

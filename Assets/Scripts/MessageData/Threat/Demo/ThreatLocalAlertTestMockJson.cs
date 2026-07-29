@@ -76,6 +76,74 @@ public static class ThreatLocalAlertTestMockJson
         (119.9152, 32.4849, "泰州"),
     };
 
+    /// <summary>日本主要城市（secondClassCode=392）。</summary>
+    private static readonly (double Lon, double Lat, string City)[] JapanCities =
+    {
+        (139.6917, 35.6895, "东京"),
+        (135.5023, 34.6937, "大阪"),
+        (136.9066, 35.1815, "名古屋"),
+        (141.3545, 43.0618, "札幌"),
+        (130.4017, 33.5904, "福冈"),
+        (140.8822, 38.2682, "仙台"),
+        (132.4553, 34.3853, "广岛"),
+        (139.6380, 35.4437, "横滨"),
+        (135.7681, 35.0116, "京都"),
+        (138.3831, 34.9756, "静冈"),
+        (140.4468, 36.3414, "水户"),
+        (138.1810, 36.6513, "长野"),
+    };
+
+    /// <summary>韩国主要城市（secondClassCode=410）。</summary>
+    private static readonly (double Lon, double Lat, string City)[] KoreaCities =
+    {
+        (126.9780, 37.5665, "首尔"),
+        (129.0756, 35.1796, "釜山"),
+        (126.7052, 37.4563, "仁川"),
+        (128.6014, 35.8714, "大邱"),
+        (127.3845, 36.3504, "大田"),
+        (126.8526, 35.1595, "光州"),
+        (129.3114, 35.5384, "蔚山"),
+        (127.2890, 36.4801, "世宗"),
+        (126.7314, 37.4569, "富川"),
+        (127.0467, 37.2636, "水原"),
+        (128.5680, 35.8562, "昌原"),
+        (127.1489, 37.4563, "城南"),
+    };
+
+    /// <summary>蒙古主要城市（secondClassCode=496）。</summary>
+    private static readonly (double Lon, double Lat, string City)[] MongoliaCities =
+    {
+        (106.9057, 47.8864, "乌兰巴托"),
+        (106.2700, 49.4800, "达尔汗"),
+        (100.1540, 49.0260, "额尔登特"),
+        (100.1620, 47.9070, "哈拉和林"),
+        (111.9080, 48.0050, "乔巴山"),
+        (91.6410, 46.3720, "科布多"),
+        (100.7730, 46.2660, "巴彦洪戈尔"),
+        (106.2700, 44.8800, "曼达勒戈壁"),
+        (114.5030, 48.0730, "温都尔汗"),
+        (89.1670, 48.9680, "乌列盖"),
+        (100.1500, 47.4800, "布尔干"),
+        (104.0500, 47.3200, "中戈壁"),
+    };
+
+    /// <summary>朝鲜主要城市（secondClassCode=408）。</summary>
+    private static readonly (double Lon, double Lat, string City)[] NorthKoreaCities =
+    {
+        (125.7625, 39.0392, "平壤"),
+        (127.4460, 39.1600, "元山"),
+        (129.7500, 41.8000, "清津"),
+        (125.2100, 39.9100, "新义州"),
+        (127.4300, 39.0300, "咸兴"),
+        (130.3800, 42.4400, "罗先"),
+        (125.3200, 38.7400, "南浦"),
+        (126.5700, 37.9300, "开城"),
+        (125.9000, 39.1500, "顺川"),
+        (127.2500, 40.9700, "江界"),
+        (128.1700, 40.1000, "惠山"),
+        (129.1800, 40.6700, "金策"),
+    };
+
     /// <summary>山东+黑龙江各 10 条，用于测试国家多省高亮与取第一条进省。</summary>
     public static string BuildMultiProvinceQualifiedJson()
     {
@@ -145,6 +213,70 @@ public static class ThreatLocalAlertTestMockJson
         return WrapResponse(items);
     }
 
+    /// <summary>
+    /// 东亚多国达标且每国多辆「热车」：每辆 Vin≥3，国总条数≥10。
+    /// 日 3 辆 / 韩 4 辆 / 蒙 3 辆 / 朝 3 辆；province 使用 secondClassCode。
+    /// </summary>
+    public static string BuildEastAsiaSameVinQualifiedJson()
+    {
+        List<string> items = new List<string>(48);
+
+        AppendProvinceWithHotVins(
+            items,
+            "392",
+            "日本",
+            JapanCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_JP_HOT_01", 4),
+                ("VIN_JP_HOT_02", 3),
+                ("VIN_JP_HOT_03", 3),
+            },
+            countryName: "日本");
+
+        AppendProvinceWithHotVins(
+            items,
+            "410",
+            "韩国",
+            KoreaCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_KR_HOT_01", 3),
+                ("VIN_KR_HOT_02", 3),
+                ("VIN_KR_HOT_03", 3),
+                ("VIN_KR_HOT_04", 3),
+            },
+            countryName: "韩国");
+
+        AppendProvinceWithHotVins(
+            items,
+            "496",
+            "蒙古",
+            MongoliaCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_MN_HOT_01", 4),
+                ("VIN_MN_HOT_02", 4),
+                ("VIN_MN_HOT_03", 3),
+            },
+            countryName: "蒙古");
+
+        AppendProvinceWithHotVins(
+            items,
+            "408",
+            "朝鲜",
+            NorthKoreaCities,
+            new (string Vin, int Count)[]
+            {
+                ("VIN_KP_HOT_01", 3),
+                ("VIN_KP_HOT_02", 4),
+                ("VIN_KP_HOT_03", 4),
+            },
+            countryName: "朝鲜");
+
+        return WrapResponse(items);
+    }
+
     /// <summary>按热车 Vin 重复次数撒点；可选补充若干单次出现的冷车 Vin 抬高省条数。</summary>
     private static void AppendProvinceWithHotVins(
         List<string> target,
@@ -153,7 +285,8 @@ public static class ThreatLocalAlertTestMockJson
         (double Lon, double Lat, string City)[] cities,
         (string Vin, int Count)[] hotVins,
         int fillerDistinctCount = 0,
-        string fillerVinPrefix = null)
+        string fillerVinPrefix = null,
+        string countryName = "中国")
     {
         if (cities == null || cities.Length == 0 || hotVins == null || hotVins.Length == 0)
         {
@@ -181,7 +314,8 @@ public static class ThreatLocalAlertTestMockJson
                     cities,
                     ref cityCursor,
                     eventSerial,
-                    vin.Trim());
+                    vin.Trim(),
+                    countryName);
             }
         }
 
@@ -196,7 +330,8 @@ public static class ThreatLocalAlertTestMockJson
                 fillerVinPrefix,
                 distinctVin: true,
                 cityOffset: cityCursor,
-                eventSerialStart: eventSerial);
+                eventSerialStart: eventSerial,
+                countryName: countryName);
         }
     }
 
@@ -207,7 +342,8 @@ public static class ThreatLocalAlertTestMockJson
         (double Lon, double Lat, string City)[] cities,
         ref int cityCursor,
         int eventSerial,
-        string vin)
+        string vin,
+        string countryName = "中国")
     {
         int cityIndex = cityCursor % cities.Length;
         (double lon, double lat, string city) = cities[cityIndex];
@@ -217,7 +353,7 @@ public static class ThreatLocalAlertTestMockJson
         cityCursor++;
 
         string eventId = $"LOCAL_{provinceCode}_{eventSerial:D3}_{city}_{vin}";
-        target.Add(BuildItemJson(eventId, vin, provinceCode, provinceName, lon, lat));
+        target.Add(BuildItemJson(eventId, vin, provinceCode, provinceName, lon, lat, countryName));
     }
 
     private static void AppendProvinceEventsFromCities(
@@ -229,7 +365,8 @@ public static class ThreatLocalAlertTestMockJson
         string vinPrefixOrFixed,
         bool distinctVin,
         int cityOffset = 0,
-        int eventSerialStart = 0)
+        int eventSerialStart = 0,
+        string countryName = "中国")
     {
         if (cities == null || cities.Length == 0 || count <= 0)
         {
@@ -252,7 +389,8 @@ public static class ThreatLocalAlertTestMockJson
                 provinceCode,
                 provinceName,
                 lon,
-                lat));
+                lat,
+                countryName));
         }
     }
 
@@ -262,10 +400,12 @@ public static class ThreatLocalAlertTestMockJson
         string provinceCode,
         string provinceName,
         double longitude,
-        double latitude)
+        double latitude,
+        string countryName = "中国")
     {
         string lon = longitude.ToString("F4", CultureInfo.InvariantCulture);
         string lat = latitude.ToString("F4", CultureInfo.InvariantCulture);
+        string country = string.IsNullOrWhiteSpace(countryName) ? "中国" : countryName.Trim();
         return
             "{" +
             $"\"eventId\":\"{eventId}\"," +
@@ -275,7 +415,7 @@ public static class ThreatLocalAlertTestMockJson
             "\"city\":\"\"," +
             "\"district\":\"\"," +
             $"\"region\":\"{provinceName}\"," +
-            "\"country\":\"中国\"," +
+            $"\"country\":\"{country}\"," +
             "\"processTime\":\"2026-07-15 12:00:00\"," +
             $"\"longitude\":\"{lon}\"," +
             $"\"latitude\":\"{lat}\"" +

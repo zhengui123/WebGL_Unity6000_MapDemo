@@ -77,6 +77,9 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         GameObject injectVinGo = CreateFullWidthButton(
             resources, panel.transform, "InjectSameVinButton", "注入多省多车 Vin≥3 JSON", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject injectEastAsiaGo = CreateFullWidthButton(
+            resources, panel.transform, "InjectEastAsiaSameVinButton", "注入东亚多国多车 Vin≥3 JSON", 12f, y, buttonWidth);
+        y -= 40f;
         GameObject skipHoldGo = CreateFullWidthButton(
             resources, panel.transform, "SkipHoldButton", "跳过停留", 12f, y, buttonWidth);
         y -= 40f;
@@ -110,6 +113,8 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             injectMultiGo.GetComponent<Button>();
         serializedDemo.FindProperty("_injectSameVinButton").objectReferenceValue =
             injectVinGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_injectEastAsiaSameVinButton").objectReferenceValue =
+            injectEastAsiaGo.GetComponent<Button>();
         serializedDemo.FindProperty("_skipHoldButton").objectReferenceValue =
             skipHoldGo.GetComponent<Button>();
         serializedDemo.FindProperty("_exitThreatButton").objectReferenceValue =
