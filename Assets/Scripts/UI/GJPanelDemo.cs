@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// GJ_Panel 告警面板 Demo：调用 <see cref="SecurityEventDetailApi"/>，通过事件刷新面板。
+/// GJ_Panel 本地快捷测试（按键/ContextMenu）。正式落地由 <see cref="SecurityEventDetailApi"/> 统一处理。
 /// </summary>
 [DisallowMultipleComponent]
 public class GJPanelDemo : MonoBehaviour
@@ -14,7 +14,7 @@ public class GJPanelDemo : MonoBehaviour
     [SerializeField] private string _eventId = SecurityEventDetailRequest.DefaultEventId;
     [SerializeField] private string _processStartTime = SecurityEventDetailRequest.DefaultProcessStartTime;
     [SerializeField] private string _processEndTime = SecurityEventDetailRequest.DefaultProcessEndTime;
-    [SerializeField] private bool _passwd;
+    [SerializeField] private int _tenantId = SecurityEventDetailRequest.DefaultTenantId;
 
     private void Awake()
     {
@@ -27,16 +27,6 @@ public class GJPanelDemo : MonoBehaviour
         {
             _panel = GJPanel.Instance;
         }
-    }
-
-    private void OnEnable()
-    {
-        SecurityEventDetailApi.RequestCompleted += OnSecurityEventDetailRequestCompleted;
-    }
-
-    private void OnDisable()
-    {
-        SecurityEventDetailApi.RequestCompleted -= OnSecurityEventDetailRequestCompleted;
     }
 
     private void Start()
@@ -55,55 +45,20 @@ public class GJPanelDemo : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 本地快捷请求；成功后的缓存 / GJ_Panel / POI 由 <see cref="SecurityEventDetailApi"/> 统一处理。
+    /// 正式入口请用 Demo 菜单或 WebGL/Android 的 RequestSecurityEventDetail。
+    /// </summary>
     [ContextMenu("请求告警详情")]
     public void RequestDetail()
     {
-        SecurityEventDetailApi.Request(_eventId, _processStartTime, _processEndTime, _passwd);
+        SecurityEventDetailApi.Request(_eventId, _processStartTime, _processEndTime, null, _tenantId);
     }
 
     [ContextMenu("隐藏 GJ_Panel")]
     public void HidePanel()
     {
         ResolvePanel()?.HidePanel();
-    }
-
-    private void OnSecurityEventDetailRequestCompleted(
-        HttpRequestResult result,
-        SecurityEventDetailResponse response)
-    {
-        if (result == null)
-        {
-            Debug.LogWarning("[GJPanelDemo] 请求结果为空。");
-            return;
-        }
-
-        if (result.IsCancelled)
-        {
-            Debug.Log("[GJPanelDemo] 请求已取消。");
-            return;
-        }
-
-        if (!result.IsSuccess)
-        {
-            Debug.LogWarning($"[GJPanelDemo] 请求失败：{result.Error}");
-            return;
-        }
-
-        GJPanel panel = ResolvePanel();
-        if (panel == null)
-        {
-            Debug.LogWarning("[GJPanelDemo] 未找到 GJPanel，无法刷新面板。");
-            return;
-        }
-
-        if (response == null || !response.IsSuccess || response.data == null)
-        {
-            Debug.LogWarning("[GJPanelDemo] 业务响应无效，未刷新面板。");
-            return;
-        }
-
-        panel.ApplyDetailData(response.data, showPanel: true);
-        Debug.Log($"[GJPanelDemo] 已刷新面板：{response.data.event_name} / {response.data.vin}");
     }
 
     private GJPanel ResolvePanel()

@@ -19,6 +19,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _threatHighRiskSecurityEventEntryButton;
     [SerializeField] private Button _threatLocalAlertTestEntryButton;
     [SerializeField] private Button _carVehicleDataEntryButton;
+    [SerializeField] private Button _securityEventDetailEntryButton;
 
     private void Awake()
     {
@@ -75,6 +76,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_carVehicleDataEntryButton != null)
         {
             _carVehicleDataEntryButton.onClick.AddListener(OnCarVehicleDataEntryClicked);
+        }
+
+        if (_securityEventDetailEntryButton != null)
+        {
+            _securityEventDetailEntryButton.onClick.AddListener(OnSecurityEventDetailEntryClicked);
         }
     }
 
@@ -133,6 +139,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_carVehicleDataEntryButton != null)
         {
             _carVehicleDataEntryButton.onClick.RemoveListener(OnCarVehicleDataEntryClicked);
+        }
+
+        if (_securityEventDetailEntryButton != null)
+        {
+            _securityEventDetailEntryButton.onClick.RemoveListener(OnSecurityEventDetailEntryClicked);
         }
     }
 
@@ -266,6 +277,18 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowCarVehicleDataPanel();
+    }
+
+    private void OnSecurityEventDetailEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowSecurityEventDetailPanel();
     }
 
     private DemoGameStateUINavigator ResolveNavigator()

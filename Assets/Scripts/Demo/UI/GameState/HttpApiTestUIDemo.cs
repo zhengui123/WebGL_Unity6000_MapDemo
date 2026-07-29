@@ -9,10 +9,10 @@ using UnityEngine.UI;
 [DisallowMultipleComponent]
 public class HttpApiTestUIDemo : MonoBehaviour
 {
-    public static string DefaultGetUrl => HttpProjectConfig.DefaultHttpsTestSecurityEventDetailUrl;
+    public static string DefaultGetUrl => HttpProjectConfig.DefaultSecurityEventDetailUrl;
     public static string DefaultPostHost => HttpProjectConfig.ApiHost;
     public const string DefaultPostPath = HttpProjectConfig.WorkOrderDisposalOverviewPath;
-    public static string DefaultHttpsTestPostHost => HttpProjectConfig.HttpsTestApiHost;
+    public static string DefaultHttpsTestPostHost => HttpProjectConfig.ApiHost;
     public const string DefaultHttpsTestPostPath = HttpProjectConfig.SecurityEventDetailPath;
     public const string DefaultHttpsTestPostBody = SecurityEventDetailRequest.DefaultJson;
     public const string DefaultPostBody = ComprehensiveRegionRequest.DefaultJson;
@@ -299,14 +299,14 @@ public class HttpApiTestUIDemo : MonoBehaviour
         SetInputText(_postBodyInput, DefaultPostBody);
     }
 
-    /// <summary>一键切换 GET/POST 为 HTTPS 测试环境（getSecurityEventDetail）。</summary>
+    /// <summary>一键切换 GET/POST 为事件溯源详情接口（getSourceEventDetail）。</summary>
     public void ApplyHttpsTestPreset()
     {
         ApplyHttpsTestGetDefaults();
         SetInputText(_postHostInput, DefaultHttpsTestPostHost);
         SetInputText(_postPathInput, DefaultHttpsTestPostPath);
         SetInputText(_postBodyInput, DefaultHttpsTestPostBody);
-        SetJsonResultText("已切换为 HTTPS 测试环境（getSecurityEventDetail）");
+        SetJsonResultText("已切换为事件溯源详情接口（getSourceEventDetail）");
     }
 
     /// <summary>一键切换 GET/POST 为内网 HTTP 业务接口。</summary>
@@ -766,18 +766,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
 
     private static void TryApplySecurityEventDetailToGJPanel(string rawBody)
     {
-        if (!SecurityEventDetailApi.TryParseResponse(rawBody, out SecurityEventDetailResponse response, out _))
-        {
-            return;
-        }
-
-        GJPanel panel = GJPanel.Instance;
-        if (panel == null)
-        {
-            return;
-        }
-
-        panel.ApplyResponse(response, showPanel: true);
+        // 能解析为事件溯源详情时，走统一落地（缓存 + GJ_Panel + POI）
+        SecurityEventDetailApi.TryApplySuccessfulResponseFromJson(rawBody, out _);
     }
 
     private static void TryLogParsedGetResponse(string rawBody)

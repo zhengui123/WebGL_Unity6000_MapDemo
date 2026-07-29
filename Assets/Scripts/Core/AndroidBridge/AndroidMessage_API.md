@@ -217,7 +217,31 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.11 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.11 `RequestSecurityEventDetail` — 请求事件溯源详情
+
+请求 `getSourceEventDetail`；成功后缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无结果回调（只发不回）。
+
+```java
+// 使用默认参数
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail", "");
+
+// 指定参数
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
+    "{\"eventId\":\"123dfdsafffff\",\"processStartTime\":\"2026-06-30 17:41:23\",\"processEndTime\":\"2026-06-30 17:41:23\",\"tenantId\":1}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `eventId` | string | 否 | 事件 ID；空则用 Unity 默认 |
+| `processStartTime` | string | 否 | 处理开始时间 |
+| `processEndTime` | string | 否 | 处理结束时间 |
+| `tenantId` | int | 否 | 租户 ID；默认 1 |
+
+对应 Unity：`MapApi.RequestSecurityEventDetail` → `SecurityEventDetailApi.Request`。
+
+---
+
+### 2.12 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android 侧在正式业务中无需调用本接口。**  
@@ -253,7 +277,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.12 其它地图过渡（可选 / 联调）
+### 2.13 其它地图过渡（可选 / 联调）
 
 以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
 
@@ -433,6 +457,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `SetDefaultProvinceCode` | code / JSON | 设置默认省（adcode） |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
 | `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
+| `RequestSecurityEventDetail` | `""` / JSON | 请求事件溯源详情并刷新 GJ_Panel / POI |
 | `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
 
 ---

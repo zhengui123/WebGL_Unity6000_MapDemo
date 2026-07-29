@@ -102,9 +102,9 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>HTTPS 测试环境告警详情接口路径。</summary>
+    /// <summary>事件溯源详情接口路径（getSourceEventDetail）。</summary>
 
-    public const string SecurityEventDetailPath = "/api/business/event/getSecurityEventDetail";
+    public const string SecurityEventDetailPath = "/business/event/getSourceEventDetail";
 
 
 
@@ -126,9 +126,13 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>HTTPS 测试环境 getSecurityEventDetail 完整 URL。</summary>
+    /// <summary>事件溯源详情完整 URL（与其它业务接口共用主机）。</summary>
 
-    public static string DefaultHttpsTestSecurityEventDetailUrl => BuildHttpsTestApiUrl(SecurityEventDetailPath);
+    public static string DefaultSecurityEventDetailUrl => BuildApiUrl(SecurityEventDetailPath);
+
+    /// <summary>兼容旧命名：现与 <see cref="DefaultSecurityEventDetailUrl"/> 相同。</summary>
+
+    public static string DefaultHttpsTestSecurityEventDetailUrl => DefaultSecurityEventDetailUrl;
 
 
 

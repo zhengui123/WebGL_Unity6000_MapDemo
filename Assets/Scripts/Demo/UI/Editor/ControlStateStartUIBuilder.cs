@@ -26,6 +26,7 @@ public static class ControlStateStartUIBuilder
     private const string ThreatHighRiskSecurityEventPanelName = ThreatHighRiskSecurityEventUIDemoBuilder.PanelName;
     private const string ThreatLocalAlertTestPanelName = ThreatLocalAlertTestUIDemoBuilder.PanelName;
     private const string CarVehicleDataPanelName = CarVehicleDataUIDemoBuilder.PanelName;
+    private const string SecurityEventDetailPanelName = SecurityEventDetailUIDemoBuilder.PanelName;
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
@@ -45,6 +46,7 @@ public static class ControlStateStartUIBuilder
     private const string ThreatHighRiskSecurityEventUiTitle = ThreatHighRiskSecurityEventUIDemoBuilder.UiTitle;
     private const string ThreatLocalAlertTestMenuLabel = ThreatLocalAlertTestUIDemoBuilder.MenuLabel;
     private const string CarVehicleDataMenuLabel = CarVehicleDataUIDemoBuilder.MenuLabel;
+    private const string SecurityEventDetailMenuLabel = SecurityEventDetailUIDemoBuilder.MenuLabel;
     private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
     private const string FpsOverlayName = "DemoFpsOverlay";
@@ -131,6 +133,7 @@ public static class ControlStateStartUIBuilder
         ThreatHighRiskSecurityEventPanelName,
         ThreatLocalAlertTestPanelName,
         CarVehicleDataPanelName,
+        SecurityEventDetailPanelName,
     };
 
     /// <summary>
@@ -249,6 +252,12 @@ public static class ControlStateStartUIBuilder
             preserved.GetPanelLayout(CarVehicleDataPanelName),
             navigator,
             demoUiFont);
+        GameObject securityEventDetailPanel = SecurityEventDetailUIDemoBuilder.CreatePanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(SecurityEventDetailPanelName),
+            navigator,
+            demoUiFont);
 
         Text fpsValueLabel = CreateFpsOverlay(
             uiRoot.transform,
@@ -277,6 +286,8 @@ public static class ControlStateStartUIBuilder
             threatLocalAlertTestPanel;
         serializedNavigator.FindProperty("_carVehicleDataPanel").objectReferenceValue =
             carVehicleDataPanel;
+        serializedNavigator.FindProperty("_securityEventDetailPanel").objectReferenceValue =
+            securityEventDetailPanel;
         serializedNavigator.ApplyModifiedPropertiesWithoutUndo();
 
         jumpPanel.SetActive(false);
@@ -290,6 +301,7 @@ public static class ControlStateStartUIBuilder
         threatHighRiskSecurityEventPanel.SetActive(false);
         threatLocalAlertTestPanel.SetActive(false);
         carVehicleDataPanel.SetActive(false);
+        securityEventDetailPanel.SetActive(false);
         httpJsonResultBar.SetActive(false);
         httpJsonCopyBar.SetActive(false);
 
@@ -452,6 +464,17 @@ public static class ControlStateStartUIBuilder
             carVehicleDataEntryButtonText.text = CarVehicleDataMenuLabel;
         }
 
+        y -= MenuButtonHeight + 8f;
+
+        GameObject securityEventDetailEntryButtonGo = DefaultControls.CreateButton(resources);
+        securityEventDetailEntryButtonGo.name = "SecurityEventDetailEntryButton";
+        SetupChildRect(securityEventDetailEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        Text securityEventDetailEntryButtonText = securityEventDetailEntryButtonGo.GetComponentInChildren<Text>();
+        if (securityEventDetailEntryButtonText != null)
+        {
+            securityEventDetailEntryButtonText.text = SecurityEventDetailMenuLabel;
+        }
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
@@ -477,6 +500,8 @@ public static class ControlStateStartUIBuilder
             threatLocalAlertTestEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_carVehicleDataEntryButton").objectReferenceValue =
             carVehicleDataEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_securityEventDetailEntryButton").objectReferenceValue =
+            securityEventDetailEntryButtonGo.GetComponent<Button>();
         serializedMenu.ApplyModifiedPropertiesWithoutUndo();
 
         ApplyPanelFont(panel, LoadDemoUiFont());
@@ -1040,7 +1065,7 @@ public static class ControlStateStartUIBuilder
         Text httpsPresetButtonText = httpsPresetButtonGo.GetComponentInChildren<Text>();
         if (httpsPresetButtonText != null)
         {
-            httpsPresetButtonText.text = "预设：HTTPS 测试 getSecurityEventDetail";
+            httpsPresetButtonText.text = "预设：事件溯源 getSourceEventDetail";
             httpsPresetButtonText.fontSize = 12;
         }
         contentY -= 36f;

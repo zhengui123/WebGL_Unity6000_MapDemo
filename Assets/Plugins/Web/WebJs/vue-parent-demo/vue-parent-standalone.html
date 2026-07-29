@@ -297,6 +297,10 @@
           'RequestCarVehicleData',
           p == null || p === '' ? '' : (typeof p === 'string' ? p : JSON.stringify(p))
         ),
+        requestSecurityEventDetail: (p) => callUnity(
+          'RequestSecurityEventDetail',
+          p == null || p === '' ? '' : (typeof p === 'string' ? p : JSON.stringify(p))
+        ),
       };
     }
 

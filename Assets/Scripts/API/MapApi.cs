@@ -187,6 +187,20 @@ public class MapApi : UnitySingle<MapApi>
         return true;
     }
 
+    /// <summary>
+    /// 请求事件溯源详情；成功后由 <see cref="SecurityEventDetailApi"/> 缓存、刷新 GJ_Panel 并生成 POI。
+    /// 参数为空时使用接口默认测试值。
+    /// </summary>
+    public bool RequestSecurityEventDetail(
+        string eventId = null,
+        string processStartTime = null,
+        string processEndTime = null,
+        int? tenantId = null)
+    {
+        SecurityEventDetailApi.Request(eventId, processStartTime, processEndTime, null, tenantId);
+        return true;
+    }
+
     /// <summary>正播：车辆 → 零件过渡。</summary>
     /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
     public bool TransitionVehicleToPart(string partId = null)

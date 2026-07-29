@@ -498,9 +498,44 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 ---
 
+### 4.11 RequestSecurityEventDetail
+
+请求事件溯源详情（getSourceEventDetail）。成功后 Unity 侧缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无成功/失败回调（只发不回）。
 
 
-### 4.11 接口汇总表（父 → Unity）
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `RequestSecurityEventDetail` |
+| `arg`    | `""`（默认参数）或 JSON |
+| Unity 方法 | `WebGLAPI.RequestSecurityEventDetail(string json)` |
+| MapApi   | `RequestSecurityEventDetail(eventId, processStartTime, processEndTime, tenantId)` |
+
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `eventId` | string | 否 | 事件 ID；空则用 Unity 默认 |
+| `processStartTime` | string | 否 | 处理开始时间 |
+| `processEndTime` | string | 否 | 处理结束时间 |
+| `tenantId` | int | 否 | 租户 ID；默认 1 |
+
+```javascript
+// 使用默认参数
+callUnity('RequestSecurityEventDetail', '');
+
+// 指定参数
+callUnity('RequestSecurityEventDetail', JSON.stringify({
+  eventId: '123dfdsafffff',
+  processStartTime: '2026-06-30 17:41:23',
+  processEndTime: '2026-06-30 17:41:23',
+  tenantId: 1
+}));
+```
+
+---
+
+
+
+### 4.12 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -515,6 +550,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 | `SetDefaultProvinceCode`           | code / JSON | ✅ | 设置默认省 adcode |
 | `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
 | `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
+| `RequestSecurityEventDetail`       | `""` / JSON | ✅ | 请求事件溯源详情并刷新 GJ_Panel / POI |
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  
 > WebGL **不**暴露 `SetCarYawRotation` / `onUnityCarYawRotationChanged`（仅 Android 侧有）。

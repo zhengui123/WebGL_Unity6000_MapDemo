@@ -146,6 +146,7 @@ handlers: {
 | `SetDefaultProvinceCode` | code / JSON | `SetDefaultProvinceCode(string)` | `SetDefaultProvinceCode` | 按需 |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
 | `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
+| `RequestSecurityEventDetail` | `""` 或 JSON | `RequestSecurityEventDetail(string)` | `RequestSecurityEventDetail` | ✅ |
 
 #### TransitionToControlState 请求 JSON
 
@@ -369,6 +370,13 @@ callUnity('RequestCarVehicleData', JSON.stringify({
   encryptVin: 'ed49f47afa23e45b18d342767495643c',
   startTime: '',
   endTime: '2026-06-30 23:00:00'
+}));
+callUnity('RequestSecurityEventDetail', '');
+callUnity('RequestSecurityEventDetail', JSON.stringify({
+  eventId: '123dfdsafffff',
+  processStartTime: '2026-06-30 17:41:23',
+  processEndTime: '2026-06-30 17:41:23',
+  tenantId: 1
 }));
 callUnity('CloseCarUI', '');
 

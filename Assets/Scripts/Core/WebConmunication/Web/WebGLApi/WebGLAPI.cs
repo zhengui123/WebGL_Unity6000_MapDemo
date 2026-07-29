@@ -704,6 +704,51 @@ public class WebGLAPI : MonoBehaviour
             $"已发起 | vin={request.encryptVin} | start={request.startTime} | end={request.endTime}");
     }
 
+    /// <summary>
+    /// 宿主调用：请求事件溯源详情（getSourceEventDetail）。
+    /// arg 可传 "" 使用默认参数，或 JSON：
+    /// {"eventId":"...","processStartTime":"...","processEndTime":"...","tenantId":1}
+    /// </summary>
+    public void RequestSecurityEventDetail(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(RequestSecurityEventDetail), json);
+        LogCommunication("← Host", nameof(RequestSecurityEventDetail), json);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            if (!MapApi.Instance.RequestSecurityEventDetail())
+            {
+                Debug.LogWarning("[WebGLAPI] RequestSecurityEventDetail 失败（默认参数）。");
+                return;
+            }
+
+            LogCommunication("← Host", nameof(RequestSecurityEventDetail), "已发起（默认参数）");
+            return;
+        }
+
+        SecurityEventDetailRequest request = JsonUtility.FromJson<SecurityEventDetailRequest>(json);
+        if (request == null)
+        {
+            Debug.LogWarning($"[WebGLAPI] RequestSecurityEventDetail: JSON 解析失败 | {json}");
+            return;
+        }
+
+        if (!MapApi.Instance.RequestSecurityEventDetail(
+                request.eventId,
+                request.processStartTime,
+                request.processEndTime,
+                request.tenantId))
+        {
+            Debug.LogWarning($"[WebGLAPI] RequestSecurityEventDetail 失败: {json}");
+            return;
+        }
+
+        LogCommunication(
+            "← Host",
+            nameof(RequestSecurityEventDetail),
+            $"已发起 | eventId={request.eventId} | tenantId={request.tenantId}");
+    }
+
     private static string NormalizeOptionalString(string value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;

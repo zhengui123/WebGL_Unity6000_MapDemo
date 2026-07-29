@@ -735,6 +735,43 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：请求事件溯源详情（getSourceEventDetail）。
+    /// UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail", json);
+    /// json 可传 "" 使用默认参数；示例：
+    /// {"eventId":"123dfdsafffff","processStartTime":"2026-06-30 17:41:23","processEndTime":"2026-06-30 17:41:23","tenantId":1}
+    /// </summary>
+    public void RequestSecurityEventDetail(string json)
+    {
+        Debug.Log($"[AndroidMessage] RequestSecurityEventDetail 收到: {json}");
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            if (!MapApi.Instance.RequestSecurityEventDetail())
+            {
+                Debug.LogWarning("[AndroidMessage] RequestSecurityEventDetail 失败（默认参数）。");
+            }
+
+            return;
+        }
+
+        SecurityEventDetailRequest request = JsonUtility.FromJson<SecurityEventDetailRequest>(json);
+        if (request == null)
+        {
+            Debug.LogWarning($"[AndroidMessage] RequestSecurityEventDetail: JSON 解析失败 | {json}");
+            return;
+        }
+
+        if (!MapApi.Instance.RequestSecurityEventDetail(
+                request.eventId,
+                request.processStartTime,
+                request.processEndTime,
+                request.tenantId))
+        {
+            Debug.LogWarning($"[AndroidMessage] RequestSecurityEventDetail 失败: {json}");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：设置车辆 Y 轴旋转角度。
     /// UnitySendMessage("AndroidBridge", "SetCarYawRotation", json);
     /// json 示例：{"yawAngle":90.0,"instant":false}

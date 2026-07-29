@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>
-/// 告警事件详情查询请求体（getSecurityEventDetail）。
+/// 事件溯源详情查询请求体（getSourceEventDetail）。
 /// </summary>
 [Serializable]
 public class SecurityEventDetailRequest
@@ -9,19 +9,22 @@ public class SecurityEventDetailRequest
     public string eventId;
     public string processStartTime;
     public string processEndTime;
-    public bool passwd;
+    public string[] columns;
+    public int tenantId;
 
-    public const string DefaultEventId = "ee8d2bc64cbf4bfbb33b875a717c416a";
-    public const string DefaultProcessStartTime = "2026-06-26 16:13:30";
-    public const string DefaultProcessEndTime = "2026-06-26 16:13:30";
+    public const string DefaultEventId = "123dfdsafffff";
+    public const string DefaultProcessStartTime = "2026-06-30 17:41:23";
+    public const string DefaultProcessEndTime = "2026-06-30 17:41:23";
+    public const int DefaultTenantId = 1;
 
-    /// <summary>默认测试请求 JSON。</summary>
+    /// <summary>默认测试请求 JSON（对齐接口文档示例）。</summary>
     public const string DefaultJson =
         "{\n" +
-        "  \"eventId\": \"ee8d2bc64cbf4bfbb33b875a717c416a\",\n" +
-        "  \"processStartTime\": \"2026-06-26 16:13:30\",\n" +
-        "  \"processEndTime\": \"2026-06-26 16:13:30\",\n" +
-        "  \"passwd\": false\n" +
+        "  \"eventId\": \"123dfdsafffff\",\n" +
+        "  \"processStartTime\": \"2026-06-30 17:41:23\",\n" +
+        "  \"processEndTime\": \"2026-06-30 17:41:23\",\n" +
+        "  \"columns\": [],\n" +
+        "  \"tenantId\": 1\n" +
         "}";
 
     public static SecurityEventDetailRequest CreateDefaultTest()
@@ -31,7 +34,8 @@ public class SecurityEventDetailRequest
             eventId = DefaultEventId,
             processStartTime = DefaultProcessStartTime,
             processEndTime = DefaultProcessEndTime,
-            passwd = false,
+            columns = Array.Empty<string>(),
+            tenantId = DefaultTenantId,
         };
     }
 
@@ -39,14 +43,20 @@ public class SecurityEventDetailRequest
         string eventId,
         string processStartTime = null,
         string processEndTime = null,
-        bool passwd = false)
+        string[] columns = null,
+        int? tenantId = null)
     {
         return new SecurityEventDetailRequest
         {
             eventId = string.IsNullOrWhiteSpace(eventId) ? DefaultEventId : eventId.Trim(),
-            processStartTime = string.IsNullOrWhiteSpace(processStartTime) ? DefaultProcessStartTime : processStartTime.Trim(),
-            processEndTime = string.IsNullOrWhiteSpace(processEndTime) ? DefaultProcessEndTime : processEndTime.Trim(),
-            passwd = passwd,
+            processStartTime = string.IsNullOrWhiteSpace(processStartTime)
+                ? DefaultProcessStartTime
+                : processStartTime.Trim(),
+            processEndTime = string.IsNullOrWhiteSpace(processEndTime)
+                ? DefaultProcessEndTime
+                : processEndTime.Trim(),
+            columns = columns ?? Array.Empty<string>(),
+            tenantId = tenantId ?? DefaultTenantId,
         };
     }
 

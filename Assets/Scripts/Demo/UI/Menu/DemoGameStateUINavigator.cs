@@ -21,6 +21,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _threatHighRiskSecurityEventPanel;
     [SerializeField] private GameObject _threatLocalAlertTestPanel;
     [SerializeField] private GameObject _carVehicleDataPanel;
+    [SerializeField] private GameObject _securityEventDetailPanel;
 
     private void Awake()
     {
@@ -114,6 +115,11 @@ public class DemoGameStateUINavigator : MonoBehaviour
         ShowOnly(_carVehicleDataPanel);
     }
 
+    public void ShowSecurityEventDetailPanel()
+    {
+        ShowOnly(_securityEventDetailPanel);
+    }
+
     private void ShowOnly(GameObject activePanel)
     {
         SetPanelActive(_menuPanel, activePanel == _menuPanel);
@@ -128,6 +134,7 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_threatHighRiskSecurityEventPanel, activePanel == _threatHighRiskSecurityEventPanel);
         SetPanelActive(_threatLocalAlertTestPanel, activePanel == _threatLocalAlertTestPanel);
         SetPanelActive(_carVehicleDataPanel, activePanel == _carVehicleDataPanel);
+        SetPanelActive(_securityEventDetailPanel, activePanel == _securityEventDetailPanel);
     }
 
     private static void SetPanelActive(GameObject panel, bool active)
