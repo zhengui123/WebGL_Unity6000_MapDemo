@@ -465,7 +465,24 @@ callUnity('CloseCarUI', '');
 
 ---
 
-### 4.10 RequestCarVehicleData
+### 4.10 CloseGJPanel
+
+关闭告警面板 `GJ_Panel`。
+
+| 项目       | 值                              |
+| -------- | ------------------------------ |
+| `method` | `CloseGJPanel`                 |
+| `arg`    | `""`                           |
+| Unity 方法 | `WebGLAPI.CloseGJPanel()`     |
+| MapApi   | `CloseGJPanel()`               |
+
+```javascript
+callUnity('CloseGJPanel', '');
+```
+
+---
+
+### 4.11 RequestCarVehicleData
 
 请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
@@ -498,7 +515,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 ---
 
-### 4.11 RequestSecurityEventDetail
+### 4.12 RequestSecurityEventDetail
 
 请求事件溯源详情（getSourceEventDetail）。成功后 Unity 侧缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无成功/失败回调（只发不回）。
 
@@ -535,7 +552,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 
 
 
-### 4.12 接口汇总表（父 → Unity）
+### 4.13 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -549,6 +566,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 | `RefreshThreatCooldown`             | `""` |      | 刷新威胁冷却（仅冷却中） |
 | `SetDefaultProvinceCode`           | code / JSON | ✅ | 设置默认省 adcode |
 | `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
+| `CloseGJPanel`                    | `""` |      | 关闭告警面板 GJ_Panel |
 | `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
 | `RequestSecurityEventDetail`       | `""` / JSON | ✅ | 请求事件溯源详情并刷新 GJ_Panel / POI |
 

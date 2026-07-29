@@ -702,6 +702,18 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：关闭告警面板 GJ_Panel。
+    /// UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
+    /// </summary>
+    public void CloseGJPanel()
+    {
+        if (!MapApi.Instance.CloseGJPanel())
+        {
+            Debug.LogWarning("[AndroidMessage] CloseGJPanel 失败。");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：请求车辆态势双接口（防护状态 + 攻击链路）。
     /// UnitySendMessage("AndroidBridge", "RequestCarVehicleData", json);
     /// json 可传 "" 使用默认参数；示例：

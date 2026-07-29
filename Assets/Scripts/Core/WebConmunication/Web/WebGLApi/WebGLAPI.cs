@@ -663,6 +663,21 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(CloseCarUI), "已关闭");
     }
 
+    /// <summary>宿主调用：关闭告警面板 GJ_Panel。arg 传 ""。</summary>
+    public void CloseGJPanel()
+    {
+        NotifyHostCommunicationReceived(nameof(CloseGJPanel), string.Empty);
+        LogCommunication("← Host", nameof(CloseGJPanel), string.Empty);
+
+        if (!MapApi.Instance.CloseGJPanel())
+        {
+            Debug.LogWarning("[WebGLAPI] CloseGJPanel 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(CloseGJPanel), "已关闭");
+    }
+
     /// <summary>
     /// 宿主调用：请求车辆态势双接口（防护状态 + 攻击链路）。
     /// arg 可传 "" 使用默认参数，或 JSON：

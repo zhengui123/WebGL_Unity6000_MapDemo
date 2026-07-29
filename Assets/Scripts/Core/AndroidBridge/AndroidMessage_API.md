@@ -194,7 +194,19 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseCarUI", "");
 
 ---
 
-### 2.10 `RequestCarVehicleData` — 请求车辆态势数据
+### 2.10 `CloseGJPanel` — 关闭告警面板 GJ_Panel
+
+关闭场景中的 `GJ_Panel`（告警事件展示面板）。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
+```
+
+对应 Unity：`MapApi.CloseGJPanel` → `GJPanel.HidePanel()`。
+
+---
+
+### 2.11 `RequestCarVehicleData` — 请求车辆态势数据
 
 同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
 
@@ -217,7 +229,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.11 `RequestSecurityEventDetail` — 请求事件溯源详情
+### 2.12 `RequestSecurityEventDetail` — 请求事件溯源详情
 
 请求 `getSourceEventDetail`；成功后缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无结果回调（只发不回）。
 
@@ -241,7 +253,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 
 ---
 
-### 2.12 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.13 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android 侧在正式业务中无需调用本接口。**  
@@ -277,7 +289,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.13 其它地图过渡（可选 / 联调）
+### 2.14 其它地图过渡（可选 / 联调）
 
 以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
 
@@ -456,6 +468,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `RefreshThreatCooldown` | `""` | 刷新威胁冷却（仅冷却中有效） |
 | `SetDefaultProvinceCode` | code / JSON | 设置默认省（adcode） |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
+| `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel |
 | `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
 | `RequestSecurityEventDetail` | `""` / JSON | 请求事件溯源详情并刷新 GJ_Panel / POI |
 | `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |

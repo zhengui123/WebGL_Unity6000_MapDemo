@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/EarthModelDemo_oldp.unity
-    guid: a312f74a3c3535c499da82db7941b39a
+    path: Assets/Scenes/EarthModelDemo.unity
+    guid: 0d8c51fc397148245b64b434b0c18df3
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

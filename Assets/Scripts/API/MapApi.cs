@@ -168,6 +168,22 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
+    /// 关闭告警面板 GJ_Panel（不影响其它地图/POI 逻辑）。
+    /// </summary>
+    public bool CloseGJPanel()
+    {
+        GJPanel panel = GJPanel.Instance;
+        if (panel == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 GJPanel，无法关闭。");
+            return false;
+        }
+
+        panel.HidePanel();
+        return true;
+    }
+
+    /// <summary>
     /// 请求车辆态势双接口（防护状态 + 攻击链路）；均成功后覆盖缓存。
     /// 参数为空时使用 <see cref="CarVehicleDataController"/> 默认值。
     /// </summary>

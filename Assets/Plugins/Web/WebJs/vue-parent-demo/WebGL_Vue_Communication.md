@@ -145,6 +145,7 @@ handlers: {
 | `RefreshThreatCooldown` | `""` | `RefreshThreatCooldown()` | `RefreshThreatCooldown` | 按需 |
 | `SetDefaultProvinceCode` | code / JSON | `SetDefaultProvinceCode(string)` | `SetDefaultProvinceCode` | 按需 |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
+| `CloseGJPanel` | `""` | `CloseGJPanel()` | `CloseGJPanel()` | ✅ |
 | `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
 | `RequestSecurityEventDetail` | `""` 或 JSON | `RequestSecurityEventDetail(string)` | `RequestSecurityEventDetail` | ✅ |
 
@@ -379,6 +380,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
   tenantId: 1
 }));
 callUnity('CloseCarUI', '');
+callUnity('CloseGJPanel', '');
 
 // Unity → 父
 window.addEventListener('message', (e) => {
