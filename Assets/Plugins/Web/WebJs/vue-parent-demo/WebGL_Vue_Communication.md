@@ -146,6 +146,8 @@ handlers: {
 | `SetDefaultProvinceCode` | code / JSON | `SetDefaultProvinceCode(string)` | `SetDefaultProvinceCode` | 按需 |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
 | `CloseGJPanel` | `""` | `CloseGJPanel()` | `CloseGJPanel()` | ✅ |
+| `StartVehicleHeatmapSpecifiedTimePolling` | JSON | `StartVehicleHeatmapSpecifiedTimePolling(string)` | `StartVehicleHeatmapSpecifiedTimePolling` | ✅ |
+| `StopVehicleHeatmapSpecifiedTimePolling` | `""` | `StopVehicleHeatmapSpecifiedTimePolling()` | `StopVehicleHeatmapSpecifiedTimePolling` | ✅ |
 | `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
 | `RequestSecurityEventDetail` | `""` 或 JSON | `RequestSecurityEventDetail(string)` | `RequestSecurityEventDetail` | ✅ |
 
@@ -381,6 +383,11 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 }));
 callUnity('CloseCarUI', '');
 callUnity('CloseGJPanel', '');
+callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
+  startTime: '2026-06-30 00:00:00',
+  endTime: '2026-06-30 23:00:00'
+}));
+callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
 
 // Unity → 父
 window.addEventListener('message', (e) => {

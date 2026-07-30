@@ -77,6 +77,14 @@ public struct BigScreenAutoCarouselRequest
     public bool enabled;
 }
 
+/// <summary>Android / WebGL → Unity：开启车辆热力图指定时段轮询。</summary>
+[System.Serializable]
+public struct VehicleHeatmapSpecifiedTimePollingRequest
+{
+    public string startTime;
+    public string endTime;
+}
+
 /// <summary>Android → Unity 设置车辆 Y 轴旋转角度。</summary>
 [System.Serializable]
 public struct SetCarYawRotationRequest
@@ -710,6 +718,41 @@ public class AndroidMessage : MonoBehaviour
         if (!MapApi.Instance.CloseGJPanel())
         {
             Debug.LogWarning("[AndroidMessage] CloseGJPanel 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：开启车辆热力图指定时段轮询（isReplay=true）。
+    /// UnitySendMessage("AndroidBridge", "StartVehicleHeatmapSpecifiedTimePolling", json);
+    /// json 示例：{"startTime":"2026-06-30 00:00:00","endTime":"2026-06-30 23:00:00"}
+    /// </summary>
+    public void StartVehicleHeatmapSpecifiedTimePolling(string json)
+    {
+        Debug.Log($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 收到: {json}");
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
+            return;
+        }
+
+        VehicleHeatmapSpecifiedTimePollingRequest request =
+            JsonUtility.FromJson<VehicleHeatmapSpecifiedTimePollingRequest>(json);
+        if (!MapApi.Instance.StartVehicleHeatmapSpecifiedTimePolling(request.startTime, request.endTime))
+        {
+            Debug.LogWarning($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：关闭指定时段轮询，恢复默认热力图轮询。
+    /// UnitySendMessage("AndroidBridge", "StopVehicleHeatmapSpecifiedTimePolling", "");
+    /// </summary>
+    public void StopVehicleHeatmapSpecifiedTimePolling()
+    {
+        if (!MapApi.Instance.StopVehicleHeatmapSpecifiedTimePolling())
+        {
+            Debug.LogWarning("[AndroidMessage] StopVehicleHeatmapSpecifiedTimePolling 失败。");
         }
     }
 

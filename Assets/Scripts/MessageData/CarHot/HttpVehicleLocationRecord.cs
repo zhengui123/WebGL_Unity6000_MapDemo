@@ -1,13 +1,14 @@
 using System;
 
 /// <summary>
-/// 本地缓存的热力点坐标（与接口 data 项一致：x=经度，y=纬度）。
+/// 本地缓存的热力点坐标（与接口 data 项一致：x=经度，y=纬度，c=省级 code）。
 /// </summary>
 [Serializable]
 public class HttpVehicleLocationRecord
 {
     public double Longitude;
     public double Latitude;
+    public string ProvinceCode;
 
     public static HttpVehicleLocationRecord FromApiItem(LatestVinLocationItem item)
     {
@@ -20,6 +21,7 @@ public class HttpVehicleLocationRecord
         {
             Longitude = item.x,
             Latitude = item.y,
+            ProvinceCode = item.c,
         };
     }
 

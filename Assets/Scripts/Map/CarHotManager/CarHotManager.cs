@@ -109,14 +109,14 @@ public class CarHotManager : UnitySingle<CarHotManager>
         LeaveHeatmapLevels();
     }
 
-    /// <summary>国家界面：只显示 code=0 热力图，默认参数轮询。</summary>
+    /// <summary>国家界面：启用全部省级热力图，默认参数轮询（响应按 c 分省绘制）。</summary>
     public void EnterNationalHeatmap()
     {
         PlateProvinceFocusResolver.ClearCache();
         _activeProvinceCode = PlateMapBoundaryDatabase.NationalProvinceCode;
         ApplyControllerEnableState(_activeProvinceCode);
         BeginPollingForProvince(string.Empty);
-        LogState("国家热力图（code=0）");
+        LogState("国家热力图（显示全部省级）");
     }
 
     /// <summary>省级界面：只显示当前省热力图，请求携带该省 code。</summary>
@@ -175,7 +175,8 @@ public class CarHotManager : UnitySingle<CarHotManager>
     }
 
     /// <summary>
-    /// 仅启用目标 provinceCode 对应板块上的 PlateMapVehiclePointController；其余关闭（停止绘制）。
+    /// 控制各板块 PlateMapVehiclePointController 显隐：
+    /// 国家级（code=0）启用全部省级；省级仅启用当前省；其余关闭。
     /// </summary>
     public void ApplyControllerEnableState(string activeProvinceCode)
     {
@@ -183,6 +184,8 @@ public class CarHotManager : UnitySingle<CarHotManager>
         {
             targetCode = PlateMapBoundaryDatabase.NationalProvinceCode;
         }
+
+        bool isNational = targetCode == PlateMapBoundaryDatabase.NationalProvinceCode;
 
         PlateMapGeoConverter[] converters =
             FindObjectsByType<PlateMapGeoConverter>(FindObjectsInactive.Include, FindObjectsSortMode.None);
@@ -208,7 +211,18 @@ public class CarHotManager : UnitySingle<CarHotManager>
                 normalized = string.IsNullOrWhiteSpace(code) ? string.Empty : code.Trim();
             }
 
-            bool shouldEnable = normalized == targetCode;
+            bool shouldEnable;
+            if (isNational)
+            {
+                // 国家级：显示所有省级热力图（不含全国 code=0 板块本身）
+                shouldEnable = !string.IsNullOrWhiteSpace(normalized)
+                    && normalized != PlateMapBoundaryDatabase.NationalProvinceCode;
+            }
+            else
+            {
+                shouldEnable = normalized == targetCode;
+            }
+
             if (controller.enabled != shouldEnable)
             {
                 controller.enabled = shouldEnable;

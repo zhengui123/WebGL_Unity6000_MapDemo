@@ -23,7 +23,8 @@ public static class LatestVinLocationApi
             startTime,
             endTime,
             onCompleted,
-            additionalHeaders);
+            additionalHeaders,
+            isReplay: false);
     }
 
     public static bool TryApplySuccessfulResponseFromJson(string json, out string errorMessage)

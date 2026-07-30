@@ -96919,7 +96919,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13638fab4c9b1944cbf6e03dc5ccd0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
-  _startMode: 0
+  _startMode: 1
   _startForeignPlateCode: EAST_ASIA
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
@@ -107147,7 +107147,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1429794180
 Transform:
   m_ObjectHideFlags: 0
@@ -192791,9 +192791,10 @@ MonoBehaviour:
   _provinceCode: 0
   _region: 
   _country: 
-  _startTime: 
-  _useCurrentTimeAsEndTime: 1
-  _fixedEndTime: 
+  _isSpecifiedTimePolling: 0
+  _specifiedStartTime: 
+  _specifiedEndTime: 
+  _isReplay: 0
 --- !u!4 &1993289643
 Transform:
   m_ObjectHideFlags: 0
@@ -207866,7 +207867,7 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.8
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
@@ -245095,7 +245096,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!33 &4000128032636375564
 MeshFilter:
   m_ObjectHideFlags: 0

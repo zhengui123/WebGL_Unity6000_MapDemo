@@ -527,6 +527,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             $"province={province}\n" +
             $"region={region}\n" +
             $"country={country}\n" +
+            $"isReplay=false\n" +
             BuildHeadersPreviewText(headers));
 
         VehicleHeatmapApi.Request(
@@ -536,7 +537,8 @@ public class HttpApiTestUIDemo : MonoBehaviour
             startTime,
             endTime,
             OnVinLocationRequestCompleted,
-            headers);
+            headers,
+            isReplay: false);
     }
 
     private void OnVinLocationRequestCompleted(HttpRequestResult result, LatestVinLocationResponse response)

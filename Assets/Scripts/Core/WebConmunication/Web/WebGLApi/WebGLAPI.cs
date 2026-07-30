@@ -679,6 +679,50 @@ public class WebGLAPI : MonoBehaviour
     }
 
     /// <summary>
+    /// 宿主调用：开启车辆热力图指定时段轮询（isReplay=true）。
+    /// arg 为 JSON：{"startTime":"...","endTime":"..."}
+    /// </summary>
+    public void StartVehicleHeatmapSpecifiedTimePolling(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(StartVehicleHeatmapSpecifiedTimePolling), json);
+        LogCommunication("← Host", nameof(StartVehicleHeatmapSpecifiedTimePolling), json);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
+            return;
+        }
+
+        VehicleHeatmapSpecifiedTimePollingRequest request =
+            JsonUtility.FromJson<VehicleHeatmapSpecifiedTimePollingRequest>(json);
+        if (!MapApi.Instance.StartVehicleHeatmapSpecifiedTimePolling(request.startTime, request.endTime))
+        {
+            Debug.LogWarning($"[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
+            return;
+        }
+
+        LogCommunication(
+            "← Host",
+            nameof(StartVehicleHeatmapSpecifiedTimePolling),
+            $"已开启 | {request.startTime} ~ {request.endTime}");
+    }
+
+    /// <summary>宿主调用：关闭指定时段轮询，恢复默认热力图轮询。arg 传 ""。</summary>
+    public void StopVehicleHeatmapSpecifiedTimePolling()
+    {
+        NotifyHostCommunicationReceived(nameof(StopVehicleHeatmapSpecifiedTimePolling), string.Empty);
+        LogCommunication("← Host", nameof(StopVehicleHeatmapSpecifiedTimePolling), string.Empty);
+
+        if (!MapApi.Instance.StopVehicleHeatmapSpecifiedTimePolling())
+        {
+            Debug.LogWarning("[WebGLAPI] StopVehicleHeatmapSpecifiedTimePolling 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(StopVehicleHeatmapSpecifiedTimePolling), "已恢复默认轮询");
+    }
+
+    /// <summary>
     /// 宿主调用：请求车辆态势双接口（防护状态 + 攻击链路）。
     /// arg 可传 "" 使用默认参数，或 JSON：
     /// {"encryptVin":"...","startTime":"","endTime":"2026-06-30 23:00:00"}

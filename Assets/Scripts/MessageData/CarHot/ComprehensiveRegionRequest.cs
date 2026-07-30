@@ -1,5 +1,4 @@
 using System;
-using System.Globalization;
 
 /// <summary>
 /// 综合区域态势通用请求体（province 为省级 adcode 字符串，空表示全国默认请求）。
@@ -12,6 +11,7 @@ public class ComprehensiveRegionRequest
     public string province = string.Empty;
     public string region = string.Empty;
     public string country = string.Empty;
+    public bool isReplay;
 
     /// <summary>全国默认请求参数 JSON（格式化，便于 UI 展示）。</summary>
     public const string DefaultJson =
@@ -20,7 +20,8 @@ public class ComprehensiveRegionRequest
         "  \"endTime\": \"2026-06-30 23:00:00\",\n" +
         "  \"province\": \"\",\n" +
         "  \"region\": \"\",\n" +
-        "  \"country\": \"\"\n" +
+        "  \"country\": \"\",\n" +
+        "  \"isReplay\": false\n" +
         "}";
 
     /// <summary>创建请求体；起止时间与 province/region/country 均可为 null（使用项目默认或空字符串）。</summary>
@@ -29,7 +30,8 @@ public class ComprehensiveRegionRequest
         string region = null,
         string country = null,
         string startTime = null,
-        string endTime = null)
+        string endTime = null,
+        bool isReplay = false)
     {
         return new ComprehensiveRegionRequest
         {
@@ -38,6 +40,7 @@ public class ComprehensiveRegionRequest
             province = province ?? string.Empty,
             region = region ?? string.Empty,
             country = country ?? string.Empty,
+            isReplay = isReplay,
         };
     }
 

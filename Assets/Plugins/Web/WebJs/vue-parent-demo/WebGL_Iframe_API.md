@@ -482,7 +482,49 @@ callUnity('CloseGJPanel', '');
 
 ---
 
-### 4.11 RequestCarVehicleData
+### 4.11 StartVehicleHeatmapSpecifiedTimePolling
+
+开启车辆热力图指定时段轮询：固定起止时间，请求 `isReplay=true`。轮询间隔与默认模式相同。
+
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `StartVehicleHeatmapSpecifiedTimePolling` |
+| `arg`    | JSON |
+| Unity 方法 | `WebGLAPI.StartVehicleHeatmapSpecifiedTimePolling(string json)` |
+| MapApi   | `StartVehicleHeatmapSpecifiedTimePolling(startTime, endTime)` |
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `startTime` | string | 是 | 查询开始时间 |
+| `endTime` | string | 是 | 查询结束时间 |
+
+```javascript
+callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
+  startTime: '2026-06-30 00:00:00',
+  endTime: '2026-06-30 23:00:00'
+}));
+```
+
+---
+
+### 4.12 StopVehicleHeatmapSpecifiedTimePolling
+
+关闭指定时段模式，恢复默认轮询（`startTime` 空、`endTime` 当前时间、`isReplay=false`）。
+
+| 项目       | 值 |
+| -------- | --- |
+| `method` | `StopVehicleHeatmapSpecifiedTimePolling` |
+| `arg`    | `""` |
+| Unity 方法 | `WebGLAPI.StopVehicleHeatmapSpecifiedTimePolling()` |
+| MapApi   | `StopVehicleHeatmapSpecifiedTimePolling()` |
+
+```javascript
+callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
+```
+
+---
+
+### 4.13 RequestCarVehicleData
 
 请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
@@ -515,7 +557,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 ---
 
-### 4.12 RequestSecurityEventDetail
+### 4.14 RequestSecurityEventDetail
 
 请求事件溯源详情（getSourceEventDetail）。成功后 Unity 侧缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无成功/失败回调（只发不回）。
 
@@ -552,7 +594,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 
 
 
-### 4.13 接口汇总表（父 → Unity）
+### 4.15 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -567,6 +609,8 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 | `SetDefaultProvinceCode`           | code / JSON | ✅ | 设置默认省 adcode |
 | `CloseCarUI`                       | `""` |      | 关闭车辆 UI / 停止轮播 |
 | `CloseGJPanel`                    | `""` |      | 关闭告警面板 GJ_Panel |
+| `StartVehicleHeatmapSpecifiedTimePolling` | JSON | ✅ | 开启热力图指定时段轮询 |
+| `StopVehicleHeatmapSpecifiedTimePolling` | `""` | | 关闭指定时段，恢复默认轮询 |
 | `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
 | `RequestSecurityEventDetail`       | `""` / JSON | ✅ | 请求事件溯源详情并刷新 GJ_Panel / POI |
 

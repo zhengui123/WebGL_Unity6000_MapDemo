@@ -2,7 +2,7 @@ using System;
 
 /// <summary>
 /// 车辆热力图接口响应（latestVinLocation）。
-/// data 为经纬度点列表：x=经度，y=纬度。
+/// data 为经纬度点列表：x=经度，y=纬度，c=省级 adcode。
 /// </summary>
 [Serializable]
 public class LatestVinLocationResponse
@@ -22,4 +22,7 @@ public class LatestVinLocationItem
 {
     public double x;
     public double y;
+
+    /// <summary>省级 adcode，用于按省分组绘制。</summary>
+    public string c;
 }

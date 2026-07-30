@@ -294,6 +294,11 @@
         resumeGame: () => callUnity('ResumeGame', ''),
         closeCarUI: () => callUnity('CloseCarUI', ''),
         closeGJPanel: () => callUnity('CloseGJPanel', ''),
+        startVehicleHeatmapSpecifiedTimePolling: (p) => callUnity(
+          'StartVehicleHeatmapSpecifiedTimePolling',
+          typeof p === 'string' ? p : JSON.stringify(p)
+        ),
+        stopVehicleHeatmapSpecifiedTimePolling: () => callUnity('StopVehicleHeatmapSpecifiedTimePolling', ''),
         requestCarVehicleData: (p) => callUnity(
           'RequestCarVehicleData',
           p == null || p === '' ? '' : (typeof p === 'string' ? p : JSON.stringify(p))

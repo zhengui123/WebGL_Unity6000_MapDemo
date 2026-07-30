@@ -27,7 +27,7 @@ Material:
     m_Ints: []
     m_Floats:
     - _Alpha: 0.92
-    - _CircuitIntensity: 0.238
+    - _CircuitIntensity: 0.4238
     - _CircuitScale: 1
     - _EmissionIntensity: 1.51
     - _GridIntensity: 1.38

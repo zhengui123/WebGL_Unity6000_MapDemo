@@ -184,6 +184,36 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
+    /// 开启车辆热力图指定时段轮询（isReplay=true，固定起止时间）。
+    /// </summary>
+    public bool StartVehicleHeatmapSpecifiedTimePolling(string startTime, string endTime)
+    {
+        VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法开启指定时段轮询。");
+            return false;
+        }
+
+        return controller.StartSpecifiedTimePolling(startTime, endTime);
+    }
+
+    /// <summary>
+    /// 关闭车辆热力图指定时段轮询，恢复默认轮询（start 空、end 当前时间、isReplay=false）。
+    /// </summary>
+    public bool StopVehicleHeatmapSpecifiedTimePolling()
+    {
+        VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法关闭指定时段轮询。");
+            return false;
+        }
+
+        return controller.StopSpecifiedTimePolling();
+    }
+
+    /// <summary>
     /// 请求车辆态势双接口（防护状态 + 攻击链路）；均成功后覆盖缓存。
     /// 参数为空时使用 <see cref="CarVehicleDataController"/> 默认值。
     /// </summary>

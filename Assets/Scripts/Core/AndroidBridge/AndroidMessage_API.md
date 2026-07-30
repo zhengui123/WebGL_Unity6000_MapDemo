@@ -206,7 +206,37 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
 
 ---
 
-### 2.11 `RequestCarVehicleData` — 请求车辆态势数据
+### 2.11 `StartVehicleHeatmapSpecifiedTimePolling` — 开启热力图指定时段轮询
+
+固定起止时间轮询车辆热力图，请求参数 `isReplay=true`。轮询间隔与默认模式相同。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "StartVehicleHeatmapSpecifiedTimePolling",
+    "{\"startTime\":\"2026-06-30 00:00:00\",\"endTime\":\"2026-06-30 23:00:00\"}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `startTime` | string | 是 | 查询开始时间 |
+| `endTime` | string | 是 | 查询结束时间 |
+
+对应 Unity：`MapApi.StartVehicleHeatmapSpecifiedTimePolling` → `VehicleHeatmapApiController.StartSpecifiedTimePolling`。
+
+---
+
+### 2.12 `StopVehicleHeatmapSpecifiedTimePolling` — 关闭指定时段，恢复默认轮询
+
+关闭指定时段模式：`isReplay=false`，`startTime` 空，`endTime` 为每次请求时的当前时间。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "StopVehicleHeatmapSpecifiedTimePolling", "");
+```
+
+对应 Unity：`MapApi.StopVehicleHeatmapSpecifiedTimePolling`。
+
+---
+
+### 2.13 `RequestCarVehicleData` — 请求车辆态势数据
 
 同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
 
@@ -229,7 +259,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.12 `RequestSecurityEventDetail` — 请求事件溯源详情
+### 2.14 `RequestSecurityEventDetail` — 请求事件溯源详情
 
 请求 `getSourceEventDetail`；成功后缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无结果回调（只发不回）。
 
@@ -253,7 +283,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 
 ---
 
-### 2.13 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.15 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android 侧在正式业务中无需调用本接口。**  
@@ -289,7 +319,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.14 其它地图过渡（可选 / 联调）
+### 2.16 其它地图过渡（可选 / 联调）
 
 以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
 
@@ -469,6 +499,8 @@ public void onUnityCarYawRotationChanged(String json) {
 | `SetDefaultProvinceCode` | code / JSON | 设置默认省（adcode） |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
 | `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel |
+| `StartVehicleHeatmapSpecifiedTimePolling` | JSON | 开启热力图指定时段轮询（isReplay=true） |
+| `StopVehicleHeatmapSpecifiedTimePolling` | `""` | 关闭指定时段，恢复默认热力图轮询 |
 | `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
 | `RequestSecurityEventDetail` | `""` / JSON | 请求事件溯源详情并刷新 GJ_Panel / POI |
 | `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
