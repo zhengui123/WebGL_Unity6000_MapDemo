@@ -1,6 +1,6 @@
 # Unity WebGL ↔ Vue 父页面通信说明
 
-本文档说明架构、调用链路与扩展方式。**API 接口字段、完整 JSON 示例见 [`WebGL_Iframe_API.md`](./WebGL_Iframe_API.md)。**
+本文档说明架构、调用链路与扩展方式。**API 接口字段、完整 JSON 示例见同目录 [`WebGL_Iframe_API.md`](./WebGL_Iframe_API.md)。**
 
 ---
 
@@ -8,12 +8,14 @@
 
 | 文件 | 作用 |
 |------|------|
-| `vue-parent-demo/vue-parent-standalone.html` | 免 npm 的 Vue 3 父页面（可直接浏览器打开） |
-| `vue-parent-demo/useUnityIframeBridge.js` | Vite 工程版 composable（需 npm） |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/vue-parent-standalone.html` | 免 npm 的 Vue 3 父页面 |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/useUnityIframeBridge.js` | Vite 工程版 composable |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/README_API文档位置.md` | 文档迁移跳转说明 |
 | `Communication.jslib` | iframe `postMessage` 桥接 |
-| `WebGLAPI.cs` | Unity 通信入口，物体名 **`WebGLAPI`** |
+| `WebGLAPI.cs`（本目录） | Unity WebGL 通信入口，物体名 **`WebGLAPI`** |
+| `WebGL_Iframe_API.md`（本目录） | WebGL 接口字段与完整 JSON 示例 |
 | `AndroidMessage.cs` | Android 通信入口，物体名 **`AndroidBridge`** |
-| `AndroidMessage_API.md` | 操控级别 JSON 字段、过渡场景详表 |
+| `AndroidMessage_API.md` | Android 接口说明（与本目录 WebGL 文档方法名对齐） |
 
 ---
 
@@ -345,9 +347,11 @@ public struct MyNewCommandRequest
 | 物体名 | `AndroidBridge` | `WebGLAPI` |
 | 宿主→Unity | `UnitySendMessage` | `postMessage` + jslib |
 | Unity→宿主 | `activity.Call` | `parent.postMessage` |
-| 就绪通知 | 无 | `onUnityWebGLReady` |
+| 就绪通知 | 无（原生侧自行管理生命周期） | `onUnityWebGLReady` |
+| 车辆 Yaw 回调 | `onUnityCarYawRotationChanged` | 同名 |
+| 接口说明 | `AndroidBridge/AndroidMessage_API.md` | 本目录 `WebGL_Iframe_API.md` |
 
-JSON 结构两端共用，详见 `AndroidMessage_API.md`。
+业务方法名两端对齐（含 `SetCarYawRotation`、地图过渡联调方法）。JSON 结构共用。
 
 ---
 
@@ -388,6 +392,11 @@ callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
   endTime: '2026-06-30 23:00:00'
 }));
 callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
+callUnity('SetCarYawRotation', JSON.stringify({ yawAngle: 90.0, instant: false }));
+callUnity('TransitionToPlateMap', '');
+callUnity('FocusPlateMapModule', 'polySurface3');
+callUnity('RestorePlateMapCamera', '');
+callUnity('TransitionToEarth', '');
 
 // Unity → 父
 window.addEventListener('message', (e) => {
@@ -397,6 +406,9 @@ window.addEventListener('message', (e) => {
   if (d.method === 'onUnityControlStateTransition') {
     const t = JSON.parse(d.message);
     console.log(t.from === -1 ? '完成' : '开始', t);
+  }
+  if (d.method === 'onUnityCarYawRotationChanged') {
+    console.log('车辆 Yaw', JSON.parse(d.message));
   }
 });
 ```

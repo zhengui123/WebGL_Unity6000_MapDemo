@@ -8,7 +8,10 @@
   3. Unity Build 的 index.html 须设置 window.unityInstance = instance
   4. 收到 onUnityWebGLReady 后再点击左侧按钮调用 Unity
 
-  通信协议详见：WebGL_Iframe_API.md（API）/ WebGL_Vue_Communication.md（架构）
+  通信协议详见（已迁至 WebGLAPI 同目录）：
+  Assets/Scripts/Core/WebConmunication/WebGLApi/WebGL_Iframe_API.md
+  Assets/Scripts/Core/WebConmunication/WebGLApi/WebGL_Vue_Communication.md
+  本目录跳转说明：README_API文档位置.md
   父 → Unity：postMessage { source:"webgl-unity-parent", method, arg }
   Unity → 父：postMessage { source:"unity-webgl", method, message }
 -->

@@ -5,7 +5,7 @@
 实现脚本：`Assets/Scripts/Core/AndroidBridge/AndroidMessage.cs`  
 Unity 场景中需存在名为 **`AndroidBridge`** 的 GameObject，并挂载 `AndroidMessage` 组件。
 
-> WebGL 同源业务接口见：`Assets/Plugins/Web/WebJs/vue-parent-demo/WebGL_Iframe_API.md`（方法名与本表对齐，通信通道不同）。
+> WebGL 同源业务接口见：`Assets/Scripts/Core/WebConmunication/Web/WebGLApi/WebGL_Iframe_API.md`（方法名与本表对齐，通信通道不同）。
 
 ---
 
@@ -286,9 +286,10 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 ### 2.15 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
-> **Android 侧在正式业务中无需调用本接口。**  
-> 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；Android 只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.2 节），用于平板端同步展示当前朝向。  
-> 本接口仅供 Unity Editor / Demo 联调、自动化测试等场景使用，**不作为 Android 生产集成项**。
+> **Android / WebGL 正式业务中通常无需调用本接口。**  
+> 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；宿主只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.2 节），用于同步展示当前朝向。  
+> 本接口仅供 Unity Editor / Demo 联调、自动化测试等场景使用，**不作为生产集成必选项**。  
+> WebGL 同名方法见 `WebGLApi/WebGL_Iframe_API.md` §4.15。
 
 用于控制车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
 
@@ -503,7 +504,11 @@ public void onUnityCarYawRotationChanged(String json) {
 | `StopVehicleHeatmapSpecifiedTimePolling` | `""` | 关闭指定时段，恢复默认热力图轮询 |
 | `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |
 | `RequestSecurityEventDetail` | `""` / JSON | 请求事件溯源详情并刷新 GJ_Panel / POI |
-| `SetCarYawRotation` | JSON | 设置车辆 Yaw（**Android 无需调用**，仅联调/测试） |
+| `SetCarYawRotation` | JSON | 设置车辆 Yaw（**生产一般无需调用**，联调/测试用；WebGL 同名） |
+| `TransitionToPlateMap` | `""` | 地球 → 板块（可选联调；WebGL 同名） |
+| `TransitionToEarth` | `""` | 板块 → 地球（可选联调；WebGL 同名） |
+| `FocusPlateMapModule` | 模块名 | 聚焦板块模块（可选联调；WebGL 同名） |
+| `RestorePlateMapCamera` | `""` | 还原板块相机（可选联调；WebGL 同名） |
 
 ---
 

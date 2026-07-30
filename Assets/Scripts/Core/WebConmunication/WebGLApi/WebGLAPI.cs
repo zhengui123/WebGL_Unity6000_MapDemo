@@ -7,7 +7,7 @@ using UnityEngine.UI;
 /// WebGL 宿主页面与 Unity 双向通信（跨域 iframe 嵌入模式），公开方法与 <see cref="AndroidMessage"/> 对齐。
 /// <para>Unity → 父页面：postMessage { source:"unity-webgl", method, message }。</para>
 /// <para>父页面 → Unity：postMessage { source:"webgl-unity-parent", method, arg }，由 jslib 转发 SendMessage("WebGLAPI", ...)。</para>
-/// <para>参考 Assets/Plugins/Web/WebJs/vue-parent-demo/ 与 WebGLEmbedIframe.sample.html。</para>
+/// <para>接口说明见同目录 <c>WebGL_Iframe_API.md</c> / <c>WebGL_Vue_Communication.md</c>；示例页见 vue-parent-demo。</para>
 /// </summary>
 public class WebGLAPI : MonoBehaviour
 {
@@ -36,8 +36,13 @@ public class WebGLAPI : MonoBehaviour
 
     public event Action<string> OnHostMessageReceived;
 
+    /// <summary>车辆 Yaw 变化已通知宿主（Editor 调试用）。</summary>
+    public event Action<CarYawRotationNotify> OnCarYawRotationNotified;
+
     /// <summary>父页面 / WebGL 宿主任意通信到达时触发（method, arg）。</summary>
     public static event Action<string, string> HostCommunicationReceived;
+
+    private MouseDragYawRotate _carYawRotate;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
     [DllImport("__Internal")]
@@ -108,11 +113,13 @@ public class WebGLAPI : MonoBehaviour
     private void OnEnable()
     {
         SubscribeControlStateEvents();
+        TrySubscribeCarYawRotation();
     }
 
     private void OnDisable()
     {
         UnsubscribeControlStateEvents();
+        UnsubscribeCarYawRotation();
     }
 
     #region Unity → HTML（对应 MainActivity / 父页面 JS 回调）
@@ -171,10 +178,25 @@ public class WebGLAPI : MonoBehaviour
         CallHost("onUnityControlStateTransition", json);
     }
 
+    /// <summary>通知宿主车辆 Yaw 旋转变化（JSON）。</summary>
+    public void CallHostCarYawRotationChanged(float yawAngle, bool isDragging)
+    {
+        var notify = new CarYawRotationNotify
+        {
+            yawAngle = NormalizeYawAngle(yawAngle),
+            isDragging = isDragging,
+        };
+        string json = JsonUtility.ToJson(notify);
+        LogCommunication("→ Host", "onUnityCarYawRotationChanged", json);
+        OnCarYawRotationNotified?.Invoke(notify);
+        CallHost("onUnityCarYawRotationChanged", json);
+    }
+
     private void CallHost(string method, string arg)
     {
         if (method != HostReadyMethodName
-            && method != "onUnityControlStateTransition")
+            && method != "onUnityControlStateTransition"
+            && method != "onUnityCarYawRotationChanged")
         {
             LogCommunication("→ Host", method, arg);
         }
@@ -806,6 +828,124 @@ public class WebGLAPI : MonoBehaviour
             "← Host",
             nameof(RequestSecurityEventDetail),
             $"已发起 | eventId={request.eventId} | tenantId={request.tenantId}");
+    }
+
+    /// <summary>
+    /// 宿主调用：设置车辆 Y 轴旋转角度（联调/测试；正式业务通常监听 onUnityCarYawRotationChanged）。
+    /// arg 为 JSON：{"yawAngle":90.0,"instant":false}
+    /// </summary>
+    public void SetCarYawRotation(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(SetCarYawRotation), json);
+        LogCommunication("← Host", nameof(SetCarYawRotation), json);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[WebGLAPI] SetCarYawRotation: JSON 为空。");
+            return;
+        }
+
+        if (!TryResolveCarYawRotate())
+        {
+            Debug.LogWarning("[WebGLAPI] SetCarYawRotation 失败：未找到车辆旋转控制器。");
+            return;
+        }
+
+        SetCarYawRotationRequest request = JsonUtility.FromJson<SetCarYawRotationRequest>(json);
+        bool instant = json.Contains("\"instant\"") && request.instant;
+        _carYawRotate.SetYawAngle(request.yawAngle, instant, notify: true);
+        LogCommunication(
+            "← Host",
+            nameof(SetCarYawRotation),
+            $"已应用 yaw={NormalizeYawAngle(request.yawAngle):F1}°, instant={instant}");
+    }
+
+    /// <summary>宿主调用：地球 → 板块过渡。arg 传 ""。</summary>
+    public void TransitionToPlateMap()
+    {
+        NotifyHostCommunicationReceived(nameof(TransitionToPlateMap), string.Empty);
+        LogCommunication("← Host", nameof(TransitionToPlateMap), string.Empty);
+        MapApi.Instance.TransitionToPlateMap();
+    }
+
+    /// <summary>宿主调用：板块 → 地球过渡。arg 传 ""。</summary>
+    public void TransitionToEarth()
+    {
+        NotifyHostCommunicationReceived(nameof(TransitionToEarth), string.Empty);
+        LogCommunication("← Host", nameof(TransitionToEarth), string.Empty);
+        MapApi.Instance.TransitionToEarth();
+    }
+
+    /// <summary>宿主调用：聚焦指定板块模块（GameObject 名）。</summary>
+    public void FocusPlateMapModule(string moduleName)
+    {
+        NotifyHostCommunicationReceived(nameof(FocusPlateMapModule), moduleName ?? string.Empty);
+        LogCommunication("← Host", nameof(FocusPlateMapModule), moduleName);
+        MapApi.Instance.FocusPlateMapModule(moduleName);
+    }
+
+    /// <summary>宿主调用：还原板块相机。arg 传 ""。</summary>
+    public void RestorePlateMapCamera()
+    {
+        NotifyHostCommunicationReceived(nameof(RestorePlateMapCamera), string.Empty);
+        LogCommunication("← Host", nameof(RestorePlateMapCamera), string.Empty);
+        MapApi.Instance.RestorePlateMapCamera();
+    }
+
+    private void TrySubscribeCarYawRotation()
+    {
+        if (!TryResolveCarYawRotate())
+        {
+            return;
+        }
+
+        _carYawRotate.OnYawAngleChanged -= HandleCarYawAngleChanged;
+        _carYawRotate.OnYawAngleChanged += HandleCarYawAngleChanged;
+        LogCommunication("系统", "CarYaw", "已订阅车辆 Yaw 旋转回调");
+    }
+
+    private void UnsubscribeCarYawRotation()
+    {
+        if (_carYawRotate == null)
+        {
+            return;
+        }
+
+        _carYawRotate.OnYawAngleChanged -= HandleCarYawAngleChanged;
+    }
+
+    private void HandleCarYawAngleChanged(float yawAngle, bool isDragging)
+    {
+        CallHostCarYawRotationChanged(yawAngle, isDragging);
+    }
+
+    private bool TryResolveCarYawRotate()
+    {
+        if (_carYawRotate != null)
+        {
+            return true;
+        }
+
+        CarModelController carModelController = FindFirstObjectByType<CarModelController>();
+        if (carModelController != null && carModelController.carModelRotateController != null)
+        {
+            _carYawRotate = carModelController.carModelRotateController;
+            return true;
+        }
+
+        _carYawRotate = FindFirstObjectByType<MouseDragYawRotate>();
+        return _carYawRotate != null;
+    }
+
+    private static float NormalizeYawAngle(float yawDegrees)
+    {
+        float normalized = yawDegrees % 360f;
+        if (normalized < 0f)
+        {
+            normalized += 360f;
+        }
+
+        return normalized;
     }
 
     private static string NormalizeOptionalString(string value)

@@ -2,8 +2,9 @@
 
 本文档为 **Vue / 任意前端父页面** 嵌入 Unity WebGL（iframe）时的 **接口调用规范**，包含完整示例、JSON 字段可空说明及行为说明。
 
-> 架构与扩展指南见同目录 `[WebGL_Vue_Communication.md](./WebGL_Vue_Communication.md)`  
-> 示例页面：`[vue-parent-standalone.html](./vue-parent-standalone.html)`
+> 架构与扩展指南见同目录 [`WebGL_Vue_Communication.md`](./WebGL_Vue_Communication.md)  
+> 示例页面：[`Assets/Plugins/Web/WebJs/vue-parent-demo/vue-parent-standalone.html`](../../../../Plugins/Web/WebJs/vue-parent-demo/vue-parent-standalone.html)  
+> Android 对照：[`AndroidMessage_API.md`](../../AndroidBridge/AndroidMessage_API.md)
 
 ---
 
@@ -594,7 +595,50 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 
 
 
-### 4.15 接口汇总表（父 → Unity）
+### 4.15 SetCarYawRotation
+
+设置车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
+
+> **正式业务通常无需调用。** 车辆旋转由大屏拖拽驱动；父页面应监听 `onUnityCarYawRotationChanged` 同步朝向。本接口供联调 / 自动化测试使用。
+
+| 项目 | 值 |
+|------|-----|
+| `method` | `SetCarYawRotation` |
+| `arg` | JSON 字符串 |
+| Unity 方法 | `WebGLAPI.SetCarYawRotation(string json)` |
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `yawAngle` | float | 是 | 目标 Yaw，0~360 |
+| `instant` | bool | 否 | 是否立即到位；省略为 `false` |
+
+```javascript
+callUnity('SetCarYawRotation', JSON.stringify({ yawAngle: 90.0, instant: false }));
+```
+
+---
+
+### 4.16 其它地图过渡（可选 / 联调）
+
+一般优先使用 `TransitionToControlState`；以下为底层地图过渡直调：
+
+| method | arg | 说明 |
+|--------|-----|------|
+| `TransitionToPlateMap` | `""` | 地球 → 板块 |
+| `TransitionToEarth` | `""` | 板块 → 地球 |
+| `FocusPlateMapModule` | 模块名字符串 | 聚焦指定板块模块 |
+| `RestorePlateMapCamera` | `""` | 还原板块相机 |
+
+```javascript
+callUnity('TransitionToPlateMap', '');
+callUnity('FocusPlateMapModule', 'polySurface3');
+callUnity('RestorePlateMapCamera', '');
+callUnity('TransitionToEarth', '');
+```
+
+---
+
+### 4.17 接口汇总表（父 → Unity）
 
 | method                             | arg  | JSON | 说明        |
 | ---------------------------------- | ---- | ---- | --------- |
@@ -613,9 +657,14 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 | `StopVehicleHeatmapSpecifiedTimePolling` | `""` | | 关闭指定时段，恢复默认轮询 |
 | `RequestCarVehicleData`            | `""` / JSON | ✅ | 请求车辆态势双接口 |
 | `RequestSecurityEventDetail`       | `""` / JSON | ✅ | 请求事件溯源详情并刷新 GJ_Panel / POI |
+| `SetCarYawRotation`                | JSON | ✅ | 设置车辆 Yaw（联调；生产一般监听回调） |
+| `TransitionToPlateMap`             | `""` |      | 地球 → 板块（可选联调） |
+| `TransitionToEarth`                | `""` |      | 板块 → 地球（可选联调） |
+| `FocusPlateMapModule`              | 模块名 |      | 聚焦板块模块（可选联调） |
+| `RestorePlateMapCamera`            | `""` |      | 还原板块相机（可选联调） |
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  
-> WebGL **不**暴露 `SetCarYawRotation` / `onUnityCarYawRotationChanged`（仅 Android 侧有）。
+> 与 Android `AndroidMessage` 业务方法名对齐；通道差异见 `WebGL_Vue_Communication.md` §八。
 
 ---
 
@@ -629,6 +678,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 const handlers = {
   onUnityWebGLReady(message) { /* 桥接就绪 */ },
   onUnityControlStateTransition(message) { /* JSON，含 partId：Group01/Group02/Group03 */ },
+  onUnityCarYawRotationChanged(message) { /* JSON：yawAngle / isDragging */ },
 };
 
 window.addEventListener('message', (event) => {
@@ -638,7 +688,7 @@ window.addEventListener('message', (event) => {
 });
 ```
 
-> 当前 `WebGLAPI` **仅**向父页面推送 `onUnityWebGLReady` 与 `onUnityControlStateTransition`。`onUnityShowToast`、`onUnityUpdateNativeTitle`、`onUnityRequestDataSync` 等测试回调已移除。
+> 当前 `WebGLAPI` 向父页面推送：`onUnityWebGLReady`、`onUnityControlStateTransition`、`onUnityCarYawRotationChanged`。
 
 ---
 
@@ -757,12 +807,40 @@ function onUnityControlStateTransition(json) {
 
 ---
 
-### 5.3 回调汇总表（Unity → 父）
+### 5.3 onUnityCarYawRotationChanged
+
+车辆 Yaw 变化回调（拖拽中连续推送；松手或 API 设角也会推送）。
+
+| 项目 | 值 |
+|------|-----|
+| `message` | JSON 字符串 |
+| 结构体 | `CarYawRotationNotify` |
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `yawAngle` | float | 当前 Yaw，0~360 |
+| `isDragging` | bool | `true` 拖拽中；`false` 松手 / API 设角过程或到位 |
+
+```json
+{"yawAngle":126.5,"isDragging":true}
+```
+
+```javascript
+function onUnityCarYawRotationChanged(json) {
+  const { yawAngle, isDragging } = JSON.parse(json);
+  // 同步宿主端朝向展示
+}
+```
+
+---
+
+### 5.4 回调汇总表（Unity → 父）
 
 | method                          | message 类型 | 说明        |
 | ------------------------------- | ---------- | --------- |
-| `onUnityWebGLReady`             | 空          | 桥接就绪      |
+| `onUnityWebGLReady`             | 空          | 桥接就绪（WebGL 独有） |
 | `onUnityControlStateTransition` | JSON       | 级别过渡开始/完成 |
+| `onUnityCarYawRotationChanged`  | JSON       | 车辆 Yaw 变化 |
 
 ---
 
@@ -803,6 +881,12 @@ function onUnityControlStateTransition(json) {
         } else {
           console.log('开始', t.from, '→', t.to);
         }
+        break;
+      }
+
+      case 'onUnityCarYawRotationChanged': {
+        const y = JSON.parse(d.message);
+        console.log('车辆 Yaw', y.yawAngle, 'dragging=', y.isDragging);
         break;
       }
     }
