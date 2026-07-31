@@ -148,14 +148,21 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
+        string provinceCode = ResolveCurrentProvinceCode();
+        string vin = ResolveCurrentVin();
         string json = JsonUtility.ToJson(new ControlStateTransitionNotify
         {
             from = fromState,
             to = toState,
             partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
+            provinceCode = provinceCode,
+            vin = vin,
         });
-        LogCommunication("→ Host", "onUnityControlStateTransition", $"开始 {fromState}→{toState} | {json}");
+        LogCommunication(
+            "→ Host",
+            "onUnityControlStateTransition",
+            $"开始 {fromState}→{toState}, provinceCode={provinceCode}, vin={vin} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -167,14 +174,21 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
+        string provinceCode = ResolveCurrentProvinceCode();
+        string vin = ResolveCurrentVin();
         string json = JsonUtility.ToJson(new ControlStateTransitionNotify
         {
             from = AndroidMessage.ControlStateTransitionCompletedFrom,
             to = toState,
             partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
+            provinceCode = provinceCode,
+            vin = vin,
         });
-        LogCommunication("→ Host", "onUnityControlStateTransition", $"完成 to={toState} | {json}");
+        LogCommunication(
+            "→ Host",
+            "onUnityControlStateTransition",
+            $"完成 to={toState}, provinceCode={provinceCode}, vin={vin} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -433,6 +447,54 @@ public class WebGLAPI : MonoBehaviour
 
         string partId = controller.LastPartId;
         return string.IsNullOrEmpty(partId) ? null : partId;
+    }
+
+    /// <summary>
+    /// 解析当前省份/国家 code：优先当前聚焦模块 → 进省缓存 → WorldMap 默认单元。
+    /// 国内为省 adcode；国外为大屏国家/区域 code。
+    /// </summary>
+    private static string ResolveCurrentProvinceCode()
+    {
+        if (PlateProvinceFocusResolver.TryGetFocusedPlateProvinceCode(out string focusedCode) &&
+            !string.IsNullOrWhiteSpace(focusedCode))
+        {
+            return focusedCode;
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode) &&
+            !string.IsNullOrWhiteSpace(cachedCode))
+        {
+            return cachedCode;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            string code = GameManager.Instance.ResolveProvinceCode(null);
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                return code;
+            }
+        }
+
+        if (MapApi.Instance != null)
+        {
+            string code = MapApi.Instance.GetDefaultProvinceCode();
+            return string.IsNullOrWhiteSpace(code) ? string.Empty : code;
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>解析当前车辆 VIN；优先使用车辆态势最近一次缓存。</summary>
+    private static string ResolveCurrentVin()
+    {
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        if (store == null || string.IsNullOrWhiteSpace(store.LastEncryptVin))
+        {
+            return string.Empty;
+        }
+
+        return store.LastEncryptVin;
     }
 
     /// <summary>过渡通知 JSON 中的大屏跳转状态（<see cref="BigScreenStatus"/>）；预留，暂回传 0。</summary>

@@ -68,6 +68,12 @@ public struct ControlStateTransitionNotify
     /// 当前为预留字段，Unity 暂统一回传 0，后续按实际触发源填充。
     /// </summary>
     public int status;
+
+    /// <summary>当前省份/国家 code；国内为省 adcode，国外为国家/区域 code。</summary>
+    public string provinceCode;
+
+    /// <summary>当前车辆 VIN；无当前车辆上下文时为空字符串。</summary>
+    public string vin;
 }
 
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
@@ -196,14 +202,19 @@ public class AndroidMessage : MonoBehaviour
             return;
         }
 
+        string provinceCode = ResolveCurrentProvinceCode();
+        string vin = ResolveCurrentVin();
         string json = JsonUtility.ToJson(new ControlStateTransitionNotify
         {
             from = fromState,
             to = toState,
             partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
+            provinceCode = provinceCode,
+            vin = vin,
         });
-        Debug.Log($"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, json={json}");
+        Debug.Log(
+            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -215,14 +226,19 @@ public class AndroidMessage : MonoBehaviour
             return;
         }
 
+        string provinceCode = ResolveCurrentProvinceCode();
+        string vin = ResolveCurrentVin();
         string json = JsonUtility.ToJson(new ControlStateTransitionNotify
         {
             from = ControlStateTransitionCompletedFrom,
             to = toState,
             partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
+            provinceCode = provinceCode,
+            vin = vin,
         });
-        Debug.Log($"[AndroidMessage] 操控级别过渡完成: to={toState}, json={json}");
+        Debug.Log(
+            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -478,6 +494,54 @@ public class AndroidMessage : MonoBehaviour
 
         string partId = controller.LastPartId;
         return string.IsNullOrEmpty(partId) ? null : partId;
+    }
+
+    /// <summary>
+    /// 解析当前省份/国家 code：优先当前聚焦模块 → 进省缓存 → WorldMap 默认单元。
+    /// 国内为省 adcode；国外为大屏国家/区域 code。
+    /// </summary>
+    private static string ResolveCurrentProvinceCode()
+    {
+        if (PlateProvinceFocusResolver.TryGetFocusedPlateProvinceCode(out string focusedCode) &&
+            !string.IsNullOrWhiteSpace(focusedCode))
+        {
+            return focusedCode;
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode) &&
+            !string.IsNullOrWhiteSpace(cachedCode))
+        {
+            return cachedCode;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            string code = GameManager.Instance.ResolveProvinceCode(null);
+            if (!string.IsNullOrWhiteSpace(code))
+            {
+                return code;
+            }
+        }
+
+        if (MapApi.Instance != null)
+        {
+            string code = MapApi.Instance.GetDefaultProvinceCode();
+            return string.IsNullOrWhiteSpace(code) ? string.Empty : code;
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>解析当前车辆 VIN；优先使用车辆态势最近一次缓存。</summary>
+    private static string ResolveCurrentVin()
+    {
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        if (store == null || string.IsNullOrWhiteSpace(store.LastEncryptVin))
+        {
+            return string.Empty;
+        }
+
+        return store.LastEncryptVin;
     }
 
     /// <summary>过渡通知 JSON 中的大屏跳转状态（<see cref="BigScreenStatus"/>）；预留，暂回传 0。</summary>

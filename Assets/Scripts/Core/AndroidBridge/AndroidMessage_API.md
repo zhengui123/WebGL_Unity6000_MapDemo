@@ -358,17 +358,19 @@ public void onUnityControlStateTransition(String json) { }
 | `to` | int | 目标级别 `0~5` |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
 | `status` | int | **（预留）** 大屏跳转状态：`0` 普通、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
+| `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
+| `vin` | string | 当前车辆 VIN；当前无车辆上下文时为空字符串 |
 
 **过渡开始示例：**
 
 ```json
-{"from":1,"to":2,"partId":"","status":0}
+{"from":1,"to":2,"partId":"","status":0,"provinceCode":"330000","vin":""}
 ```
 
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"partId":"Group01","status":0}
+{"from":-1,"to":4,"partId":"Group01","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
 ```
 
 **接收示例：**
@@ -381,6 +383,8 @@ public void onUnityControlStateTransition(String json) {
         int to = obj.getInt("to");
         String partId = obj.optString("partId", "");
         int status = obj.optInt("status", 0);
+        String provinceCode = obj.optString("provinceCode", "");
+        String vin = obj.optString("vin", "");
         if (from == -1) {
             Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId);
             // 隐藏 Loading、刷新原生界面

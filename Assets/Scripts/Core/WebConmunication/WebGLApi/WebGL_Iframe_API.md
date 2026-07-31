@@ -738,6 +738,8 @@ if (data.method === 'onUnityWebGLReady') {
 | `to`     | int    | ✅   | —           | 目标级别 `0~5`                         |
 | `partId` | string |     | 无零件场景为 `""` | 零件相关场景为 `Group01` / `Group02` / `Group03` |
 | `status` | int    |     | 当前暂为 `0`  | 大屏跳转状态，见下表；**预留**，后续按触发源区分 |
+| `provinceCode` | string |     | 取不到时为 `""` | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
+| `vin` | string |     | 无车辆上下文为 `""` | 当前车辆 VIN |
 
 #### status 取值（`BigScreenStatus`）
 
@@ -754,18 +756,18 @@ if (data.method === 'onUnityWebGLReady') {
 **过渡开始示例：**
 
 ```json
-{"from":3,"to":4,"partId":"","status":0}
+{"from":3,"to":4,"partId":"","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
 ```
 
 ```javascript
 function onUnityControlStateTransition(json) {
-  const { from, to, partId, status } = JSON.parse(json);
+  const { from, to, partId, status, provinceCode, vin } = JSON.parse(json);
   // status: 0 普通跳转 | 1 信息跳转 | 2 威胁下钻（预留）
   if (from === -1) {
-    console.log('过渡完成，就绪级别', to, '零件', partId, '大屏状态', status);
+    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏状态', status);
     // 隐藏 Loading、刷新 UI
   } else {
-    console.log('过渡开始', from, '→', to);
+    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin);
     // 显示 Loading
   }
 }
@@ -774,19 +776,19 @@ function onUnityControlStateTransition(json) {
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"partId":"Group01","status":0}
+{"from":-1,"to":4,"partId":"Group01","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
 ```
 
 **零件切换开始（4→4）：**
 
 ```json
-{"from":4,"to":4,"partId":"Group02","status":0}
+{"from":4,"to":4,"partId":"Group02","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
 ```
 
 **零件切换完成（切到 Group03）：**
 
 ```json
-{"from":-1,"to":4,"partId":"Group03","status":0}
+{"from":-1,"to":4,"partId":"Group03","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
 ```
 
 #### 会触发的 from → to 场景
