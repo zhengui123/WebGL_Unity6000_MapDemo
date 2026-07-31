@@ -31,13 +31,29 @@ public class PlateMapGeoConverter : MonoBehaviour
     [Tooltip("勾选后按局部 X 决定西/东（X 较大为西缘）；默认不勾选，沿用手动指定的西/东引用。")]
     [SerializeField] private bool _autoBindWestEastByLocalX;
 
+    [Header("省级聚焦")]
+    [Tooltip("本板块省级相机聚焦中心世界坐标偏移；叠加在模块 bounds.center 上。Play 下可调，点 Inspector 保存按钮可写回编辑态。")]
+    [SerializeField] private Vector3 _focusCenterWorldOffset = Vector3.zero;
+
     private PlateMapVehiclePointController _vehiclePointController;
     private bool _isReady;
+    private Vector3 _lastNotifiedFocusCenterWorldOffset;
 
     public bool IsReady => _isReady;
     public string ProvinceCode => _provinceCode;
     public GeoAnchor WestAnchor => _westAnchor;
     public GeoAnchor EastAnchor => _eastAnchor;
+
+    /// <summary>省级聚焦中心世界坐标偏移（叠加在模块包围盒中心上）。</summary>
+    public Vector3 FocusCenterWorldOffset => _focusCenterWorldOffset;
+
+    /// <summary>强制写入聚焦中心世界坐标偏移（同步通知缓存，避免误触发瞬时刷新）。</summary>
+    public bool ApplyFocusCenterWorldOffset(Vector3 offset)
+    {
+        _focusCenterWorldOffset = offset;
+        _lastNotifiedFocusCenterWorldOffset = offset;
+        return true;
+    }
 
     /// <summary>外接经纬度范围（取自两锚点经纬度）。</summary>
     public void GetProvinceLongitudeLatitudeBounds(
@@ -55,6 +71,7 @@ public class PlateMapGeoConverter : MonoBehaviour
     private void Awake()
     {
         Rebuild();
+        _lastNotifiedFocusCenterWorldOffset = _focusCenterWorldOffset;
     }
 
     private void OnEnable()
@@ -209,7 +226,28 @@ public class PlateMapGeoConverter : MonoBehaviour
         if (!Application.isPlaying)
         {
             Rebuild();
+            _lastNotifiedFocusCenterWorldOffset = _focusCenterWorldOffset;
+            return;
         }
+
+#if UNITY_EDITOR
+        if (_focusCenterWorldOffset == _lastNotifiedFocusCenterWorldOffset)
+        {
+            return;
+        }
+
+        _lastNotifiedFocusCenterWorldOffset = _focusCenterWorldOffset;
+        PlateMapGeoConverter self = this;
+        UnityEditor.EditorApplication.delayCall += () =>
+        {
+            if (self == null)
+            {
+                return;
+            }
+
+            PlateMapDisplayController.Instance?.RefreshFocusedCameraImmediateIfOwnedBy(self);
+        };
+#endif
     }
 
     /// <summary>

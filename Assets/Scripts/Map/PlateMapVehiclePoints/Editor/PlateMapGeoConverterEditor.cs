@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 /// <summary>
-/// PlateMapGeoConverter Inspector：可搜索省份下拉，自动写入 provinceCode。
+/// PlateMapGeoConverter Inspector：省份快捷选择、Play 下调偏移实时预览、保存偏移到场景。
 /// </summary>
 [CustomEditor(typeof(PlateMapGeoConverter))]
 public class PlateMapGeoConverterEditor : Editor
@@ -14,6 +15,11 @@ public class PlateMapGeoConverterEditor : Editor
     private const float ProvinceListHeight = 22f;
 
     private const string ProvinceSearchControlName = "PlateMapProvinceSearch";
+
+    private static readonly Dictionary<string, Vector3> PendingOffsets =
+        new Dictionary<string, Vector3>();
+
+    private static bool _listening;
 
     private string _provinceSearch = string.Empty;
     private Vector2 _provinceScrollPos;
@@ -25,7 +31,23 @@ public class PlateMapGeoConverterEditor : Editor
 
         DrawProvinceQuickPicker();
         EditorGUILayout.Space(6f);
+
+        EditorGUI.BeginChangeCheck();
         DrawDefaultInspector();
+        bool changed = EditorGUI.EndChangeCheck();
+        serializedObject.ApplyModifiedProperties();
+
+        // Play 下调偏移（等字段）时瞬时刷新机位；仅编辑器
+        if (changed && Application.isPlaying)
+        {
+            foreach (Object item in targets)
+            {
+                if (item is PlateMapGeoConverter converter)
+                {
+                    PlateMapDisplayController.Instance?.RefreshFocusedCameraImmediateIfOwnedBy(converter);
+                }
+            }
+        }
 
         EditorGUILayout.Space(8f);
         if (GUILayout.Button("重建地理映射", GUILayout.Height(26f)))
@@ -40,7 +62,95 @@ public class PlateMapGeoConverterEditor : Editor
             }
         }
 
-        serializedObject.ApplyModifiedProperties();
+        DrawSaveFocusOffsetSection();
+    }
+
+    private void DrawSaveFocusOffsetSection()
+    {
+        if (!Application.isPlaying)
+        {
+            return;
+        }
+
+        PlateMapGeoConverter converter = target as PlateMapGeoConverter;
+        if (converter == null)
+        {
+            return;
+        }
+
+        EditorGUILayout.Space(8);
+        EditorGUILayout.HelpBox(
+            "Play 模式下修改的聚焦偏移默认退出后会丢失。点击下方按钮登记保存，退出 Play 后写回场景。",
+            MessageType.Info);
+
+        if (GUILayout.Button("保存聚焦偏移到场景（退出 Play 后生效）"))
+        {
+            EnsureListening();
+            string key = GlobalObjectId.GetGlobalObjectIdSlow(converter).ToString();
+            PendingOffsets[key] = converter.FocusCenterWorldOffset;
+            Debug.Log(
+                $"[PlateMapGeoConverter] 已登记保存偏移 | code={converter.ProvinceCode} | " +
+                $"offset={converter.FocusCenterWorldOffset} | 将在退出 Play 后写回");
+        }
+
+        if (PendingOffsets.Count > 0)
+        {
+            EditorGUILayout.LabelField($"待写回数量：{PendingOffsets.Count}");
+        }
+    }
+
+    private static void EnsureListening()
+    {
+        if (_listening)
+        {
+            return;
+        }
+
+        _listening = true;
+        EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+    }
+
+    private static void OnPlayModeStateChanged(PlayModeStateChange state)
+    {
+        if (state != PlayModeStateChange.EnteredEditMode || PendingOffsets.Count == 0)
+        {
+            return;
+        }
+
+        int applied = 0;
+        foreach (KeyValuePair<string, Vector3> pair in PendingOffsets)
+        {
+            if (!GlobalObjectId.TryParse(pair.Key, out GlobalObjectId globalId))
+            {
+                continue;
+            }
+
+            Object obj = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(globalId);
+            PlateMapGeoConverter converter = obj as PlateMapGeoConverter;
+            if (converter == null)
+            {
+                continue;
+            }
+
+            Undo.RecordObject(converter, "保存省级聚焦偏移");
+            converter.ApplyFocusCenterWorldOffset(pair.Value);
+            EditorUtility.SetDirty(converter);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(converter);
+            if (converter.gameObject.scene.IsValid())
+            {
+                EditorSceneManager.MarkSceneDirty(converter.gameObject.scene);
+            }
+
+            applied++;
+            Debug.Log(
+                $"[PlateMapGeoConverter] 已写回编辑态偏移 | code={converter.ProvinceCode} | offset={pair.Value}");
+        }
+
+        PendingOffsets.Clear();
+        if (applied > 0)
+        {
+            Debug.Log($"[PlateMapGeoConverter] 共写回 {applied} 个板块的聚焦偏移，请记得保存场景。");
+        }
     }
 
     private void DrawProvinceQuickPicker()

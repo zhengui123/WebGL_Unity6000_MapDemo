@@ -203771,6 +203771,7 @@ MonoBehaviour:
     longitude: 106.195
     latitude: 29.225
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &17864377334984824
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -205975,6 +205976,7 @@ MonoBehaviour:
     longitude: 59.810001373291016
     latitude: 26.399999618530273
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &241557482512623251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -207871,6 +207873,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -207939,6 +207943,7 @@ MonoBehaviour:
     longitude: 135.095
     latitude: 53.558
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 36}
 --- !u!23 &388737198285335945
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -208386,6 +208391,7 @@ MonoBehaviour:
     longitude: 40.779998779296875
     latitude: -10.319999694824219
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &433489992607221420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -211455,6 +211461,7 @@ MonoBehaviour:
     longitude: 107.659
     latitude: 39.381
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &708013658051553266
 GameObject:
   m_ObjectHideFlags: 0
@@ -214191,6 +214198,7 @@ MonoBehaviour:
     longitude: -57.5
     latitude: -9.760000228881836
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &966374613229114580
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217194,6 +217202,7 @@ MonoBehaviour:
     longitude: 1.6799999475479126
     latitude: 58.63999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1332570280070328715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -217554,6 +217563,7 @@ MonoBehaviour:
     longitude: -76.19999694824219
     latitude: 18.520000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1353399687170455329
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219655,6 +219665,7 @@ MonoBehaviour:
     longitude: 35.84000015258789
     latitude: 33.279998779296875
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1548316947814759777
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -219947,6 +219958,7 @@ MonoBehaviour:
     longitude: 27.3700008392334
     latitude: 11.140000343322754
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1561856550457341956
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221296,6 +221308,7 @@ MonoBehaviour:
     longitude: 116.652
     latitude: 36.366
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &1726068972790778731
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -223883,6 +223896,7 @@ MonoBehaviour:
     longitude: 126.067
     latitude: 53.334
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 96.01}
 --- !u!1 &1950946840744542949
 GameObject:
   m_ObjectHideFlags: 0
@@ -225720,6 +225734,7 @@ MonoBehaviour:
     longitude: 1.7899999618530273
     latitude: 42.65999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &2149974021896628948
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -226125,6 +226140,7 @@ MonoBehaviour:
     longitude: 108.712
     latitude: 42.795
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &2183737912414935602
 Transform:
   m_ObjectHideFlags: 0
@@ -228285,6 +228301,7 @@ MonoBehaviour:
     longitude: 119.649
     latitude: 34.654
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &2430625883635723309
 Transform:
   m_ObjectHideFlags: 0
@@ -228726,6 +228743,7 @@ MonoBehaviour:
     longitude: 109.597
     latitude: 29.221
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &2468294963947074739
 Transform:
   m_ObjectHideFlags: 0
@@ -229086,6 +229104,7 @@ MonoBehaviour:
     longitude: 9.5600004196167
     latitude: 51.150001525878906
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &2516461283264190932
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230060,6 +230079,7 @@ MonoBehaviour:
     longitude: 26.600000381469727
     latitude: 41.83000183105469
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &2618520028550396409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -231583,6 +231603,7 @@ MonoBehaviour:
     longitude: 156.02000427246094
     latitude: -2.5
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &2719574728962701968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -233717,6 +233738,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -234633,6 +234656,7 @@ MonoBehaviour:
     longitude: 77.83999633789062
     latitude: 37.130001068115234
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3029588625346748644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -235214,6 +235238,7 @@ MonoBehaviour:
     longitude: 14.430000305175781
     latitude: 2.3299999237060547
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3101058713514736114
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236016,6 +236041,7 @@ MonoBehaviour:
     longitude: 16.559999465942383
     latitude: 46.849998474121094
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3165957616235779981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236147,6 +236173,7 @@ MonoBehaviour:
     longitude: 101.18000030517578
     latitude: 28.34000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3167467945279984079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -236336,6 +236363,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -236903,6 +236932,7 @@ MonoBehaviour:
     longitude: 116.135
     latitude: 33.276
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &3228131953046807663
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -237498,6 +237528,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -237548,6 +237580,7 @@ MonoBehaviour:
     longitude: 114.255
     latitude: 30.128
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &3285714693731466282
 GameObject:
   m_ObjectHideFlags: 0
@@ -237752,6 +237785,7 @@ MonoBehaviour:
     longitude: -60.900001525878906
     latitude: 10.890000343322754
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3291952305441658918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -238251,6 +238285,7 @@ MonoBehaviour:
     longitude: 153.57000732421875
     latitude: -10.670000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3314871514854689194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -239387,6 +239422,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -240346,6 +240383,7 @@ MonoBehaviour:
     longitude: -10.229999542236328
     latitude: 10.050000190734863
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3551347209524073688
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -241445,6 +241483,7 @@ MonoBehaviour:
     longitude: -59.41999816894531
     latitude: 13.34000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3641354059146258125
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -242585,6 +242624,7 @@ MonoBehaviour:
     longitude: 18.479999542236328
     latitude: 47.119998931884766
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3774706168349846306
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -243650,6 +243690,7 @@ MonoBehaviour:
     longitude: 145.5399932861328
     latitude: 45.54999923706055
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3879762697208835004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244152,6 +244193,7 @@ MonoBehaviour:
     longitude: 107.61000061035156
     latitude: 14.569999694824219
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &3910955263952393467
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245064,6 +245106,7 @@ MonoBehaviour:
     longitude: 114.583
     latitude: 40.737
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &3998108854811320087
 Transform:
   m_ObjectHideFlags: 0
@@ -245402,6 +245445,7 @@ MonoBehaviour:
     longitude: 28.18000030517578
     latitude: 57.970001220703125
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4024260358103184703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245602,6 +245646,7 @@ MonoBehaviour:
     longitude: 22.950000762939453
     latitude: 42.31999969482422
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4037258257540251746
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -245897,6 +245942,7 @@ MonoBehaviour:
     longitude: 117.508
     latitude: 41.058
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &4071392509076841980
 Transform:
   m_ObjectHideFlags: 0
@@ -246000,6 +246046,7 @@ MonoBehaviour:
     longitude: 1.8700000047683716
     latitude: 11.020000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4071392509076841984
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246511,6 +246558,7 @@ MonoBehaviour:
     longitude: 125.791
     latitude: 43.49
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 17.92}
 --- !u!4 &4132173011134127730
 Transform:
   m_ObjectHideFlags: 0
@@ -246671,6 +246719,7 @@ MonoBehaviour:
     longitude: 180
     latitude: 81.25
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4137189341924856541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -247133,6 +247182,7 @@ MonoBehaviour:
     longitude: 104.0999984741211
     latitude: 1.4800000190734863
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4198646370206883476
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248372,6 +248422,7 @@ MonoBehaviour:
     longitude: 55.66999816894531
     latitude: 32.15999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4279760446174722416
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -248486,6 +248537,7 @@ MonoBehaviour:
     longitude: 108.546
     latitude: 34.313
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &4301786942147574553
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -249158,6 +249210,7 @@ MonoBehaviour:
     longitude: -61.2400016784668
     latitude: 15.640000343322754
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4361139904065187548
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249278,6 +249331,7 @@ MonoBehaviour:
     longitude: 180
     latitude: -16.020000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4362197425603261693
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249398,6 +249452,7 @@ MonoBehaviour:
     longitude: 43.31999969482422
     latitude: 12.699999809265137
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4365603570243797295
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250169,6 +250224,7 @@ MonoBehaviour:
     longitude: 113.62
     latitude: 22.217
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &4430383594994987567
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -250300,6 +250356,7 @@ MonoBehaviour:
     longitude: 109.33999633789062
     latitude: 23.350000381469727
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4432052227112162901
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251032,6 +251089,7 @@ MonoBehaviour:
     longitude: -53.209999084472656
     latitude: -30.110000610351562
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4488918586889929512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252144,6 +252202,7 @@ MonoBehaviour:
     longitude: 4.269999980926514
     latitude: 24.969999313354492
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4581123956623153802
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252658,6 +252717,7 @@ MonoBehaviour:
     longitude: 119.7699966430664
     latitude: 52.04999923706055
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4621470129922148462
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252884,6 +252944,7 @@ MonoBehaviour:
     longitude: 32.06999969482422
     latitude: -25.65999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4636413200680920153
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -253487,6 +253548,7 @@ MonoBehaviour:
     longitude: 127.33999633789062
     latitude: -8.270000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4676833567596346260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255881,6 +255943,7 @@ MonoBehaviour:
     longitude: -82.55000305175781
     latitude: 11.220000267028809
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4908126933083968975
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256185,6 +256248,7 @@ MonoBehaviour:
     longitude: -51.599998474121094
     latitude: 5.78000020980835
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4925727630592883198
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256402,6 +256466,7 @@ MonoBehaviour:
     longitude: 14.579999923706055
     latitude: 13.869999885559082
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4944964965306875177
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256628,6 +256693,7 @@ MonoBehaviour:
     longitude: 32.83000183105469
     latitude: -22.09000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &4957543911480542141
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -256760,6 +256826,7 @@ MonoBehaviour:
     longitude: 135.095
     latitude: 53.558
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &4975709885261832866
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -257623,6 +257690,7 @@ MonoBehaviour:
     longitude: -61.11000061035156
     latitude: 13.380000114440918
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5070428541314890957
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257910,6 +257978,7 @@ MonoBehaviour:
     longitude: 63.31999969482422
     latitude: 39.709999084472656
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5088941342507541758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258207,6 +258276,7 @@ MonoBehaviour:
     longitude: -61.58000183105469
     latitude: 12.239999771118164
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5105889554242609212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258718,6 +258788,7 @@ MonoBehaviour:
     longitude: 38.40999984741211
     latitude: 22
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5164638365529546974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258814,6 +258885,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -259555,6 +259628,7 @@ MonoBehaviour:
     longitude: 135.09500122070312
     latitude: 53.55799865722656
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5248293483842673838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259731,6 +259805,7 @@ MonoBehaviour:
     longitude: 80.26000213623047
     latitude: 43.29999923706055
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5261178584568137646
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259984,6 +260059,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -260528,6 +260605,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -260980,6 +261059,7 @@ MonoBehaviour:
     longitude: 36.61000061035156
     latitude: 34.63999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5346878778091169431
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -261292,6 +261372,7 @@ MonoBehaviour:
     longitude: 11.489999771118164
     latitude: 37.349998474121094
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5368463863346445438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262392,6 +262473,7 @@ MonoBehaviour:
     longitude: 26.59000015258789
     latitude: 56.369998931884766
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5440904460607179021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262567,6 +262649,7 @@ MonoBehaviour:
     longitude: 29.6299991607666
     latitude: 48.220001220703125
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5450909351082029838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262759,6 +262842,7 @@ MonoBehaviour:
     longitude: 51.61000061035156
     latitude: 26.110000610351562
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5457166156005131826
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -263162,6 +263246,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -263631,6 +263717,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -263745,6 +263833,7 @@ MonoBehaviour:
     longitude: -13.84000015258789
     latitude: 13.880000114440918
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5542267298691078696
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264463,6 +264552,7 @@ MonoBehaviour:
     longitude: -66.87999725341797
     latitude: 12.4399995803833
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5610347696650033780
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -264604,6 +264694,7 @@ MonoBehaviour:
     longitude: -54.290000915527344
     latitude: -19.34000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5615275304458358023
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265165,6 +265256,7 @@ MonoBehaviour:
     longitude: 118.065
     latitude: 40.253
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &5673992577824808986
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -266022,6 +266114,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -266283,6 +266377,7 @@ MonoBehaviour:
     longitude: 33.4900016784668
     latitude: -8.239999771118164
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5784418512645729697
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266458,6 +266553,7 @@ MonoBehaviour:
     longitude: 48.56999969482422
     latitude: 37.38999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5789563718260830981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266762,6 +266858,7 @@ MonoBehaviour:
     longitude: 32.849998474121094
     latitude: -15.510000228881836
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5825998052999053897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -266920,6 +267017,7 @@ MonoBehaviour:
     longitude: 96.386
     latitude: 49.183
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &5863824004906989743
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -267272,6 +267370,7 @@ MonoBehaviour:
     longitude: 167.1199951171875
     latitude: -20.110000610351562
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &5883516275756535549
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -267824,6 +267923,7 @@ MonoBehaviour:
     longitude: 141.02999877929688
     latitude: 5.480000019073486
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5922029539976543715
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268697,6 +268797,7 @@ MonoBehaviour:
     longitude: 25.15999984741211
     latitude: 33.13999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6020960556320336136
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269121,6 +269222,7 @@ MonoBehaviour:
     longitude: -88.2300033569336
     latitude: 17.81999969482422
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6062050631461577106
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -269898,6 +270000,7 @@ MonoBehaviour:
     longitude: -11.470000267028809
     latitude: 16.600000381469727
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6124886418030705365
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270045,6 +270148,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -270159,6 +270264,7 @@ MonoBehaviour:
     longitude: 66.55000305175781
     latitude: 42.75
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6131852383718074205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270334,6 +270440,7 @@ MonoBehaviour:
     longitude: 35.040000915527344
     latitude: 4.25
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6144191041500885318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270526,6 +270633,7 @@ MonoBehaviour:
     longitude: 50.47999954223633
     latitude: -12.039999961853027
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6150389149427541618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -270734,6 +270842,7 @@ MonoBehaviour:
     longitude: 38.40999984741211
     latitude: 22
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6157747202959213734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271061,6 +271170,7 @@ MonoBehaviour:
     longitude: 21.020000457763672
     latitude: 42.689998626708984
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6178545764650972643
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -271900,6 +272010,7 @@ MonoBehaviour:
     longitude: 30.81999969482422
     latitude: -1.1299999952316284
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6271656618299331260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -272242,6 +272353,7 @@ MonoBehaviour:
     longitude: 119.848
     latitude: 42.619
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &6287559871969681704
 GameObject:
   m_ObjectHideFlags: 0
@@ -272757,6 +272869,7 @@ MonoBehaviour:
     longitude: 74.9800033569336
     latitude: 40.959999084472656
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6325399393050639598
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273086,6 +273199,7 @@ MonoBehaviour:
     longitude: 29.329999923706055
     latitude: -28.649999618530273
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6364908866560139564
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273684,6 +273798,7 @@ MonoBehaviour:
     longitude: 73.05999755859375
     latitude: 45.59000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6410925255123783094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -273900,6 +274015,7 @@ MonoBehaviour:
     longitude: -83.1500015258789
     latitude: 16.010000228881836
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6421031082095518639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274046,6 +274162,7 @@ MonoBehaviour:
     longitude: 97.4000015258789
     latitude: 35.4900016784668
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6424704025377961400
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274308,6 +274425,7 @@ MonoBehaviour:
     longitude: 7.460000038146973
     latitude: 1.7000000476837158
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6432961279537339182
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274566,6 +274684,7 @@ MonoBehaviour:
     longitude: -68.31999969482422
     latitude: 19.8799991607666
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6456976923417490525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -274931,6 +275050,7 @@ MonoBehaviour:
     longitude: 40.08000183105469
     latitude: 52.34000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6492717797218742768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275070,6 +275190,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -275268,6 +275390,7 @@ MonoBehaviour:
     longitude: 24.079999923706055
     latitude: -4.440000057220459
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6519204515245102848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275788,6 +275911,7 @@ MonoBehaviour:
     longitude: -77
     latitude: 27.040000915527344
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6548677336089452500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -275908,6 +276032,7 @@ MonoBehaviour:
     longitude: 40.31999969482422
     latitude: -0.949999988079071
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6549004538626491559
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276209,6 +276334,7 @@ MonoBehaviour:
     longitude: 56.400001525878906
     latitude: 26.059999465942383
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6564951844613894667
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -276499,6 +276625,7 @@ MonoBehaviour:
     longitude: 103.07
     latitude: 39.191
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &6590802581368536245
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -276756,6 +276883,7 @@ MonoBehaviour:
     longitude: 23.899999618530273
     latitude: 69.11000061035156
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6596769820318433386
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277148,6 +277276,7 @@ MonoBehaviour:
     longitude: 115.44999694824219
     latitude: 5.449999809265137
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6635464102890680421
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -277628,6 +277757,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -278085,6 +278216,7 @@ MonoBehaviour:
     longitude: -88.11000061035156
     latitude: 18.5
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6716939020807664389
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278317,6 +278449,7 @@ MonoBehaviour:
     longitude: -77.23999786376953
     latitude: 9.609999656677246
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6727480344613933744
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -278740,6 +278873,7 @@ MonoBehaviour:
     longitude: 117.191
     latitude: 25.516
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &6784311258203780198
 Transform:
   m_ObjectHideFlags: 0
@@ -278983,6 +279117,7 @@ MonoBehaviour:
     longitude: -68.66999816894531
     latitude: -0.05999999865889549
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6803707558033041522
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279126,6 +279261,7 @@ MonoBehaviour:
     longitude: 162.39999389648438
     latitude: -6.599999904632568
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6808652615496743301
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279360,6 +279496,7 @@ MonoBehaviour:
     longitude: -53.630001068115234
     latitude: -21.829999923706055
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6823996524040304020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -279657,6 +279794,7 @@ MonoBehaviour:
     longitude: 122.118
     latitude: 31.872
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &6848938235872205464
 GameObject:
   m_ObjectHideFlags: 0
@@ -279875,6 +280013,7 @@ MonoBehaviour:
     longitude: 111.247
     latitude: 39.587
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!23 &6877390528635172528
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -280201,6 +280340,7 @@ MonoBehaviour:
     longitude: 12
     latitude: 37.119998931884766
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6888240504463751340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280319,6 +280459,7 @@ MonoBehaviour:
     longitude: 25.079999923706055
     latitude: -16.940000534057617
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6890029679727466188
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280515,6 +280656,7 @@ MonoBehaviour:
     longitude: 124.585
     latitude: 25.3
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &6904862671072700398
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -280736,6 +280878,7 @@ MonoBehaviour:
     longitude: 41.86000061035156
     latitude: 5.510000228881836
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6917737026990871792
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281415,6 +281558,7 @@ MonoBehaviour:
     longitude: 12.460000038146973
     latitude: 41.90999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6978179792793046753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281736,6 +281880,7 @@ MonoBehaviour:
     longitude: -7.829999923706055
     latitude: 12.59000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6985511052420569668
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -281856,6 +282001,7 @@ MonoBehaviour:
     longitude: -83.1500015258789
     latitude: 15.020000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &6986575300067461943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282174,6 +282320,7 @@ MonoBehaviour:
     longitude: -66.95999908447266
     latitude: 49.5
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7000456782889705374
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282319,6 +282466,7 @@ MonoBehaviour:
     longitude: 44.790000915527344
     latitude: 42.13999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7008667818838767440
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282572,6 +282720,7 @@ MonoBehaviour:
     longitude: -53.959999084472656
     latitude: 6.03000020980835
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7035878546592642952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282908,6 +283057,7 @@ MonoBehaviour:
     longitude: -60.869998931884766
     latitude: 14.109999656677246
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7055496941902988954
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -283249,6 +283399,7 @@ MonoBehaviour:
     longitude: 87.36000061035156
     latitude: 55.38999938964844
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7080727307197271414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284090,6 +284241,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -284301,6 +284454,7 @@ MonoBehaviour:
     longitude: 16.979999542236328
     latitude: 49.040000915527344
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7195414605624088499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -284489,6 +284643,7 @@ MonoBehaviour:
     longitude: 18.850000381469727
     latitude: 51.119998931884766
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7205841017017055609
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285038,6 +285193,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -285353,6 +285510,7 @@ MonoBehaviour:
     longitude: 47.790000915527344
     latitude: 14.960000038146973
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7282781857002196158
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285629,6 +285787,7 @@ MonoBehaviour:
     longitude: 53.11000061035156
     latitude: 19
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7302792090837798878
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285988,6 +286147,7 @@ MonoBehaviour:
     longitude: 178.52000427246094
     latitude: -34.45000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7334256489112484297
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286486,6 +286646,7 @@ MonoBehaviour:
     longitude: 36.869998931884766
     latitude: 31.59000015258789
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7382534927156841586
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -286835,6 +286996,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -287225,6 +287388,7 @@ MonoBehaviour:
     longitude: 3.799999952316284
     latitude: 12.239999771118164
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7435802166655454026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287498,6 +287662,7 @@ MonoBehaviour:
     longitude: 22.559999465942383
     latitude: 49.56999969482422
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7450508280021177342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287843,6 +288008,7 @@ MonoBehaviour:
     longitude: 112.061
     latitude: 26.385
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &7475543120944983453
 Transform:
   m_ObjectHideFlags: 0
@@ -288114,6 +288280,7 @@ MonoBehaviour:
     longitude: 35.77000045776367
     latitude: -9.229999542236328
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7491402301418264906
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288301,6 +288468,7 @@ MonoBehaviour:
     longitude: 15.899999618530273
     latitude: 23.469999313354492
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7498673067256165424
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288652,6 +288820,7 @@ MonoBehaviour:
     longitude: 6.239999771118164
     latitude: 50.130001068115234
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7518954724434686030
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -288875,6 +289044,7 @@ MonoBehaviour:
     longitude: 24.030000686645508
     latitude: 54.849998474121094
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7533119905978980347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289022,6 +289192,7 @@ MonoBehaviour:
     longitude: 119.18000030517578
     latitude: 6.929999828338623
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7535473885383727978
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289349,6 +289520,7 @@ MonoBehaviour:
     longitude: 92.66999816894531
     latitude: 26.450000762939453
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7552315677985076222
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289511,6 +289683,7 @@ MonoBehaviour:
     longitude: -65.58999633789062
     latitude: 18.520000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7558473787442630993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -289846,6 +290019,7 @@ MonoBehaviour:
     longitude: 1.059999942779541
     latitude: 11.100000381469727
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7606192719114015602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290376,6 +290550,7 @@ MonoBehaviour:
     longitude: -6.389999866485596
     latitude: 42.279998779296875
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7626157302603377537
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290563,6 +290738,7 @@ MonoBehaviour:
     longitude: 122.714
     latitude: 38.401
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 20, z: 45}
 --- !u!1 &7665042767292215862
 GameObject:
   m_ObjectHideFlags: 0
@@ -290692,6 +290868,7 @@ MonoBehaviour:
     longitude: -1.1200000047683716
     latitude: 35.7599983215332
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7668530641855766859
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291008,6 +291185,7 @@ MonoBehaviour:
     longitude: 92.0999984741211
     latitude: 28.299999237060547
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7691492715868329489
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -291326,6 +291504,7 @@ MonoBehaviour:
     longitude: 111.046
     latitude: 20.174
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &7722396848754871421
 GameObject:
   m_ObjectHideFlags: 0
@@ -291947,6 +292126,7 @@ MonoBehaviour:
     longitude: 28.559999465942383
     latitude: 44.22999954223633
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7793457546703625681
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292085,6 +292265,7 @@ MonoBehaviour:
     longitude: 126.54000091552734
     latitude: 18.510000228881836
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7796478742660769599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292502,6 +292683,7 @@ MonoBehaviour:
     longitude: 35.54999923706055
     latitude: 32.529998779296875
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7824461178475160340
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292622,6 +292804,7 @@ MonoBehaviour:
     longitude: 31.520000457763672
     latitude: 70.16000366210938
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7824462855132288669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292740,6 +292923,7 @@ MonoBehaviour:
     longitude: 32.689998626708984
     latitude: 56.16999816894531
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7825899906559192369
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292778,6 +292962,7 @@ MonoBehaviour:
     longitude: 114.51
     latitude: 22.561
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &7829004496893439166
 GameObject:
   m_ObjectHideFlags: 0
@@ -292975,6 +293160,7 @@ MonoBehaviour:
     longitude: 2.180000066757202
     latitude: 15.119999885559082
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7837595470036113149
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293250,6 +293436,7 @@ MonoBehaviour:
     longitude: 110.201
     latitude: 32.204
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &7869614965082036930
 Transform:
   m_ObjectHideFlags: 0
@@ -293489,6 +293676,7 @@ MonoBehaviour:
     longitude: -56.540000915527344
     latitude: 8.369999885559082
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7885902865230931282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293658,6 +293846,7 @@ MonoBehaviour:
     longitude: 30.75
     latitude: -2.3499999046325684
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7890876522603860720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293975,6 +294164,7 @@ MonoBehaviour:
     longitude: 118.485
     latitude: 30.045
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7941483255083076269
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293998,6 +294188,7 @@ MonoBehaviour:
     longitude: 123.161
     latitude: 31.183
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &7943001819253486561
 GameObject:
   m_ObjectHideFlags: 0
@@ -294157,6 +294348,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -294269,6 +294462,7 @@ MonoBehaviour:
     longitude: 30.020000457763672
     latitude: 48.470001220703125
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7953052741982026317
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294446,6 +294640,7 @@ MonoBehaviour:
     longitude: 22.989999771118164
     latitude: 46.16999816894531
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7963417792375899201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294584,6 +294779,7 @@ MonoBehaviour:
     longitude: -34.72999954223633
     latitude: 5.239999771118164
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7966149123579252192
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295355,6 +295551,7 @@ MonoBehaviour:
     longitude: 51.130001068115234
     latitude: 12.020000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8021258785609111024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295845,6 +296042,7 @@ MonoBehaviour:
     longitude: 131.318
     latitude: 46.304
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 36}
 --- !u!33 &8066072891534275232
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -296666,6 +296864,7 @@ MonoBehaviour:
     longitude: -59.7599983215332
     latitude: 12.15999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8150482682609722755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -296923,6 +297122,7 @@ MonoBehaviour:
     longitude: -66.95999908447266
     latitude: -17.579999923706055
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8169909988107354479
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297043,6 +297243,7 @@ MonoBehaviour:
     longitude: 7.090000152587891
     latitude: 53.5099983215332
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8171324873677915998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297181,6 +297382,7 @@ MonoBehaviour:
     longitude: 120.427
     latitude: 28.312
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &8190873273920372866
 GameObject:
   m_ObjectHideFlags: 0
@@ -297473,6 +297675,7 @@ MonoBehaviour:
     longitude: 11.289999961853027
     latitude: 2.2799999713897705
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8221748176204315592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -297852,6 +298055,7 @@ MonoBehaviour:
     longitude: -2.559999942779541
     latitude: 10.520000457763672
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8256799809913877433
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298048,6 +298252,7 @@ MonoBehaviour:
     longitude: 99.118
     latitude: 36.483
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!4 &8273075994663279177
 Transform:
   m_ObjectHideFlags: 0
@@ -298221,6 +298426,7 @@ MonoBehaviour:
     longitude: 22.709999084472656
     latitude: 48.619998931884766
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8284759243366492380
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298651,6 +298857,7 @@ MonoBehaviour:
     longitude: 81.79000091552734
     latitude: 9.819999694824219
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8324307648305689720
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -298780,6 +298987,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -299062,6 +299271,7 @@ MonoBehaviour:
     longitude: -13.609999656677246
     latitude: 66.52999877929688
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8332756404812303019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299223,6 +299433,7 @@ MonoBehaviour:
     longitude: 6.159999847412109
     latitude: 51.47999954223633
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8339840358005303669
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299358,6 +299569,7 @@ MonoBehaviour:
     longitude: 48.41999816894531
     latitude: 30.059999465942383
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8346996401200622887
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299559,6 +299771,7 @@ MonoBehaviour:
     longitude: -52.650001525878906
     latitude: 73.2300033569336
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8354218801994410973
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299892,6 +300105,7 @@ MonoBehaviour:
     longitude: 15.020000457763672
     latitude: 54.97999954223633
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8381982010130283468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300867,6 +301081,7 @@ MonoBehaviour:
     longitude: 12.6899995803833
     latitude: 57.72999954223633
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8464764715589474772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301415,6 +301630,7 @@ MonoBehaviour:
     longitude: 130.77999877929688
     latitude: 42.9900016784668
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8504065294747315972
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -301692,6 +301908,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -301847,6 +302065,7 @@ MonoBehaviour:
     longitude: 34
     latitude: 35.16999816894531
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8541998701696542089
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302016,6 +302235,7 @@ MonoBehaviour:
     longitude: -6.03000020980835
     latitude: 55.130001068115234
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8545971780916488243
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302321,6 +302541,7 @@ MonoBehaviour:
     longitude: 75.16000366210938
     latitude: 38.4900016784668
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8565500177630785237
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303177,6 +303398,7 @@ MonoBehaviour:
     longitude: -87.72000122070312
     latitude: 14.420000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8647538600651092515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303393,6 +303615,7 @@ MonoBehaviour:
     longitude: -13.699999809265137
     latitude: 12.630000114440918
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8655571267667747536
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303554,6 +303777,7 @@ MonoBehaviour:
     longitude: 23.889999389648438
     latitude: 23.40999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8659340998826957187
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303718,6 +303942,7 @@ MonoBehaviour:
     longitude: 28.1299991607666
     latitude: 59.61000061035156
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8667496620251258225
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -303954,6 +304179,7 @@ MonoBehaviour:
     longitude: 167.83999633789062
     latitude: -14.630000114440918
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &8682031070251202547
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -304434,6 +304660,7 @@ MonoBehaviour:
     longitude: 12.520000457763672
     latitude: 43.9900016784668
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8724724256819781041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -304760,6 +304987,7 @@ MonoBehaviour:
     longitude: 88.16999816894531
     latitude: 30.420000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8748795913242711514
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305376,6 +305604,7 @@ MonoBehaviour:
     longitude: -71.62000274658203
     latitude: 19.920000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8787528427286860257
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -305723,6 +305952,7 @@ MonoBehaviour:
     longitude: 3.0399999618530273
     latitude: 43.75
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8800525521532850283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306006,6 +306236,7 @@ MonoBehaviour:
     longitude: 9.640000343322754
     latitude: 47.27000045776367
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8816869114282954355
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306319,6 +306550,7 @@ MonoBehaviour:
     longitude: 19.389999389648438
     latitude: 46.5
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8843060302294195713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306480,6 +306712,7 @@ MonoBehaviour:
     longitude: 29.43000030517578
     latitude: -17.65999984741211
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8857572381588601700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -306656,6 +306889,7 @@ MonoBehaviour:
     longitude: -4.920000076293945
     latitude: 27.399999618530273
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8869443204655592477
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307190,6 +307424,7 @@ MonoBehaviour:
     longitude: 19.600000381469727
     latitude: 45.22999954223633
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8911998209102751019
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307483,6 +307718,7 @@ MonoBehaviour:
     longitude: 16.010000228881836
     latitude: 12.859999656677246
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8934227767495377043
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307603,6 +307839,7 @@ MonoBehaviour:
     longitude: -75.2300033569336
     latitude: 1.3799999952316284
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8935126481100451051
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307759,6 +307996,7 @@ MonoBehaviour:
     longitude: 31.290000915527344
     latitude: 70.91999816894531
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8942623687070959070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307914,6 +308152,7 @@ MonoBehaviour:
     longitude: 10.4399995803833
     latitude: 47.83000183105469
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8947724840272073787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308228,6 +308467,7 @@ MonoBehaviour:
     longitude: 105.58999633789062
     latitude: 20.420000076293945
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8981667473303216210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308815,6 +309055,7 @@ MonoBehaviour:
     longitude: -7.539999961853027
     latitude: 8.539999961853027
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9041851086840221410
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309055,6 +309296,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -309167,6 +309410,7 @@ MonoBehaviour:
     longitude: 43.08000183105469
     latitude: 18
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9049563347041043411
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309454,6 +309698,7 @@ MonoBehaviour:
     longitude: 121.991
     latitude: 35.124
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 39.89, z: 28.4}
 --- !u!4 &9088205778545492698
 Transform:
   m_ObjectHideFlags: 0
@@ -309745,6 +309990,8 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _overwriteAllChildFocusOffsetsOnStart: 0
+  _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7
   _restoreDuration: 0.5
@@ -310035,6 +310282,7 @@ MonoBehaviour:
     longitude: 129.47000122070312
     latitude: 38.61000061035156
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9140749760543917011
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310447,6 +310695,7 @@ MonoBehaviour:
     longitude: 107.55999755859375
     latitude: 22.459999084472656
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9173034352644410018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310784,6 +311033,7 @@ MonoBehaviour:
     longitude: -74.18000030517578
     latitude: 23.190000534057617
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9202349199531945679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -310927,6 +311177,7 @@ MonoBehaviour:
     longitude: -61.65999984741211
     latitude: 17.729999542236328
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9203986903650867603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -311155,6 +311406,7 @@ MonoBehaviour:
     longitude: -86.80999755859375
     latitude: 32.720001220703125
   _autoBindWestEastByLocalX: 0
+  _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &9209692697322412405
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -55,7 +55,13 @@ public class PlateMapDisplayController : MonoBehaviour
     [SerializeField] private float _provinceFitMinLocalY = 80f;
     [Tooltip("省自适应允许的最大视距")]
     [SerializeField] private float _provinceFitMaxLocalY = 5000f;
-    [SerializeField] private float _focusDuration = 0.45f;
+
+    [Header("省级聚焦")]
+     [Tooltip("勾选后开局用默认偏移强制覆盖全部子级 PlateMapGeoConverter；不勾选则开局不改各板块已有偏移。")]
+    [SerializeField] private bool _overwriteAllChildFocusOffsetsOnStart = false;
+    [Tooltip("仅当勾选「开局覆盖子板块偏移」时生效：开局强制写入子级 PlateMapGeoConverter 的聚焦中心世界坐标偏移。运行时聚焦只读各 GeoConverter 自身偏移。")]
+    [SerializeField] private Vector3 _defaultFocusCenterWorldOffset = Vector3.zero;
+       [SerializeField] private float _focusDuration = 0.45f;
     [SerializeField] private Ease _focusEase = Ease.InOutQuad;
 
     [Header("还原动画")]
@@ -133,6 +139,47 @@ public class PlateMapDisplayController : MonoBehaviour
         ResolveCameraReferences();
         ResolveWorldMapBoundaryLine();
         RefreshModuleList();
+        ApplyDefaultFocusOffsetToChildGeoConverters();
+    }
+
+    /// <summary>
+    /// 开局：仅当勾选覆盖时，将默认偏移强制写入子级 PlateMapGeoConverter。
+    /// </summary>
+    private void ApplyDefaultFocusOffsetToChildGeoConverters()
+    {
+        if (!_overwriteAllChildFocusOffsetsOnStart)
+        {
+            return;
+        }
+
+        Transform root = _plateMapRoot != null ? _plateMapRoot : transform;
+        PlateMapGeoConverter[] geos = root.GetComponentsInChildren<PlateMapGeoConverter>(true);
+        if (geos == null || geos.Length == 0)
+        {
+            return;
+        }
+
+        int applied = 0;
+        for (int i = 0; i < geos.Length; i++)
+        {
+            PlateMapGeoConverter geo = geos[i];
+            if (geo == null)
+            {
+                continue;
+            }
+
+            if (geo.ApplyFocusCenterWorldOffset(_defaultFocusCenterWorldOffset))
+            {
+                applied++;
+            }
+        }
+
+        if (applied > 0)
+        {
+            Debug.Log(
+                $"[PlateMapDisplayController] 开局已覆盖默认聚焦偏移 {applied} 个 GeoConverter | " +
+                $"offset={_defaultFocusCenterWorldOffset}");
+        }
     }
 
     private void OnDestroy()
@@ -453,6 +500,104 @@ public class PlateMapDisplayController : MonoBehaviour
         Debug.Log($"[PlateMapDisplayController] 聚焦模块：{moduleKey} | viewDistance={viewDistance:F1}");
     }
 
+    /// <summary>
+    /// 若当前聚焦模块属于指定 GeoConverter，则瞬时刷新机位（无 DOTween、不重发层级事件）。
+    /// 编辑器 Play 下调偏移时调用；聚焦完成后 Controller 可能已 disabled，仍可刷新。
+    /// </summary>
+    public bool RefreshFocusedCameraImmediateIfOwnedBy(PlateMapGeoConverter geo)
+    {
+        if (geo == null)
+        {
+            return false;
+        }
+
+#if UNITY_EDITOR
+        if (Application.isPlaying && _focusedModule == null)
+        {
+            // 聚焦完成后引用丢失：省级下尝试用本 Geo 关联的 DisplayModule 兜底
+            if (GameManager.Instance != null &&
+                GameManager.Instance.CurrentState == GameManager.ControlState.ProvinceLevel)
+            {
+                PlateMapDisplayModule candidate =
+                    geo.GetComponentInChildren<PlateMapDisplayModule>(true) ??
+                    geo.GetComponentInParent<PlateMapDisplayModule>();
+                if (candidate == null && _transitionCachedModule != null)
+                {
+                    PlateMapGeoConverter owned =
+                        _transitionCachedModule.GetComponentInParent<PlateMapGeoConverter>() ??
+                        _transitionCachedModule.GetComponentInChildren<PlateMapGeoConverter>(true);
+                    if (owned == geo)
+                    {
+                        candidate = _transitionCachedModule;
+                    }
+                }
+
+                if (candidate != null)
+                {
+                    _focusedModule = candidate;
+                }
+            }
+        }
+#endif
+
+        if (_focusedModule == null)
+        {
+            return false;
+        }
+
+        PlateMapGeoConverter ownedGeo =
+            _focusedModule.GetComponentInParent<PlateMapGeoConverter>() ??
+            _focusedModule.GetComponentInChildren<PlateMapGeoConverter>(true);
+        if (ownedGeo != geo)
+        {
+            return false;
+        }
+
+        return RefreshFocusedCameraImmediate();
+    }
+
+    /// <summary>按当前聚焦模块与偏移瞬时重算 CameraPivot（跳过动画）。</summary>
+    public bool RefreshFocusedCameraImmediate()
+    {
+        PlateMapDisplayModule module = _focusedModule;
+        if (module == null || _cameraRig == null || _cameraTransform == null || _pickCamera == null)
+        {
+            return false;
+        }
+
+        float viewDistance = ResolveProvinceFocusViewDistance(module);
+        bool fromAutoFit = _autoFitProvinceToViewport && _pickCamera != null;
+        if (!fromAutoFit && _cameraZoomController != null)
+        {
+            viewDistance = Mathf.Clamp(viewDistance, _cameraZoomController.MinZoomY, _cameraZoomController.MaxZoomY);
+        }
+        else
+        {
+            viewDistance = Mathf.Clamp(viewDistance, _provinceFitMinLocalY, _provinceFitMaxLocalY);
+        }
+
+        Vector3 fogLocalKeep = _cameraTransform.localPosition;
+        if (!TryComputeRigPositionForModuleAtViewCenter(module, fogLocalKeep, viewDistance, out Vector3 rigTargetPos))
+        {
+            Debug.LogWarning("[PlateMapDisplayController] 瞬时刷新聚焦机位失败。");
+            return false;
+        }
+
+        KillCameraTweens(releaseZoomSuppress: false);
+        _cameraRig.SetPositionAndRotation(rigTargetPos, _cameraRig.rotation);
+
+        if (_cameraZoomController != null)
+        {
+            _cameraZoomController.SetTargetZoomY(fogLocalKeep.y, immediate: true, clampToLimits: true);
+            _cameraZoomController.ZoomControlEnabled = true;
+        }
+
+        Debug.Log(
+            $"[PlateMapDisplayController] 瞬时刷新聚焦 | module={module.ModuleKey} | " +
+            $"viewDistance={viewDistance:F1} | offset={ResolveFocusCenterWorldOffset(module)}");
+        return true;
+    }
+
     private bool TryGetModuleByName(string moduleName, out PlateMapDisplayModule module)
     {
         module = null;
@@ -531,7 +676,7 @@ public class PlateMapDisplayController : MonoBehaviour
         out Vector3 rigWorldPosition)
     {
         rigWorldPosition = _cameraRig.position;
-        Vector3 moduleCenter = module.GetWorldBounds().center;
+        Vector3 moduleCenter = module.GetWorldBounds().center + ResolveFocusCenterWorldOffset(module);
 
         Quaternion predictedCamWorldRot = _cameraRig.rotation * _cameraTransform.localRotation;
         Vector3 forward = predictedCamWorldRot * Vector3.forward;
@@ -550,6 +695,20 @@ public class PlateMapDisplayController : MonoBehaviour
         Vector3 localOffsetWorld = _cameraRig.rotation * fogCameraLocalOffset;
         rigWorldPosition = targetCameraWorld - localOffsetWorld;
         return true;
+    }
+
+    /// <summary>读取关联 PlateMapGeoConverter 的省级聚焦世界坐标偏移；无则 zero。</summary>
+    private static Vector3 ResolveFocusCenterWorldOffset(PlateMapDisplayModule module)
+    {
+        if (module == null)
+        {
+            return Vector3.zero;
+        }
+
+        PlateMapGeoConverter geo =
+            module.GetComponentInParent<PlateMapGeoConverter>() ??
+            module.GetComponentInChildren<PlateMapGeoConverter>(true);
+        return geo != null ? geo.FocusCenterWorldOffset : Vector3.zero;
     }
 
     /// <summary>DOTween 还原至首次聚焦前的摄像机位姿。</summary>

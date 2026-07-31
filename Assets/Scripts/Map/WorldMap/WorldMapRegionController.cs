@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 默认世界地图板块控制器：在国内 / 国外指定大板块间切换。
 /// 切换后瞬时回到该模式「全国」视角并清除省级/国家聚焦；显示仅保留当前板块根。
+/// 国外板块初始位置设置在EarthTransition中
 /// </summary>
 [DisallowMultipleComponent]
 public class WorldMapRegionController : MonoBehaviour
