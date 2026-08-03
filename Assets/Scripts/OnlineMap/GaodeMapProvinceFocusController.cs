@@ -12,6 +12,10 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
     [Header("引用（留空则自动查找）")]
     [SerializeField] private GaodeMapController _gaodeMapController;
 
+    [Header("国外聚焦")]
+    [Tooltip("国外国家二维地图起始 zoom（省→车辆阶段一 LocateTo）；国内仍用数据表 Zoom")]
+    [SerializeField] private float _foreignFocusZoom = 5f;
+
     private static GaodeMapProvinceFocusController _instance;
 
     /// <summary>场景中的省级聚焦控制器。</summary>
@@ -91,9 +95,23 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
             return false;
         }
 
-        controller.LocateTo(data.Longitude, data.Latitude, data.Zoom);
-        Debug.Log($"[GaodeMapProvinceFocusController] 聚焦省份：{data.ProvinceName}（{data.Longitude:F4}, {data.Latitude:F4}, zoom={data.Zoom}）");
+        float zoom = ResolveFocusZoom(data);
+        controller.LocateTo(data.Longitude, data.Latitude, Mathf.RoundToInt(zoom));
+        Debug.Log(
+            $"[GaodeMapProvinceFocusController] 聚焦区域：{data.ProvinceName}（{data.Longitude:F4}, {data.Latitude:F4}, zoom={zoom}）");
         return true;
+    }
+
+    /// <summary>国内用数据表 Zoom；国外统一用 Inspector 起始 zoom。</summary>
+    private float ResolveFocusZoom(ChinaProvinceMapFocusData data)
+    {
+        if (WorldMapRegionContext.IsInitialized &&
+            WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign)
+        {
+            return _foreignFocusZoom;
+        }
+
+        return data != null ? data.Zoom : _foreignFocusZoom;
     }
 
     private static bool TryResolveFocusDataByName(string regionName, out ChinaProvinceMapFocusData data)

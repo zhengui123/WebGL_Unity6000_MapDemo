@@ -1,10 +1,11 @@
 using UnityEngine;
 
 /// <summary>
-/// 仅国家级：以地图包围盒中心为锚点，移动 CameraPivot 拉近/拉远。
-/// 国内：AllPlateMap；国外：当前激活大板块（Module/Renderer 包围盒中心）。
-/// PC 滚轮、Android 双指捏合。缩放不会改写国家级初始机位；每次进入国家级都会还原该初始位。
-/// 层级跳转 / 板图相机 DOTween 期间关闭缩放，避免与动画抢 Transform。
+/// 仅国家级：移动 CameraPivot 做缩放与世界 XZ 拖拽平移。
+/// 缩放锚点为当前屏幕中心落在世界 XZ 上的点（打不中则回退地图包围盒中心）；平移范围仍相对地图中心钳制。
+/// PC：滚轮缩放、左键拖拽平移；Android：双指捏合缩放、单指拖拽平移。
+/// 缩放/平移不会改写国家级初始机位；每次进入国家级 / 回 Home 都会还原该初始位。
+/// 层级跳转 / 板图相机 DOTween 期间关闭操控，避免与动画抢 Transform。
 /// </summary>
 [DisallowMultipleComponent]
 public class CountryMapZoomController : MonoBehaviour
@@ -23,6 +24,12 @@ public class CountryMapZoomController : MonoBehaviour
     [SerializeField] private float _maxDistanceToMapCenter = 6000f;
     [SerializeField] private float _zoomSmoothTime = 0.08f;
 
+    [Header("平移（世界 XZ）")]
+    [Tooltip("超过该像素位移才开始平移，避免与省份点击冲突")]
+    [SerializeField] private float _panDragThresholdPixels = 8f;
+    [Tooltip("相机相对地图中心在 XZ 平面上的最大偏移")]
+    [SerializeField] private float _maxPanOffsetFromMapCenter = 3000f;
+
     private bool _hasCountryHomePose;
     private Vector3 _countryHomeRigPosition;
     private Quaternion _countryHomeRigRotation;
@@ -35,6 +42,12 @@ public class CountryMapZoomController : MonoBehaviour
     private bool _wasZoomBlocked;
     /// <summary>板图聚焦/还原 DOTween 期间由 PlateMapDisplayController 置位，硬禁止写 Pivot。</summary>
     private bool _suppressedByPlateCamera;
+
+    private bool _pointerHeld;
+    private bool _isPanning;
+    private Vector2 _pointerDownScreen;
+    private Vector3 _lastPanHitWorld;
+    private Camera _panRayCamera;
 
     private static CountryMapZoomController _instance;
 
@@ -58,7 +71,7 @@ public class CountryMapZoomController : MonoBehaviour
         _suppressedByPlateCamera = suppressed;
         if (suppressed)
         {
-            StopZoomMotion();
+            StopZoomAndPanMotion();
         }
         else if (IsCountryLevel())
         {
@@ -90,8 +103,7 @@ public class CountryMapZoomController : MonoBehaviour
 
         _suppressedByPlateCamera = false;
         ApplyCountryHomePose();
-        _pinchPrevDistance = -1f;
-        _distanceVelocity = 0f;
+        StopZoomAndPanMotion();
         SyncDistanceFromCurrentPose();
     }
 
@@ -166,7 +178,7 @@ public class CountryMapZoomController : MonoBehaviour
             }
             else
             {
-                StopZoomMotion();
+                StopZoomAndPanMotion();
             }
         }
 
@@ -176,7 +188,7 @@ public class CountryMapZoomController : MonoBehaviour
             _wasZoomBlocked = zoomBlocked;
             if (zoomBlocked)
             {
-                StopZoomMotion();
+                StopZoomAndPanMotion();
             }
             else if (isCountry)
             {
@@ -195,11 +207,18 @@ public class CountryMapZoomController : MonoBehaviour
             return;
         }
 
-        bool hadInput = HandleZoomInput(mapCenter);
-        // 无输入且已到位则不写 Pivot，避免 LateUpdate 与 DOTween 抢坐标
-        if (hadInput || NeedsDistanceSmoothing())
+        HandlePanInput(mapCenter);
+
+        if (!TryGetZoomAnchor(out Vector3 zoomAnchor))
         {
-            ApplyZoomTowardMapCenter(mapCenter);
+            return;
+        }
+
+        bool hadZoomInput = HandleZoomInput(zoomAnchor);
+        // 无输入且已到位则不写 Pivot，避免 LateUpdate 与 DOTween 抢坐标
+        if (hadZoomInput || NeedsDistanceSmoothing())
+        {
+            ApplyZoomTowardAnchor(zoomAnchor);
         }
     }
 
@@ -224,22 +243,22 @@ public class CountryMapZoomController : MonoBehaviour
 
     private void HandlePlateCameraTweenStarted(string _)
     {
-        StopZoomMotion();
+        StopZoomAndPanMotion();
     }
 
     private void HandlePlateCameraTweenStarted()
     {
-        StopZoomMotion();
+        StopZoomAndPanMotion();
     }
 
     private void HandleHierarchyTransitionStarted()
     {
-        StopZoomMotion();
+        StopZoomAndPanMotion();
     }
 
     private void HandleNamedTransitionStarted(string _)
     {
-        StopZoomMotion();
+        StopZoomAndPanMotion();
     }
 
     /// <summary>国内外/国外大板块切换后：按新包围盒中心重同步缩放距离。</summary>
@@ -258,11 +277,18 @@ public class CountryMapZoomController : MonoBehaviour
         SyncDistanceFromCurrentPose();
     }
 
-    private void StopZoomMotion()
+    private void StopZoomAndPanMotion()
     {
         _targetDistance = -1f;
         _pinchPrevDistance = -1f;
         _distanceVelocity = 0f;
+        ClearPanState();
+    }
+
+    private void ClearPanState()
+    {
+        _pointerHeld = false;
+        _isPanning = false;
     }
 
     private bool NeedsDistanceSmoothing()
@@ -332,29 +358,207 @@ public class CountryMapZoomController : MonoBehaviour
     {
         _cameraRig.SetPositionAndRotation(_countryHomeRigPosition, _countryHomeRigRotation);
         _distanceVelocity = 0f;
+        ClearPanState();
     }
 
-    private void SyncDistanceFromCurrentPose()
+    /// <summary>
+    /// 左键 / 单指拖拽：在世界 XZ 平面上平移 CameraPivot；相对地图中心钳制最大偏移。
+    /// </summary>
+    private void HandlePanInput(Vector3 mapCenter)
     {
-        if (!TryGetMapCenter(out Vector3 mapCenter))
+        // 双指交给捏合缩放
+        if (Input.touchCount >= 2)
+        {
+            ClearPanState();
+            return;
+        }
+
+        if (!TryReadPanPointer(out Vector2 screen, out bool down, out bool held, out bool up))
+        {
+            ClearPanState();
+            return;
+        }
+
+        if (down)
+        {
+            _pointerHeld = true;
+            _isPanning = false;
+            _pointerDownScreen = screen;
+        }
+
+        if (up || !held)
+        {
+            ClearPanState();
+            return;
+        }
+
+        if (!_pointerHeld)
         {
             return;
         }
 
-        float dist = Vector3.Distance(_cameraTransform.position, mapCenter);
+        float planeY = mapCenter.y;
+
+        if (!_isPanning)
+        {
+            if (Vector2.Distance(screen, _pointerDownScreen) < _panDragThresholdPixels)
+            {
+                return;
+            }
+
+            if (!TryScreenPointToWorldXZ(screen, planeY, out Vector3 grabHit))
+            {
+                return;
+            }
+
+            _isPanning = true;
+            _lastPanHitWorld = grabHit;
+            return;
+        }
+
+        if (!TryScreenPointToWorldXZ(screen, planeY, out Vector3 currHit))
+        {
+            return;
+        }
+
+        Vector3 delta = _lastPanHitWorld - currHit;
+        delta.y = 0f;
+        if (delta.sqrMagnitude < 1e-12f)
+        {
+            return;
+        }
+
+        Vector3 proposedRig = _cameraRig.position + delta;
+        _cameraRig.position = ClampRigXZOffsetFromMapCenter(proposedRig, mapCenter);
+
+        // 以钳制后机位重新采样抓取点，避免越界时手指与地图错位
+        if (TryScreenPointToWorldXZ(screen, planeY, out Vector3 hitAfter))
+        {
+            _lastPanHitWorld = hitAfter;
+        }
+
+        SyncDistanceFromCurrentPose();
+    }
+
+    /// <summary>PC 左键；移动端单指。同时存在触屏时优先触屏。</summary>
+    private static bool TryReadPanPointer(out Vector2 screen, out bool down, out bool held, out bool up)
+    {
+        screen = Vector2.zero;
+        down = false;
+        held = false;
+        up = false;
+
+        if (Input.touchCount == 1)
+        {
+            Touch touch = Input.GetTouch(0);
+            screen = touch.position;
+            down = touch.phase == TouchPhase.Began;
+            held = touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary;
+            up = touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled;
+            return true;
+        }
+
+        if (Input.touchCount > 1)
+        {
+            return false;
+        }
+
+        screen = Input.mousePosition;
+        down = Input.GetMouseButtonDown(0);
+        held = Input.GetMouseButton(0);
+        up = Input.GetMouseButtonUp(0);
+        return down || held || up;
+    }
+
+    private bool TryScreenPointToWorldXZ(Vector2 screen, float planeY, out Vector3 worldOnPlane)
+    {
+        worldOnPlane = Vector3.zero;
+        Camera cam = ResolvePanRayCamera();
+        if (cam == null)
+        {
+            return false;
+        }
+
+        Ray ray = cam.ScreenPointToRay(screen);
+        var plane = new Plane(Vector3.up, new Vector3(0f, planeY, 0f));
+        if (!plane.Raycast(ray, out float enter))
+        {
+            return false;
+        }
+
+        worldOnPlane = ray.GetPoint(enter);
+        worldOnPlane.y = planeY;
+        return true;
+    }
+
+    /// <summary>按相机世界坐标相对地图中心的 XZ 距离钳制，再反推 Pivot。</summary>
+    private Vector3 ClampRigXZOffsetFromMapCenter(Vector3 proposedRigPosition, Vector3 mapCenter)
+    {
+        if (_maxPanOffsetFromMapCenter <= 0f || _cameraTransform == null)
+        {
+            return proposedRigPosition;
+        }
+
+        Vector3 localOffsetWorld = _cameraRig.rotation * _cameraTransform.localPosition;
+        Vector3 camWorld = proposedRigPosition + localOffsetWorld;
+        Vector3 flat = new Vector3(camWorld.x - mapCenter.x, 0f, camWorld.z - mapCenter.z);
+        float max = _maxPanOffsetFromMapCenter;
+        if (flat.sqrMagnitude <= max * max)
+        {
+            return proposedRigPosition;
+        }
+
+        flat = flat.normalized * max;
+        camWorld.x = mapCenter.x + flat.x;
+        camWorld.z = mapCenter.z + flat.z;
+        return camWorld - localOffsetWorld;
+    }
+
+    private Camera ResolvePanRayCamera()
+    {
+        if (_panRayCamera != null)
+        {
+            return _panRayCamera;
+        }
+
+        if (_cameraTransform != null)
+        {
+            _panRayCamera = _cameraTransform.GetComponent<Camera>();
+            if (_panRayCamera == null)
+            {
+                _panRayCamera = _cameraTransform.GetComponentInChildren<Camera>(true);
+            }
+        }
+
+        if (_panRayCamera == null)
+        {
+            _panRayCamera = Camera.main;
+        }
+
+        return _panRayCamera;
+    }
+
+    private void SyncDistanceFromCurrentPose()
+    {
+        if (!TryGetZoomAnchor(out Vector3 zoomAnchor))
+        {
+            return;
+        }
+
+        float dist = Vector3.Distance(_cameraTransform.position, zoomAnchor);
         _currentDistance = dist;
         _targetDistance = dist;
         _distanceVelocity = 0f;
     }
 
-    private bool HandleZoomInput(Vector3 mapCenter)
+    private bool HandleZoomInput(Vector3 zoomAnchor)
     {
         float delta = 0f;
 
         float wheel = Input.GetAxis("Mouse ScrollWheel");
         if (Mathf.Abs(wheel) > Mathf.Epsilon)
         {
-            // 滚轮向上（正）→ 拉近（减小到地图中心距离）
+            // 滚轮向上（正）→ 拉近（减小到缩放锚点距离）
             delta -= wheel * _wheelZoomSpeed;
         }
 
@@ -367,7 +571,7 @@ public class CountryMapZoomController : MonoBehaviour
 
         if (_targetDistance < 0f)
         {
-            _targetDistance = Vector3.Distance(_cameraTransform.position, mapCenter);
+            _targetDistance = Vector3.Distance(_cameraTransform.position, zoomAnchor);
             _currentDistance = _targetDistance;
         }
 
@@ -404,7 +608,8 @@ public class CountryMapZoomController : MonoBehaviour
         return -pinchDelta * _pinchZoomSpeed;
     }
 
-    private void ApplyZoomTowardMapCenter(Vector3 mapCenter)
+    /// <summary>沿「相机 → 缩放锚点」方向调整视距（锚点一般为屏幕中心落点）。</summary>
+    private void ApplyZoomTowardAnchor(Vector3 zoomAnchor)
     {
         if (_targetDistance < 0f)
         {
@@ -418,15 +623,40 @@ public class CountryMapZoomController : MonoBehaviour
             _zoomSmoothTime);
 
         Vector3 camWorld = _cameraTransform.position;
-        Vector3 fromCenter = camWorld - mapCenter;
-        if (fromCenter.sqrMagnitude < 1e-6f)
+        Vector3 fromAnchor = camWorld - zoomAnchor;
+        if (fromAnchor.sqrMagnitude < 1e-6f)
         {
-            fromCenter = -_cameraTransform.forward;
+            fromAnchor = -_cameraTransform.forward;
         }
 
-        Vector3 newCamWorld = mapCenter + fromCenter.normalized * Mathf.Max(_currentDistance, 0.01f);
+        Vector3 newCamWorld = zoomAnchor + fromAnchor.normalized * Mathf.Max(_currentDistance, 0.01f);
         Vector3 localOffsetWorld = _cameraRig.rotation * _cameraTransform.localPosition;
         _cameraRig.position = newCamWorld - localOffsetWorld;
+    }
+
+    /// <summary>
+    /// 缩放锚点：当前屏幕中心射线与世界 XZ（高度取地图中心 Y）的交点；打不中则回退地图包围盒中心。
+    /// </summary>
+    private bool TryGetZoomAnchor(out Vector3 zoomAnchor)
+    {
+        zoomAnchor = Vector3.zero;
+        if (!TryGetMapCenter(out Vector3 mapCenter))
+        {
+            return false;
+        }
+
+        Camera cam = ResolvePanRayCamera();
+        if (cam != null)
+        {
+            Vector2 screenCenter = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            if (TryScreenPointToWorldXZ(screenCenter, mapCenter.y, out zoomAnchor))
+            {
+                return true;
+            }
+        }
+
+        zoomAnchor = mapCenter;
+        return true;
     }
 
     private bool TryGetMapCenter(out Vector3 mapCenter)

@@ -24614,7 +24614,7 @@ MonoBehaviour:
     m_Bits: 4055
   stopNaNPropagation: 1
   finalBlitToCameraTarget: 0
-  antialiasingMode: 0
+  antialiasingMode: 2
   temporalAntialiasing:
     jitterSpread: 0.75
     sharpness: 0.25
@@ -41874,7 +41874,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &526021184
 Transform:
   m_ObjectHideFlags: 0
@@ -41897,7 +41897,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 526021183}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 75ff2067f35f72d4293bdeea13f1b4a5, type: 3}
   m_Name: 
@@ -41923,7 +41923,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 526021183}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 7385371020b25e1449feba693d453c29, type: 3}
   m_Name: 
@@ -44689,7 +44689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fec765580beb2d642aa7c0e2b4f71fc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartDemo
-  _applyOnPlay: 1
+  _applyOnPlay: 0
   _startState: 1
   _ensureEarthBaselineOnPlay: 1
   _useInstantTransition: 1
@@ -94501,6 +94501,53 @@ MeshFilter:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1249786311}
   m_Mesh: {fileID: 4300002, guid: ceac1b6ce30c82f4092f1b298b41e446, type: 3}
+--- !u!1 &1250490643
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1250490644}
+  - component: {fileID: 1250490645}
+  m_Layer: 0
+  m_Name: WebGL_API
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1250490644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250490643}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1594526987}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1250490645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1250490643}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daadf101348a0f747b4c38212ca9a14f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WebGLAPI
+  showMessageText: {fileID: 0}
+  _enableCommunicationLog: 1
+  lastHostMessage: 
 --- !u!1 &1251794866
 GameObject:
   m_ObjectHideFlags: 0
@@ -103930,6 +103977,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GaodeMapProvinceFocusController
   _gaodeMapController: {fileID: 1389356381}
+  _foreignFocusZoom: 5
 --- !u!114 &1389356381
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -104025,6 +104073,7 @@ MonoBehaviour:
   _vehicleParentTransform: {fileID: 0}
   _mainCamera: {fileID: 0}
   _targetZoom: 17
+  _foreignTargetZoom: 10
   _zoomDuration: 2.5
   _zoomEase: 7
   _scanlineDuration: 0.7
@@ -159573,6 +159622,7 @@ Transform:
   - {fileID: 848007550}
   - {fileID: 526021184}
   - {fileID: 1960983825}
+  - {fileID: 1250490644}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1595585423
@@ -201015,6 +201065,8 @@ MonoBehaviour:
   _minDistanceToMapCenter: 200
   _maxDistanceToMapCenter: 6000
   _zoomSmoothTime: 0.08
+  _panDragThresholdPixels: 8
+  _maxPanOffsetFromMapCenter: 3000
 --- !u!1 &2101861625
 GameObject:
   m_ObjectHideFlags: 0
@@ -207873,7 +207925,7 @@ MonoBehaviour:
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
-  _overwriteAllChildFocusOffsetsOnStart: 0
+  _overwriteAllChildFocusOffsetsOnStart: 1
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
   _focusEase: 7

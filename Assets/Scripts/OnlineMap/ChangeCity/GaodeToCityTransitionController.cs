@@ -22,6 +22,8 @@ public class GaodeToCityTransitionController : MonoBehaviour
 
     [Header("缩放阶段")]
     [SerializeField] private float _targetZoom = 17f;
+    [Tooltip("国外国家：GaodeMap → 城市 的目标 floatZoom")]
+    [SerializeField] private float _foreignTargetZoom = 10f;
     [SerializeField] private float _zoomDuration = 2.5f;
     [SerializeField] private Ease _zoomEase = Ease.InOutQuad;
 
@@ -143,7 +145,7 @@ public class GaodeToCityTransitionController : MonoBehaviour
 
         _zoomTween = GaodeMapZoomTween.TweenFloatZoom(
             _gaodeMapController.OnlineMaps,
-            _targetZoom,
+            ResolveTargetZoom(),
             _zoomDuration,
             _zoomEase);
         if (_zoomTween != null)
@@ -264,6 +266,18 @@ public class GaodeToCityTransitionController : MonoBehaviour
 
         int index = Mathf.Clamp(_focusPoseIndex, 0, _cityFocusPoses.Length - 1);
         return _cityFocusPoses[index];
+    }
+
+    /// <summary>国内用 _targetZoom；国外用 _foreignTargetZoom。</summary>
+    private float ResolveTargetZoom()
+    {
+        if (WorldMapRegionContext.IsInitialized &&
+            WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign)
+        {
+            return _foreignTargetZoom;
+        }
+
+        return _targetZoom;
     }
 
     private void AdvanceFocusPoseIndex()
