@@ -718,6 +718,32 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(SetWorldMapRegionDefaults), "已应用");
     }
 
+    /// <summary>
+    /// 宿主调用：运行时合并覆盖 HTTP 默认请求头。
+    /// JSON：{"headers":[{"key":"Satoken","value":"新token"},{"key":"X-Tenant-Id","value":"1"},{"key":"Sys-Lang","value":"zh-CN"}]}
+    /// 未传入的 key、或 value 为空，不改变该 key 现有值。
+    /// </summary>
+    public void SetHttpRequestHeaders(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(SetHttpRequestHeaders), json);
+        LogCommunication("← Host", nameof(SetHttpRequestHeaders), json);
+
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[WebGLAPI] SetHttpRequestHeaders: JSON 为空。");
+            return;
+        }
+
+        SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
+        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers))
+        {
+            Debug.LogWarning($"[WebGLAPI] SetHttpRequestHeaders 失败: {json}");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(SetHttpRequestHeaders), "已应用");
+    }
+
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
     public void CloseCarUI()
     {

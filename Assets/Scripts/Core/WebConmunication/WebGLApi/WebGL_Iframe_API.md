@@ -676,7 +676,44 @@ callUnity('TransitionToEarth', '');
 
 ---
 
-### 4.18 接口汇总表（父 → Unity）
+### 4.18 SetHttpRequestHeaders
+
+> **编号约定：** 新增父页面 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
+
+运行时合并覆盖 HTTP 默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
+
+
+| 项目       | 值                                             |
+| -------- | --------------------------------------------- |
+| `method` | `SetHttpRequestHeaders`                       |
+| `arg`    | JSON                                          |
+| Unity 方法 | `WebGLAPI.SetHttpRequestHeaders(string json)` |
+| MapApi   | `SetHttpRequestHeaders(headers)`              |
+
+
+
+| 字段                | 类型     | 必填  | 说明                                          |
+| ----------------- | ------ | --- | ------------------------------------------- |
+| `headers`         | array  | 是   | 请求头列表                                       |
+| `headers[].key`   | string | 是   | 如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
+| `headers[].value` | string | 是   | 非空才写入；空/空白不改变该 key                          |
+
+
+**规则：** 未传入的 key 不动；value 为空不动；仅 key+value 均非空时覆盖/新增。
+
+```javascript
+callUnity('SetHttpRequestHeaders', JSON.stringify({
+  headers: [
+    { key: 'Satoken', value: '新token' },
+    { key: 'X-Tenant-Id', value: '1' },
+    { key: 'Sys-Lang', value: 'zh-CN' },
+  ],
+}));
+```
+
+---
+
+### 4.19 接口汇总表（父 → Unity）
 
 
 | method                                    | arg         | JSON | 说明                         |
@@ -702,6 +739,7 @@ callUnity('TransitionToEarth', '');
 | `TransitionToEarth`                       | `""`        |      | 板块 → 地球（可选联调）              |
 | `FocusPlateMapModule`                     | 模块名         |      | 聚焦板块模块（可选联调）               |
 | `RestorePlateMapCamera`                   | `""`        |      | 还原板块相机（可选联调）               |
+| `SetHttpRequestHeaders`                   | JSON        | ✅    | 运行时合并覆盖 HTTP 默认请求头         |
 
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  

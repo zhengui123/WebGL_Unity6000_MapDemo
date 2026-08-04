@@ -137,75 +137,113 @@ public static class HttpProjectConfig
 
 
     /// <summary>创建默认请求头字典副本（每次调用独立实例，避免被修改污染配置）。</summary>
-
+    /// <remarks>先写入配置文件/程序默认，再叠加运行时覆盖（见 <see cref="MergeRuntimeRequestHeaders"/>）。</remarks>
     public static Dictionary<string, string> CreateDefaultHeaders()
-
     {
-
         IReadOnlyList<(string Key, string Value)> entries = Backend.HeaderEntries;
-
         Dictionary<string, string> headers = new Dictionary<string, string>(entries.Count);
-
         for (int i = 0; i < entries.Count; i++)
-
         {
-
             headers[entries[i].Key] = entries[i].Value;
-
         }
 
-
-
+        ApplyRuntimeHeaderOverrides(headers);
         return headers;
-
     }
 
-
-
     /// <summary>
-
-    /// 将项目默认请求头合并进目标字典：默认项打底，<paramref name="additionalHeaders"/> 中非空键可覆盖。
-
+    /// 运行时合并覆盖默认请求头：仅对「key 非空且 value 非空」的项写入；
+    /// 未传入的 key、或 value 为空/空白的项，不改变该 key 现有值。
     /// </summary>
-
-    public static Dictionary<string, string> MergeDefaultHeaders(Dictionary<string, string> additionalHeaders = null)
-
+    /// <returns>至少成功写入一项返回 true；否则 false。</returns>
+    public static bool MergeRuntimeRequestHeaders(HttpBackendHeaderEntry[] headers)
     {
-
-        Dictionary<string, string> merged = CreateDefaultHeaders();
-
-        if (additionalHeaders == null)
-
+        if (headers == null || headers.Length == 0)
         {
-
-            return merged;
-
+            return false;
         }
 
-
-
-        foreach (KeyValuePair<string, string> header in additionalHeaders)
-
+        int applied = 0;
+        lock (RuntimeHeaderOverridesLock)
         {
-
-            if (string.IsNullOrEmpty(header.Key))
-
+            if (_runtimeHeaderOverrides == null)
             {
-
-                continue;
-
+                _runtimeHeaderOverrides = new Dictionary<string, string>();
             }
 
+            for (int i = 0; i < headers.Length; i++)
+            {
+                HttpBackendHeaderEntry entry = headers[i];
+                if (entry == null)
+                {
+                    continue;
+                }
 
+                string key = entry.key != null ? entry.key.Trim() : string.Empty;
+                if (string.IsNullOrEmpty(key))
+                {
+                    continue;
+                }
 
-            merged[header.Key] = header.Value ?? string.Empty;
+                if (string.IsNullOrWhiteSpace(entry.value))
+                {
+                    continue;
+                }
 
+                _runtimeHeaderOverrides[key] = entry.value.Trim();
+                applied++;
+            }
         }
 
+        return applied > 0;
+    }
 
+    private static void ApplyRuntimeHeaderOverrides(Dictionary<string, string> headers)
+    {
+        if (headers == null)
+        {
+            return;
+        }
+
+        lock (RuntimeHeaderOverridesLock)
+        {
+            if (_runtimeHeaderOverrides == null || _runtimeHeaderOverrides.Count == 0)
+            {
+                return;
+            }
+
+            foreach (KeyValuePair<string, string> pair in _runtimeHeaderOverrides)
+            {
+                headers[pair.Key] = pair.Value;
+            }
+        }
+    }
+
+    private static readonly object RuntimeHeaderOverridesLock = new object();
+    private static Dictionary<string, string> _runtimeHeaderOverrides;
+
+    /// <summary>
+    /// 将项目默认请求头合并进目标字典：默认项打底，<paramref name="additionalHeaders"/> 中非空键可覆盖。
+    /// </summary>
+    public static Dictionary<string, string> MergeDefaultHeaders(Dictionary<string, string> additionalHeaders = null)
+    {
+        Dictionary<string, string> merged = CreateDefaultHeaders();
+        if (additionalHeaders == null)
+        {
+            return merged;
+        }
+
+        foreach (KeyValuePair<string, string> header in additionalHeaders)
+        {
+            if (string.IsNullOrEmpty(header.Key))
+            {
+                continue;
+            }
+
+            merged[header.Key] = header.Value ?? string.Empty;
+        }
 
         return merged;
-
     }
 
 

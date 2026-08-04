@@ -312,7 +312,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 > **Android / WebGL 正式业务中通常无需调用本接口。**  
 > 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；宿主只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.2 节），用于同步展示当前朝向。  
 > 本接口仅供 Unity Editor / Demo 联调、自动化测试等场景使用，**不作为生产集成必选项**。  
-> WebGL 同名方法见 `WebGLApi/WebGL_Iframe_API.md` §4.15。
+> WebGL 同名方法见 `WebGLApi/WebGL_Iframe_API.md` §4.16。
 
 用于控制车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
 
@@ -353,6 +353,37 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 | `TransitionToEarth` | `""` | 板块 → 地球过渡 |
 | `FocusPlateMapModule` | 模块名字符串 | 聚焦指定板块模块 |
 | `RestorePlateMapCamera` | `""` | 还原板块相机 |
+
+---
+
+### 2.18 `SetHttpRequestHeaders` — 运行时配置 HTTP 请求头
+
+> **编号约定：** 新增宿主 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
+
+合并覆盖默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务 HTTP 请求自动带上。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders",
+    "{\"headers\":["
+    + "{\"key\":\"Satoken\",\"value\":\"新token\"},"
+    + "{\"key\":\"X-Tenant-Id\",\"value\":\"1\"},"
+    + "{\"key\":\"Sys-Lang\",\"value\":\"zh-CN\"}"
+    + "]}");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `headers` | array | 是 | 请求头列表 |
+| `headers[].key` | string | 是 | 请求头名，如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
+| `headers[].value` | string | 是 | 非空才写入；空或空白则**不改变**该 key 现有值 |
+
+**规则：**
+
+- 未传入的 key：不改变
+- value 为空 / 空白：不改变该 key
+- 仅 key 与 value 均非空时覆盖（可新增配置中原本没有的 key）
+
+对应 Unity：`MapApi.SetHttpRequestHeaders` → `HttpProjectConfig.MergeRuntimeRequestHeaders`。
 
 ---
 
@@ -537,6 +568,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `TransitionToEarth` | `""` | 板块 → 地球（可选联调；WebGL 同名） |
 | `FocusPlateMapModule` | 模块名 | 聚焦板块模块（可选联调；WebGL 同名） |
 | `RestorePlateMapCamera` | `""` | 还原板块相机（可选联调；WebGL 同名） |
+| `SetHttpRequestHeaders` | JSON | 运行时合并覆盖 HTTP 默认请求头 |
 
 ---
 

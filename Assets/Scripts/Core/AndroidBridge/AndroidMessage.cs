@@ -39,6 +39,14 @@ public struct SetWorldMapRegionDefaultsRequest
     public string defaultUnitCode;
 }
 
+/// <summary>运行时合并覆盖 HTTP 默认请求头。</summary>
+[System.Serializable]
+public struct SetHttpRequestHeadersRequest
+{
+    /// <summary>请求头列表；仅 key 与 value 均非空的项会覆盖。</summary>
+    public HttpBackendHeaderEntry[] headers;
+}
+
 /// <summary>
 /// 大屏跳转状态（<see cref="ControlStateTransitionNotify.status"/> 取值）。
 /// 表示本次层级过渡由何种大屏业务场景触发，与操控级别、轮播态势类型无关。
@@ -772,6 +780,27 @@ public class AndroidMessage : MonoBehaviour
         if (!ok)
         {
             Debug.LogWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：运行时合并覆盖 HTTP 默认请求头。
+    /// UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders", json);
+    /// 示例：{"headers":[{"key":"Satoken","value":"新token"},{"key":"Sys-Lang","value":"zh-CN"}]}
+    /// 未传入的 key、或 value 为空，不改变该 key 现有值。
+    /// </summary>
+    public void SetHttpRequestHeaders(string json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            Debug.LogWarning("[AndroidMessage] SetHttpRequestHeaders: JSON 为空。");
+            return;
+        }
+
+        SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
+        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers))
+        {
+            Debug.LogWarning($"[AndroidMessage] SetHttpRequestHeaders 失败: {json}");
         }
     }
 

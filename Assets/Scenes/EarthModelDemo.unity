@@ -83434,6 +83434,7 @@ MonoBehaviour:
   _partLevelHoldSeconds: 4
   _interruptCooldownSeconds: 10
   _logStageTiming: 1
+  _dedupePartIdsForDrill: 0
 --- !u!4 &1112964611
 Transform:
   m_ObjectHideFlags: 0

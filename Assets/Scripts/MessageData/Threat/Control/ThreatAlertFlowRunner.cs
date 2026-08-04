@@ -41,6 +41,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     [Header("调试")]
     [Tooltip("Console 输出 [计时] 日志，区分过渡耗时与停留耗时")]
     [SerializeField] private bool _logStageTiming = true;
+    [Tooltip("零件下钻列表是否按零件名去重。关闭时：同一零件有 N 条 pending 威胁则停留 N 次")]
+    [SerializeField] private bool _dedupePartIdsForDrill = false;
 
     private Coroutine _flowRoutine;
     private Coroutine _interruptCooldownRoutine;
@@ -1015,7 +1017,23 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         yield return null;
     }
 
-    private static List<string> ResolvePartIdsForDrill()
+    /// <summary>
+    /// 收集零件下钻列表。
+    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按零件名去重（优先攻击链路节点，否则防护状态 slide）。
+    /// 为 false：按防护状态 pendingEvents 展开，同一零件 N 条威胁 → 列表出现 N 次。
+    /// </summary>
+    private List<string> ResolvePartIdsForDrill()
+    {
+        if (!_dedupePartIdsForDrill)
+        {
+            return BuildPartIdsExpandedByPendingEvents();
+        }
+
+        return BuildPartIdsDeduped();
+    }
+
+    /// <summary>去重：攻击链路节点零件名优先，否则防护状态零件名（各出现一次）。</summary>
+    private static List<string> BuildPartIdsDeduped()
     {
         List<string> partIds = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
         if (partIds.Count > 0)
@@ -1038,6 +1056,40 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         return fallback;
+    }
+
+    /// <summary>
+    /// 不去重：按防护状态 slide 的 pending 事件数展开；无事件的零件仍保留 1 次。
+    /// 若无防护状态数据，回退为攻击链路节点（各 1 次）。
+    /// </summary>
+    private static List<string> BuildPartIdsExpandedByPendingEvents()
+    {
+        List<string> result = new List<string>();
+        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
+        for (int i = 0; i < slides.Count; i++)
+        {
+            CarVehiclePartSlide slide = slides[i];
+            string name = slide.PartTypeName;
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                continue;
+            }
+
+            string partId = name.Trim();
+            int eventCount = slide.EventNames != null ? slide.EventNames.Count : 0;
+            int times = eventCount > 0 ? eventCount : 1;
+            for (int t = 0; t < times; t++)
+            {
+                result.Add(partId);
+            }
+        }
+
+        if (result.Count > 0)
+        {
+            return result;
+        }
+
+        return CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
     }
 
     private void RefreshProvinceStageVisuals(HighRiskSecurityEventDataStore store)

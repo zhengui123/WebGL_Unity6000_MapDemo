@@ -581,6 +581,21 @@ public class MapApi : UnitySingle<MapApi>
         return region.ApplyRegionDefaults(isForeign, foreignPlateCode, defaultUnitCode);
     }
 
+    /// <summary>
+    /// 运行时合并覆盖 HTTP 默认请求头（叠在配置文件/程序默认之上）。
+    /// 未传入的 key、或 value 为空/空白，不改变该 key 现有值。
+    /// </summary>
+    public bool SetHttpRequestHeaders(HttpBackendHeaderEntry[] headers)
+    {
+        if (!HttpProjectConfig.MergeRuntimeRequestHeaders(headers))
+        {
+            Debug.LogWarning("[MapApi] SetHttpRequestHeaders：无有效请求头可写入（需 key 与 value 均非空）。");
+            return false;
+        }
+
+        return true;
+    }
+
     /// <summary>当前默认省 code。</summary>
     public string GetDefaultProvinceCode()
     {
