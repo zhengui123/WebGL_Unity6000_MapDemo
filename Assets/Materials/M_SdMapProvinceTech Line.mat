@@ -29,14 +29,14 @@ Material:
     - _Alpha: 0.92
     - _CircuitIntensity: 0.238
     - _CircuitScale: 1
-    - _EmissionIntensity: 2
+    - _EmissionIntensity: 1
     - _GridIntensity: 1.38
     - _GridLineWidth: 0.5
     - _GridScale: 1
     - _NoiseIntensity: 0.08
     - _NoiseScale: 200
-    - _PulseAmount: 0.114
-    - _PulseSpeed: 1.7
+    - _PulseAmount: 0
+    - _PulseSpeed: 0
     - _RimIntensity: 4
     - _RimPower: 4.4
     m_Colors:
