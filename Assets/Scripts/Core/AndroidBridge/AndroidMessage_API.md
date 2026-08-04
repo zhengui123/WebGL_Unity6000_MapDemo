@@ -47,8 +47,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `targetState` | int | 是 | 目标级别 0~5 |
-| `provinceName` | string | 否 | 省名，如「山东」；省略或 `""` 使用 Unity 默认 |
-| `provinceModuleName` | string | 否 | 省级 3D 板块 GameObject 名 |
+| `provinceCode` | string | 否 | 省/国家 code（国内 adcode / 国外 SOC）；省略或 `""` 使用 Unity 默认单元 |
 | `partId` | string | 否 | 业务零部件 ID；进入零件级、零件切换、攻击路径→零件时使用 |
 | `useInstantTransition` | bool | 否 | 是否跳过过渡动画；省略为 `false` |
 
@@ -57,8 +56,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 ```java
 String json = "{"
     + "\"targetState\":2,"
-    + "\"provinceName\":\"山东\","
-    + "\"provinceModuleName\":\"polySurface3\","
+    + "\"provinceCode\":\"370000\","
     + "\"useInstantTransition\":false"
     + "}";
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
@@ -76,7 +74,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState",
 ```java
 String json = "{"
     + "\"targetState\":4,"
-    + "\"partId\":\"PART-1575\","
+    + "\"partId\":\"IDC\","
     + "\"useInstantTransition\":true"
     + "}";
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
@@ -160,25 +158,28 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RefreshThreatCooldown", "");
 
 ---
 
-### 2.8 `SetDefaultProvinceCode` — 设置默认省
+### 2.8 `SetWorldMapRegionDefaults` — 设置国内外默认并立刻切换
 
-按省级 adcode 设置默认省；Unity 自动查找并保存省名（如 `330000` → 浙江）。
+设置国内/国外、国外大板块、默认单元 code，并立刻调用 `WorldMapRegionController` 切换（同 Inspector 面板按钮）。  
+取代原 `SetDefaultProvinceCode`。
 
 ```java
-// 直接传 code
-UnityPlayer.UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode", "330000");
+// 国内：默认省浙江
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
+    "{\"regionMode\":0,\"foreignPlateCode\":\"\",\"defaultUnitCode\":\"330000\"}");
 
-// 或传 JSON
-UnityPlayer.UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode",
-    "{\"provinceCode\":\"330000\"}");
+// 国外：东亚 + 默认国家日本 392
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
+    "{\"regionMode\":1,\"foreignPlateCode\":\"EAST_ASIA\",\"defaultUnitCode\":\"392\"}");
 ```
 
-| 字段 / 参数 | 类型 | 必填 | 说明 |
-|-------------|------|------|------|
-| 第 3 参数整串 | string | 是 | 可直接为 `"330000"` |
-| `provinceCode` | string | JSON 时是 | 省级 adcode |
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `regionMode` | int | 是 | `0`=国内，`1`=国外 |
+| `foreignPlateCode` | string | 国外是 | 大板块 firstClassCode，如 `EAST_ASIA`；国内可空 |
+| `defaultUnitCode` | string | 否 | 国内=省级 adcode；国外=国家 SOC。空：国内保留现有默认省，国外用绑定 `defaultCountryCode` |
 
-对应 Unity：`MapApi.SetDefaultProvinceCode` → `GameManager.SetDefaultProvinceCode`。
+对应 Unity：`MapApi.SetWorldMapRegionDefaults` → `WorldMapRegionController.ApplyRegionDefaults`。
 
 ---
 
@@ -206,7 +207,29 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
 
 ---
 
-### 2.11 `StartVehicleHeatmapSpecifiedTimePolling` — 开启热力图指定时段轮询
+### 2.11 `RequestVehicleHeatmapOnce` — 主动请求一次热力图（不轮询）
+
+按起止时间与 `isReplay` **仅请求一次**后端并执行现有点位处理；不启停、不改轮询模式。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestVehicleHeatmapOnce",
+    "{\"startTime\":\"2026-06-30 00:00:00\",\"endTime\":\"2026-06-30 23:00:00\",\"isReplay\":true}");
+
+// 起止可空：start 空、end 当前时间；也可传 ""（isReplay=false）
+UnityPlayer.UnitySendMessage("AndroidBridge", "RequestVehicleHeatmapOnce", "");
+```
+
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `startTime` | string | 否 | 查询开始时间；空则不传 start |
+| `endTime` | string | 否 | 查询结束时间；空则用当前时间 |
+| `isReplay` | bool | 否 | 是否使用历史数据，对应后端 `isReplay`；默认 false |
+
+对应 Unity：`MapApi.RequestVehicleHeatmapOnce` → `VehicleHeatmapApiController.RequestOnceWithParams`。
+
+---
+
+### 2.12 `StartVehicleHeatmapSpecifiedTimePolling` — 开启热力图指定时段轮询
 
 固定起止时间轮询车辆热力图，请求参数 `isReplay=true`。轮询间隔与默认模式相同。
 
@@ -224,7 +247,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StartVehicleHeatmapSpecifiedTimeP
 
 ---
 
-### 2.12 `StopVehicleHeatmapSpecifiedTimePolling` — 关闭指定时段，恢复默认轮询
+### 2.13 `StopVehicleHeatmapSpecifiedTimePolling` — 关闭指定时段，恢复默认轮询
 
 关闭指定时段模式：`isReplay=false`，`startTime` 空，`endTime` 为每次请求时的当前时间。
 
@@ -236,7 +259,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StopVehicleHeatmapSpecifiedTimePo
 
 ---
 
-### 2.13 `RequestCarVehicleData` — 请求车辆态势数据
+### 2.14 `RequestCarVehicleData` — 请求车辆态势数据
 
 同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
 
@@ -259,7 +282,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.14 `RequestSecurityEventDetail` — 请求事件溯源详情
+### 2.15 `RequestSecurityEventDetail` — 请求事件溯源详情
 
 请求 `getSourceEventDetail`；成功后缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无结果回调（只发不回）。
 
@@ -283,7 +306,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 
 ---
 
-### 2.15 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.16 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android / WebGL 正式业务中通常无需调用本接口。**  
@@ -320,7 +343,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.16 其它地图过渡（可选 / 联调）
+### 2.17 其它地图过渡（可选 / 联调）
 
 以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
 
@@ -356,21 +379,21 @@ public void onUnityControlStateTransition(String json) { }
 |------|------|------|
 | `from` | int | 起始级别 `0~5`；完成通知时为 `-1` |
 | `to` | int | 目标级别 `0~5` |
-| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
 | `status` | int | **（预留）** 大屏跳转状态：`0` 普通、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
 | `vin` | string | 当前车辆 VIN；当前无车辆上下文时为空字符串 |
+| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
 
 **过渡开始示例：**
 
 ```json
-{"from":1,"to":2,"partId":"","status":0,"provinceCode":"330000","vin":""}
+{"from":1,"to":2,"status":0,"provinceCode":"330000","vin":"","partId":""}
 ```
 
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"partId":"Group01","status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c"}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC"}
 ```
 
 **接收示例：**
@@ -381,10 +404,10 @@ public void onUnityControlStateTransition(String json) {
         JSONObject obj = new JSONObject(json);
         int from = obj.getInt("from");
         int to = obj.getInt("to");
-        String partId = obj.optString("partId", "");
         int status = obj.optInt("status", 0);
         String provinceCode = obj.optString("provinceCode", "");
         String vin = obj.optString("vin", "");
+        String partId = obj.optString("partId", "");
         if (from == -1) {
             Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId);
             // 隐藏 Loading、刷新原生界面
@@ -501,9 +524,10 @@ public void onUnityCarYawRotationChanged(String json) {
 | `ResumeGame` | `""` | 恢复游戏 |
 | `ExitThreatDrill` | `""` | 主动退出威胁下钻并进入冷却 |
 | `RefreshThreatCooldown` | `""` | 刷新威胁冷却（仅冷却中有效） |
-| `SetDefaultProvinceCode` | code / JSON | 设置默认省（adcode） |
+| `SetWorldMapRegionDefaults` | JSON | 设置国内外默认并立刻切换 |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
 | `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel |
+| `RequestVehicleHeatmapOnce` | JSON / `""` | 主动请求一次热力图（不轮询） |
 | `StartVehicleHeatmapSpecifiedTimePolling` | JSON | 开启热力图指定时段轮询（isReplay=true） |
 | `StopVehicleHeatmapSpecifiedTimePolling` | `""` | 关闭指定时段，恢复默认热力图轮询 |
 | `RequestCarVehicleData` | `""` / JSON | 请求车辆态势双接口（防护状态 + 攻击链路） |

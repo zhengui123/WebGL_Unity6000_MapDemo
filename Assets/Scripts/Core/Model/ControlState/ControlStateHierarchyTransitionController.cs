@@ -50,7 +50,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return;
         }
 
-        ResolveActiveProvinceParameters(null, null);
+        ResolveActiveProvinceParameters(null);
         StartCoroutine(BootstrapAfterWarmup(_ensureEarthBaselineOnPlay, _startState));
     }
 
@@ -62,7 +62,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return;
         }
 
-        ResolveActiveProvinceParameters(null, null);
+        ResolveActiveProvinceParameters(null);
         StartCoroutine(BootstrapAfterWarmup(false, _startState));
     }
 
@@ -85,16 +85,14 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// </summary>
     /// <param name="useInstantTransition">是否启用瞬时过渡（临时将动画时长置 0）。</param>
     /// <param name="targetState">目标操控级别。</param>
-    /// <param name="provinceName">省份名；空/null 时使用 <see cref="GameManager.DefaultProvinceName"/>。</param>
-    /// <param name="provinceModuleName">省级模块名；空/null 时用默认省 code 解析板块名。</param>
+    /// <param name="provinceCode">省/国家 code；空/null 时使用当前默认单元。</param>
     /// <param name="partId">业务零部件 ID；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
     /// <returns>已启动跳转返回 true；正在跳转中返回 false。</returns>
     public bool TransitionToState(
         bool useInstantTransition,
         GameManager.ControlState targetState,
-        string provinceName = null,
-        string provinceModuleName = null,
+        string provinceCode = null,
         string partId = null,
         bool ensureEarthBaseline = false)
     {
@@ -119,42 +117,36 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             _partId = partIdForTransition;
         }
 
-        ResolveActiveProvinceParameters(provinceName, provinceModuleName);
+        ResolveActiveProvinceParameters(provinceCode);
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
     }
 
     /// <summary>
-    /// 解析本次跳转省名/板块模块名：调用参数优先，否则读 GameManager 默认省。
+    /// 由省/国家 code 解析本次跳转显示名与板块模块名；空则读 GameManager / WorldMap 默认。
     /// </summary>
-    private void ResolveActiveProvinceParameters(string provinceName, string provinceModuleName)
+    private void ResolveActiveProvinceParameters(string provinceCode)
     {
-        GameManager gm = GameManager.Instance;
+        string unitCode = WorldMapPlateResolver.ResolveUnitCode(provinceCode);
+        _activeProvinceName = WorldMapPlateResolver.ResolveUnitDisplayName(unitCode);
 
-        if (!string.IsNullOrWhiteSpace(provinceName))
+        if (WorldMapPlateResolver.TryResolveUnitModuleName(unitCode, out string moduleName) &&
+            !string.IsNullOrWhiteSpace(moduleName))
         {
-            _activeProvinceName = provinceName.Trim();
-        }
-        else if (gm != null)
-        {
-            _activeProvinceName = gm.DefaultProvinceName;
+            _activeProvinceModuleName = moduleName.Trim();
         }
         else
         {
-            _activeProvinceName = "浙江";
+            GameManager gm = GameManager.Instance;
+            _activeProvinceModuleName = gm != null
+                ? gm.ResolveProvinceModuleName(null)
+                : string.Empty;
         }
 
-        if (!string.IsNullOrWhiteSpace(provinceModuleName))
+        if (string.IsNullOrWhiteSpace(_activeProvinceName))
         {
-            _activeProvinceModuleName = provinceModuleName.Trim();
-        }
-        else if (gm != null)
-        {
-            _activeProvinceModuleName = gm.ResolveProvinceModuleName(null);
-        }
-        else
-        {
-            _activeProvinceModuleName = string.Empty;
+            GameManager gm = GameManager.Instance;
+            _activeProvinceName = gm != null ? gm.DefaultProvinceName : "浙江";
         }
     }
 

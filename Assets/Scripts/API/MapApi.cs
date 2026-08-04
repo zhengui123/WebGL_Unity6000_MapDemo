@@ -214,6 +214,22 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
+    /// 主动请求一次车辆热力图（不启停轮询、不改轮询模式）。
+    /// 起止时间为空时：start 空、end 当前时间；isReplay 由参数指定。
+    /// </summary>
+    public bool RequestVehicleHeatmapOnce(string startTime, string endTime, bool isReplay)
+    {
+        VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法单次请求热力图。");
+            return false;
+        }
+
+        return controller.RequestOnceWithParams(startTime, endTime, isReplay);
+    }
+
+    /// <summary>
     /// 请求车辆态势双接口（防护状态 + 攻击链路）；均成功后覆盖缓存。
     /// 参数为空时使用 <see cref="CarVehicleDataController"/> 默认值。
     /// </summary>
@@ -322,14 +338,9 @@ public class MapApi : UnitySingle<MapApi>
     /// <param name="targetState">
     /// 目标操控级别：0 地球级、1 国家级、2 省级、3 车辆级、4 零件级、5 攻击路径级。
     /// </param>
-    /// <param name="provinceName">
-    /// 省级行政区名称，用于省级 ↔ 车辆 阶段的高德地图聚焦（如「山东」「广东」）。
-    /// 须为已配置的省名；
-    /// 为 null 使用默认配置。
-    /// </param>
-    /// <param name="provinceModuleName">
-    /// 3D 板块模型模块名（场景中 GameObject 名，如 polySurface3），用于国家 → 省级 的板块聚焦。
-    /// 为 null 使用默认配置。
+    /// <param name="provinceCode">
+    /// 省/国家 code：国内=省级 adcode，国外=国家 SOC；null/空 使用当前默认单元。
+    /// 内部解析显示名与板块模块名，无需再传模块名。
     /// </param>
     /// <param name="partId">
     /// 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；为空或 null 时使用过渡控制器默认/列表首项。
@@ -340,8 +351,7 @@ public class MapApi : UnitySingle<MapApi>
     /// <returns>已成功启动跳转协程返回 true；控制器不存在、正在跳转中或 targetState 无效时返回 false。</returns>
     public bool TransitionToControlState(
         int targetState,
-        string provinceName = null,
-        string provinceModuleName = null,
+        string provinceCode = null,
         string partId = null,
         bool useInstantTransition = false)
     {
@@ -377,8 +387,7 @@ public class MapApi : UnitySingle<MapApi>
         return controller.TransitionToState(
             useInstantTransition,
             (GameManager.ControlState)targetState,
-            provinceName,
-            provinceModuleName,
+            provinceCode,
             partId,
             false);
     }
@@ -552,18 +561,24 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 设置默认省（参数为省 code，自动查找并保存省名）。
+    /// 设置世界地图国内外默认并立刻切换（同 WorldMapRegionController 面板切换）。
     /// </summary>
-    /// <param name="provinceCode">省级 adcode，如 330000（浙江）。</param>
-    public bool SetDefaultProvinceCode(string provinceCode)
+    /// <param name="isForeign">true=国外，false=国内。</param>
+    /// <param name="foreignPlateCode">国外大板块 code；国内可空。</param>
+    /// <param name="defaultUnitCode">国内=省级 adcode；国外=国家 SOC；可空则沿用现有/绑定默认。</param>
+    public bool SetWorldMapRegionDefaults(
+        bool isForeign,
+        string foreignPlateCode = null,
+        string defaultUnitCode = null)
     {
-        if (GameManager.Instance == null)
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        if (region == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 GameManager，无法设置默认省。");
+            Debug.LogWarning("[MapApi] 未找到 WorldMapRegionController。");
             return false;
         }
 
-        return GameManager.Instance.SetDefaultProvinceCode(provinceCode);
+        return region.ApplyRegionDefaults(isForeign, foreignPlateCode, defaultUnitCode);
     }
 
     /// <summary>当前默认省 code。</summary>

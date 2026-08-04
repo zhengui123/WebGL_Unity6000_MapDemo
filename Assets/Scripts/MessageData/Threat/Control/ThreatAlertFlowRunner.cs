@@ -515,8 +515,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             hierarchy,
             GameManager.ControlState.CountryLevel,
             useInstant: true,
-            provinceName: null,
-            provinceModuleName: null,
+            provinceCode: null,
             confirmTimeoutSeconds: 5f);
     }
 
@@ -668,7 +667,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = provinceCode;
         _activePlateModuleName = plateModuleName;
 
-        yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceDisplayName, plateModuleName));
+        yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceCode));
         yield return RunTimedStep("车辆数据请求(非阻塞)", RequestVehicleDataAndWait(encryptVin));
 
         _visualStage = ThreatVisualStage.VehicleHold;
@@ -749,7 +748,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    private IEnumerator EnsureAtVehicleLevel(string provinceDisplayName, string plateModuleName)
+    private IEnumerator EnsureAtVehicleLevel(string provinceCode)
     {
         GameManager gm = GameManager.Instance;
         if (gm == null)
@@ -780,8 +779,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             hierarchy,
             GameManager.ControlState.VehicleLevel,
             useInstant: false,
-            provinceName: provinceDisplayName,
-            provinceModuleName: plateModuleName,
+            provinceCode: provinceCode,
             confirmTimeoutSeconds: 15f);
     }
 
@@ -865,8 +863,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                     hierarchy,
                     GameManager.ControlState.AttackPathLevel,
                     useInstant: false,
-                    provinceName: null,
-                    provinceModuleName: null,
+                    provinceCode: null,
                     confirmTimeoutSeconds: 20f);
             }
         }
@@ -1112,8 +1109,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         ControlStateHierarchyTransitionController hierarchy,
         GameManager.ControlState targetState,
         bool useInstant,
-        string provinceName,
-        string provinceModuleName,
+        string provinceCode,
         float confirmTimeoutSeconds)
     {
         while (hierarchy.IsBootstrapping)
@@ -1129,8 +1125,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         bool started = hierarchy.TransitionToState(
             useInstantTransition: useInstant,
             targetState: targetState,
-            provinceName: provinceName,
-            provinceModuleName: provinceModuleName);
+            provinceCode: provinceCode);
         if (!started)
         {
             Debug.LogWarning($"[ThreatAlertFlowRunner] 跳转 {from} → {targetState} 启动失败。");

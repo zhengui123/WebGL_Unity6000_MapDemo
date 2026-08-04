@@ -10,7 +10,7 @@ public class AndroidMessageDemo : MonoBehaviour
 
     [Header("示例 JSON（与 Android 侧传入字符串一致）")]
     [SerializeField] private string _sampleJson =
-        "{\"targetState\":2,\"provinceName\":\"山东\",\"provinceModuleName\":\"polySurface3\",\"useInstantTransition\":false}";
+        "{\"targetState\":2,\"provinceCode\":\"370000\",\"useInstantTransition\":false}";
 
     [SerializeField] private string _sampleCarYawJson = "{\"yawAngle\":90.0,\"instant\":false}";
 

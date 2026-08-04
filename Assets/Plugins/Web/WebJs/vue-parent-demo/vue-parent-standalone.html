@@ -142,18 +142,24 @@
             </div>
           </section>
 
-          <!-- TransitionToControlState 可选 JSON 字段：provinceName / provinceModuleName / partId -->
+          <!-- TransitionToControlState 可选 JSON 字段：provinceCode / partId -->
           <section>
             <h2>省级 / 零件参数</h2>
-            <label>省名<input v-model="provinceName" placeholder="山东" /></label>
-            <label>板块名<input v-model="provinceModuleName" placeholder="polySurface3" /></label>
-            <label>零件 ID（Group01/02/03）<input v-model="partId" placeholder="Group01" /></label>
+            <label>provinceCode（国内 adcode / 国外 SOC）<input v-model="provinceCode" placeholder="370000" /></label>
+            <label>零件 ID（IDC/CCU/TBOX/ADC/WG）<input v-model="partId" placeholder="IDC" /></label>
             <label class="checkbox">
               <input v-model="useInstantTransition" type="checkbox" />跳过过渡动画
             </label>
             <div class="btn-row">
               <button type="button" :disabled="!unityReady" @click="jumpToProvince">跳到省级</button>
               <button type="button" :disabled="!unityReady" @click="jumpToPart">跳到零件级</button>
+            </div>
+            <div class="btn-row">
+              <button type="button" :disabled="!unityReady" @click="jumpToPartId('IDC')">IDC</button>
+              <button type="button" :disabled="!unityReady" @click="jumpToPartId('CCU')">CCU</button>
+              <button type="button" :disabled="!unityReady" @click="jumpToPartId('TBOX')">TBOX</button>
+              <button type="button" :disabled="!unityReady" @click="jumpToPartId('ADC')">ADC</button>
+              <button type="button" :disabled="!unityReady" @click="jumpToPartId('WG')">WG</button>
             </div>
           </section>
 
@@ -275,8 +281,10 @@
           const data = JSON.parse(json);
           const fromLabel = data.from === -1 ? '过渡完成' : (CONTROL_STATE_LABELS[data.from] ?? data.from);
           const toLabel = CONTROL_STATE_LABELS[data.to] ?? data.to;
+          const code = data.provinceCode ? '，区域=' + data.provinceCode : '';
+          const vin = data.vin ? '，vin=' + data.vin : '';
           const part = data.partId ? '，零件=' + data.partId : '';
-          return fromLabel + ' → ' + toLabel + part;
+          return fromLabel + ' → ' + toLabel + code + vin + part;
         } catch { return json; }
       }
 
@@ -320,10 +328,9 @@
         const iframeKey = ref(0);       // 变更 key 强制 iframe 重新加载
         const unityIframe = ref(null);  // iframe DOM，供 callUnity 取 contentWindow
 
-        // TransitionToControlState 可选参数（targetState=2 用省名/板块，targetState=4 用 partId）
-        const provinceName = ref('山东');
-        const provinceModuleName = ref('polySurface3');
-        const partId = ref('Group01');  // 有效值：Group01、Group02、Group03
+        // TransitionToControlState 可选参数（targetState=2/3 用 provinceCode，targetState=4 用 partId）
+        const provinceCode = ref('370000');
+        const partId = ref('IDC');  // 有效值：IDC、CCU、TBOX、ADC、WG
         const useInstantTransition = ref(false);
         const lastCallbackText = ref('');
 
@@ -348,26 +355,30 @@
         });
 
         /** 组装 TransitionToControlState 请求体（字段名须与 TransitionToControlStateRequest 一致） */
-        function buildPayload(targetState) {
+        function buildPayload(targetState, overridePartId) {
           const payload = { targetState };
-          if (targetState === 2) {
-            if (provinceName.value) payload.provinceName = provinceName.value;
-            if (provinceModuleName.value) payload.provinceModuleName = provinceModuleName.value;
+          if (targetState === 2 || targetState === 3) {
+            if (provinceCode.value) payload.provinceCode = provinceCode.value;
           }
-          if (targetState === 4 && partId.value) payload.partId = partId.value;
+          const pid = overridePartId != null ? overridePartId : partId.value;
+          if (targetState === 4 && pid) payload.partId = pid;
           if (useInstantTransition.value) payload.useInstantTransition = true;
           return payload;
         }
 
         return {
           unityReady, messageLog, unityBuildUrl, iframeKey, unityIframe,
-          provinceName, provinceModuleName, partId, useInstantTransition,
+          provinceCode, partId, useInstantTransition,
           lastCallbackText, controlStateButtons,
           transitionToNextControlState, transitionToPreviousControlState, setBigScreenAutoCarouselEnabled,
           pauseGame, resumeGame,
           jumpToState: (s) => transitionToControlState(buildPayload(s)),
           jumpToProvince: () => transitionToControlState(buildPayload(2)),
           jumpToPart: () => transitionToControlState(buildPayload(4)),
+          jumpToPartId: (id) => {
+            partId.value = id;
+            transitionToControlState(buildPayload(4, id));
+          },
           reloadIframe() { unityReady.value = false; iframeKey.value++; lastCallbackText.value = ''; },
           clearLogs() { messageLog.value.length = 0; },
         };

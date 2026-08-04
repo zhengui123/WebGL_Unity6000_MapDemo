@@ -158,13 +158,19 @@ public class ControlStateStartUIDemo : MonoBehaviour
         bool useInstant = _instantTransitionToggle != null && _instantTransitionToggle.isOn;
         GameManager.ControlState targetState = (GameManager.ControlState)_targetStateDropdown.value;
         string provinceName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
-        string provinceModuleName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceModuleNameDropdown);
         string selectedPartId = ControlStateStartUIOptionProvider.GetSelectedPartId(_partNameDropdown);
+
+        // Demo 下拉仍是省显示名；桥接 API 已改为 provinceCode，此处做一次名称→adcode。
+        string provinceCode = null;
+        if (!string.IsNullOrWhiteSpace(provinceName) &&
+            GaodeProvinceAdcodeConverter.TryProvinceNameToAdcode(provinceName, out string adcode))
+        {
+            provinceCode = adcode;
+        }
 
         bool started = MapApi.Instance.TransitionToControlState(
             (int)targetState,
-            provinceName,
-            provinceModuleName,
+            provinceCode,
             selectedPartId,
             useInstant);
 

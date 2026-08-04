@@ -10,11 +10,11 @@ public struct TransitionToControlStateRequest
     /// <summary>目标操控级别：0 地球级、1 国家级、2 省级、3 车辆级、4 零件级、5 攻击路径级。</summary>
     public int targetState;
 
-    /// <summary>（可空）省级行政区名称，用于省级 ↔ 车辆阶段（如「山东」）。</summary>
-    public string provinceName;
-
-    /// <summary>（可空）3D 板块模块名（场景中 GameObject 名）。</summary>
-    public string provinceModuleName;
+    /// <summary>
+    /// （可空）省/国家 code：国内=省级 adcode（如 370000），国外=国家 secondClassCode。
+    /// 空则使用 Unity 当前默认单元；内部解析显示名与板块模块名。
+    /// </summary>
+    public string provinceCode;
 
     /// <summary>（可空）业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件。</summary>
     public string partId;
@@ -23,12 +23,20 @@ public struct TransitionToControlStateRequest
     public bool useInstantTransition;
 }
 
-/// <summary>设置默认省请求体（传省 code）。</summary>
+/// <summary>设置世界地图国内外默认并立刻切换。</summary>
 [System.Serializable]
-public struct DefaultProvinceCodeRequest
+public struct SetWorldMapRegionDefaultsRequest
 {
-    /// <summary>省级 adcode，如 330000（浙江）。</summary>
-    public string provinceCode;
+    /// <summary>0=国内，1=国外（与 WorldMapRegionMode 一致）。</summary>
+    public int regionMode;
+
+    /// <summary>国外大板块 firstClassCode（如 EAST_ASIA）；国内可空。</summary>
+    public string foreignPlateCode;
+
+    /// <summary>
+    /// 默认单元 code：国内=省级 adcode；国外=国家 secondClassCode。可空则沿用现有/绑定默认。
+    /// </summary>
+    public string defaultUnitCode;
 }
 
 /// <summary>
@@ -59,9 +67,6 @@ public struct ControlStateTransitionNotify
     /// <summary>目标操控级别：0~5。</summary>
     public int to;
 
-    /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
-    public string partId;
-
     /// <summary>
     /// 大屏跳转状态，取值见 <see cref="BigScreenStatus"/>：
     /// 0 普通跳转、1 信息跳转、2 威胁下钻。
@@ -74,6 +79,9 @@ public struct ControlStateTransitionNotify
 
     /// <summary>当前车辆 VIN；无当前车辆上下文时为空字符串。</summary>
     public string vin;
+
+    /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
+    public string partId;
 }
 
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
@@ -89,6 +97,20 @@ public struct VehicleHeatmapSpecifiedTimePollingRequest
 {
     public string startTime;
     public string endTime;
+}
+
+/// <summary>Android / WebGL → Unity：主动请求一次车辆热力图（不轮询）。</summary>
+[System.Serializable]
+public struct VehicleHeatmapRequestOnceRequest
+{
+    /// <summary>查询开始时间；可空（空则按默认：不传 start）。</summary>
+    public string startTime;
+
+    /// <summary>查询结束时间；可空（空则用当前时间）。</summary>
+    public string endTime;
+
+    /// <summary>是否使用历史数据，对应后端 isReplay。</summary>
+    public bool isReplay;
 }
 
 /// <summary>Android → Unity 设置车辆 Y 轴旋转角度。</summary>
@@ -208,10 +230,10 @@ public class AndroidMessage : MonoBehaviour
         {
             from = fromState,
             to = toState,
-            partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
             provinceCode = provinceCode,
             vin = vin,
+            partId = partId ?? string.Empty,
         });
         Debug.Log(
             $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
@@ -232,10 +254,10 @@ public class AndroidMessage : MonoBehaviour
         {
             from = ControlStateTransitionCompletedFrom,
             to = toState,
-            partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
             provinceCode = provinceCode,
             vin = vin,
+            partId = partId ?? string.Empty,
         });
         Debug.Log(
             $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
@@ -621,7 +643,7 @@ public class AndroidMessage : MonoBehaviour
     /// UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
     /// </summary>
     /// <param name="json">
-    /// 示例：{"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3","useInstantTransition":false}
+    /// 示例：{"targetState":2,"provinceCode":"370000","useInstantTransition":false}
     /// </param>
     public void TransitionToControlState(string json)
     {
@@ -634,8 +656,7 @@ public class AndroidMessage : MonoBehaviour
         TransitionToControlStateRequest request = JsonUtility.FromJson<TransitionToControlStateRequest>(json);
         bool ok = MapApi.Instance.TransitionToControlState(
             request.targetState,
-            NormalizeOptionalString(request.provinceName),
-            NormalizeOptionalString(request.provinceModuleName),
+            NormalizeOptionalString(request.provinceCode),
             NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 
@@ -728,40 +749,30 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
-    /// Android 调用：设置默认省（传省 code，自动查找省名）。
-    /// UnitySendMessage("AndroidBridge", "SetDefaultProvinceCode", "330000");
-    /// 也可传 JSON：{"provinceCode":"330000"}
+    /// Android 调用：设置世界地图国内外默认并立刻切换。
+    /// UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults", json);
+    /// JSON：{"regionMode":0,"foreignPlateCode":"","defaultUnitCode":"330000"}
+    /// regionMode：0=国内，1=国外。
     /// </summary>
-    public void SetDefaultProvinceCode(string arg)
+    public void SetWorldMapRegionDefaults(string json)
     {
-        string provinceCode = ExtractProvinceCodeArg(arg);
-        if (string.IsNullOrWhiteSpace(provinceCode))
+        if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] SetDefaultProvinceCode: provinceCode 为空。");
+            Debug.LogWarning("[AndroidMessage] SetWorldMapRegionDefaults: JSON 为空。");
             return;
         }
 
-        if (!MapApi.Instance.SetDefaultProvinceCode(provinceCode))
+        SetWorldMapRegionDefaultsRequest request =
+            JsonUtility.FromJson<SetWorldMapRegionDefaultsRequest>(json);
+        bool isForeign = request.regionMode == (int)WorldMapRegionMode.Foreign;
+        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(
+            isForeign,
+            NormalizeOptionalString(request.foreignPlateCode),
+            NormalizeOptionalString(request.defaultUnitCode));
+        if (!ok)
         {
-            Debug.LogWarning($"[AndroidMessage] SetDefaultProvinceCode 失败: {provinceCode}");
+            Debug.LogWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");
         }
-    }
-
-    private static string ExtractProvinceCodeArg(string arg)
-    {
-        if (string.IsNullOrWhiteSpace(arg))
-        {
-            return null;
-        }
-
-        string trimmed = arg.Trim();
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            DefaultProvinceCodeRequest request = JsonUtility.FromJson<DefaultProvinceCodeRequest>(trimmed);
-            return NormalizeOptionalString(request.provinceCode);
-        }
-
-        return trimmed;
     }
 
     /// <summary>
@@ -817,6 +828,34 @@ public class AndroidMessage : MonoBehaviour
         if (!MapApi.Instance.StopVehicleHeatmapSpecifiedTimePolling())
         {
             Debug.LogWarning("[AndroidMessage] StopVehicleHeatmapSpecifiedTimePolling 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：主动请求一次车辆热力图（不轮询）。
+    /// UnitySendMessage("AndroidBridge", "RequestVehicleHeatmapOnce", json);
+    /// json 示例：{"startTime":"2026-06-30 00:00:00","endTime":"2026-06-30 23:00:00","isReplay":true}
+    /// 起止时间可空：start 空、end 用当前时间；isReplay 对应后端历史数据开关。
+    /// </summary>
+    public void RequestVehicleHeatmapOnce(string json)
+    {
+        Debug.Log($"[AndroidMessage] RequestVehicleHeatmapOnce 收到: {json}");
+
+        string startTime = null;
+        string endTime = null;
+        bool isReplay = false;
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            VehicleHeatmapRequestOnceRequest request =
+                JsonUtility.FromJson<VehicleHeatmapRequestOnceRequest>(json);
+            startTime = NormalizeOptionalString(request.startTime);
+            endTime = NormalizeOptionalString(request.endTime);
+            isReplay = request.isReplay;
+        }
+
+        if (!MapApi.Instance.RequestVehicleHeatmapOnce(startTime, endTime, isReplay))
+        {
+            Debug.LogWarning($"[AndroidMessage] RequestVehicleHeatmapOnce 失败: {json}");
         }
     }
 

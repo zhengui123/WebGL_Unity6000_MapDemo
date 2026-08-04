@@ -154,10 +154,10 @@ public class WebGLAPI : MonoBehaviour
         {
             from = fromState,
             to = toState,
-            partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
             provinceCode = provinceCode,
             vin = vin,
+            partId = partId ?? string.Empty,
         });
         LogCommunication(
             "→ Host",
@@ -180,10 +180,10 @@ public class WebGLAPI : MonoBehaviour
         {
             from = AndroidMessage.ControlStateTransitionCompletedFrom,
             to = toState,
-            partId = partId ?? string.Empty,
             status = ResolveNotifyBigScreenStatus(),
             provinceCode = provinceCode,
             vin = vin,
+            partId = partId ?? string.Empty,
         });
         LogCommunication(
             "→ Host",
@@ -530,23 +530,22 @@ public class WebGLAPI : MonoBehaviour
     /// <param name="json">
     /// 字段（区分大小写）：
     /// targetState(int, 必填) 目标级别 0~5：0 地球、1 国家、2 省级、3 车辆、4 零件、5 攻击路径；
-    /// provinceName(string, 可选) 省名，如「山东」；
-    /// provinceModuleName(string, 可选) 省级 3D 板块 GameObject 名；
+    /// provinceCode(string, 可选) 省/国家 code（国内 adcode / 国外 SOC）；
     /// partId(string, 可选) 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；
     /// useInstantTransition(bool, 可选) 是否跳过过渡动画，默认 false。
     ///
-    /// JSON 示例 1 — 跳到省级并指定省名与板块：
-    /// {"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3"}
+    /// JSON 示例 1 — 跳到省级并指定省 code：
+    /// {"targetState":2,"provinceCode":"370000"}
     ///
     /// JSON 示例 2 — 仅跳到车辆级（其余走默认）：
     /// {"targetState":3}
     ///
     /// JSON 示例 3 — 跳到零件级：
-    /// {"targetState":4,"partId":"PART-1575"}
+    /// {"targetState":4,"partId":"IDC"}
     ///
     /// HTML 调用示例（同域调试，跨域请用 postMessage）：
     /// unityInstance.SendMessage('WebGLAPI', 'TransitionToControlState',
-    ///   '{"targetState":2,"provinceName":"山东","provinceModuleName":"polySurface3"}');
+    ///   '{"targetState":2,"provinceCode":"370000"}');
     /// </param>
     public void TransitionToControlState(string json)
     {
@@ -562,8 +561,7 @@ public class WebGLAPI : MonoBehaviour
         TransitionToControlStateRequest request = JsonUtility.FromJson<TransitionToControlStateRequest>(json);
         bool ok = MapApi.Instance.TransitionToControlState(
             request.targetState,
-            NormalizeOptionalString(request.provinceName),
-            NormalizeOptionalString(request.provinceModuleName),
+            NormalizeOptionalString(request.provinceCode),
             NormalizeOptionalString(request.partId),
             request.useInstantTransition);
 
@@ -689,47 +687,35 @@ public class WebGLAPI : MonoBehaviour
     }
 
     /// <summary>
-    /// 宿主调用：设置默认省（传省 code，自动查找省名）。
-    /// arg 可直接传 "330000"，或 JSON：{"provinceCode":"330000"}
+    /// 宿主调用：设置世界地图国内外默认并立刻切换。
+    /// JSON：{"regionMode":0,"foreignPlateCode":"","defaultUnitCode":"330000"}
+    /// regionMode：0=国内，1=国外。
     /// </summary>
-    public void SetDefaultProvinceCode(string arg)
+    public void SetWorldMapRegionDefaults(string json)
     {
-        LogCommunication("← Host", nameof(SetDefaultProvinceCode), arg);
+        NotifyHostCommunicationReceived(nameof(SetWorldMapRegionDefaults), json);
+        LogCommunication("← Host", nameof(SetWorldMapRegionDefaults), json);
 
-        string provinceCode = ExtractProvinceCodeArg(arg);
-        if (string.IsNullOrWhiteSpace(provinceCode))
+        if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] SetDefaultProvinceCode: provinceCode 为空。");
+            Debug.LogWarning("[WebGLAPI] SetWorldMapRegionDefaults: JSON 为空。");
             return;
         }
 
-        if (!MapApi.Instance.SetDefaultProvinceCode(provinceCode))
+        SetWorldMapRegionDefaultsRequest request =
+            JsonUtility.FromJson<SetWorldMapRegionDefaultsRequest>(json);
+        bool isForeign = request.regionMode == (int)WorldMapRegionMode.Foreign;
+        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(
+            isForeign,
+            NormalizeOptionalString(request.foreignPlateCode),
+            NormalizeOptionalString(request.defaultUnitCode));
+        if (!ok)
         {
-            Debug.LogWarning($"[WebGLAPI] SetDefaultProvinceCode 失败: {provinceCode}");
+            Debug.LogWarning($"[WebGLAPI] SetWorldMapRegionDefaults 失败: {json}");
             return;
         }
 
-        LogCommunication(
-            "← Host",
-            nameof(SetDefaultProvinceCode),
-            $"code={MapApi.Instance.GetDefaultProvinceCode()} name={MapApi.Instance.GetDefaultProvinceName()}");
-    }
-
-    private static string ExtractProvinceCodeArg(string arg)
-    {
-        if (string.IsNullOrWhiteSpace(arg))
-        {
-            return null;
-        }
-
-        string trimmed = arg.Trim();
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            DefaultProvinceCodeRequest request = JsonUtility.FromJson<DefaultProvinceCodeRequest>(trimmed);
-            return NormalizeOptionalString(request.provinceCode);
-        }
-
-        return trimmed;
+        LogCommunication("← Host", nameof(SetWorldMapRegionDefaults), "已应用");
     }
 
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
@@ -804,6 +790,39 @@ public class WebGLAPI : MonoBehaviour
         }
 
         LogCommunication("← Host", nameof(StopVehicleHeatmapSpecifiedTimePolling), "已恢复默认轮询");
+    }
+
+    /// <summary>
+    /// 宿主调用：主动请求一次车辆热力图（不轮询）。
+    /// arg 为 JSON：{"startTime":"...","endTime":"...","isReplay":true}；也可传 ""（默认时间 + isReplay=false）。
+    /// </summary>
+    public void RequestVehicleHeatmapOnce(string json)
+    {
+        NotifyHostCommunicationReceived(nameof(RequestVehicleHeatmapOnce), json);
+        LogCommunication("← Host", nameof(RequestVehicleHeatmapOnce), json);
+
+        string startTime = null;
+        string endTime = null;
+        bool isReplay = false;
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            VehicleHeatmapRequestOnceRequest request =
+                JsonUtility.FromJson<VehicleHeatmapRequestOnceRequest>(json);
+            startTime = NormalizeOptionalString(request.startTime);
+            endTime = NormalizeOptionalString(request.endTime);
+            isReplay = request.isReplay;
+        }
+
+        if (!MapApi.Instance.RequestVehicleHeatmapOnce(startTime, endTime, isReplay))
+        {
+            Debug.LogWarning($"[WebGLAPI] RequestVehicleHeatmapOnce 失败: {json}");
+            return;
+        }
+
+        LogCommunication(
+            "← Host",
+            nameof(RequestVehicleHeatmapOnce),
+            $"已发起单次请求 | start={startTime} end={endTime} isReplay={isReplay}");
     }
 
     /// <summary>

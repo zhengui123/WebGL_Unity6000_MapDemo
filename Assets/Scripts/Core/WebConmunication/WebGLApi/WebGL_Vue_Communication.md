@@ -58,7 +58,7 @@ WebGLAPI.cs → MapApi
 
 ```javascript
 // vue-parent-standalone.html → useUnityIframeBridge
-transitionToControlState({ targetState: 4, partId: 'Group01' });
+transitionToControlState({ targetState: 4, partId: 'IDC' });
 ```
 
 ### 2. postMessage
@@ -67,7 +67,7 @@ transitionToControlState({ targetState: 4, partId: 'Group01' });
 iframe.contentWindow.postMessage({
   source: 'webgl-unity-parent',
   method: 'TransitionToControlState',
-  arg: '{"targetState":4,"partId":"Group01"}'
+  arg: '{"targetState":4,"partId":"IDC"}'
 }, '*');
 ```
 
@@ -87,7 +87,7 @@ public void TransitionToControlState(string json)
 {
     var request = JsonUtility.FromJson<TransitionToControlStateRequest>(json);
     MapApi.Instance.TransitionToControlState(
-        request.targetState, request.provinceName, ...);
+        request.targetState, request.provinceCode, ...);
 }
 ```
 
@@ -96,7 +96,7 @@ public void TransitionToControlState(string json)
 ```javascript
 // CallHTMLHandler → parent.postMessage
 { source: 'unity-webgl', method: 'onUnityControlStateTransition',
-  message: '{"from":3,"to":4,"partId":""}' }
+  message: '{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":""}' }
 ```
 
 ### 6. Vue 处理
@@ -127,7 +127,7 @@ handlers: {
 
 `onUnityControlStateTransition` 中 **`from = -1`** 表示过渡**完成**（`to` 为已就绪级别）。
 
-**partId 有效值：** `Group01`、`Group02`、`Group03`（详见 `WebGL_Iframe_API.md` §3.1）。
+**partId 有效值：** `IDC`、`CCU`、`TBOX`、`ADC`、`WG`（详见 `WebGL_Iframe_API.md` §3.1）。
 
 ---
 
@@ -145,11 +145,12 @@ handlers: {
 | `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
 | `ExitThreatDrill` | `""` | `ExitThreatDrill()` | `ExitThreatDrill` | 按需 |
 | `RefreshThreatCooldown` | `""` | `RefreshThreatCooldown()` | `RefreshThreatCooldown` | 按需 |
-| `SetDefaultProvinceCode` | code / JSON | `SetDefaultProvinceCode(string)` | `SetDefaultProvinceCode` | 按需 |
+| `SetWorldMapRegionDefaults` | JSON | `SetWorldMapRegionDefaults(string)` | `SetWorldMapRegionDefaults` | 按需 |
 | `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
 | `CloseGJPanel` | `""` | `CloseGJPanel()` | `CloseGJPanel()` | ✅ |
 | `StartVehicleHeatmapSpecifiedTimePolling` | JSON | `StartVehicleHeatmapSpecifiedTimePolling(string)` | `StartVehicleHeatmapSpecifiedTimePolling` | ✅ |
 | `StopVehicleHeatmapSpecifiedTimePolling` | `""` | `StopVehicleHeatmapSpecifiedTimePolling()` | `StopVehicleHeatmapSpecifiedTimePolling` | ✅ |
+| `RequestVehicleHeatmapOnce` | JSON / `""` | `RequestVehicleHeatmapOnce(string)` | `RequestVehicleHeatmapOnce` | ✅ |
 | `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
 | `RequestSecurityEventDetail` | `""` 或 JSON | `RequestSecurityEventDetail(string)` | `RequestSecurityEventDetail` | ✅ |
 
@@ -160,16 +161,14 @@ handlers: {
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
 | `targetState` | int | ✅ | 0~5 |
-| `provinceName` | string | | 省名，如「山东」 |
-| `provinceModuleName` | string | | 省级板块 GameObject 名 |
-| `partId` | string | | 零件组 ID：`Group01` / `Group02` / `Group03` |
+| `provinceCode` | string | | 省/国家 code（国内 adcode / 国外 SOC） |
+| `partId` | string | | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG` |
 | `useInstantTransition` | bool | | 跳过动画，默认 false |
 
 ```javascript
 callUnity('TransitionToControlState', JSON.stringify({
   targetState: 2,
-  provinceName: '山东',
-  provinceModuleName: 'polySurface3'
+  provinceCode: '370000'
 }));
 ```
 
@@ -201,14 +200,16 @@ callUnity('TransitionToControlState', JSON.stringify({
 |------|------|
 | `from` | 0~5 过渡开始；-1 过渡完成 |
 | `to` | 目标级别 0~5 |
-| `partId` | 零件组 ID：`Group01` / `Group02` / `Group03`，无零件时为 `""` |
 | `status` | 大屏跳转状态：`0` 普通跳转、`1` 信息跳转、`2` 威胁下钻（预留，当前暂为 `0`） |
+| `provinceCode` | 当前区域 code（国内 adcode / 国外 SOC） |
+| `vin` | 当前车辆 VIN；无上下文时为 `""` |
+| `partId` | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG`，无零件时为 `""` |
 
 示例：
 
 ```json
-{"from":3,"to":4,"partId":"","status":0}
-{"from":-1,"to":4,"partId":"Group01","status":0}
+{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":""}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":"IDC"}
 ```
 
 #### 过渡场景（from → to）
@@ -371,7 +372,11 @@ callUnity('PauseGame', '');
 callUnity('ResumeGame', '');
 callUnity('ExitThreatDrill', '');
 callUnity('RefreshThreatCooldown', '');
-callUnity('SetDefaultProvinceCode', '330000');
+callUnity('SetWorldMapRegionDefaults', JSON.stringify({
+  regionMode: 0,
+  foreignPlateCode: '',
+  defaultUnitCode: '330000'
+}));
 callUnity('RequestCarVehicleData', '');
 callUnity('RequestCarVehicleData', JSON.stringify({
   encryptVin: 'ed49f47afa23e45b18d342767495643c',
@@ -392,6 +397,11 @@ callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
   endTime: '2026-06-30 23:00:00'
 }));
 callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
+callUnity('RequestVehicleHeatmapOnce', JSON.stringify({
+  startTime: '2026-06-30 00:00:00',
+  endTime: '2026-06-30 23:00:00',
+  isReplay: true
+}));
 callUnity('SetCarYawRotation', JSON.stringify({ yawAngle: 90.0, instant: false }));
 callUnity('TransitionToPlateMap', '');
 callUnity('FocusPlateMapModule', 'polySurface3');

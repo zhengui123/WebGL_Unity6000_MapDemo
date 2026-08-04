@@ -118,6 +118,45 @@ public class WorldMapRegionController : MonoBehaviour
         ApplyDomestic(instantNationalView: true);
     }
 
+    /// <summary>
+    /// 设置国内外默认并立刻切换（同面板 SwitchToDomestic / SwitchToForeignPlate）。
+    /// </summary>
+    /// <param name="isForeign">true=国外，false=国内。</param>
+    /// <param name="foreignPlateCode">国外大板块 code；国内可空（忽略）。</param>
+    /// <param name="defaultUnitCode">
+    /// 国内=省级 adcode（空则保留现有默认省）；国外=国家 SOC（空则用绑定 defaultCountryCode）。
+    /// </param>
+    public bool ApplyRegionDefaults(bool isForeign, string foreignPlateCode = null, string defaultUnitCode = null)
+    {
+        if (isForeign)
+        {
+            if (!SwitchToForeignPlate(foreignPlateCode))
+            {
+                return false;
+            }
+
+            if (!string.IsNullOrWhiteSpace(defaultUnitCode))
+            {
+                DefaultForeignCountryCode = defaultUnitCode.Trim();
+            }
+
+            return true;
+        }
+
+        if (!string.IsNullOrWhiteSpace(defaultUnitCode))
+        {
+            GameManager gm = GameManager.Instance;
+            if (gm == null || !gm.SetDefaultProvinceCode(defaultUnitCode.Trim()))
+            {
+                Debug.LogWarning(
+                    $"[WorldMapRegionController] 国内默认省 code 无效：{defaultUnitCode}，仍切换国内。");
+            }
+        }
+
+        SwitchToDomestic();
+        return true;
+    }
+
     /// <summary>切到指定国外大板块（plateCode 如 EAST_ASIA）。</summary>
     public bool SwitchToForeignPlate(string plateCode)
     {

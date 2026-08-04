@@ -171,19 +171,45 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// <summary>立即请求一次（不影响轮询状态；参数由当前模式决定）。</summary>
     public void RequestOnce()
     {
+        ResolveRequestTimes(out string startTime, out string endTime, out bool isReplay);
+        BeginRequest(startTime, endTime, isReplay);
+    }
+
+    /// <summary>
+    /// 主动请求一次热力图（不启停、不改轮询模式）。
+    /// 起止时间为空时：start 空、end 当前时间；isReplay 由调用方指定。
+    /// </summary>
+    public bool RequestOnceWithParams(string startTime, string endTime, bool isReplay)
+    {
+        string resolvedStart = string.IsNullOrWhiteSpace(startTime) ? string.Empty : startTime.Trim();
+        string resolvedEnd = string.IsNullOrWhiteSpace(endTime)
+            ? BackendDateTimeTool.GetCurrentTimeString()
+            : endTime.Trim();
+
+        if (!BeginRequest(resolvedStart, resolvedEnd, isReplay))
+        {
+            return false;
+        }
+
+        Debug.Log(
+            $"[VehicleHeatmapApiController] 单次请求 | start={resolvedStart} | end={resolvedEnd} | isReplay={isReplay}");
+        return true;
+    }
+
+    /// <summary>发起一次 HTTP 请求；忙碌时返回 false。</summary>
+    private bool BeginRequest(string startTime, string endTime, bool isReplay)
+    {
         if (_isRequesting)
         {
             Debug.Log("[VehicleHeatmapApiController] 跳过：上一次车辆热力图请求尚未结束。");
-            return;
+            return false;
         }
 
         if (HttpService.Instance != null && HttpService.Instance.IsRequestInProgress)
         {
             Debug.LogWarning("[VehicleHeatmapApiController] 跳过：其他 HTTP 请求进行中。");
-            return;
+            return false;
         }
-
-        ResolveRequestTimes(out string startTime, out string endTime, out bool isReplay);
 
         _isRequesting = true;
         VehicleHeatmapApi.Request(
@@ -195,6 +221,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             OnRequestCompleted,
             additionalHeaders: null,
             isReplay: isReplay);
+        return true;
     }
 
     private void ApplyDefaultPollingParameters()

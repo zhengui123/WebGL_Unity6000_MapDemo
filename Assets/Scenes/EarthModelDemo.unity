@@ -44689,7 +44689,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fec765580beb2d642aa7c0e2b4f71fc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartDemo
-  _applyOnPlay: 0
+  _applyOnPlay: 1
   _startState: 1
   _ensureEarthBaselineOnPlay: 1
   _useInstantTransition: 1
