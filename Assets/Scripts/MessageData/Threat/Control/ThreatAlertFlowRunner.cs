@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 威胁告警流程协程宿主：
-/// 瞬时回国家 → 国家停留 → 省级停留 → 按 Vin≥3 轮流下钻（车辆 → 攻击链路 → 零部件）→ 回国家再评估。
+/// 瞬时回国家 → 国家停留 → 省级停留 → 按 Vin&gt;3 轮流下钻（车辆 → 攻击链路 → 零部件）→ 回国家再评估。
 /// 省级/车辆/攻击链路停留期间若数据再次入库：刷新当前阶段画面与缓存，不重入流程。
 /// </summary>
 public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
@@ -106,7 +106,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                || state == GameManager.ControlState.AttackPathLevel;
     }
 
-    /// <summary>Vin≥3 时请求进入车辆大屏（参数为 Vin）。</summary>
+    /// <summary>Vin&gt;3 时请求进入车辆大屏（参数为 Vin）。</summary>
     public static event Action<string> ThreatVehicleEntryRequested;
 
     /// <summary>省级全部 Vin 下钻完成后的钩子。</summary>
@@ -1380,7 +1380,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    /// <summary>收集省内 Vin 出现次数 ≥ 阈值的全部车辆（按次数降序、Vin 升序）。</summary>
+    /// <summary>收集省内 Vin 出现次数 &gt; 阈值的全部车辆（按次数降序、Vin 升序）。</summary>
     private static List<string> CollectVinsMeetingThreshold(IReadOnlyList<HighRiskSecurityEventItem> events)
     {
         List<string> result = new List<string>();
@@ -1406,7 +1406,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         List<KeyValuePair<string, int>> qualifying = new List<KeyValuePair<string, int>>();
         foreach (KeyValuePair<string, int> pair in counts)
         {
-            if (pair.Value >= ThreatAlertSettings.SameVinCountToEnterVehicle)
+            if (pair.Value > ThreatAlertSettings.SameVinCountToEnterVehicle)
             {
                 qualifying.Add(pair);
             }

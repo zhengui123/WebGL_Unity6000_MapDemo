@@ -154,7 +154,7 @@ public static class ThreatLocalAlertTestMockJson
     }
 
     /// <summary>
-    /// 多省达标且每省多辆「热车」：每辆 Vin 出现 ≥3 次，省总条数 ≥10。
+    /// 多省达标且每省多辆「热车」：每辆 Vin 出现 &gt;3 次（即 ≥4），省总条数 ≥10。
     /// 鲁 3 辆 / 黑 4 辆 / 粤 3 辆 / 苏 3 辆，共 13 个可下钻 Vin。
     /// </summary>
     public static string BuildSameVinQualifiedJson()
@@ -169,8 +169,8 @@ public static class ThreatLocalAlertTestMockJson
             new (string Vin, int Count)[]
             {
                 ("VIN_SD_HOT_01", 4),
-                ("VIN_SD_HOT_02", 3),
-                ("VIN_SD_HOT_03", 3),
+                ("VIN_SD_HOT_02", 4),
+                ("VIN_SD_HOT_03", 4),
             });
 
         AppendProvinceWithHotVins(
@@ -180,10 +180,10 @@ public static class ThreatLocalAlertTestMockJson
             HeilongjiangCities,
             new (string Vin, int Count)[]
             {
-                ("VIN_HLJ_HOT_01", 3),
-                ("VIN_HLJ_HOT_02", 3),
-                ("VIN_HLJ_HOT_03", 3),
-                ("VIN_HLJ_HOT_04", 3),
+                ("VIN_HLJ_HOT_01", 4),
+                ("VIN_HLJ_HOT_02", 4),
+                ("VIN_HLJ_HOT_03", 4),
+                ("VIN_HLJ_HOT_04", 4),
             });
 
         AppendProvinceWithHotVins(
@@ -195,7 +195,7 @@ public static class ThreatLocalAlertTestMockJson
             {
                 ("VIN_GD_HOT_01", 4),
                 ("VIN_GD_HOT_02", 4),
-                ("VIN_GD_HOT_03", 3),
+                ("VIN_GD_HOT_03", 4),
             });
 
         AppendProvinceWithHotVins(
@@ -205,7 +205,7 @@ public static class ThreatLocalAlertTestMockJson
             JiangsuCities,
             new (string Vin, int Count)[]
             {
-                ("VIN_JS_HOT_01", 3),
+                ("VIN_JS_HOT_01", 4),
                 ("VIN_JS_HOT_02", 4),
                 ("VIN_JS_HOT_03", 4),
             });
@@ -214,7 +214,7 @@ public static class ThreatLocalAlertTestMockJson
     }
 
     /// <summary>
-    /// 东亚多国达标且每国多辆「热车」：每辆 Vin≥3，国总条数≥10。
+    /// 东亚多国达标且每国多辆「热车」：每辆 Vin&gt;3（即 ≥4），国总条数≥10。
     /// 日 3 辆 / 韩 4 辆 / 蒙 3 辆 / 朝 3 辆；province 使用 secondClassCode。
     /// </summary>
     public static string BuildEastAsiaSameVinQualifiedJson()
@@ -229,8 +229,8 @@ public static class ThreatLocalAlertTestMockJson
             new (string Vin, int Count)[]
             {
                 ("VIN_JP_HOT_01", 4),
-                ("VIN_JP_HOT_02", 3),
-                ("VIN_JP_HOT_03", 3),
+                ("VIN_JP_HOT_02", 4),
+                ("VIN_JP_HOT_03", 4),
             },
             countryName: "日本");
 
@@ -241,10 +241,10 @@ public static class ThreatLocalAlertTestMockJson
             KoreaCities,
             new (string Vin, int Count)[]
             {
-                ("VIN_KR_HOT_01", 3),
-                ("VIN_KR_HOT_02", 3),
-                ("VIN_KR_HOT_03", 3),
-                ("VIN_KR_HOT_04", 3),
+                ("VIN_KR_HOT_01", 4),
+                ("VIN_KR_HOT_02", 4),
+                ("VIN_KR_HOT_03", 4),
+                ("VIN_KR_HOT_04", 4),
             },
             countryName: "韩国");
 
@@ -257,7 +257,7 @@ public static class ThreatLocalAlertTestMockJson
             {
                 ("VIN_MN_HOT_01", 4),
                 ("VIN_MN_HOT_02", 4),
-                ("VIN_MN_HOT_03", 3),
+                ("VIN_MN_HOT_03", 4),
             },
             countryName: "蒙古");
 
@@ -268,7 +268,7 @@ public static class ThreatLocalAlertTestMockJson
             NorthKoreaCities,
             new (string Vin, int Count)[]
             {
-                ("VIN_KP_HOT_01", 3),
+                ("VIN_KP_HOT_01", 4),
                 ("VIN_KP_HOT_02", 4),
                 ("VIN_KP_HOT_03", 4),
             },

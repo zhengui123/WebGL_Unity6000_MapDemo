@@ -116,7 +116,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void OnInjectSameVinClicked()
     {
-        InjectJson(ThreatLocalAlertTestMockJson.BuildSameVinQualifiedJson(), "多省多车 Vin≥3（鲁+黑+粤+苏）");
+        InjectJson(ThreatLocalAlertTestMockJson.BuildSameVinQualifiedJson(), "多省多车 Vin>3（鲁+黑+粤+苏）");
     }
 
     private void OnInjectEastAsiaSameVinClicked()
@@ -129,7 +129,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
         InjectJson(
             ThreatLocalAlertTestMockJson.BuildEastAsiaSameVinQualifiedJson(),
-            "东亚多国多车 Vin≥3（日+韩+蒙+朝）");
+            "东亚多国多车 Vin>3（日+韩+蒙+朝）");
     }
 
     /// <summary>注入东亚数据前切到国外·东亚大板块。</summary>
@@ -318,7 +318,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
             $"当前省={ThreatProvinceAlertController.CurrentProvinceCode ?? "-"}");
         builder.AppendLine($"排除 eventId 数={ThreatExcludedEventIdStore.Count}");
         builder.AppendLine($"缓存事件总数={store?.Count ?? 0}");
-        builder.AppendLine($"阈值≥{ThreatAlertSettings.EventsPerProvinceThreshold}，同Vin≥{ThreatAlertSettings.SameVinCountToEnterVehicle}");
+        builder.AppendLine($"阈值≥{ThreatAlertSettings.EventsPerProvinceThreshold}，同Vin>{ThreatAlertSettings.SameVinCountToEnterVehicle}");
 
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
         float countryHold = runner != null
