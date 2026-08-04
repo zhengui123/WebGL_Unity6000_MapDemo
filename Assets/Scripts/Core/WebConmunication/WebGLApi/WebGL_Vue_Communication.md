@@ -1,27 +1,31 @@
 # Unity WebGL ↔ Vue 父页面通信说明
 
-本文档说明架构、调用链路与扩展方式。**API 接口字段、完整 JSON 示例见同目录 [`WebGL_Iframe_API.md`](./WebGL_Iframe_API.md)。**
+本文档说明架构、调用链路与扩展方式。**API 接口字段、完整 JSON 示例见同目录** `[WebGL_Iframe_API.md](./WebGL_Iframe_API.md)`**。**
 
 ---
 
 ## 相关文件
 
-| 文件 | 作用 |
-|------|------|
-| `Assets/Plugins/Web/WebJs/vue-parent-demo/vue-parent-standalone.html` | 免 npm 的 Vue 3 父页面 |
-| `Assets/Plugins/Web/WebJs/vue-parent-demo/useUnityIframeBridge.js` | Vite 工程版 composable |
-| `Assets/Plugins/Web/WebJs/vue-parent-demo/README_API文档位置.md` | 文档迁移跳转说明 |
-| `Communication.jslib` | iframe `postMessage` 桥接 |
-| `WebGLAPI.cs`（本目录） | Unity WebGL 通信入口，物体名 **`WebGLAPI`** |
-| `WebGL_Iframe_API.md`（本目录） | WebGL 接口字段与完整 JSON 示例 |
-| `AndroidMessage.cs` | Android 通信入口，物体名 **`AndroidBridge`** |
-| `AndroidMessage_API.md` | Android 接口说明（与本目录 WebGL 文档方法名对齐） |
+
+| 文件                                                                    | 作用                               |
+| --------------------------------------------------------------------- | -------------------------------- |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/vue-parent-standalone.html` | 免 npm 的 Vue 3 父页面                |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/useUnityIframeBridge.js`    | Vite 工程版 composable              |
+| `Assets/Plugins/Web/WebJs/vue-parent-demo/README_API文档位置.md`          | 文档迁移跳转说明                         |
+| `Communication.jslib`                                                 | iframe `postMessage` 桥接          |
+| `WebGLAPI.cs`（本目录）                                                    | Unity WebGL 通信入口，物体名 `WebGLAPI`  |
+| `WebGL_Iframe_API.md`（本目录）                                            | WebGL 接口字段与完整 JSON 示例            |
+| `AndroidMessage.cs`                                                   | Android 通信入口，物体名 `AndroidBridge` |
+| `AndroidMessage_API.md`                                               | Android 接口说明（与本目录 WebGL 文档方法名对齐） |
+
 
 ---
 
+
+
 ## 一、架构与消息协议
 
-Unity WebGL 嵌入 `<iframe>`，跨域时**只使用 `postMessage`**，不调用 `parent.xxx()`。
+Unity WebGL 嵌入 `<iframe>`，跨域时**只使用** `postMessage`，不调用 `parent.xxx()`。
 
 ```
 vue-parent-standalone.html
@@ -37,18 +41,24 @@ WebGLAPI.cs → MapApi
 反向：WebGLAPI.CallHost → CallHTMLHandler → parent.postMessage({ source:"unity-webgl", method, message })
 ```
 
+
+
 ### 固定约定
 
-| 项目 | 值 |
-|------|-----|
-| Unity 物体名 | `WebGLAPI` |
-| 父 → Unity `source` | `webgl-unity-parent` |
-| Unity → 父 `source` | `unity-webgl` |
-| jslib 全局变量 | `window.unityInstance`（Build 的 index.html 必须赋值） |
-| 方法名 | **区分大小写**，与 C# `public` 方法名一致 |
-| 参数类型 | `SendMessage` 仅支持 `string`；结构体用 JSON 字符串 |
+
+| 项目                 | 值                                               |
+| ------------------ | ----------------------------------------------- |
+| Unity 物体名          | `WebGLAPI`                                      |
+| 父 → Unity `source` | `webgl-unity-parent`                            |
+| Unity → 父 `source` | `unity-webgl`                                   |
+| jslib 全局变量         | `window.unityInstance`（Build 的 index.html 必须赋值） |
+| 方法名                | **区分大小写**，与 C# `public` 方法名一致                   |
+| 参数类型               | `SendMessage` 仅支持 `string`；结构体用 JSON 字符串        |
+
 
 ---
+
+
 
 ## 二、父页面调用 Unity（完整链路）
 
@@ -61,6 +71,8 @@ WebGLAPI.cs → MapApi
 transitionToControlState({ targetState: 4, partId: 'IDC' });
 ```
 
+
+
 ### 2. postMessage
 
 ```javascript
@@ -70,6 +82,8 @@ iframe.contentWindow.postMessage({
   arg: '{"targetState":4,"partId":"IDC"}'
 }, '*');
 ```
+
+
 
 ### 3. jslib 转发（Communication.jslib）
 
@@ -91,6 +105,8 @@ public void TransitionToControlState(string json)
 }
 ```
 
+
+
 ### 5. Unity 回调父页面
 
 ```javascript
@@ -98,6 +114,8 @@ public void TransitionToControlState(string json)
 { source: 'unity-webgl', method: 'onUnityControlStateTransition',
   message: '{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":""}' }
 ```
+
+
 
 ### 6. Vue 处理
 
@@ -114,56 +132,70 @@ handlers: {
 
 ---
 
+
+
 ## 三、操控级别
 
-| 值 | 级别 |
-|----|------|
-| 0 | 地球 |
-| 1 | 国家 |
-| 2 | 省级 |
-| 3 | 车辆 |
-| 4 | 零件 |
-| 5 | 攻击路径 |
 
-`onUnityControlStateTransition` 中 **`from = -1`** 表示过渡**完成**（`to` 为已就绪级别）。
+| 值   | 级别   |
+| --- | ---- |
+| 0   | 地球   |
+| 1   | 国家   |
+| 2   | 省级   |
+| 3   | 车辆   |
+| 4   | 零件   |
+| 5   | 攻击路径 |
+
+
+`onUnityControlStateTransition` 中 `from = -1` 表示过渡**完成**（`to` 为已就绪级别）。
 
 **partId 有效值：** `IDC`、`CCU`、`TBOX`、`ADC`、`WG`（详见 `WebGL_Iframe_API.md` §3.1）。
 
 ---
 
+
+
 ## 四、方法对照表
+
+
 
 ### 4.1 父页面 → Unity
 
-| postMessage `method` | `arg` | WebGLAPI 方法 | MapApi | standalone 已封装 |
-|----------------------|-------|---------------|--------|-------------------|
-| `TransitionToControlState` | JSON | `TransitionToControlState(string)` | `TransitionToControlState` | ✅ |
-| `TransitionToNextControlState` | `""` | `TransitionToNextControlState()` | `TransitionToNextControlState` | ✅ |
-| `TransitionToPreviousControlState` | `""` | `TransitionToPreviousControlState()` | `TransitionToPreviousControlState` | ✅ |
-| `SetBigScreenAutoCarouselEnabled` | `{"enabled":bool}` | `SetBigScreenAutoCarouselEnabled(string)` | `SetBigScreenAutoCarouselEnabled` | ✅ |
-| `PauseGame` | `""` | `PauseGame()` | `PauseGame` | ✅ |
-| `ResumeGame` | `""` | `ResumeGame()` | `ResumeGame` | ✅ |
-| `ExitThreatDrill` | `""` | `ExitThreatDrill()` | `ExitThreatDrill` | 按需 |
-| `RefreshThreatCooldown` | `""` | `RefreshThreatCooldown()` | `RefreshThreatCooldown` | 按需 |
-| `SetWorldMapRegionDefaults` | JSON | `SetWorldMapRegionDefaults(string)` | `SetWorldMapRegionDefaults` | 按需 |
-| `CloseCarUI` | `""` | `CloseCarUI()` | `CloseCarVehicleDataUi` | ✅ |
-| `CloseGJPanel` | `""` | `CloseGJPanel()` | `CloseGJPanel()` | ✅ |
-| `StartVehicleHeatmapSpecifiedTimePolling` | JSON | `StartVehicleHeatmapSpecifiedTimePolling(string)` | `StartVehicleHeatmapSpecifiedTimePolling` | ✅ |
-| `StopVehicleHeatmapSpecifiedTimePolling` | `""` | `StopVehicleHeatmapSpecifiedTimePolling()` | `StopVehicleHeatmapSpecifiedTimePolling` | ✅ |
-| `RequestVehicleHeatmapOnce` | JSON / `""` | `RequestVehicleHeatmapOnce(string)` | `RequestVehicleHeatmapOnce` | ✅ |
-| `RequestCarVehicleData` | `""` 或 JSON | `RequestCarVehicleData(string)` | `RequestCarVehicleData` | ✅ |
-| `RequestSecurityEventDetail` | `""` 或 JSON | `RequestSecurityEventDetail(string)` | `RequestSecurityEventDetail` | ✅ |
+
+| postMessage `method`                      | `arg`              | WebGLAPI 方法                                       | MapApi                                    | standalone 已封装 |
+| ----------------------------------------- | ------------------ | ------------------------------------------------- | ----------------------------------------- | -------------- |
+| `TransitionToControlState`                | JSON               | `TransitionToControlState(string)`                | `TransitionToControlState`                | ✅              |
+| `TransitionToNextControlState`            | `""`               | `TransitionToNextControlState()`                  | `TransitionToNextControlState`            | ✅              |
+| `TransitionToPreviousControlState`        | `""`               | `TransitionToPreviousControlState()`              | `TransitionToPreviousControlState`        | ✅              |
+| `SetBigScreenAutoCarouselEnabled`         | `{"enabled":bool}` | `SetBigScreenAutoCarouselEnabled(string)`         | `SetBigScreenAutoCarouselEnabled`         | ✅              |
+| `PauseGame`                               | `""`               | `PauseGame()`                                     | `PauseGame`                               | ✅              |
+| `ResumeGame`                              | `""`               | `ResumeGame()`                                    | `ResumeGame`                              | ✅              |
+| `ExitThreatDrill`                         | `""`               | `ExitThreatDrill()`                               | `ExitThreatDrill`                         | 按需             |
+| `RefreshThreatCooldown`                   | `""`               | `RefreshThreatCooldown()`                         | `RefreshThreatCooldown`                   | 按需             |
+| `SetWorldMapRegionDefaults`               | JSON               | `SetWorldMapRegionDefaults(string)`               | `SetWorldMapRegionDefaults`               | 按需             |
+| `CloseCarUI`                              | `""`               | `CloseCarUI()`                                    | `CloseCarVehicleDataUi`                   | ✅              |
+| `CloseGJPanel`                            | `""`               | `CloseGJPanel()`                                  | `CloseGJPanel()`                          | ✅              |
+| `StartVehicleHeatmapSpecifiedTimePolling` | JSON               | `StartVehicleHeatmapSpecifiedTimePolling(string)` | `StartVehicleHeatmapSpecifiedTimePolling` | ✅              |
+| `StopVehicleHeatmapSpecifiedTimePolling`  | `""`               | `StopVehicleHeatmapSpecifiedTimePolling()`        | `StopVehicleHeatmapSpecifiedTimePolling`  | ✅              |
+| `RequestVehicleHeatmapOnce`               | JSON / `""`        | `RequestVehicleHeatmapOnce(string)`               | `RequestVehicleHeatmapOnce`               | ✅              |
+| `RequestCarVehicleData`                   | `""` 或 JSON        | `RequestCarVehicleData(string)`                   | `RequestCarVehicleData`                   | ✅              |
+| `RequestSecurityEventDetail`              | `""` 或 JSON        | `RequestSecurityEventDetail(string)`              | `RequestSecurityEventDetail`              | ✅              |
+
+
+
 
 #### TransitionToControlState 请求 JSON
 
 定义：`TransitionToControlStateRequest`（`AndroidMessage.cs`）
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `targetState` | int | ✅ | 0~5 |
-| `provinceCode` | string | | 省/国家 code（国内 adcode / 国外 SOC） |
-| `partId` | string | | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG` |
-| `useInstantTransition` | bool | | 跳过动画，默认 false |
+
+| 字段                     | 类型     | 必填  | 说明                                          |
+| ---------------------- | ------ | --- | ------------------------------------------- |
+| `targetState`          | int    | ✅   | 0~5                                         |
+| `provinceCode`         | string |     | 省/国家 code（国内 adcode / 国外 SOC）               |
+| `partId`               | string |     | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG` |
+| `useInstantTransition` | bool   |     | 跳过动画，默认 false                               |
+
 
 ```javascript
 callUnity('TransitionToControlState', JSON.stringify({
@@ -172,38 +204,50 @@ callUnity('TransitionToControlState', JSON.stringify({
 }));
 ```
 
+
+
 #### Android 有、WebGL 未暴露（请用 TransitionToControlState 替代）
 
-| Android 方法 | 说明 |
-|--------------|------|
-| `TransitionToPlateMap` | 地球→国家 |
-| `TransitionToEarth` | 国家→地球 |
-| `FocusPlateMapModule` | 聚焦省级板块 |
+
+| Android 方法              | 说明     |
+| ----------------------- | ------ |
+| `TransitionToPlateMap`  | 地球→国家  |
+| `TransitionToEarth`     | 国家→地球  |
+| `FocusPlateMapModule`   | 聚焦省级板块 |
 | `RestorePlateMapCamera` | 还原省级相机 |
+
 
 ---
 
+
+
 ### 4.2 Unity → 父页面
 
-| postMessage `method` | `message` | 触发 | standalone handler |
-|----------------------|-----------|------|-------------------|
-| `onUnityWebGLReady` | `""` | `NotifyHostReady` | 内置 `unityReady=true` |
-| `onUnityControlStateTransition` | JSON | EventManager 过渡事件 | ✅ |
+
+| postMessage `method`            | `message` | 触发                | standalone handler   |
+| ------------------------------- | --------- | ----------------- | -------------------- |
+| `onUnityWebGLReady`             | `""`      | `NotifyHostReady` | 内置 `unityReady=true` |
+| `onUnityControlStateTransition` | JSON      | EventManager 过渡事件 | ✅                    |
+
 
 > Unity → 父页面当前仅推送 `onUnityWebGLReady` 与 `onUnityControlStateTransition`。
+
+
 
 #### onUnityControlStateTransition JSON
 
 定义：`ControlStateTransitionNotify`
 
-| 字段 | 说明 |
-|------|------|
-| `from` | 0~5 过渡开始；-1 过渡完成 |
-| `to` | 目标级别 0~5 |
-| `status` | 大屏跳转状态：`0` 普通跳转、`1` 信息跳转、`2` 威胁下钻（预留，当前暂为 `0`） |
-| `provinceCode` | 当前区域 code（国内 adcode / 国外 SOC） |
-| `vin` | 当前车辆 VIN；无上下文时为 `""` |
-| `partId` | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG`，无零件时为 `""` |
+
+| 字段             | 说明                                                     |
+| -------------- | ------------------------------------------------------ |
+| `from`         | 0~5 过渡开始；-1 过渡完成                                       |
+| `to`           | 目标级别 0~5                                               |
+| `status`       | 大屏跳转状态：`0` 普通跳转、`1` 信息跳转、`2` 威胁下钻（预留，当前暂为 `0`）         |
+| `provinceCode` | 当前区域 code（国内 adcode / 国外 SOC）                          |
+| `vin`          | 当前车辆 VIN；无上下文时为 `""`                                   |
+| `partId`       | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG`，无零件时为 `""` |
+
 
 示例：
 
@@ -212,21 +256,27 @@ callUnity('TransitionToControlState', JSON.stringify({
 {"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":"IDC"}
 ```
 
+
+
 #### 过渡场景（from → to）
 
-| 跳转 | 说明 |
-|------|------|
-| 0↔1 | 地球 ↔ 国家 |
-| 1↔2 | 国家 ↔ 省级 |
-| 2↔3 | 省级 ↔ 车辆 |
-| 3↔4 | 车辆 ↔ 零件 |
-| 4→4 | 零件切换 |
+
+| 跳转  | 说明        |
+| --- | --------- |
+| 0↔1 | 地球 ↔ 国家   |
+| 1↔2 | 国家 ↔ 省级   |
+| 2↔3 | 省级 ↔ 车辆   |
+| 3↔4 | 车辆 ↔ 零件   |
+| 4→4 | 零件切换      |
 | 3↔5 | 车辆 ↔ 攻击路径 |
 | 5→4 | 攻击路径 → 零件 |
+
 
 每级过渡：**开始**回调一次（from 0~5），**完成**再回调一次（from=-1）。
 
 ---
+
+
 
 ## 五、Unity Build 配置
 
@@ -251,24 +301,32 @@ python -m http.server 8080
 
 ---
 
+
+
 ## 六、日志与联调
 
-| 端 | 位置 | 格式示例 |
-|----|------|----------|
-| Unity | Console / WebGLAPI Inspector `_enableCommunicationLog` | `[WebGLAPI] ← Host \| TransitionToControlState \| {...}` |
-| 父页面 | 控制台 + 页面底部日志面板 | `[UnityBridge] → Unity \| ...` |
+
+| 端     | 位置                                                     | 格式示例                                                   |
+| ----- | ------------------------------------------------------ | ------------------------------------------------------ |
+| Unity | Console / WebGLAPI Inspector `_enableCommunicationLog` | `[WebGLAPI] ← Host | TransitionToControlState | {...}` |
+| 父页面   | 控制台 + 页面底部日志面板                                         | `[UnityBridge] → Unity | ...`                          |
+
 
 **联调清单：**
 
-1. iframe 能加载 Unity Build  
-2. `window.unityInstance` 已设置  
-3. 收到 `onUnityWebGLReady` 后再发指令  
-4. `method` 与 `WebGLAPI` public 方法名完全一致  
+1. iframe 能加载 Unity Build
+2. `window.unityInstance` 已设置
+3. 收到 `onUnityWebGLReady` 后再发指令
+4. `method` 与 `WebGLAPI` public 方法名完全一致
 5. JSON 字段名区分大小写（`JsonUtility` 限制）
 
 ---
 
+
+
 ## 七、新增接口指南
+
+
 
 ### 7.1 父页面 → Unity（新增调用）
 
@@ -302,6 +360,8 @@ myNewCommand: (p) => callUnity('MyNewCommand',
 
 ---
 
+
+
 ### 7.2 Unity → 父页面（新增回调）
 
 **规则：** `CallHost("onUnityXxx", msg)` ↔ `handlers.onUnityXxx`。
@@ -325,6 +385,8 @@ handlers: {
 
 ---
 
+
+
 ### 7.3 JSON 数据类
 
 ```csharp
@@ -340,21 +402,27 @@ public struct MyNewCommandRequest
 
 ---
 
+
+
 ## 八、Android vs WebGL 速查
 
-| 项目 | Android | WebGL + Vue |
-|------|---------|-------------|
-| 脚本 | `AndroidMessage` | `WebGLAPI` |
-| 物体名 | `AndroidBridge` | `WebGLAPI` |
-| 宿主→Unity | `UnitySendMessage` | `postMessage` + jslib |
-| Unity→宿主 | `activity.Call` | `parent.postMessage` |
-| 就绪通知 | 无（原生侧自行管理生命周期） | `onUnityWebGLReady` |
-| 车辆 Yaw 回调 | `onUnityCarYawRotationChanged` | 同名 |
-| 接口说明 | `AndroidBridge/AndroidMessage_API.md` | 本目录 `WebGL_Iframe_API.md` |
+
+| 项目        | Android                               | WebGL + Vue               |
+| --------- | ------------------------------------- | ------------------------- |
+| 脚本        | `AndroidMessage`                      | `WebGLAPI`                |
+| 物体名       | `AndroidBridge`                       | `WebGLAPI`                |
+| 宿主→Unity  | `UnitySendMessage`                    | `postMessage` + jslib     |
+| Unity→宿主  | `activity.Call`                       | `parent.postMessage`      |
+| 就绪通知      | 无（原生侧自行管理生命周期）                        | `onUnityWebGLReady`       |
+| 车辆 Yaw 回调 | `onUnityCarYawRotationChanged`        | 同名                        |
+| 接口说明      | `AndroidBridge/AndroidMessage_API.md` | 本目录 `WebGL_Iframe_API.md` |
+
 
 业务方法名两端对齐（含 `SetCarYawRotation`、地图过渡联调方法）。JSON 结构共用。
 
 ---
+
+
 
 ## 九、最小调用示例
 
@@ -422,3 +490,4 @@ window.addEventListener('message', (e) => {
   }
 });
 ```
+
