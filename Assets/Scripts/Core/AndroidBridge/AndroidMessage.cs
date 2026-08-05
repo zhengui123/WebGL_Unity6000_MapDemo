@@ -745,6 +745,30 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：开启威胁高危事件定时轮询（默认 60s）。
+    /// UnitySendMessage("AndroidBridge", "StartThreatHighRiskPolling", "");
+    /// </summary>
+    public void StartThreatHighRiskPolling()
+    {
+        if (!MapApi.Instance.StartThreatHighRiskPolling())
+        {
+            Debug.LogWarning("[AndroidMessage] StartThreatHighRiskPolling 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：停止威胁高危事件定时轮询。
+    /// UnitySendMessage("AndroidBridge", "StopThreatHighRiskPolling", "");
+    /// </summary>
+    public void StopThreatHighRiskPolling()
+    {
+        if (!MapApi.Instance.StopThreatHighRiskPolling())
+        {
+            Debug.LogWarning("[AndroidMessage] StopThreatHighRiskPolling 失败。");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：设置世界地图国内外默认并立刻切换。
     /// UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults", json);
     /// JSON：{"regionMode":0,"foreignPlateCode":"","defaultUnitCode":"330000"}

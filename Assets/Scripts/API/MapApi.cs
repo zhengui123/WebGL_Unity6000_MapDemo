@@ -545,7 +545,7 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 主动退出威胁下钻：停在当前级别，进入冷却（默认 180s，期间不检测威胁）。
+    /// 主动退出威胁下钻：停在当前级别，进入冷却（默认 180s，期间不检测威胁、暂停高危事件轮询请求）。
     /// </summary>
     public bool ExitThreatDrill()
     {
@@ -558,6 +558,36 @@ public class MapApi : UnitySingle<MapApi>
     public bool RefreshThreatCooldown()
     {
         return ThreatProvinceAlertController.RefreshThreatCooldown();
+    }
+
+    /// <summary>
+    /// 开启威胁高危安全事件定时轮询（默认间隔 60s）。组件默认可开局自动轮询；冷却中仅记录意图，冷却结束后先请求再恢复。
+    /// </summary>
+    public bool StartThreatHighRiskPolling()
+    {
+        HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法开启威胁轮询。");
+            return false;
+        }
+
+        return controller.StartPolling();
+    }
+
+    /// <summary>
+    /// 停止威胁高危安全事件定时轮询（清除意图；冷却结束后也不会自动恢复）。
+    /// </summary>
+    public bool StopThreatHighRiskPolling()
+    {
+        HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
+        if (controller == null)
+        {
+            Debug.LogWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法停止威胁轮询。");
+            return false;
+        }
+
+        return controller.StopPolling();
     }
 
     /// <summary>

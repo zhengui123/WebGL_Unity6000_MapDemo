@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 威胁态势告警控制入口：数据达标后启动 <see cref="ThreatAlertFlowRunner"/>。
 /// 不维护长期省份队列；每轮国家停留后取「当前最新达标列表第一条」。
-/// 主动退出后进入冷却：冷却期内不检测；仅通过刷新冷却接口重置计时。
+/// 主动退出后进入冷却：冷却期内不检测、暂停高危事件轮询；冷却结束后若仍开启轮询则先请求再评估。
 /// </summary>
 public static class ThreatProvinceAlertController
 {

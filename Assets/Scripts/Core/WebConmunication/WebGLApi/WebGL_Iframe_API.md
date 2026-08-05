@@ -360,7 +360,7 @@ callUnity('ResumeGame', '');
 
 ### 4.6 ExitThreatDrill
 
-主动退出威胁下钻：保持**当前操控级别**，进入冷却（默认约 180s，冷却期间不再检测威胁）。自然跑完威胁流程不会进入冷却。
+主动退出威胁下钻：保持**当前操控级别**，进入冷却（默认约 180s）。冷却期间不再检测威胁，并**暂停**高危事件定时轮询；冷却结束后若此前已开启 `StartThreatHighRiskPolling`，会先请求一次接口再恢复轮询。自然跑完威胁流程不会进入冷却。
 
 
 | 项目       | 值                            |
@@ -396,7 +396,45 @@ callUnity('RefreshThreatCooldown', '');
 
 ---
 
-### 4.8 SetWorldMapRegionDefaults
+### 4.8 StartThreatHighRiskPolling
+
+开启威胁高危安全事件定时轮询（默认间隔 60s，启动后立即请求一次）。组件默认开局自动轮询（Inspector `_autoStart`，可关）；宿主仍可用本接口手动启停。威胁流程进行中仍继续轮询。冷却中调用只记录意图，冷却结束后再真正请求。
+
+
+| 项目       | 值                                       |
+| -------- | --------------------------------------- |
+| `method` | `StartThreatHighRiskPolling`            |
+| `arg`    | `""`                                    |
+| Unity 方法 | `WebGLAPI.StartThreatHighRiskPolling()` |
+| MapApi   | `StartThreatHighRiskPolling()`          |
+
+
+```javascript
+callUnity('StartThreatHighRiskPolling', '');
+```
+
+---
+
+### 4.9 StopThreatHighRiskPolling
+
+停止威胁高危事件定时轮询并清除意图；冷却结束后也不会自动恢复。
+
+
+| 项目       | 值                                      |
+| -------- | -------------------------------------- |
+| `method` | `StopThreatHighRiskPolling`            |
+| `arg`    | `""`                                   |
+| Unity 方法 | `WebGLAPI.StopThreatHighRiskPolling()` |
+| MapApi   | `StopThreatHighRiskPolling()`          |
+
+
+```javascript
+callUnity('StopThreatHighRiskPolling', '');
+```
+
+---
+
+### 4.10 SetWorldMapRegionDefaults
 
 设置国内/国外、国外大板块、默认单元 code，并立刻切换世界地图区域（同 `WorldMapRegionController` 面板）。  
 取代原 `SetDefaultProvinceCode`。
@@ -436,7 +474,7 @@ callUnity('SetWorldMapRegionDefaults', JSON.stringify({
 
 ---
 
-### 4.9 CloseCarUI
+### 4.11 CloseCarUI
 
 停止零部件防护状态轮播，并关闭车辆 UI / 连线。
 
@@ -455,7 +493,7 @@ callUnity('CloseCarUI', '');
 
 ---
 
-### 4.10 CloseGJPanel
+### 4.12 CloseGJPanel
 
 关闭告警面板 `GJ_Panel`。
 
@@ -474,7 +512,7 @@ callUnity('CloseGJPanel', '');
 
 ---
 
-### 4.11 RequestVehicleHeatmapOnce
+### 4.13 RequestVehicleHeatmapOnce
 
 主动请求一次车辆热力图（**不轮询**）：按起止时间与 `isReplay` 发一次后端请求并走现有点位处理；不改轮询状态。
 
@@ -507,7 +545,7 @@ callUnity('RequestVehicleHeatmapOnce', '');
 
 ---
 
-### 4.12 StartVehicleHeatmapSpecifiedTimePolling
+### 4.14 StartVehicleHeatmapSpecifiedTimePolling
 
 开启车辆热力图指定时段轮询：固定起止时间，请求 `isReplay=true`。轮询间隔与默认模式相同。
 
@@ -536,7 +574,7 @@ callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
 
 ---
 
-### 4.13 StopVehicleHeatmapSpecifiedTimePolling
+### 4.15 StopVehicleHeatmapSpecifiedTimePolling
 
 关闭指定时段模式，恢复默认轮询（`startTime` 空、`endTime` 当前时间、`isReplay=false`）。
 
@@ -555,7 +593,7 @@ callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
 
 ---
 
-### 4.14 RequestCarVehicleData
+### 4.16 RequestCarVehicleData
 
 请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
@@ -590,7 +628,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 ---
 
-### 4.15 RequestSecurityEventDetail
+### 4.17 RequestSecurityEventDetail
 
 请求事件溯源详情（getSourceEventDetail）。成功后 Unity 侧缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无成功/失败回调（只发不回）。
 
@@ -627,7 +665,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 
 ---
 
-### 4.16 SetCarYawRotation
+### 4.18 SetCarYawRotation
 
 设置车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
 
@@ -654,7 +692,7 @@ callUnity('SetCarYawRotation', JSON.stringify({ yawAngle: 90.0, instant: false }
 
 ---
 
-### 4.17 其它地图过渡（可选 / 联调）
+### 4.19 其它地图过渡（可选 / 联调）
 
 一般优先使用 `TransitionToControlState`；以下为底层地图过渡直调：
 
@@ -676,7 +714,7 @@ callUnity('TransitionToEarth', '');
 
 ---
 
-### 4.18 SetHttpRequestHeaders
+### 4.20 SetHttpRequestHeaders
 
 > **编号约定：** 新增父页面 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
 
@@ -713,7 +751,7 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 
 ---
 
-### 4.19 接口汇总表（父 → Unity）
+### 4.21 接口汇总表（父 → Unity）
 
 
 | method                                    | arg         | JSON | 说明                         |
@@ -726,6 +764,8 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 | `ResumeGame`                              | `""`        |      | 恢复游戏                       |
 | `ExitThreatDrill`                         | `""`        |      | 退出威胁下钻并进入冷却                |
 | `RefreshThreatCooldown`                   | `""`        |      | 刷新威胁冷却（仅冷却中）               |
+| `StartThreatHighRiskPolling`              | `""`        |      | 开启威胁高危事件定时轮询（默认 60s）       |
+| `StopThreatHighRiskPolling`               | `""`        |      | 停止威胁高危事件定时轮询               |
 | `SetWorldMapRegionDefaults`               | JSON        | ✅    | 设置国内外默认并立刻切换               |
 | `CloseCarUI`                              | `""`        |      | 关闭车辆 UI / 停止轮播             |
 | `CloseGJPanel`                            | `""`        |      | 关闭告警面板 GJ_Panel            |
@@ -989,6 +1029,8 @@ function onUnityCarYawRotationChanged(json) {
 | 设置国内默认省浙江    | `SetWorldMapRegionDefaults` → `{"regionMode":0,"defaultUnitCode":"330000"}` |
 | 退出威胁下钻       | `ExitThreatDrill` → `""`                                                    |
 | 刷新威胁冷却       | `RefreshThreatCooldown` → `""`（仅冷却中）                                        |
+| 开启威胁轮询       | `StartThreatHighRiskPolling` → `""`                                         |
+| 停止威胁轮询       | `StopThreatHighRiskPolling` → `""`                                          |
 
 
 ---
@@ -1050,6 +1092,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期         | 说明                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------- |
+| 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估 |
 | 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁 |
 | 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode` |
 | 2026-07    | `ControlStateTransitionNotify` 增加字段 `status`（大屏播放状态）                                   |

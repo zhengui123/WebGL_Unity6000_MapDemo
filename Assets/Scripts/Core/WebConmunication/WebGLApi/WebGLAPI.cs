@@ -692,6 +692,38 @@ public class WebGLAPI : MonoBehaviour
     }
 
     /// <summary>
+    /// 宿主调用：开启威胁高危事件定时轮询（默认 60s）。arg 传 ""。
+    /// </summary>
+    public void StartThreatHighRiskPolling()
+    {
+        LogCommunication("← Host", nameof(StartThreatHighRiskPolling), string.Empty);
+
+        if (!MapApi.Instance.StartThreatHighRiskPolling())
+        {
+            Debug.LogWarning("[WebGLAPI] StartThreatHighRiskPolling 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(StartThreatHighRiskPolling), "已开启轮询");
+    }
+
+    /// <summary>
+    /// 宿主调用：停止威胁高危事件定时轮询。arg 传 ""。
+    /// </summary>
+    public void StopThreatHighRiskPolling()
+    {
+        LogCommunication("← Host", nameof(StopThreatHighRiskPolling), string.Empty);
+
+        if (!MapApi.Instance.StopThreatHighRiskPolling())
+        {
+            Debug.LogWarning("[WebGLAPI] StopThreatHighRiskPolling 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(StopThreatHighRiskPolling), "已停止轮询");
+    }
+
+    /// <summary>
     /// 宿主调用：设置世界地图国内外默认并立刻切换。
     /// JSON：{"regionMode":0,"foreignPlateCode":"","defaultUnitCode":"330000"}
     /// regionMode：0=国内，1=国外。

@@ -172,6 +172,8 @@ handlers: {
 | `ResumeGame`                              | `""`               | `ResumeGame()`                                    | `ResumeGame`                              | ✅              |
 | `ExitThreatDrill`                         | `""`               | `ExitThreatDrill()`                               | `ExitThreatDrill`                         | 按需             |
 | `RefreshThreatCooldown`                   | `""`               | `RefreshThreatCooldown()`                         | `RefreshThreatCooldown`                   | 按需             |
+| `StartThreatHighRiskPolling`              | `""`               | `StartThreatHighRiskPolling()`                    | `StartThreatHighRiskPolling`              | 按需             |
+| `StopThreatHighRiskPolling`               | `""`               | `StopThreatHighRiskPolling()`                     | `StopThreatHighRiskPolling`               | 按需             |
 | `SetWorldMapRegionDefaults`               | JSON               | `SetWorldMapRegionDefaults(string)`               | `SetWorldMapRegionDefaults`               | 按需             |
 | `CloseCarUI`                              | `""`               | `CloseCarUI()`                                    | `CloseCarVehicleDataUi`                   | ✅              |
 | `CloseGJPanel`                            | `""`               | `CloseGJPanel()`                                  | `CloseGJPanel()`                          | ✅              |
@@ -441,6 +443,8 @@ callUnity('PauseGame', '');
 callUnity('ResumeGame', '');
 callUnity('ExitThreatDrill', '');
 callUnity('RefreshThreatCooldown', '');
+callUnity('StartThreatHighRiskPolling', '');
+callUnity('StopThreatHighRiskPolling', '');
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
   regionMode: 0,
   foreignPlateCode: '',

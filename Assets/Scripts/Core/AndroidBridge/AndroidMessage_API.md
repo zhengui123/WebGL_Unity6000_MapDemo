@@ -136,7 +136,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "ResumeGame", "");
 
 ### 2.6 `ExitThreatDrill` — 主动退出威胁下钻
 
-保持**当前操控级别**，退出威胁下钻流程并进入冷却（默认约 180s，冷却期间不再检测威胁）。自然跑完威胁流程不会进入冷却。
+保持**当前操控级别**，退出威胁下钻流程并进入冷却（默认约 180s）。冷却期间不再检测威胁，并**暂停**高危事件定时轮询请求；冷却结束后若此前已 `StartThreatHighRiskPolling`，会先请求一次接口再恢复轮询。自然跑完威胁流程不会进入冷却。
 
 ```java
 UnityPlayer.UnitySendMessage("AndroidBridge", "ExitThreatDrill", "");
@@ -158,7 +158,31 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RefreshThreatCooldown", "");
 
 ---
 
-### 2.8 `SetWorldMapRegionDefaults` — 设置国内外默认并立刻切换
+### 2.8 `StartThreatHighRiskPolling` — 开启威胁高危事件定时轮询
+
+开启 `highRiskSecurityEvent` 定时请求（默认间隔 60s，启动后立即请求一次）。组件默认开局自动轮询（Inspector `_autoStart`，可关）；宿主仍可用本接口手动启停。威胁流程进行中仍继续轮询（处理中仅刷新画面）。冷却中调用只记录意图，冷却结束后再真正请求。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "StartThreatHighRiskPolling", "");
+```
+
+对应 Unity：`MapApi.StartThreatHighRiskPolling` → `HighRiskSecurityEventApiController.StartPolling`。
+
+---
+
+### 2.9 `StopThreatHighRiskPolling` — 停止威胁高危事件定时轮询
+
+停止定时请求并清除轮询意图；冷却结束后也不会自动恢复。
+
+```java
+UnityPlayer.UnitySendMessage("AndroidBridge", "StopThreatHighRiskPolling", "");
+```
+
+对应 Unity：`MapApi.StopThreatHighRiskPolling` → `HighRiskSecurityEventApiController.StopPolling`。
+
+---
+
+### 2.10 `SetWorldMapRegionDefaults` — 设置国内外默认并立刻切换
 
 设置国内/国外、国外大板块、默认单元 code，并立刻调用 `WorldMapRegionController` 切换（同 Inspector 面板按钮）。  
 取代原 `SetDefaultProvinceCode`。
@@ -183,7 +207,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
 
 ---
 
-### 2.9 `CloseCarUI` — 关闭车辆 UI
+### 2.11 `CloseCarUI` — 关闭车辆 UI
 
 停止零部件轮播并关闭车辆 UI / 连线面板。
 
@@ -195,7 +219,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseCarUI", "");
 
 ---
 
-### 2.10 `CloseGJPanel` — 关闭告警面板 GJ_Panel
+### 2.12 `CloseGJPanel` — 关闭告警面板 GJ_Panel
 
 关闭场景中的 `GJ_Panel`（告警事件展示面板）。
 
@@ -207,7 +231,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
 
 ---
 
-### 2.11 `RequestVehicleHeatmapOnce` — 主动请求一次热力图（不轮询）
+### 2.13 `RequestVehicleHeatmapOnce` — 主动请求一次热力图（不轮询）
 
 按起止时间与 `isReplay` **仅请求一次**后端并执行现有点位处理；不启停、不改轮询模式。
 
@@ -229,7 +253,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestVehicleHeatmapOnce", "");
 
 ---
 
-### 2.12 `StartVehicleHeatmapSpecifiedTimePolling` — 开启热力图指定时段轮询
+### 2.14 `StartVehicleHeatmapSpecifiedTimePolling` — 开启热力图指定时段轮询
 
 固定起止时间轮询车辆热力图，请求参数 `isReplay=true`。轮询间隔与默认模式相同。
 
@@ -247,7 +271,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StartVehicleHeatmapSpecifiedTimeP
 
 ---
 
-### 2.13 `StopVehicleHeatmapSpecifiedTimePolling` — 关闭指定时段，恢复默认轮询
+### 2.15 `StopVehicleHeatmapSpecifiedTimePolling` — 关闭指定时段，恢复默认轮询
 
 关闭指定时段模式：`isReplay=false`，`startTime` 空，`endTime` 为每次请求时的当前时间。
 
@@ -259,7 +283,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StopVehicleHeatmapSpecifiedTimePo
 
 ---
 
-### 2.14 `RequestCarVehicleData` — 请求车辆态势数据
+### 2.16 `RequestCarVehicleData` — 请求车辆态势数据
 
 同参并发请求「零部件防护状态」与「攻击链路」；均成功后覆盖缓存。若当前已是车辆级，会打开车辆 UI 并开始零部件轮播。无结果回调（只发不回）。
 
@@ -282,7 +306,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestCarVehicleData",
 
 ---
 
-### 2.15 `RequestSecurityEventDetail` — 请求事件溯源详情
+### 2.17 `RequestSecurityEventDetail` — 请求事件溯源详情
 
 请求 `getSourceEventDetail`；成功后缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无结果回调（只发不回）。
 
@@ -306,7 +330,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 
 ---
 
-### 2.16 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
+### 2.18 `SetCarYawRotation` — 设置车辆 Y 轴旋转角度
 
 > **特殊说明（重要）**  
 > **Android / WebGL 正式业务中通常无需调用本接口。**  
@@ -343,7 +367,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.17 其它地图过渡（可选 / 联调）
+### 2.19 其它地图过渡（可选 / 联调）
 
 以下接口仍暴露，一般优先使用 `TransitionToControlState` 统一跳转：
 
@@ -356,7 +380,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.18 `SetHttpRequestHeaders` — 运行时配置 HTTP 请求头
+### 2.20 `SetHttpRequestHeaders` — 运行时配置 HTTP 请求头
 
 > **编号约定：** 新增宿主 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
 
@@ -555,6 +579,8 @@ public void onUnityCarYawRotationChanged(String json) {
 | `ResumeGame` | `""` | 恢复游戏 |
 | `ExitThreatDrill` | `""` | 主动退出威胁下钻并进入冷却 |
 | `RefreshThreatCooldown` | `""` | 刷新威胁冷却（仅冷却中有效） |
+| `StartThreatHighRiskPolling` | `""` | 开启威胁高危事件定时轮询（默认 60s） |
+| `StopThreatHighRiskPolling` | `""` | 停止威胁高危事件定时轮询 |
 | `SetWorldMapRegionDefaults` | JSON | 设置国内外默认并立刻切换 |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
 | `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel |
@@ -579,6 +605,6 @@ public void onUnityCarYawRotationChanged(String json) {
 3. 收到 `onUnityControlStateTransition` 且 `from=-1` 时，表示目标级别已可交互。
 4. 车辆旋转：Android **监听** `onUnityCarYawRotationChanged` 即可，**勿调用** `SetCarYawRotation`。
 5. 需要主动跳转时调用 `TransitionToControlState`。
-6. 威胁下钻：用户主动打断用 `ExitThreatDrill`；冷却中续期用 `RefreshThreatCooldown`。
+6. 威胁下钻：用户主动打断用 `ExitThreatDrill`；冷却中续期用 `RefreshThreatCooldown`；威胁数据用 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`（冷却期暂停请求，结束后先拉接口再评估）。
 7. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
 8. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。

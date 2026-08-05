@@ -379,6 +379,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         StopFlowInternal();
         CancelInterruptCooldown();
+        // 调试取消冷却：若宿主仍开启轮询，恢复请求。
+        HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
         ThreatProvinceAlertController.NotifyFlowStopped();
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
@@ -405,6 +407,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private void StartInterruptCooldown()
     {
         CancelInterruptCooldown();
+        HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownStarted();
         _interruptCooldownRoutine = StartCoroutine(InterruptCooldownRoutine());
     }
 
@@ -433,8 +436,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _interruptCooldownRemaining = 0f;
         _interruptCooldownRoutine = null;
-        Debug.Log("[ThreatAlertFlowRunner] 威胁冷却结束，恢复威胁数据检测。");
-        ThreatProvinceAlertController.EvaluateAfterDataUpdated();
+        Debug.Log("[ThreatAlertFlowRunner] 威胁冷却结束，交由轮询控制器先请求接口再评估。");
+        // 不再直接用本地缓存 Evaluate：先 Request，入库后再 EvaluateAfterDataUpdated。
+        HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
     }
 
     private IEnumerator ThreatFlowRoutine()
