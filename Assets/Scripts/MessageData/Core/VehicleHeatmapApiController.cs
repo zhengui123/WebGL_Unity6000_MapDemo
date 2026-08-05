@@ -196,18 +196,17 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         return true;
     }
 
-    /// <summary>发起一次 HTTP 请求；忙碌时返回 false。</summary>
+    /// <summary>发起一次 HTTP 请求；自身上一次未完成时跳过（不入 HttpService 队）。</summary>
     private bool BeginRequest(string startTime, string endTime, bool isReplay)
     {
         if (_isRequesting)
         {
-            Debug.Log("[VehicleHeatmapApiController] 跳过：上一次车辆热力图请求尚未结束。");
-            return false;
-        }
-
-        if (HttpService.Instance != null && HttpService.Instance.IsRequestInProgress)
-        {
-            Debug.LogWarning("[VehicleHeatmapApiController] 跳过：其他 HTTP 请求进行中。");
+            HttpService http = HttpService.Instance;
+            int active = http != null ? http.ActiveRequestCount : 0;
+            int pending = http != null ? http.PendingRequestCount : 0;
+            Debug.Log(
+                "[VehicleHeatmapApiController] 同业务跳过：上一次车辆热力图尚未结束，未入 HttpService 队 | " +
+                $"Http在途={active} | Http排队={pending}");
             return false;
         }
 

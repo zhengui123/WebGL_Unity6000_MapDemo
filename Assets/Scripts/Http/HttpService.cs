@@ -7,44 +7,81 @@ using UnityEngine.Networking;
 
 /// <summary>
 /// HTTP 请求服务：通过 UnityWebRequest 拉取/提交 JSON，并解析为指定数据类。
+/// 支持请求队列 + 有限并行（默认最多 3 路同时在途）；新请求入队，不因忙碌丢弃。
 /// 场景可不挂载，首次访问 <see cref="Instance"/> 时会自动创建。
 /// </summary>
 [DisallowMultipleComponent]
 public class HttpService : UnitySingle<HttpService>
 {
+    private sealed class PendingJob
+    {
+        public Func<ActiveSlot, IEnumerator> RoutineFactory;
+        public Action<HttpRequestResult> OnCompleted;
+    }
+
+    private sealed class ActiveSlot
+    {
+        public int Id;
+        public Coroutine Coroutine;
+        public UnityWebRequest Request;
+        public Action<HttpRequestResult> OnCompleted;
+        public bool IsCancelled;
+    }
+
     [SerializeField] private float _timeoutSeconds = 30f;
     [SerializeField] private string _defaultContentType = "application/json";
+    [Tooltip("同时在途的最大 HTTP 请求数。")]
+    [SerializeField] private int _maxConcurrent = 3;
 
-    private Coroutine _activeCoroutine;
-    private UnityWebRequest _activeRequest;
-    private int _requestGeneration;
-    private int _currentRequestGeneration;
-    private Action<HttpRequestResult> _pendingCallback;
+    private readonly Queue<PendingJob> _pendingJobs = new Queue<PendingJob>();
+    private readonly List<ActiveSlot> _activeSlots = new List<ActiveSlot>();
+    private int _nextSlotId;
 
-    /// <summary>是否有进行中的请求。</summary>
-    public bool IsRequestInProgress => _activeCoroutine != null;
+    /// <summary>是否有进行中或排队中的请求。</summary>
+    public bool IsRequestInProgress => _activeSlots.Count > 0 || _pendingJobs.Count > 0;
 
-    /// <summary>停止当前进行中的请求，并通过回调返回 <see cref="HttpRequestResult.Cancelled"/>。</summary>
+    /// <summary>当前在途请求数。</summary>
+    public int ActiveRequestCount => _activeSlots.Count;
+
+    /// <summary>排队等待中的请求数。</summary>
+    public int PendingRequestCount => _pendingJobs.Count;
+
+    /// <summary>并行上限（至少为 1）。</summary>
+    public int MaxConcurrent
+    {
+        get => Mathf.Max(1, _maxConcurrent);
+        set => _maxConcurrent = Mathf.Max(1, value);
+    }
+
+    /// <summary>
+    /// 停止全部在途请求并清空队列；每个未完成任务回调 <see cref="HttpRequestResult.Cancelled"/>。
+    /// </summary>
     public void StopCurrentRequest()
     {
-        if (_pendingCallback == null && !IsRequestInProgress && _activeRequest == null)
+        if (_pendingJobs.Count == 0 && _activeSlots.Count == 0)
         {
             return;
         }
 
-        _requestGeneration++;
-        AbortActiveRequest();
-        StopActiveCoroutine();
+        while (_pendingJobs.Count > 0)
+        {
+            PendingJob job = _pendingJobs.Dequeue();
+            job.OnCompleted?.Invoke(HttpRequestResult.Cancelled());
+        }
 
-        Action<HttpRequestResult> callback = _pendingCallback;
-        _pendingCallback = null;
-        callback?.Invoke(HttpRequestResult.Cancelled());
+        // 复制列表，避免回调中再改集合
+        List<ActiveSlot> slots = new List<ActiveSlot>(_activeSlots);
+        _activeSlots.Clear();
+        for (int i = 0; i < slots.Count; i++)
+        {
+            CancelActiveSlot(slots[i], invokeCallback: true);
+        }
     }
 
     /// <summary>GET 请求，仅返回原始响应。</summary>
     public void Get(string url, Action<HttpRequestResult> onCompleted, Dictionary<string, string> headers = null)
     {
-        LaunchRequest(SendGetCoroutine(url, headers), onCompleted);
+        Enqueue(slot => SendGetCoroutine(slot, url, headers), onCompleted);
     }
 
     /// <summary>GET 请求，成功时将响应体解析为 <typeparamref name="T"/>。</summary>
@@ -82,7 +119,7 @@ public class HttpService : UnitySingle<HttpService>
         Action<HttpRequestResult> onCompleted,
         Dictionary<string, string> headers = null)
     {
-        LaunchRequest(SendPostCoroutine(url, jsonBody, headers), onCompleted);
+        Enqueue(slot => SendPostCoroutine(slot, url, jsonBody, headers), onCompleted);
     }
 
     /// <summary>POST JSON 请求体，返回原始响应。</summary>
@@ -129,104 +166,184 @@ public class HttpService : UnitySingle<HttpService>
         }, headers);
     }
 
-    private void LaunchRequest(IEnumerator routine, Action<HttpRequestResult> onCompleted)
+    private void Enqueue(Func<ActiveSlot, IEnumerator> routineFactory, Action<HttpRequestResult> onCompleted)
     {
-        CancelRequestSilently();
-        _pendingCallback = onCompleted;
-        _currentRequestGeneration = ++_requestGeneration;
-        _activeCoroutine = StartCoroutine(routine);
+        int activeBefore = _activeSlots.Count;
+        _pendingJobs.Enqueue(new PendingJob
+        {
+            RoutineFactory = routineFactory,
+            OnCompleted = onCompleted,
+        });
+
+        int queueLen = _pendingJobs.Count;
+        int queuePosition = queueLen;
+        Debug.Log(
+            $"[HttpService] 入队 | 在途={activeBefore} | 排队总长={queueLen} | 本请求排队位置={queuePosition} | 并行上限={MaxConcurrent}");
+
+        TryStartPendingJobs();
     }
 
-    private void CancelRequestSilently()
+    private void TryStartPendingJobs()
     {
-        if (!IsRequestInProgress && _activeRequest == null)
+        int max = MaxConcurrent;
+        while (_activeSlots.Count < max && _pendingJobs.Count > 0)
+        {
+            PendingJob job = _pendingJobs.Dequeue();
+            ActiveSlot slot = new ActiveSlot
+            {
+                Id = ++_nextSlotId,
+                OnCompleted = job.OnCompleted,
+            };
+            _activeSlots.Add(slot);
+            slot.Coroutine = StartCoroutine(WrapRoutine(slot, job.RoutineFactory));
+        }
+    }
+
+    private IEnumerator WrapRoutine(ActiveSlot slot, Func<ActiveSlot, IEnumerator> factory)
+    {
+        IEnumerator routine = factory(slot);
+        while (true)
+        {
+            if (slot.IsCancelled)
+            {
+                yield break;
+            }
+
+            bool moved;
+            object current = null;
+            try
+            {
+                moved = routine.MoveNext();
+                if (moved)
+                {
+                    current = routine.Current;
+                }
+            }
+            catch (Exception exception)
+            {
+                CompleteSlot(slot, HttpRequestResult.Failure($"HTTP 协程异常：{exception.Message}"));
+                yield break;
+            }
+
+            if (!moved)
+            {
+                yield break;
+            }
+
+            yield return current;
+        }
+    }
+
+    private void CompleteSlot(ActiveSlot slot, HttpRequestResult result)
+    {
+        if (slot == null || slot.IsCancelled)
         {
             return;
         }
 
-        _requestGeneration++;
-        AbortActiveRequest();
-        StopActiveCoroutine();
-        _pendingCallback = null;
-    }
+        // 标记完成，防止 Stop / 重复 Complete 二次回调
+        slot.IsCancelled = true;
+        _activeSlots.Remove(slot);
+        slot.Coroutine = null;
+        AbortSlotRequest(slot);
 
-    private void StopActiveCoroutine()
-    {
-        if (_activeCoroutine == null)
-        {
-            return;
-        }
-
-        StopCoroutine(_activeCoroutine);
-        _activeCoroutine = null;
-    }
-
-    private void AbortActiveRequest()
-    {
-        if (_activeRequest == null)
-        {
-            return;
-        }
-
-        _activeRequest.Abort();
-        _activeRequest = null;
-    }
-
-    private bool TryFinishRequest(HttpRequestResult result)
-    {
-        if (_currentRequestGeneration != _requestGeneration)
-        {
-            return false;
-        }
-
-        _activeCoroutine = null;
-        _activeRequest = null;
-
-        Action<HttpRequestResult> callback = _pendingCallback;
-        _pendingCallback = null;
+        Action<HttpRequestResult> callback = slot.OnCompleted;
+        slot.OnCompleted = null;
         callback?.Invoke(result);
-        return true;
+
+        TryStartPendingJobs();
     }
 
-    private IEnumerator SendGetCoroutine(string url, Dictionary<string, string> headers)
+    private void CancelActiveSlot(ActiveSlot slot, bool invokeCallback)
+    {
+        if (slot == null || slot.IsCancelled)
+        {
+            return;
+        }
+
+        slot.IsCancelled = true;
+
+        if (slot.Coroutine != null)
+        {
+            StopCoroutine(slot.Coroutine);
+            slot.Coroutine = null;
+        }
+
+        AbortSlotRequest(slot);
+
+        if (!invokeCallback)
+        {
+            slot.OnCompleted = null;
+            return;
+        }
+
+        Action<HttpRequestResult> callback = slot.OnCompleted;
+        slot.OnCompleted = null;
+        callback?.Invoke(HttpRequestResult.Cancelled());
+    }
+
+    private static void AbortSlotRequest(ActiveSlot slot)
+    {
+        if (slot.Request == null)
+        {
+            return;
+        }
+
+        try
+        {
+            slot.Request.Abort();
+        }
+        catch
+        {
+            // Abort 后 Dispose 仍尝试
+        }
+
+        slot.Request.Dispose();
+        slot.Request = null;
+    }
+
+    private IEnumerator SendGetCoroutine(ActiveSlot slot, string url, Dictionary<string, string> headers)
     {
         if (!TryValidateUrl(url, out string urlError))
         {
-            TryFinishRequest(HttpRequestResult.Failure(urlError));
+            CompleteSlot(slot, HttpRequestResult.Failure(urlError));
             yield break;
         }
 
         UnityWebRequest request = UnityWebRequest.Get(url);
-        _activeRequest = request;
+        slot.Request = request;
         ApplyRequestSettings(request, url, headers);
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
             request.Dispose();
-            _activeRequest = null;
-            TryFinishRequest(HttpRequestResult.Failure(sendError));
+            slot.Request = null;
+            CompleteSlot(slot, HttpRequestResult.Failure(sendError));
             yield break;
         }
 
         yield return operation;
 
-        if (_currentRequestGeneration != _requestGeneration)
+        if (slot.IsCancelled)
         {
-            request.Dispose();
             yield break;
         }
 
         HttpRequestResult result = BuildResult(request);
         request.Dispose();
-        _activeRequest = null;
-        TryFinishRequest(result);
+        slot.Request = null;
+        CompleteSlot(slot, result);
     }
 
-    private IEnumerator SendPostCoroutine(string url, string jsonBody, Dictionary<string, string> headers)
+    private IEnumerator SendPostCoroutine(
+        ActiveSlot slot,
+        string url,
+        string jsonBody,
+        Dictionary<string, string> headers)
     {
         if (!TryValidateUrl(url, out string urlError))
         {
-            TryFinishRequest(HttpRequestResult.Failure(urlError));
+            CompleteSlot(slot, HttpRequestResult.Failure(urlError));
             yield break;
         }
 
@@ -234,29 +351,28 @@ public class HttpService : UnitySingle<HttpService>
         UnityWebRequest request = new UnityWebRequest(url, UnityWebRequest.kHttpVerbPOST);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
-        _activeRequest = request;
+        slot.Request = request;
         ApplyRequestSettings(request, url, headers, setJsonContentType: true);
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
             request.Dispose();
-            _activeRequest = null;
-            TryFinishRequest(HttpRequestResult.Failure(sendError));
+            slot.Request = null;
+            CompleteSlot(slot, HttpRequestResult.Failure(sendError));
             yield break;
         }
 
         yield return operation;
 
-        if (_currentRequestGeneration != _requestGeneration)
+        if (slot.IsCancelled)
         {
-            request.Dispose();
             yield break;
         }
 
         HttpRequestResult result = BuildResult(request);
         request.Dispose();
-        _activeRequest = null;
-        TryFinishRequest(result);
+        slot.Request = null;
+        CompleteSlot(slot, result);
     }
 
     private void ApplyRequestSettings(
