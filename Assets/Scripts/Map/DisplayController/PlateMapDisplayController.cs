@@ -472,7 +472,7 @@ public class PlateMapDisplayController : MonoBehaviour
         _focusedModule = module;
         string moduleKey = module.ModuleKey;
 
-        // 进入省级时立即缓存 name/code，供下钻二维地图使用
+        // 进入省级时立即缓存单元 code/name（国内=省，国外=国家），供下钻与回退恢复
         PlateProvinceFocusResolver.TryCacheFromModule(module);
         FadeWorldMapBoundaryLine(0f, _otherModuleFadeDuration, _otherModuleFadeEase, disableWhenHidden: true);
 
@@ -786,10 +786,18 @@ public class PlateMapDisplayController : MonoBehaviour
         }
     }
 
-    /// <summary>过渡至 GaodeMap 前隐藏板块显示：缓存当前聚焦模块（未聚焦则为 null），再淡出可见板块。</summary>
+    /// <summary>
+    /// 过渡至 GaodeMap 前隐藏板块显示：解析并缓存当前国家/省模块，再淡出可见板块。
+    /// </summary>
     public void HidePlateDisplayForTransition(float duration, Ease ease)
     {
-        _transitionCachedModule = _focusedModule;
+        PlateMapDisplayModule focus = ResolveModuleForProvinceTransition();
+        _transitionCachedModule = focus;
+        if (focus != null)
+        {
+            _focusedModule = focus;
+        }
+
         KillAllModuleAlphaTweens();
         RefreshModuleList();
 
@@ -811,16 +819,30 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 从 GaodeMap 倒播回板块时恢复显示：有缓存则聚焦块高亮、其余隐藏；无缓存则全部显示。
+    /// 从 GaodeMap 倒播回板块时恢复显示：只恢复当前国家/省模块，其余保持隐藏。
+    /// 有进省缓存时禁止全显，避免国外亮错国家。
     /// </summary>
     public void RestorePlateDisplayForTransition(float duration, Ease ease)
     {
         KillAllModuleAlphaTweens();
         RefreshModuleList();
 
-        if (_transitionCachedModule != null)
+        PlateMapDisplayModule restoreTarget = ResolveModuleForProvinceTransition();
+        if (restoreTarget != null)
         {
-            FadeModulesForFocus(_transitionCachedModule, duration, ease);
+            _focusedModule = restoreTarget;
+            _transitionCachedModule = restoreTarget;
+            FadeModulesForFocus(restoreTarget, duration, ease);
+            return;
+        }
+
+        if (PlateProvinceFocusResolver.HasCachedProvince ||
+            PlateProvinceFocusResolver.HasCachedModuleName)
+        {
+            Debug.LogWarning(
+                "[PlateMapDisplayController] 车辆回省级未能解析到缓存模块，保持隐藏以免亮错国家。" +
+                $" | module={PlateProvinceFocusResolver.CachedModuleName}" +
+                $" | code={PlateProvinceFocusResolver.CachedProvinceCode}");
             return;
         }
 
@@ -833,6 +855,154 @@ public class PlateMapDisplayController : MonoBehaviour
         {
             _modules[i]?.TweenAlpha(1f, duration, ease);
         }
+    }
+
+    /// <summary>
+    /// 解析「当前应单独显示」的国家/省模块。
+    /// 优先进省时的 ModuleKey，避免国外共享 GeoConverter 时按 code 命中错误国家。
+    /// </summary>
+    private PlateMapDisplayModule ResolveModuleForProvinceTransition()
+    {
+        string cachedModuleName = PlateProvinceFocusResolver.CachedModuleName;
+        if (!string.IsNullOrWhiteSpace(cachedModuleName) &&
+            TryGetModuleByName(cachedModuleName, out PlateMapDisplayModule byModuleKey))
+        {
+            return byModuleKey;
+        }
+
+        if (_focusedModule != null &&
+            (string.IsNullOrWhiteSpace(cachedModuleName) ||
+             string.Equals(_focusedModule.ModuleKey, cachedModuleName, System.StringComparison.Ordinal)))
+        {
+            return _focusedModule;
+        }
+
+        if (_transitionCachedModule != null &&
+            (string.IsNullOrWhiteSpace(cachedModuleName) ||
+             string.Equals(
+                 _transitionCachedModule.ModuleKey,
+                 cachedModuleName,
+                 System.StringComparison.Ordinal)))
+        {
+            return _transitionCachedModule;
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string code) &&
+            !string.IsNullOrWhiteSpace(code))
+        {
+            if (WorldMapPlateResolver.TryResolveUnitModuleName(code, out string resolvedModuleName) &&
+                TryGetModuleByName(resolvedModuleName, out PlateMapDisplayModule byResolvedName))
+            {
+                return byResolvedName;
+            }
+
+            if (TryFindModuleByProvinceCode(code, out PlateMapDisplayModule byCode))
+            {
+                return byCode;
+            }
+
+            string displayName = WorldMapPlateResolver.ResolveUnitDisplayName(code.Trim());
+            if (!string.IsNullOrWhiteSpace(displayName) &&
+                TryGetModuleByName(displayName, out PlateMapDisplayModule byWorldName))
+            {
+                return byWorldName;
+            }
+        }
+
+        string cachedName = PlateProvinceFocusResolver.CachedProvinceName;
+        if (!string.IsNullOrWhiteSpace(cachedName) &&
+            TryGetModuleByName(cachedName, out PlateMapDisplayModule byCachedName))
+        {
+            return byCachedName;
+        }
+
+        return null;
+    }
+
+    /// <summary>按单元 code（国内 adcode / 国外 SOC）在当前板块根下查找模块。</summary>
+    private bool TryFindModuleByProvinceCode(string provinceCode, out PlateMapDisplayModule module)
+    {
+        module = null;
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return false;
+        }
+
+        RefreshModuleList();
+        if (_modules == null)
+        {
+            return false;
+        }
+
+        string query = provinceCode.Trim();
+        PlateMapBoundaryDatabase.TryNormalizeProvinceCode(query, out string normalizedQuery);
+
+        // 优先 ModuleKey 与对照表一致的候选，避免共享父级 GeoConverter 时命中列表第一项
+        string preferredModuleName = null;
+        if (WorldMapPlateResolver.TryResolveUnitModuleName(query, out string mappedName) &&
+            !string.IsNullOrWhiteSpace(mappedName))
+        {
+            preferredModuleName = mappedName.Trim();
+        }
+
+        PlateMapDisplayModule firstMatch = null;
+        for (int i = 0; i < _modules.Length; i++)
+        {
+            PlateMapDisplayModule candidate = _modules[i];
+            if (candidate == null || !ModuleMatchesProvinceCode(candidate, query, normalizedQuery))
+            {
+                continue;
+            }
+
+            if (!string.IsNullOrEmpty(preferredModuleName) &&
+                (string.Equals(candidate.ModuleKey, preferredModuleName, System.StringComparison.Ordinal) ||
+                 string.Equals(candidate.DisplayName, preferredModuleName, System.StringComparison.Ordinal)))
+            {
+                module = candidate;
+                return true;
+            }
+
+            if (firstMatch == null)
+            {
+                firstMatch = candidate;
+            }
+        }
+
+        module = firstMatch;
+        return module != null;
+    }
+
+    /// <summary>
+    /// 模块是否属于指定 code。优先自身/子级 GeoConverter，避免误用板块根上的共享 code。
+    /// </summary>
+    private static bool ModuleMatchesProvinceCode(
+        PlateMapDisplayModule candidate,
+        string query,
+        string normalizedQuery)
+    {
+        PlateMapGeoConverter geo =
+            candidate.GetComponent<PlateMapGeoConverter>() ??
+            candidate.GetComponentInChildren<PlateMapGeoConverter>(true);
+        if (geo == null || string.IsNullOrWhiteSpace(geo.ProvinceCode))
+        {
+            // 仅当自身无 Geo 时才回退父级（兼容国内旧挂法）
+            geo = candidate.GetComponentInParent<PlateMapGeoConverter>();
+        }
+
+        if (geo == null || string.IsNullOrWhiteSpace(geo.ProvinceCode))
+        {
+            return false;
+        }
+
+        string geoCode = geo.ProvinceCode.Trim();
+        if (string.Equals(geoCode, query, System.StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return !string.IsNullOrEmpty(normalizedQuery) &&
+               PlateMapBoundaryDatabase.TryNormalizeProvinceCode(geoCode, out string normalizedGeo) &&
+               string.Equals(normalizedGeo, normalizedQuery, System.StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>停止板块透明度 Tween（过渡被中断时调用）。</summary>

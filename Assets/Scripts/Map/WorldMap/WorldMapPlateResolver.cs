@@ -19,7 +19,7 @@ public static class WorldMapPlateResolver
     }
 
     /// <summary>
-    /// 空 code 时返回默认子级单元：国内=GameManager 默认省；国外=控制器默认国家。
+    /// 空 code 时：优先进省/国家缓存；否则国内=GameManager 默认省，国外=控制器默认国家。
     /// </summary>
     public static string ResolveUnitCode(string unitCode)
     {
@@ -33,6 +33,12 @@ public static class WorldMapPlateResolver
             }
 
             return code;
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode) &&
+            !string.IsNullOrWhiteSpace(cachedCode))
+        {
+            return cachedCode.Trim();
         }
 
         if (WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign)

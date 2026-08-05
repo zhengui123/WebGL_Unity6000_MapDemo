@@ -123,12 +123,31 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     }
 
     /// <summary>
-    /// 由省/国家 code 解析本次跳转显示名与板块模块名；空则读 GameManager / WorldMap 默认。
+    /// 由省/国家 code 解析本次跳转显示名与板块模块名。
+    /// 空 code：优先进省缓存（国内省 / 国外国家），再读 GameManager / WorldMap 默认。
     /// </summary>
     private void ResolveActiveProvinceParameters(string provinceCode)
     {
-        string unitCode = WorldMapPlateResolver.ResolveUnitCode(provinceCode);
+        string unitCode;
+        if (!string.IsNullOrWhiteSpace(provinceCode))
+        {
+            unitCode = WorldMapPlateResolver.ResolveUnitCode(provinceCode);
+        }
+        else if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode))
+        {
+            unitCode = cachedCode;
+        }
+        else
+        {
+            unitCode = WorldMapPlateResolver.ResolveUnitCode(null);
+        }
+
         _activeProvinceName = WorldMapPlateResolver.ResolveUnitDisplayName(unitCode);
+        if (string.IsNullOrWhiteSpace(_activeProvinceName) &&
+            PlateProvinceFocusResolver.HasCachedProvince)
+        {
+            _activeProvinceName = PlateProvinceFocusResolver.CachedProvinceName;
+        }
 
         if (WorldMapPlateResolver.TryResolveUnitModuleName(unitCode, out string moduleName) &&
             !string.IsNullOrWhiteSpace(moduleName))

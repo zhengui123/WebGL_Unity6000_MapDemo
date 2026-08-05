@@ -49258,7 +49258,7 @@ RectTransform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1097146954}
   - {fileID: 1260130133}
@@ -96967,8 +96967,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13638fab4c9b1944cbf6e03dc5ccd0ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
-  _startMode: 0
-  _startForeignPlateCode: SOUTH_AMERICA_REGION
+  _startMode: 1
+  _startForeignPlateCode: SOUTHEAST_ASIA
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
   - plateCode: EAST_ASIA

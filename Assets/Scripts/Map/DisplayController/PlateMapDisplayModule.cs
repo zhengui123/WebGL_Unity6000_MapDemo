@@ -60,6 +60,13 @@ public class PlateMapDisplayModule : MonoBehaviour
         ApplyEmissionIntensityImmediate(_currentEmissionIntensity);
     }
 
+    private void OnEnable()
+    {
+        // AllPlateMap 显隐后 PropertyBlock 可能丢失，按逻辑 alpha 重刷材质
+        ApplyAlphaImmediate(_currentAlpha);
+        ApplyEmissionIntensityImmediate(_currentEmissionIntensity);
+    }
+
     public void ChangeColliderState()
     {
         if (_managedColliders == null || _managedColliders.Length == 0)

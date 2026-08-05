@@ -1,7 +1,8 @@
 using UnityEngine;
 
 /// <summary>
-/// 省级下钻二维地图：进省时缓存 name/code，下钻时用于 Gaode 经纬度聚焦。
+/// 省/国家级单元缓存：国内=省 adcode，国外=国家 SOC。
+/// 进省级写入；回区域级 / 换板块清空；供下钻与层级回退恢复原单元。
 /// </summary>
 public static class PlateProvinceFocusResolver
 {
@@ -9,20 +10,26 @@ public static class PlateProvinceFocusResolver
     private static string _cachedProvinceName;
     private static string _cachedModuleName;
 
-    /// <summary>进省缓存的 provinceCode；无缓存为 null。</summary>
+    /// <summary>进省/国家缓存的单元 code；无缓存为 null。</summary>
     public static string CachedProvinceCode => _cachedProvinceCode;
 
-    /// <summary>进省缓存的省简称；无缓存为 null。</summary>
+    /// <summary>进省/国家缓存的显示名；无缓存为 null。</summary>
     public static string CachedProvinceName => _cachedProvinceName;
 
-    /// <summary>是否已缓存有效省级信息。</summary>
+    /// <summary>进省/国家时聚焦的板块模块名（ModuleKey）；无缓存为 null。</summary>
+    public static string CachedModuleName => _cachedModuleName;
+
+    /// <summary>是否已缓存有效省/国家信息。</summary>
     public static bool HasCachedProvince =>
         !string.IsNullOrWhiteSpace(_cachedProvinceCode) &&
         !string.IsNullOrWhiteSpace(_cachedProvinceName);
 
+    /// <summary>是否已缓存板块模块名（可与 code 缓存独立存在）。</summary>
+    public static bool HasCachedModuleName => !string.IsNullOrWhiteSpace(_cachedModuleName);
+
     /// <summary>
-    /// 解析用于二维地图聚焦的省名。
-    /// 优先级：显式覆盖 → 进省缓存 → 当前聚焦模块 → 默认省名。
+    /// 解析用于二维地图聚焦的显示名。
+    /// 优先级：显式覆盖 → 进省缓存 → 当前聚焦模块 → 默认名。
     /// </summary>
     public static string ResolveProvinceName(string overrideNameOrCode, string defaultProvinceName)
     {
@@ -45,7 +52,7 @@ public static class PlateProvinceFocusResolver
         return string.IsNullOrWhiteSpace(defaultProvinceName) ? "山东" : defaultProvinceName.Trim();
     }
 
-    /// <summary>写入进省缓存（name + code）。</summary>
+    /// <summary>写入省/国家缓存（name + code）。</summary>
     public static bool TryCacheProvince(string provinceCode, string provinceName = null)
     {
         if (string.IsNullOrWhiteSpace(provinceCode) ||
@@ -62,9 +69,9 @@ public static class PlateProvinceFocusResolver
 
         string name = provinceName;
         if (string.IsNullOrWhiteSpace(name) &&
-            !TryProvinceCodeToFocusName(normalized, out name))
+            !TryResolveUnitDisplayName(normalized, out name))
         {
-            Debug.LogWarning($"[PlateProvinceFocusResolver] 缓存失败：code={normalized} 无法解析省名。");
+            Debug.LogWarning($"[PlateProvinceFocusResolver] 缓存失败：code={normalized} 无法解析显示名。");
             return false;
         }
 
@@ -90,17 +97,32 @@ public static class PlateProvinceFocusResolver
     /// <summary>从模块名 / 可选模块引用解析并缓存。</summary>
     public static bool TryCacheFromModuleName(string moduleName, PlateMapDisplayModule module = null)
     {
-        if (TryResolveProvinceCodeFromModule(moduleName, module, out string code) &&
-            TryProvinceCodeToFocusName(code, out string name))
+        if (!TryResolveProvinceCodeFromModule(moduleName, module, out string code))
         {
-            _cachedModuleName = moduleName;
-            return TryCacheProvince(code, name);
+            return false;
         }
 
-        return false;
+        if (!TryResolveUnitDisplayName(code, out string name))
+        {
+            if (module != null && !string.IsNullOrWhiteSpace(module.DisplayName))
+            {
+                name = module.DisplayName.Trim();
+            }
+            else if (!string.IsNullOrWhiteSpace(moduleName))
+            {
+                name = moduleName.Trim();
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        _cachedModuleName = module != null ? module.ModuleKey : moduleName;
+        return TryCacheProvince(code, name);
     }
 
-    /// <summary>清空进省缓存（回国家级 / 离开板块时）。</summary>
+    /// <summary>清空缓存（回区域/国家级，或换板块时）。</summary>
     public static void ClearCache()
     {
         if (!HasCachedProvince && string.IsNullOrEmpty(_cachedModuleName))
@@ -139,8 +161,14 @@ public static class PlateProvinceFocusResolver
             out provinceCode);
     }
 
-    /// <summary>provinceCode → 可用于 <see cref="ChinaProvinceMapDatabase"/> 的省简称。</summary>
+    /// <summary>单元 code → 显示名（国内省简称 / 国外国家名）。</summary>
     public static bool TryProvinceCodeToFocusName(string provinceCode, out string provinceName)
+    {
+        return TryResolveUnitDisplayName(provinceCode, out provinceName);
+    }
+
+    /// <summary>单元 code → 显示名；国内优先 Gaode/Boundary，国外走世界地图对照表。</summary>
+    private static bool TryResolveUnitDisplayName(string provinceCode, out string provinceName)
     {
         provinceName = null;
         if (string.IsNullOrWhiteSpace(provinceCode) ||
@@ -166,6 +194,13 @@ public static class PlateProvinceFocusResolver
             }
 
             provinceName = boundary.provinceName.Trim();
+            return true;
+        }
+
+        if (WorldMapRegionCodeTable.TryResolveUnitDisplayName(provinceCode.Trim(), out string worldName) &&
+            !string.IsNullOrWhiteSpace(worldName))
+        {
+            provinceName = worldName.Trim();
             return true;
         }
 
