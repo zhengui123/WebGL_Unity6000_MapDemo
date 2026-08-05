@@ -592,14 +592,10 @@ public class MapApi : UnitySingle<MapApi>
 
     /// <summary>
     /// 设置世界地图国内外默认并立刻切换（同 WorldMapRegionController 面板切换）。
+    /// 入参仅接收一个单元 code：国内=省级 adcode，国外=国家 SOC。
     /// </summary>
-    /// <param name="isForeign">true=国外，false=国内。</param>
-    /// <param name="foreignPlateCode">国外大板块 code；国内可空。</param>
-    /// <param name="defaultUnitCode">国内=省级 adcode；国外=国家 SOC；可空则沿用现有/绑定默认。</param>
-    public bool SetWorldMapRegionDefaults(
-        bool isForeign,
-        string foreignPlateCode = null,
-        string defaultUnitCode = null)
+    /// <param name="provinceCode">国内省 adcode 或国外国家 SOC。</param>
+    public bool SetWorldMapRegionDefaults(string provinceCode)
     {
         WorldMapRegionController region = WorldMapRegionController.Instance;
         if (region == null)
@@ -608,7 +604,35 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return region.ApplyRegionDefaults(isForeign, foreignPlateCode, defaultUnitCode);
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            Debug.LogWarning("[MapApi] SetWorldMapRegionDefaults：provinceCode 为空。");
+            return false;
+        }
+
+        string code = provinceCode.Trim();
+
+        // 外国：由 Resources/WorldMapRegionCodes.json（WorldMapRegionCodeTable）推导 plateCode 与 countryCode。
+        if (WorldMapRegionCodeTable.TryGetCountryByCode(code, out WorldMapCountryCodeEntry country))
+        {
+            return region.ApplyRegionDefaults(
+                isForeign: true,
+                foreignPlateCode: country.plateCode,
+                defaultUnitCode: country.countryCode);
+        }
+
+        // 国内：未命中国外 JSON，则按国内省级 code 处理；归一化 adcode（补零）。
+        string normalized = code;
+        if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(code, out string norm) &&
+            !string.IsNullOrWhiteSpace(norm))
+        {
+            normalized = norm;
+        }
+
+        return region.ApplyRegionDefaults(
+            isForeign: false,
+            foreignPlateCode: null,
+            defaultUnitCode: normalized);
     }
 
     /// <summary>

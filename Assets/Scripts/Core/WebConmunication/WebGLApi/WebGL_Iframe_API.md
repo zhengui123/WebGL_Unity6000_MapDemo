@@ -436,8 +436,7 @@ callUnity('StopThreatHighRiskPolling', '');
 
 ### 4.10 SetWorldMapRegionDefaults
 
-设置国内/国外、国外大板块、默认单元 code，并立刻切换世界地图区域（同 `WorldMapRegionController` 面板）。  
-取代原 `SetDefaultProvinceCode`。
+设置国内/国外默认并立刻切换世界地图区域（同 `WorldMapRegionController` 面板）。
 
 
 | 项目       | 值                                                 |
@@ -451,24 +450,18 @@ callUnity('StopThreatHighRiskPolling', '');
 
 | 字段                 | 类型     | 必填  | 说明                                 |
 | ------------------ | ------ | --- | ---------------------------------- |
-| `regionMode`       | int    | 是   | `0`=国内，`1`=国外                      |
-| `foreignPlateCode` | string | 国外是 | 大板块 code，如 `EAST_ASIA`；国内可空        |
-| `defaultUnitCode`  | string | 否   | 国内=省级 adcode；国外=国家 SOC。空则沿用现有/绑定默认 |
+| `provinceCode`    | string | 是   | 国内省 adcode / 国外国家 SOC         |
 
 
 ```javascript
-// 国内
+// 国内：省浙江（adcode=330000）
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  regionMode: 0,
-  foreignPlateCode: '',
-  defaultUnitCode: '330000'
+  provinceCode: '330000'
 }));
 
-// 国外东亚
+// 国外：日本（SOC=392）
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  regionMode: 1,
-  foreignPlateCode: 'EAST_ASIA',
-  defaultUnitCode: '392'
+  provinceCode: '392'
 }));
 ```
 
@@ -715,8 +708,6 @@ callUnity('TransitionToEarth', '');
 ---
 
 ### 4.20 SetHttpRequestHeaders
-
-> **编号约定：** 新增父页面 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
 
 运行时合并覆盖 HTTP 默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
 
@@ -1026,7 +1017,7 @@ function onUnityCarYawRotationChanged(json) {
 | 查看攻击路径       | `{"targetState":5}`                                                         |
 | 攻击路径下看零件     | `{"targetState":4,"partId":"IDC"}`                                          |
 | 关闭大屏轮播       | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`                     |
-| 设置国内默认省浙江    | `SetWorldMapRegionDefaults` → `{"regionMode":0,"defaultUnitCode":"330000"}` |
+| 设置国内默认省浙江    | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000"}` |
 | 退出威胁下钻       | `ExitThreatDrill` → `""`                                                    |
 | 刷新威胁冷却       | `RefreshThreatCooldown` → `""`（仅冷却中）                                        |
 | 开启威胁轮询       | `StartThreatHighRiskPolling` → `""`                                         |
@@ -1050,6 +1041,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 **字段名区分大小写**，必须与 C# struct 一致：
 
 - ✅ `targetState`、`provinceName`、`partId`
+- ✅ `targetState`、`provinceCode`、`partId`
 - ❌ `target_state`、`ProvinceName`
 
 **不支持：** `null` JSON 字面量作为类型化字段（`"partId": null` 在部分环境下行为不一致，建议省略字段或传 `""`）。

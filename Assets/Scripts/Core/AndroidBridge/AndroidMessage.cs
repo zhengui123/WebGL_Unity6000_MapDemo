@@ -27,16 +27,10 @@ public struct TransitionToControlStateRequest
 [System.Serializable]
 public struct SetWorldMapRegionDefaultsRequest
 {
-    /// <summary>0=国内，1=国外（与 WorldMapRegionMode 一致）。</summary>
-    public int regionMode;
-
-    /// <summary>国外大板块 firstClassCode（如 EAST_ASIA）；国内可空。</summary>
-    public string foreignPlateCode;
-
     /// <summary>
-    /// 默认单元 code：国内=省级 adcode；国外=国家 secondClassCode。可空则沿用现有/绑定默认。
+    /// 省/国家 code：国内为省 adcode；国外为国家 SOC（secondClassCode）。
     /// </summary>
-    public string defaultUnitCode;
+    public string provinceCode;
 }
 
 /// <summary>运行时合并覆盖 HTTP 默认请求头。</summary>
@@ -771,8 +765,7 @@ public class AndroidMessage : MonoBehaviour
     /// <summary>
     /// Android 调用：设置世界地图国内外默认并立刻切换。
     /// UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults", json);
-    /// JSON：{"regionMode":0,"foreignPlateCode":"","defaultUnitCode":"330000"}
-    /// regionMode：0=国内，1=国外。
+    /// JSON：{"provinceCode":"330000"}（国内省 adcode）/ {"provinceCode":"392"}（国外国家 SOC）
     /// </summary>
     public void SetWorldMapRegionDefaults(string json)
     {
@@ -784,11 +777,8 @@ public class AndroidMessage : MonoBehaviour
 
         SetWorldMapRegionDefaultsRequest request =
             JsonUtility.FromJson<SetWorldMapRegionDefaultsRequest>(json);
-        bool isForeign = request.regionMode == (int)WorldMapRegionMode.Foreign;
-        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(
-            isForeign,
-            NormalizeOptionalString(request.foreignPlateCode),
-            NormalizeOptionalString(request.defaultUnitCode));
+        string provinceCode = NormalizeOptionalString(request.provinceCode);
+        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode);
         if (!ok)
         {
             Debug.LogWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");

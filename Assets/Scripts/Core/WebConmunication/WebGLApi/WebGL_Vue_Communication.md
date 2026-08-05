@@ -446,9 +446,7 @@ callUnity('RefreshThreatCooldown', '');
 callUnity('StartThreatHighRiskPolling', '');
 callUnity('StopThreatHighRiskPolling', '');
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  regionMode: 0,
-  foreignPlateCode: '',
-  defaultUnitCode: '330000'
+  provinceCode: '330000'
 }));
 callUnity('RequestCarVehicleData', '');
 callUnity('RequestCarVehicleData', JSON.stringify({

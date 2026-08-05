@@ -184,24 +184,21 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StopThreatHighRiskPolling", "");
 
 ### 2.10 `SetWorldMapRegionDefaults` — 设置国内外默认并立刻切换
 
-设置国内/国外、国外大板块、默认单元 code，并立刻调用 `WorldMapRegionController` 切换（同 Inspector 面板按钮）。  
-取代原 `SetDefaultProvinceCode`。
+设置国内/国外默认并立刻切换（同 Inspector 面板按钮）。
 
 ```java
-// 国内：默认省浙江
+// 国内：省浙江（adcode=330000）
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
-    "{\"regionMode\":0,\"foreignPlateCode\":\"\",\"defaultUnitCode\":\"330000\"}");
+    "{\"provinceCode\":\"330000\"}");
 
-// 国外：东亚 + 默认国家日本 392
+// 国外：日本（SOC=392）
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
-    "{\"regionMode\":1,\"foreignPlateCode\":\"EAST_ASIA\",\"defaultUnitCode\":\"392\"}");
+    "{\"provinceCode\":\"392\"}");
 ```
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `regionMode` | int | 是 | `0`=国内，`1`=国外 |
-| `foreignPlateCode` | string | 国外是 | 大板块 firstClassCode，如 `EAST_ASIA`；国内可空 |
-| `defaultUnitCode` | string | 否 | 国内=省级 adcode；国外=国家 SOC。空：国内保留现有默认省，国外用绑定 `defaultCountryCode` |
+| `provinceCode` | string | 是 | 国内省 adcode 或 国外国家 SOC |
 
 对应 Unity：`MapApi.SetWorldMapRegionDefaults` → `WorldMapRegionController.ApplyRegionDefaults`。
 
@@ -382,7 +379,6 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ### 2.20 `SetHttpRequestHeaders` — 运行时配置 HTTP 请求头
 
-> **编号约定：** 新增宿主 → Unity 接口一律追加在本章节末尾（本条之后继续递增），不插入既有章节中间。
 
 合并覆盖默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务 HTTP 请求自动带上。
 
