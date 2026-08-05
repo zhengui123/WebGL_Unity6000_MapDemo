@@ -807,25 +807,11 @@ if (data.method === 'onUnityWebGLReady') {
 | -------------- | ------ | --- | ------------ | ---------------------------------------------------------- |
 | `from`         | int    | ✅   | —            | 过渡**开始**：起始级别 `0~5`；**完成**：固定 `-1`                         |
 | `to`           | int    | ✅   | —            | 目标级别 `0~5`                                                 |
-| `status`       | int    |     | 当前暂为 `0`     | 大屏跳转状态，见下表；**预留**，后续按触发源区分                                 |
+| `status`       | int    |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | string |     | 取不到时为 `""`   | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
 | `vin`          | string |     | 无车辆上下文为 `""` | 当前车辆 VIN                                                   |
 | `partId`       | string |     | 无零件场景为 `""`  | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`                  |
 
-
-#### status 取值（`BigScreenStatus`）
-
-表示本次层级过渡由何种**大屏业务场景**触发（与操控级别 `from`/`to`、四个态势轮播类型无关）：
-
-
-| 值   | 含义   | 典型场景              |
-| --- | ---- | ----------------- |
-| `0` | 普通跳转 | 默认状态（未区分触发源的常规跳转） |
-| `1` | 信息跳转 | 宿主或用户主动查看信息触发的跳转  |
-| `2` | 威胁下钻 | 威胁态势联动下钻          |
-
-
-> **预留说明：** Unity 当前暂统一回传 `0`；宿主可解析字段但不必依赖，待业务接入后按实际上下文填充。
 
 **过渡开始示例：**
 
@@ -836,12 +822,12 @@ if (data.method === 'onUnityWebGLReady') {
 ```javascript
 function onUnityControlStateTransition(json) {
   const { from, to, status, provinceCode, vin, partId } = JSON.parse(json);
-  // status: 0 普通跳转 | 1 信息跳转 | 2 威胁下钻（预留）
+  // status: 0 默认 | 1 告警定位 | 2 威胁
   if (from === -1) {
-    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏状态', status);
+    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏播放状态', status);
     // 隐藏 Loading、刷新 UI
   } else {
-    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin);
+    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin, '大屏播放状态', status);
     // 显示 Loading
   }
 }
@@ -1064,8 +1050,9 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期         | 说明                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------- |
+| 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁 |
 | 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode` |
-| 2026-07    | `ControlStateTransitionNotify` 增加预留字段 `status`（大屏状态）                                   |
+| 2026-07    | `ControlStateTransitionNotify` 增加字段 `status`（大屏播放状态）                                   |
 | 2026-08    | `partId` 示例统一为场景实际值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                                           |
 | 2026-07    | 父页面 `source` 由 `parent-app` 改为 `webgl-unity-parent`                                    |
 | 2026-07    | 统一 `partId`，移除 `partName`                                                              |

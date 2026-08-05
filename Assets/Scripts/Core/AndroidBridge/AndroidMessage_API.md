@@ -410,7 +410,7 @@ public void onUnityControlStateTransition(String json) { }
 |------|------|------|
 | `from` | int | 起始级别 `0~5`；完成通知时为 `-1` |
 | `to` | int | 目标级别 `0~5` |
-| `status` | int | **（预留）** 大屏跳转状态：`0` 普通、`1` 信息跳转、`2` 威胁下钻；当前 Unity 暂统一回传 `0` |
+| `status` | int | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
 | `vin` | string | 当前车辆 VIN；当前无车辆上下文时为空字符串 |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
@@ -435,15 +435,15 @@ public void onUnityControlStateTransition(String json) {
         JSONObject obj = new JSONObject(json);
         int from = obj.getInt("from");
         int to = obj.getInt("to");
-        int status = obj.optInt("status", 0);
+        int status = obj.optInt("status", 0); // 0 默认 | 1 告警定位 | 2 威胁
         String provinceCode = obj.optString("provinceCode", "");
         String vin = obj.optString("vin", "");
         String partId = obj.optString("partId", "");
         if (from == -1) {
-            Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId);
+            Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId + ", status=" + status);
             // 隐藏 Loading、刷新原生界面
         } else {
-            Log.d("UnityBridge", "过渡开始: " + from + " -> " + to);
+            Log.d("UnityBridge", "过渡开始: " + from + " -> " + to + ", status=" + status);
             // 展示 Loading
         }
     } catch (JSONException e) {

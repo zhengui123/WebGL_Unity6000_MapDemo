@@ -497,11 +497,16 @@ public class WebGLAPI : MonoBehaviour
         return store.LastEncryptVin;
     }
 
-    /// <summary>过渡通知 JSON 中的大屏跳转状态（<see cref="BigScreenStatus"/>）；预留，暂回传 0。</summary>
+    /// <summary>
+    /// 过渡通知 JSON 中的 <c>status</c>：当前
+    /// <see cref="GameManager.BigScreenPlaybackState"/>。
+    /// </summary>
     private static int ResolveNotifyBigScreenStatus()
     {
-        // TODO: 按过渡触发源区分 NormalNavigation / InformationNavigation / ThreatDrillDown
-        return (int)BigScreenStatus.NormalNavigation;
+        GameManager gm = GameManager.Instance;
+        return gm != null
+            ? (int)gm.CurrentPlaybackState
+            : (int)GameManager.BigScreenPlaybackState.Default;
     }
 
     private static bool TryValidateControlState(int controlState, string callerName)
