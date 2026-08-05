@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// 本地威胁测试 Demo：注入内嵌 JSON，跑通国家/省级威胁流程（无需真实接口）。
+/// 本地威胁测试 Demo：注入内嵌 JSON 跑通威胁流程；可模拟开启/关闭高危事件轮询（退出下钻仅冷却暂停轮询）。
 /// </summary>
 [DisallowMultipleComponent]
 public class ThreatLocalAlertTestUIDemo : MonoBehaviour
@@ -13,6 +13,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _injectMultiProvinceButton;
     [SerializeField] private Button _injectSameVinButton;
     [SerializeField] private Button _injectEastAsiaSameVinButton;
+    [SerializeField] private Button _startThreatPollingButton;
+    [SerializeField] private Button _stopThreatPollingButton;
     [SerializeField] private Button _skipHoldButton;
     [SerializeField] private Button _exitThreatButton;
     [SerializeField] private Button _refreshCooldownButton;
@@ -83,6 +85,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         Bind(_injectMultiProvinceButton, OnInjectMultiProvinceClicked, bind);
         Bind(_injectSameVinButton, OnInjectSameVinClicked, bind);
         Bind(_injectEastAsiaSameVinButton, OnInjectEastAsiaSameVinClicked, bind);
+        Bind(_startThreatPollingButton, OnStartThreatPollingClicked, bind);
+        Bind(_stopThreatPollingButton, OnStopThreatPollingClicked, bind);
         Bind(_skipHoldButton, OnSkipHoldClicked, bind);
         Bind(_exitThreatButton, OnExitThreatClicked, bind);
         Bind(_refreshCooldownButton, OnRefreshCooldownClicked, bind);
@@ -152,6 +156,37 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         return true;
     }
 
+    private void OnStartThreatPollingClicked()
+    {
+        HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
+        if (controller == null)
+        {
+            RefreshStatus("未找到 HighRiskSecurityEventApiController，无法开启轮询。");
+            return;
+        }
+
+        controller.StartPolling();
+        string pauseHint = controller.IsPausedByCooldown
+            ? "（当前冷却中，仅记录意图，冷却结束后再请求）"
+            : "（已立即请求，之后按间隔轮询）";
+        RefreshStatus($"已开启威胁高危事件轮询，间隔={controller.IntervalSeconds:F0}s {pauseHint}");
+        RefreshResultList();
+    }
+
+    private void OnStopThreatPollingClicked()
+    {
+        HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
+        if (controller == null)
+        {
+            RefreshStatus("未找到 HighRiskSecurityEventApiController，无法关闭轮询。");
+            return;
+        }
+
+        controller.StopPolling();
+        RefreshStatus("已关闭威胁高危事件轮询（清除意图；冷却结束后也不会自动恢复）。");
+        RefreshResultList();
+    }
+
     private void InjectJson(string json, string label)
     {
         EnsureFlowRunnerExists();
@@ -205,7 +240,12 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         float cooldown = runner != null
             ? runner.ConfiguredInterruptCooldownSeconds
             : ThreatAlertSettings.InterruptCooldownSeconds;
-        RefreshStatus($"已退出威胁下钻（保持当前级别），进入冷却 {cooldown:F0}s。");
+        HighRiskSecurityEventApiController poll = HighRiskSecurityEventApiController.Instance;
+        string pollHint = poll != null && poll.IsPollingEnabled
+            ? "轮询已暂停（冷却结束后若仍开启则恢复请求）"
+            : "轮询未开启";
+        RefreshStatus(
+            $"已退出威胁下钻（保持当前级别），进入冷却 {cooldown:F0}s。{pollHint}");
         RefreshResultList();
     }
 
@@ -316,6 +356,26 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
             $"流程={(ThreatProvinceAlertController.IsProcessing ? "进行中" : "空闲")}，" +
             $"冷却={(ThreatProvinceAlertController.IsInInterruptCooldown ? "是" : "否")}，" +
             $"当前省={ThreatProvinceAlertController.CurrentProvinceCode ?? "-"}");
+
+        HighRiskSecurityEventApiController poll = HighRiskSecurityEventApiController.Instance;
+        if (poll != null)
+        {
+            string pollState = !poll.IsPollingEnabled
+                ? "关"
+                : poll.IsPausedByCooldown
+                    ? "开(冷却暂停)"
+                    : poll.IsPollCoroutineRunning
+                        ? "开(轮询中)"
+                        : "开";
+            builder.AppendLine(
+                $"威胁轮询={pollState}，间隔={poll.IntervalSeconds:F0}s，" +
+                $"冷却剩余={ThreatProvinceAlertController.InterruptCooldownRemaining:F0}s");
+        }
+        else
+        {
+            builder.AppendLine("威胁轮询=未创建控制器");
+        }
+
         builder.AppendLine($"排除 eventId 数={ThreatExcludedEventIdStore.Count}");
         builder.AppendLine($"缓存事件总数={store?.Count ?? 0}");
         builder.AppendLine($"阈值≥{ThreatAlertSettings.EventsPerProvinceThreshold}，同Vin>{ThreatAlertSettings.SameVinCountToEnterVehicle}");
@@ -414,9 +474,28 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         }
 
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
-        _flowStateLabel.text = runner != null
-            ? runner.GetFlowStatusText()
-            : "流程：空闲";
+        string flow = runner != null ? runner.GetFlowStatusText() : "流程：空闲";
+
+        HighRiskSecurityEventApiController poll = HighRiskSecurityEventApiController.Instance;
+        string pollPart;
+        if (poll == null)
+        {
+            pollPart = "轮询:-";
+        }
+        else if (!poll.IsPollingEnabled)
+        {
+            pollPart = "轮询:关";
+        }
+        else if (poll.IsPausedByCooldown)
+        {
+            pollPart = $"轮询:暂停 冷却{ThreatProvinceAlertController.InterruptCooldownRemaining:F0}s";
+        }
+        else
+        {
+            pollPart = "轮询:开";
+        }
+
+        _flowStateLabel.text = $"{flow} | {pollPart}";
     }
 
     private void EnsureFlowRunnerExists()
@@ -459,6 +538,16 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (_injectEastAsiaSameVinButton == null)
         {
             _injectEastAsiaSameVinButton = transform.Find("InjectEastAsiaSameVinButton")?.GetComponent<Button>();
+        }
+
+        if (_startThreatPollingButton == null)
+        {
+            _startThreatPollingButton = transform.Find("StartThreatPollingButton")?.GetComponent<Button>();
+        }
+
+        if (_stopThreatPollingButton == null)
+        {
+            _stopThreatPollingButton = transform.Find("StopThreatPollingButton")?.GetComponent<Button>();
         }
 
         if (_skipHoldButton == null)
