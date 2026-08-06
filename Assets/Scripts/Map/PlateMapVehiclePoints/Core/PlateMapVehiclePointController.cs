@@ -232,7 +232,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         if (!Hub.InvokeIsGeoConverterReady(PlateMapKey))
         {
-            Debug.LogWarning($"[PlateMapVehiclePointController] 地理转换未就绪：{PlateMapKey}");
+            // Debug.LogWarning($"[PlateMapVehiclePointController] 地理转换未就绪：{PlateMapKey}");
             _initialized = false;
             _instancedRenderer?.ClearInstances();
             return;

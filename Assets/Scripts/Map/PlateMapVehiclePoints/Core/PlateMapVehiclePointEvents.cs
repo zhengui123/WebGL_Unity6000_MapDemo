@@ -453,7 +453,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     {
         if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.RefreshVehiclePointsDisplay == null)
         {
-            Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 RefreshVehiclePointsDisplay。");
+            // Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 RefreshVehiclePointsDisplay。");
             return false;
         }
 
