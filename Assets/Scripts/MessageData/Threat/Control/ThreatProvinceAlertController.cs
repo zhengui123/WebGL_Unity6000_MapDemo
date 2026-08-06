@@ -89,8 +89,7 @@ public static class ThreatProvinceAlertController
         _isProcessing = true;
 
         bool carouselActive = IsAutoCarouselOrDelayedStartActive();
-        bool resumeFromVehicle = !carouselActive && ThreatAlertFlowRunner.IsInVehicleDrillControlState();
-        if (!runner.TryStartThreatFlow(resumeFromVehicleDrillSubtree: resumeFromVehicle))
+        if (!runner.TryStartThreatFlow())
         {
             _isProcessing = false;
             Debug.LogWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行或冷却中）。");
@@ -102,10 +101,12 @@ public static class ThreatProvinceAlertController
             Debug.Log(
                 "[ThreatProvinceAlertController] 检测到自动轮播/延时等待，已停轮播并从全国进入威胁下钻。");
         }
-        else if (resumeFromVehicle)
+        else if (ThreatAlertFlowRunner.IsInVehicleDrillControlState() ||
+                 (GameManager.Instance != null &&
+                  GameManager.Instance.CurrentState != GameManager.ControlState.CountryLevel))
         {
             Debug.Log(
-                "[ThreatProvinceAlertController] 已在车辆/攻击链路/零件级，从当前级别继续 Vin 下钻（跳过国家/省级停留）。");
+                "[ThreatProvinceAlertController] 非国家级触发威胁，将先瞬时回国家再从头下钻。");
         }
     }
 

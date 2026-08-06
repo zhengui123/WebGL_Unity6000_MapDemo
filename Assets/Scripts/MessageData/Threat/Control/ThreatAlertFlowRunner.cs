@@ -5,7 +5,7 @@ using UnityEngine;
 
 /// <summary>
 /// 威胁告警流程协程宿主：
-/// 瞬时回国家 → 国家停留 → 省级停留 → 按 Vin&gt;3 轮流下钻（车辆 → 攻击链路 → 零部件）→ 回国家再评估。
+/// 任意非国家级触发时先瞬时回国家，再从头：国家停留 → 省级停留 → Vin&gt;3 下钻（车辆 → 攻击链路 → 零部件）→ 回国家再评估。
 /// 省级/车辆/攻击链路停留期间若数据再次入库：刷新当前阶段画面与缓存，不重入流程。
 /// </summary>
 public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
@@ -53,8 +53,6 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activeProvinceCode;
     private string _activePlateModuleName;
     private string _activeEncryptVin;
-    private bool _resumeFromVehicleDrillSubtree;
-    private bool _forceStartFromCountry;
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
@@ -139,9 +137,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         ThreatProvinceAlertController.NotifyFlowStopped();
     }
 
-    /// <summary>启动一轮威胁流程（进行中或冷却中则忽略）。</summary>
-    /// <param name="resumeFromVehicleDrillSubtree">已在车辆/攻击链路/零件级时跳过国家与省级停留，直接 Vin 下钻。</param>
-    public bool TryStartThreatFlow(bool resumeFromVehicleDrillSubtree = false)
+    /// <summary>启动一轮威胁流程（进行中或冷却中则忽略）。始终从国家级开始下钻。</summary>
+    public bool TryStartThreatFlow()
     {
         if (_flowRoutine != null)
         {
@@ -156,14 +153,19 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         bool interruptedCarousel = TryStopAutoCarouselForThreatDrill(out string carouselMode);
-        // 轮播/延时等待被打断时：必须从全国开始，不允许续钻车辆子树。
-        _forceStartFromCountry = interruptedCarousel;
-        _resumeFromVehicleDrillSubtree = resumeFromVehicleDrillSubtree && !interruptedCarousel;
-
         if (interruptedCarousel)
         {
             Debug.Log(
                 $"[ThreatAlertFlowRunner] 已停止自动轮播（{carouselMode}），威胁下钻从全国开始。");
+        }
+
+        GameManager.ControlState startState = GameManager.Instance != null
+            ? GameManager.Instance.CurrentState
+            : GameManager.ControlState.CountryLevel;
+        if (startState != GameManager.ControlState.CountryLevel)
+        {
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 当前为 {startState}，将先瞬时回国家级再从头下钻。");
         }
 
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
@@ -399,8 +401,6 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
-        _resumeFromVehicleDrillSubtree = false;
-        _forceStartFromCountry = false;
         ClearHoldCountdown();
     }
 
@@ -459,22 +459,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
                 GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Threat);
 
-                // 轮播打断后强制从全国进入；否则才允许车辆子树续钻。
-                bool skipToVinDrill = !_forceStartFromCountry &&
-                                     (_resumeFromVehicleDrillSubtree || IsInVehicleDrillControlState());
-                _resumeFromVehicleDrillSubtree = false;
-                _forceStartFromCountry = false;
-
-                if (!skipToVinDrill)
-                {
-                    yield return EnsureCountryLevel();
-                    yield return PlayCountryStage();
-                }
-                else
-                {
-                    Debug.Log(
-                        "[ThreatAlertFlowRunner] 已在车辆/攻击链路/零件级，跳过国家阶段，直接进入省级 Vin 下钻。");
-                }
+                // 非国家级：先瞬时回国家，再国家停留 → 省停留 → Vin 下钻（不从车辆子树续钻）。
+                yield return EnsureCountryLevel();
+                yield return PlayCountryStage();
 
                 qualified = store.GetProvincesMeetingThreshold(ThreatAlertSettings.EventsPerProvinceThreshold);
                 if (qualified == null || qualified.Count == 0)
@@ -484,7 +471,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 }
 
                 string provinceCode = qualified[0];
-                yield return PlayProvinceStage(provinceCode, skipToVinDrill);
+                yield return PlayProvinceStage(provinceCode);
 
                 yield return EnsureCountryLevelFromProvince();
             }
@@ -503,26 +490,37 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private IEnumerator EnsureCountryLevel()
     {
         GameManager gm = GameManager.Instance;
-        if (gm == null || gm.CurrentState == GameManager.ControlState.CountryLevel)
+        if (gm == null)
         {
             yield break;
         }
 
-        ControlStateHierarchyTransitionController hierarchy =
-            ControlStateHierarchyTransitionController.Instance;
-        if (hierarchy == null)
+        // 先等当前过渡空闲，避免与进行中的层级动画抢状态。
+        yield return WaitForTransitionControllersIdle();
+
+        if (gm.CurrentState != GameManager.ControlState.CountryLevel)
         {
-            Debug.LogWarning(
-                "[ThreatAlertFlowRunner] 未找到 ControlStateHierarchyTransitionController，无法跳回国家级。");
-            yield break;
+            ControlStateHierarchyTransitionController hierarchy =
+                ControlStateHierarchyTransitionController.Instance;
+            if (hierarchy == null)
+            {
+                Debug.LogWarning(
+                    "[ThreatAlertFlowRunner] 未找到 ControlStateHierarchyTransitionController，无法跳回国家级。");
+                yield break;
+            }
+
+            Debug.Log(
+                $"[ThreatAlertFlowRunner] 瞬时回国家级 | from={gm.CurrentState}");
+            yield return WaitForHierarchyTransition(
+                hierarchy,
+                GameManager.ControlState.CountryLevel,
+                useInstant: true,
+                provinceCode: null,
+                confirmTimeoutSeconds: 8f);
         }
 
-        yield return WaitForHierarchyTransition(
-            hierarchy,
-            GameManager.ControlState.CountryLevel,
-            useInstant: true,
-            provinceCode: null,
-            confirmTimeoutSeconds: 5f);
+        // 画面归位全国 Home，避免仍停在省/车视角。
+        PlateMapDisplayController.Instance?.SnapCameraToCountryHomeImmediate();
     }
 
     private IEnumerator EnsureCountryLevelFromProvince()
@@ -549,7 +547,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _visualStage = ThreatVisualStage.None;
     }
 
-    private IEnumerator PlayProvinceStage(string provinceCode, bool skipToVinDrill)
+    private IEnumerator PlayProvinceStage(string provinceCode)
     {
         HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
         IReadOnlyList<HighRiskSecurityEventItem> events = store.GetEventsByProvince(provinceCode);
@@ -572,39 +570,28 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activePlateModuleName = plateModuleName;
         _activeProvinceCode = provinceCode;
 
-        if (!skipToVinDrill)
+        _provinceFocusSignal = false;
+        GameManager.Instance?.SwitchToProvinceLevel(plateModuleName);
+
+        float focusTimeout = 30f;
+        while (!_provinceFocusSignal && focusTimeout > 0f)
         {
-            _provinceFocusSignal = false;
-            GameManager.Instance?.SwitchToProvinceLevel(plateModuleName);
-
-            float focusTimeout = 30f;
-            while (!_provinceFocusSignal && focusTimeout > 0f)
-            {
-                focusTimeout -= Time.unscaledDeltaTime;
-                yield return null;
-            }
-
-            _visualStage = ThreatVisualStage.ProvinceHold;
-            events = store.GetEventsByProvince(provinceCode);
-            context.Events = events;
-            ApplyProvinceStageVisuals(provinceCode, events);
-
-            float provinceHold = Mathf.Max(0.1f, _provinceLevelHoldSeconds);
-            Debug.Log(
-                $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
-                $"停留={provinceHold:F1}s");
-
-            yield return WaitHoldSeconds(provinceHold, $"省级停留 province={provinceCode}");
-            _visualStage = ThreatVisualStage.None;
+            focusTimeout -= Time.unscaledDeltaTime;
+            yield return null;
         }
-        else
-        {
-            events = store.GetEventsByProvince(provinceCode);
-            context.Events = events;
-            ApplyProvinceStageVisuals(provinceCode, events);
-            Debug.Log(
-                $"[ThreatAlertFlowRunner] 跳过省级停留，自当前车辆级继续 Vin 下钻 | province={provinceCode}");
-        }
+
+        _visualStage = ThreatVisualStage.ProvinceHold;
+        events = store.GetEventsByProvince(provinceCode);
+        context.Events = events;
+        ApplyProvinceStageVisuals(provinceCode, events);
+
+        float provinceHold = Mathf.Max(0.1f, _provinceLevelHoldSeconds);
+        Debug.Log(
+            $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
+            $"停留={provinceHold:F1}s");
+
+        yield return WaitHoldSeconds(provinceHold, $"省级停留 province={provinceCode}");
+        _visualStage = ThreatVisualStage.None;
 
         events = store.GetEventsByProvince(provinceCode);
         context.Events = events;
