@@ -173,6 +173,24 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 若板块→车辆两阶段编排仍在进行，则推动当前子阶段立即完成。
+    /// 编排器本身不直接持有 Tween，需驱动其子控制器 Complete，借事件链自然收尾。
+    /// </summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (!_isOrchestrating)
+        {
+            return;
+        }
+
+        ResolveReferences();
+        _plateTransitionController?.CompleteCurrentTransitionImmediate();
+        _cityTransitionController?.CompleteCurrentTransitionImmediate();
+        _carModelDissolveController?.CompleteCurrentTransitionImmediate();
+        _cityHideTransitionController?.CompleteCurrentTransitionImmediate();
+    }
+
     private void HandlePlateToCityPlayRequested(string provinceName)
     {
         PlayFullTransition(provinceName);

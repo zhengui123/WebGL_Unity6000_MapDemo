@@ -52,7 +52,16 @@ public class GameManager : UnitySingle<GameManager>
     [Header("省级聚焦期间禁止重复点击")]
     [SerializeField] private bool _disableClickWhenFocusingProvince = true;
 
+    [Header("层级跳转")]
+    [Tooltip("跳转动画进行中收到新指令时：加速完成当前过渡，并执行最新指令（覆盖旧请求）。关闭则拒绝新跳转。")]
+    [SerializeField] private bool _acceleratePendingHierarchyTransition = false;
+
     public ControlState CurrentState => _currentState;
+
+    /// <summary>
+    /// 层级跳转进行中是否允许用新指令覆盖：加速完成当前过渡后执行最新目标。
+    /// </summary>
+    public bool AcceleratePendingHierarchyTransition => _acceleratePendingHierarchyTransition;
 
     public BigScreenPlaybackState CurrentPlaybackState => _currentPlaybackState;
 

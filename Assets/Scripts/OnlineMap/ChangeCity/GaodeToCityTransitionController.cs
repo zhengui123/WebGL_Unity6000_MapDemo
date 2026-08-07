@@ -240,6 +240,17 @@ public class GaodeToCityTransitionController : MonoBehaviour
         return true;
     }
 
+    /// <summary>若高德/城市过渡正在播放，则立即完成并执行完成回调。</summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        _sequence.Complete(withCallbacks: true);
+    }
+
     /// <summary>瞬时过渡时强制完成 Sequence，确保 OnComplete 与后续阶段能衔接。</summary>
     private void ForceCompleteSequenceIfInstant()
     {

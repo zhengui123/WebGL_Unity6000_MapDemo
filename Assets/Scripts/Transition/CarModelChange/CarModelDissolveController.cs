@@ -84,6 +84,17 @@ public class CarModelDissolveController : MonoBehaviour
         return PlayTransition(showKjCar: false);
     }
 
+    /// <summary>若车辆溶解切换正在播放，则立即完成并执行完成回调。</summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        _sequence.Complete(withCallbacks: true);
+    }
+
     private bool PlayTransition(bool showKjCar)
     {
         if (_isTransitioning)

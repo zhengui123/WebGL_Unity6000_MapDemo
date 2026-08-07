@@ -27,10 +27,22 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private const int MaxTransitionSteps = 16;
 
+    private struct PendingTransitionRequest
+    {
+        public bool UseInstantTransition;
+        public GameManager.ControlState TargetState;
+        public string ProvinceCode;
+        public string PartId;
+        public bool EnsureEarthBaseline;
+    }
+
     private bool _isBootstrapping;
     public bool IsBootstrapping => _isBootstrapping;
 
     private bool _stepDone;
+    private bool _restartRequested;
+    private bool _hasPendingTransitionRequest;
+    private PendingTransitionRequest _pendingTransitionRequest;
 
     /// <summary>本次跳转使用的省名（调用参数优先，否则 GameManager 默认）。</summary>
     private string _activeProvinceName;
@@ -96,14 +108,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         string partId = null,
         bool ensureEarthBaseline = false)
     {
-        if (_isBootstrapping)
-        {
-            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
-            return false;
-        }
-
-        _useInstantTransition = useInstantTransition;
-
         GameManager manager = GameManager.Instance;
         GameManager.ControlState currentState = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
@@ -112,6 +116,26 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         string partIdForTransition = currentState == GameManager.ControlState.PartLevel
             ? null
             : partId;
+
+        if (_isBootstrapping)
+        {
+            if (manager != null && manager.AcceleratePendingHierarchyTransition)
+            {
+                QueuePendingTransition(
+                    useInstantTransition,
+                    targetState,
+                    provinceCode,
+                    partIdForTransition,
+                    ensureEarthBaseline);
+                RequestRestartAfterCurrentTransition();
+                return true;
+            }
+
+            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
+            return false;
+        }
+
+        _useInstantTransition = useInstantTransition;
         if (partIdForTransition != null)
         {
             _partId = partIdForTransition;
@@ -173,6 +197,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     {
         for (int i = 0; i < Mathf.Max(0, _warmupFrames); i++)
         {
+            if (_restartRequested)
+            {
+                yield break;
+            }
+
             yield return null;
         }
 
@@ -216,6 +245,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         GameManager.ControlState targetState,
         bool ensureEarthBaseline)
     {
+        if (_restartRequested)
+        {
+            yield break;
+        }
+
         if (ensureEarthBaseline)
         {
             GameManagerDemoAccess.ForceState(manager, GameManager.ControlState.EarthLevel);
@@ -230,6 +264,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     {
         for (int step = 0; step < MaxTransitionSteps; step++)
         {
+            if (_restartRequested)
+            {
+                yield break;
+            }
+
             GameManager.ControlState currentState = GameManagerDemoAccess.GetCurrentState(manager);
             if (currentState == targetState)
             {
@@ -246,6 +285,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
             yield return PlayTransitionStep(currentState, expectedNext);
             yield return WaitUntilControllersIdle();
+
+            if (_restartRequested)
+            {
+                yield break;
+            }
 
             GameManager.ControlState nextState = GameManagerDemoAccess.GetCurrentState(manager);
             if (nextState == currentState)
@@ -651,7 +695,15 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private IEnumerator WaitUntilControllersIdle()
     {
-        yield return WaitUntil(() => !IsAnyTransitionBusy(), "等待其它过渡结束");
+        yield return WaitUntil(() =>
+        {
+            if (_restartRequested)
+            {
+                CompleteBusyTransitionsImmediately();
+            }
+
+            return !IsAnyTransitionBusy();
+        }, "等待其它过渡结束");
     }
 
     private IEnumerator WaitUntil(Func<bool> predicate, string stepName)
@@ -718,6 +770,74 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <summary>各场景过渡控制器是否仍在播放动画。</summary>
     public static bool IsAnyTransitionAnimationBusy() => IsAnyTransitionBusy();
 
+    /// <summary>
+    /// 外部调用：终止当前层级流程并优先执行新的目标跳转。
+    /// 实现策略不是粗暴 Kill，而是尽量 Complete 当前动画并保留回调。
+    /// </summary>
+    public void AbortRunningTransition()
+    {
+        if (!_isBootstrapping)
+        {
+            CompleteBusyTransitionsImmediately();
+            return;
+        }
+
+        RequestRestartAfterCurrentTransition();
+    }
+
+    private void QueuePendingTransition(
+        bool useInstantTransition,
+        GameManager.ControlState targetState,
+        string provinceCode,
+        string partId,
+        bool ensureEarthBaseline)
+    {
+        _pendingTransitionRequest = new PendingTransitionRequest
+        {
+            UseInstantTransition = useInstantTransition,
+            TargetState = targetState,
+            ProvinceCode = provinceCode,
+            PartId = partId,
+            EnsureEarthBaseline = ensureEarthBaseline
+        };
+        _hasPendingTransitionRequest = true;
+    }
+
+    private void RequestRestartAfterCurrentTransition()
+    {
+        _restartRequested = true;
+        CompleteBusyTransitionsImmediately();
+    }
+
+    private void StartPendingTransitionIfAny()
+    {
+        if (!_hasPendingTransitionRequest)
+        {
+            return;
+        }
+
+        PendingTransitionRequest request = _pendingTransitionRequest;
+        _hasPendingTransitionRequest = false;
+
+        TransitionToState(
+            request.UseInstantTransition,
+            request.TargetState,
+            request.ProvinceCode,
+            request.PartId,
+            request.EnsureEarthBaseline);
+    }
+
+    private static void CompleteBusyTransitionsImmediately()
+    {
+        EarthTransition.Instance?.CompleteCurrentTransitionImmediate();
+        PlateToCityMapTransitionOrchestrator.Instance?.CompleteCurrentTransitionImmediate();
+        PlateToGaodeMapTransitionController.Instance?.CompleteCurrentTransitionImmediate();
+        GaodeToCityTransitionController.Instance?.CompleteCurrentTransitionImmediate();
+        CarModelDissolveController.Instance?.CompleteCurrentTransitionImmediate();
+        CityHideTransitionController.Instance?.CompleteCurrentTransitionImmediate();
+        VehicleToPartTransitionController.Instance?.CompleteCurrentTransitionImmediate();
+    }
+
     private static void LogCompleted(GameManager.ControlState targetState)
     {
         GameManager manager = GameManager.Instance;
@@ -725,5 +845,20 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : targetState;
         Debug.Log($"[ControlStateHierarchyTransitionController] 跳转结束，目标 {targetState}，当前 {actual}。");
+    }
+
+    private void LateUpdate()
+    {
+        if (_isBootstrapping)
+        {
+            return;
+        }
+
+        if (_restartRequested)
+        {
+            _restartRequested = false;
+        }
+
+        StartPendingTransitionIfAny();
     }
 }

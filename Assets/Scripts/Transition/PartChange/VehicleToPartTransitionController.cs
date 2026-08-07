@@ -83,6 +83,17 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public string LastPartId => _lastPartId;
     public IReadOnlyList<PartBindingData> ConfiguredPartRoots => _partRoots;
 
+    /// <summary>若车辆/零件/攻击路径过渡正在播放，则立即完成并执行完成回调。</summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        _sequence.Complete(withCallbacks: true);
+    }
+
     private static VehicleToPartTransitionController _instance;
 
     public static VehicleToPartTransitionController Instance

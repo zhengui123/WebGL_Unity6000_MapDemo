@@ -217,6 +217,16 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     /// <summary>
     /// 瞬时过渡（时长被置 0）时 DOTween Sequence 可能不推进，强制完成以触发 OnComplete。
     /// </summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        _sequence.Complete(withCallbacks: true);
+    }
+
     private void ForceCompleteSequenceIfInstant()
     {
         if (_sequence == null || !_sequence.IsActive())

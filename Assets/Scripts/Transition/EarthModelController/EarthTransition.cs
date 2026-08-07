@@ -101,6 +101,17 @@ public class EarthTransition : UnitySingle<EarthTransition>
         PlayTransitionReverse();
     }
 
+    /// <summary>若地球/板块过渡正在播放，则立即完成并触发完成回调。</summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_transitionSequence == null || !_transitionSequence.IsActive())
+        {
+            return;
+        }
+
+        _transitionSequence.Complete(withCallbacks: true);
+    }
+
     #endregion
 
     #region 正向过渡（地球 → 板块）

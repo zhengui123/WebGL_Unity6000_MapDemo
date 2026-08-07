@@ -100,6 +100,17 @@ public class CityHideTransitionController : MonoBehaviour
         return true;
     }
 
+    /// <summary>若城市显隐过渡正在播放，则立即完成并执行完成回调。</summary>
+    public void CompleteCurrentTransitionImmediate()
+    {
+        if (_sequence == null || !_sequence.IsActive())
+        {
+            return;
+        }
+
+        _sequence.Complete(withCallbacks: true);
+    }
+
     private void ForceCompleteSequenceIfInstant()
     {
         if (_sequence == null || !_sequence.IsActive())
