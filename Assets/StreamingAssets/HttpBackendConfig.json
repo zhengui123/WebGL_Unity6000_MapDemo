@@ -1,12 +1,13 @@
 {
-  "apiHost": "10.60.16.96:38000",
+  "apiHost": "metritag.vsoc.saas.test.press.com:10777",
   "useHttps": false,
   "httpsTestApiHost": "metritag.vsoc.saas.test.press.com:10778",
   "skipSslCertificateValidation": true,
+  "appSecret": "c9eyidzx6tn0us0kzw69w8injlxbq9",
   "headers": [
     {
       "key": "Satoken",
-      "value": "SNLfzLQJmvgIOBqKkhFG6mxG9S7fs3nJBIKLoJKrDD8Ju4GHaOpM56lo5m8dUj87"
+      "value": "hD0BPUQN0MnpZ0D1ol36I7pElepRU7JBXmv46Pj9ij3OIL1aPZ561QAqiK66wu4L"
     },
     {
       "key": "X-Tenant-Id",
@@ -17,4 +18,6 @@
       "value": "zh-CN"
     }
   ]
+
+  // 默认配置在HttpBackendConfigLoader.cs中
 }

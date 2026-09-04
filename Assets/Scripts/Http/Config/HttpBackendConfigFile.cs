@@ -21,6 +21,9 @@ public class HttpBackendConfigFile
     /// <summary>HTTPS 测试环境主机（域名:端口，不含协议）。</summary>
     public string httpsTestApiHost;
 
+    /// <summary>请求签名密钥（与前端 APP_SECRET 一致）。</summary>
+    public string appSecret;
+
     /// <summary>默认请求头列表。</summary>
     public HttpBackendHeaderEntry[] headers;
 }

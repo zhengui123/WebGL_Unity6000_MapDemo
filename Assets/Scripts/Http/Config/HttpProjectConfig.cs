@@ -48,6 +48,12 @@ public static class HttpProjectConfig
 
 
 
+    /// <summary>请求签名密钥（HttpBackendConfig.json 的 appSecret）。</summary>
+
+    public static string AppSecret => Backend.AppSecret;
+
+
+
     /// <summary>综合态势查询默认开始时间（空表示不限）。</summary>
 
     public const string DefaultQueryStartTime = "";
@@ -67,44 +73,25 @@ public static class HttpProjectConfig
 
 
     public const string WorkOrderDisposalOverviewPath =
-
-        "/business/bigScreen/comprehensivePosture/workOrderDisposalOverview";
-
-
+        "/api/business/bigScreen/comprehensivePosture/workOrderDisposalOverview";
 
     public const string LatestVinLocationPath =
-
-        "/business/bigScreen/comprehensivePosture/latestVinLocation";
-
-
+        "/api/business/bigScreen/comprehensivePosture/latestVinLocation";
 
     /// <summary>高危安全事件（威胁态势）接口路径。</summary>
-
     public const string HighRiskSecurityEventPath =
-
-        "/business/bigScreen/comprehensivePosture/highRiskSecurityEvent";
-
-
+        "/api/business/bigScreen/comprehensivePosture/highRiskSecurityEvent";
 
     /// <summary>车辆态势：目标车辆各零部件防护状态。</summary>
-
     public const string PartProtectionStatusPath =
-
-        "/business/bigScreen/vehiclePosture/partProtectionStatus";
-
-
+        "/api/business/bigScreen/vehiclePosture/partProtectionStatus";
 
     /// <summary>车辆态势：攻击链路（平铺零部件节点 + 攻击边）。</summary>
-
     public const string AttackChainPath =
-
-        "/business/bigScreen/vehiclePosture/attackChain";
-
-
+        "/api/business/bigScreen/vehiclePosture/attackChain";
 
     /// <summary>事件溯源详情接口路径（getSourceEventDetail）。</summary>
-
-    public const string SecurityEventDetailPath = "/business/event/getSourceEventDetail";
+    public const string SecurityEventDetailPath = "/api/business/event/getSourceEventDetail";
 
 
 

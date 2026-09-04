@@ -312,7 +312,7 @@ public class HttpService : UnitySingle<HttpService>
 
         UnityWebRequest request = UnityWebRequest.Get(url);
         slot.Request = request;
-        ApplyRequestSettings(request, url, headers);
+        ApplyRequestSettings(request, url, headers, httpMethod: "get");
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
@@ -352,7 +352,7 @@ public class HttpService : UnitySingle<HttpService>
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
         request.downloadHandler = new DownloadHandlerBuffer();
         slot.Request = request;
-        ApplyRequestSettings(request, url, headers, setJsonContentType: true);
+        ApplyRequestSettings(request, url, headers, setJsonContentType: true, httpMethod: "post", bodyJson: jsonBody);
 
         if (!TrySendWebRequest(request, out UnityWebRequestAsyncOperation operation, out string sendError))
         {
@@ -379,7 +379,9 @@ public class HttpService : UnitySingle<HttpService>
         UnityWebRequest request,
         string url,
         Dictionary<string, string> headers,
-        bool setJsonContentType = false)
+        bool setJsonContentType = false,
+        string httpMethod = "get",
+        string bodyJson = null)
     {
         request.timeout = Mathf.Max(1, Mathf.RoundToInt(_timeoutSeconds));
 
@@ -393,12 +395,14 @@ public class HttpService : UnitySingle<HttpService>
             request.SetRequestHeader("Content-Type", _defaultContentType);
         }
 
-        if (headers == null)
-        {
-            return;
-        }
+        Dictionary<string, string> effectiveHeaders = headers != null
+            ? new Dictionary<string, string>(headers)
+            : new Dictionary<string, string>();
 
-        foreach (KeyValuePair<string, string> header in headers)
+        // 全量请求签名：与即将发出的 body 字符串一致
+        HttpSignUtil.MergeSignHeaders(effectiveHeaders, httpMethod, url, bodyJson ?? string.Empty);
+
+        foreach (KeyValuePair<string, string> header in effectiveHeaders)
         {
             if (!string.IsNullOrEmpty(header.Key))
             {

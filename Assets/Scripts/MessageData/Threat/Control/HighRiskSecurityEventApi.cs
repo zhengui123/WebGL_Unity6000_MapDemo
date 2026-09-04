@@ -87,6 +87,13 @@ public static class HighRiskSecurityEventApi
                 else
                 {
                     failedCount = 1;
+                    string body = result != null && !string.IsNullOrWhiteSpace(result.RawBody)
+                        ? result.RawBody
+                        : BuildResponseJsonText(result, response);
+                    Debug.LogWarning(
+                        $"[HighRiskSecurityEventApi] 全国请求失败详情：" +
+                        $"IsSuccess={result?.IsSuccess}，StatusCode={result?.StatusCode}，Error={result?.Error}\n" +
+                        $"业务 code={response?.code}，msg={response?.msg}\n结果内容：\n{body}");
                 }
 
                 RequestCompleted?.Invoke(result, response, regionCodes);
@@ -387,6 +394,7 @@ public static class HighRiskSecurityEventApi
         }
 
         string url = BuildRequestUrl();
+        Debug.Log($"[HighRiskSecurityEventApi] 请求 URL：{url}");
         HttpService.Instance.PostJson<HighRiskSecurityEventRequest, HighRiskSecurityEventResponse>(
             url,
             requestBody,

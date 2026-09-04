@@ -73,6 +73,9 @@ public static class HttpBackendConfigLoader
         string httpsTestHost = string.IsNullOrWhiteSpace(file.httpsTestApiHost)
             ? defaults.HttpsTestApiHost
             : file.httpsTestApiHost.Trim();
+        string appSecret = string.IsNullOrWhiteSpace(file.appSecret)
+            ? defaults.AppSecret
+            : file.appSecret.Trim();
         List<(string Key, string Value)> headers = BuildHeaders(file.headers, defaults.HeaderEntries);
 
         return new HttpBackendResolvedConfig(
@@ -80,6 +83,7 @@ public static class HttpBackendConfigLoader
             useHttps,
             skipSsl,
             httpsTestHost,
+            appSecret,
             headers,
             loadedFromFile: true);
     }
@@ -134,6 +138,7 @@ public sealed class HttpBackendResolvedConfig
     public bool UseHttps { get; }
     public bool SkipSslCertificateValidation { get; }
     public string HttpsTestApiHost { get; }
+    public string AppSecret { get; }
     public string ApiScheme => UseHttps ? "https" : "http";
     public IReadOnlyList<(string Key, string Value)> HeaderEntries { get; }
     public bool LoadedFromFile { get; }
@@ -143,6 +148,7 @@ public sealed class HttpBackendResolvedConfig
         bool useHttps,
         bool skipSslCertificateValidation,
         string httpsTestApiHost,
+        string appSecret,
         List<(string Key, string Value)> headerEntries,
         bool loadedFromFile)
     {
@@ -150,6 +156,7 @@ public sealed class HttpBackendResolvedConfig
         UseHttps = useHttps;
         SkipSslCertificateValidation = skipSslCertificateValidation;
         HttpsTestApiHost = httpsTestApiHost;
+        AppSecret = appSecret ?? string.Empty;
         HeaderEntries = headerEntries;
         LoadedFromFile = loadedFromFile;
     }
@@ -162,6 +169,7 @@ public sealed class HttpBackendResolvedConfig
             DefaultUseHttps,
             DefaultSkipSslCertificateValidation,
             DefaultHttpsTestApiHost,
+            DefaultAppSecret,
             new List<(string Key, string Value)>(DefaultHeaderEntries),
             loadedFromFile: false);
     }
@@ -170,6 +178,8 @@ public sealed class HttpBackendResolvedConfig
     public const bool DefaultUseHttps = false;
     public const bool DefaultSkipSslCertificateValidation = true;
     public const string DefaultHttpsTestApiHost = "metritag.vsoc.saas.test.press.com:10778";
+    /// <summary>与前端 signUtil.js 中 APP_SECRET 默认一致。</summary>
+    public const string DefaultAppSecret = "c9eyidzx6tn0us0kzw69w8injlxbq9";
 
     private static readonly (string Key, string Value)[] DefaultHeaderEntries =
     {
