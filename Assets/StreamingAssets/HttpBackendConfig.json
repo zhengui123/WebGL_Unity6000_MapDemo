@@ -18,6 +18,4 @@
       "value": "zh-CN"
     }
   ]
-
-  // 默认配置在HttpBackendConfigLoader.cs中
 }

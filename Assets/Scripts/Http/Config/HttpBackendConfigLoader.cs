@@ -174,7 +174,7 @@ public sealed class HttpBackendResolvedConfig
             loadedFromFile: false);
     }
 
-    public const string DefaultApiHost = "10.60.16.96:38000";
+    public const string DefaultApiHost = "metritag.vsoc.saas.test.press.com:10777";//"10.60.16.96:38000";
     public const bool DefaultUseHttps = false;
     public const bool DefaultSkipSslCertificateValidation = true;
     public const string DefaultHttpsTestApiHost = "metritag.vsoc.saas.test.press.com:10778";
@@ -183,7 +183,7 @@ public sealed class HttpBackendResolvedConfig
 
     private static readonly (string Key, string Value)[] DefaultHeaderEntries =
     {
-        ("Satoken", "SNLfzLQJmvgIOBqKkhFG6mxG9S7fs3nJBIKLoJKrDD8Ju4GHaOpM56lo5m8dUj87"),
+        ("Satoken", "hD0BPUQN0MnpZ0D1ol36I7pElepRU7JBXmv46Pj9ij3OIL1aPZ561QAqiK66wu4L"),
         ("X-Tenant-Id", "1"),
         ("Sys-Lang", "zh-CN"),
     };

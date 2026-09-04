@@ -7,7 +7,7 @@ public static class ThreatQueryDefaults
     public const string StartTime = "2026-06-20 23:00:00";
 
     /// <summary>默认结束时间。</summary>
-    public const string EndTime = "2026-08-30 23:00:00";
+    public const string EndTime = "2026-06-30 23:00:00";
 
     /// <summary>解析开始时间：空/null 时回退到 <see cref="StartTime"/>。</summary>
     public static string ResolveStartTime(string value)
