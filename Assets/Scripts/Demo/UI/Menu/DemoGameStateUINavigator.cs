@@ -122,7 +122,8 @@ public class DemoGameStateUINavigator : MonoBehaviour
 
     private void ShowOnly(GameObject activePanel)
     {
-        SetPanelActive(_menuPanel, activePanel == _menuPanel);
+        // 菜单面板始终保留：进子面板时只收起入口列表，第一行 FPS/显示菜单继续可用
+        SetPanelActive(_menuPanel, true);
         SetPanelActive(_controlStateJumpPanel, activePanel == _controlStateJumpPanel);
         SetPanelActive(_plateMapHighlightPanel, activePanel == _plateMapHighlightPanel);
         SetPanelActive(_vehicleHeatmapUpdatePanel, activePanel == _vehicleHeatmapUpdatePanel);
@@ -135,6 +136,14 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_threatLocalAlertTestPanel, activePanel == _threatLocalAlertTestPanel);
         SetPanelActive(_carVehicleDataPanel, activePanel == _carVehicleDataPanel);
         SetPanelActive(_securityEventDetailPanel, activePanel == _securityEventDetailPanel);
+
+        DemoGameStateMenuUIDemo menuUi = _menuPanel != null
+            ? _menuPanel.GetComponent<DemoGameStateMenuUIDemo>()
+            : null;
+        if (menuUi != null)
+        {
+            menuUi.SetSubMenuMode(activePanel != _menuPanel);
+        }
     }
 
     private static void SetPanelActive(GameObject panel, bool active)

@@ -55,7 +55,11 @@ public static class ControlStateStartUIBuilder
     private const float MenuCollapsedPanelHeight = 96f;
     private const string FpsOverlayName = "DemoFpsOverlay";
     private const int FpsOverlaySortOrder = 100;
-    private const float FpsValueLabelWidth = 96f;
+    /// <summary>「显示 FPS」标签占位宽，数值紧挨其后。</summary>
+    private const float FpsMenuLabelWidth = 72f;
+    /// <summary>仅数字，宽度收窄。</summary>
+    private const float FpsValueLabelWidth = 48f;
+    private const float FpsValueAfterLabelGap = 2f;
     private const string InstantToggleRowName = "InstantTransitionToggle";
     private const string InstantTogglePath = InstantToggleRowName + "/Toggle";
     private const string InstantToggleCheckmarkPath = InstantTogglePath + "/Checkmark";
@@ -551,17 +555,14 @@ public static class ControlStateStartUIBuilder
         const float gap = 12f;
         float halfWidth = (width - gap) * 0.5f;
 
-        fpsToggle = CreateInlineLabeledToggle(
+        fpsToggle = CreateFpsToggleGroup(
             row.transform,
             resources,
-            "FpsToggle",
-            FpsDisplayMenuLabel,
             0f,
             0f,
             halfWidth,
             height,
-            toggleSize,
-            false);
+            toggleSize);
 
         menuVisibleToggle = CreateInlineLabeledToggle(
             row.transform,
@@ -574,6 +575,39 @@ public static class ControlStateStartUIBuilder
             height,
             toggleSize,
             true);
+    }
+
+    /// <summary>左半行：显示 FPS 文字 + 数值占位 + 勾选框。</summary>
+    private static Toggle CreateFpsToggleGroup(
+        Transform parent,
+        DefaultControls.Resources resources,
+        float x,
+        float y,
+        float width,
+        float height,
+        float toggleSize)
+    {
+        GameObject group = new GameObject("FpsToggle", typeof(RectTransform));
+        group.transform.SetParent(parent, false);
+        SetupChildRect(group, parent, x, y, width, height);
+
+        CreateLabel(group.transform, FpsDisplayMenuLabel, 0f, 0f, FpsMenuLabelWidth, height, 14, FontStyle.Normal);
+
+        float toggleX = Mathf.Max(
+            FpsMenuLabelWidth + FpsValueAfterLabelGap + FpsValueLabelWidth + 4f,
+            width - toggleSize);
+        GameObject toggleGo = DefaultControls.CreateToggle(resources);
+        toggleGo.name = "Toggle";
+        SetupChildRect(
+            toggleGo,
+            group.transform,
+            toggleX,
+            -(height - toggleSize) * 0.5f,
+            toggleSize,
+            toggleSize);
+        Toggle toggle = toggleGo.GetComponent<Toggle>();
+        toggle.isOn = false;
+        return toggle;
     }
 
     private static Toggle CreateInlineLabeledToggle(
@@ -609,7 +643,7 @@ public static class ControlStateStartUIBuilder
         return toggle;
     }
 
-    /// <summary>FPS 文本独立 Overlay，与菜单同区域对齐，排序置于最前。</summary>
+    /// <summary>FPS 数值 Overlay：紧挨「显示 FPS」文字后，仅数字。</summary>
     private static Text CreateFpsOverlay(
         Transform uiRoot,
         ControlStateJumpPanelLayout.RectLayoutData menuLayout,
@@ -623,18 +657,20 @@ public static class ControlStateStartUIBuilder
         overlayCanvas.overrideSorting = true;
         overlayCanvas.sortingOrder = FpsOverlaySortOrder;
 
+        // 与菜单首行左半区对齐：面板内边距 12 +「显示 FPS」宽 + 间距
+        float fpsValueX = 12f + FpsMenuLabelWidth + FpsValueAfterLabelGap;
         GameObject fpsLabelGo = CreateLabelObject(
             overlay.transform,
             "FpsValueLabel",
-            "FPS: --",
-            PanelWidth - 12f - FpsValueLabelWidth,
+            "--",
+            fpsValueX,
             -12f,
             FpsValueLabelWidth,
-            28f,
-            16,
+            RowHeight,
+            14,
             FontStyle.Normal);
         Text fpsValueLabel = fpsLabelGo.GetComponent<Text>();
-        fpsValueLabel.alignment = TextAnchor.MiddleRight;
+        fpsValueLabel.alignment = TextAnchor.MiddleLeft;
         fpsValueLabel.raycastTarget = false;
         fpsLabelGo.SetActive(false);
 

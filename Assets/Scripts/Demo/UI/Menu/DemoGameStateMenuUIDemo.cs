@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Demo GameState 上层菜单：入口按钮绑定到 <see cref="DemoGameStateUINavigator"/>。
-/// 与 FPS 同行的「显示菜单」勾选框控制入口列表显隐（折叠时保留 FPS/菜单开关与标题）。
+/// 与 FPS 同行的「显示菜单」勾选框控制入口列表显隐；进子面板时仍保留第一行开关。
 /// </summary>
 [DisallowMultipleComponent]
 public class DemoGameStateMenuUIDemo : MonoBehaviour
@@ -27,12 +27,15 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _carVehicleDataEntryButton;
     [SerializeField] private Button _securityEventDetailEntryButton;
 
+    /// <summary>处于子功能面板时为 true，此时强制收起入口列表，但保留 FPS/显示菜单行。</summary>
+    private bool _inSubMenuMode;
+
     private void Awake()
     {
         if (_menuVisibleToggle != null)
         {
             _menuVisibleToggle.onValueChanged.AddListener(OnMenuVisibleToggleChanged);
-            ApplyMenuContentVisible(_menuVisibleToggle.isOn);
+            RefreshMenuContentVisible();
         }
 
         if (_controlStateJumpEntryButton != null)
@@ -164,9 +167,44 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 由导航器调用：进子面板时收起入口列表并保留第一行；回主菜单时按勾选恢复。
+    /// </summary>
+    public void SetSubMenuMode(bool inSubMenu)
+    {
+        _inSubMenuMode = inSubMenu;
+        RefreshMenuContentVisible();
+    }
+
     private void OnMenuVisibleToggleChanged(bool visible)
     {
-        ApplyMenuContentVisible(visible);
+        // 子面板中勾选「显示菜单」→ 回到主菜单并展开入口
+        if (_inSubMenuMode && visible)
+        {
+            DemoGameStateUINavigator navigator = ResolveNavigator();
+            if (navigator != null)
+            {
+                navigator.ShowMenu();
+                return;
+            }
+        }
+
+        RefreshMenuContentVisible();
+    }
+
+    private void RefreshMenuContentVisible()
+    {
+        ApplyMenuContentVisible(ResolveContentVisible());
+    }
+
+    private bool ResolveContentVisible()
+    {
+        if (_inSubMenuMode)
+        {
+            return false;
+        }
+
+        return _menuVisibleToggle == null || _menuVisibleToggle.isOn;
     }
 
     private void ApplyMenuContentVisible(bool visible)

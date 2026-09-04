@@ -59,7 +59,7 @@ public class DemoMenuFpsDisplay : MonoBehaviour
         float fps = _frameCount / _accumulatedTime;
         _frameCount = 0;
         _accumulatedTime = 0f;
-        _fpsValueLabel.text = $"FPS: {Mathf.RoundToInt(fps)}";
+        _fpsValueLabel.text = Mathf.RoundToInt(fps).ToString();
     }
 
     private void OnShowFpsToggleChanged(bool show)
@@ -77,7 +77,7 @@ public class DemoMenuFpsDisplay : MonoBehaviour
         _fpsValueLabel.gameObject.SetActive(show);
         if (show)
         {
-            _fpsValueLabel.text = "FPS: --";
+            _fpsValueLabel.text = "--";
             _frameCount = 0;
             _accumulatedTime = 0f;
         }
