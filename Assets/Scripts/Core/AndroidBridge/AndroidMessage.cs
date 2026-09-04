@@ -33,10 +33,16 @@ public struct SetWorldMapRegionDefaultsRequest
     public string provinceCode;
 }
 
-/// <summary>运行时合并覆盖 HTTP 默认请求头。</summary>
+/// <summary>运行时合并覆盖 HTTP 后端连接信息与默认请求头。</summary>
 [System.Serializable]
 public struct SetHttpRequestHeadersRequest
 {
+    /// <summary>业务主机（域名或 IP:端口，不含协议）；空/不传则不改。</summary>
+    public string apiHost;
+
+    /// <summary>请求签名密钥 appSecret；空/不传则不改。</summary>
+    public string appSecret;
+
     /// <summary>请求头列表；仅 key 与 value 均非空的项会覆盖。</summary>
     public HttpBackendHeaderEntry[] headers;
 }
@@ -786,10 +792,10 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
-    /// Android 调用：运行时合并覆盖 HTTP 默认请求头。
+    /// Android 调用：运行时覆盖 HTTP 主机、签名密钥与默认请求头。
     /// UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders", json);
-    /// 示例：{"headers":[{"key":"Satoken","value":"新token"},{"key":"Sys-Lang","value":"zh-CN"}]}
-    /// 未传入的 key、或 value 为空，不改变该 key 现有值。
+    /// 示例：{"apiHost":"host:port","appSecret":"...","headers":[{"key":"Satoken","value":"新token"}]}
+    /// 空字段不改；headers 仅 key+value 均非空时覆盖。
     /// </summary>
     public void SetHttpRequestHeaders(string json)
     {
@@ -800,7 +806,7 @@ public class AndroidMessage : MonoBehaviour
         }
 
         SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
-        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers))
+        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers, request.apiHost, request.appSecret))
         {
             Debug.LogWarning($"[AndroidMessage] SetHttpRequestHeaders 失败: {json}");
         }

@@ -636,17 +636,24 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 运行时合并覆盖 HTTP 默认请求头（叠在配置文件/程序默认之上）。
-    /// 未传入的 key、或 value 为空/空白，不改变该 key 现有值。
+    /// 运行时合并覆盖 HTTP 后端主机、签名密钥与默认请求头（叠在配置文件/程序默认之上）。
+    /// apiHost / appSecret / headers 中至少一项有效才返回 true；空值表示不改该项。
     /// </summary>
-    public bool SetHttpRequestHeaders(HttpBackendHeaderEntry[] headers)
+    public bool SetHttpRequestHeaders(
+        HttpBackendHeaderEntry[] headers,
+        string apiHost = null,
+        string appSecret = null)
     {
-        if (!HttpProjectConfig.MergeRuntimeRequestHeaders(headers))
+        if (!HttpProjectConfig.ApplyRuntimeHttpBackendConfig(apiHost, appSecret, headers))
         {
-            Debug.LogWarning("[MapApi] SetHttpRequestHeaders：无有效请求头可写入（需 key 与 value 均非空）。");
+            Debug.LogWarning(
+                "[MapApi] SetHttpRequestHeaders：无有效写入（需非空 apiHost / appSecret，或 key+value 均非空的 headers）。");
             return false;
         }
 
+        Debug.Log(
+            $"[MapApi] SetHttpRequestHeaders 已应用 | apiHost={HttpProjectConfig.ApiHost} | " +
+            $"appSecret={(string.IsNullOrEmpty(HttpProjectConfig.AppSecret) ? "(空)" : "(已设置)")}");
         return true;
     }
 

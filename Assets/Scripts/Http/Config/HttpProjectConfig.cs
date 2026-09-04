@@ -18,9 +18,23 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>内网业务接口主机（IP:端口，不含协议）。</summary>
+    /// <summary>内网业务接口主机（IP:端口，不含协议）；可被宿主运行时覆盖。</summary>
 
-    public static string ApiHost => Backend.ApiHost;
+    public static string ApiHost
+    {
+        get
+        {
+            lock (RuntimeBackendOverridesLock)
+            {
+                if (!string.IsNullOrEmpty(_runtimeApiHost))
+                {
+                    return _runtimeApiHost;
+                }
+            }
+
+            return Backend.ApiHost;
+        }
+    }
 
 
 
@@ -48,9 +62,23 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>请求签名密钥（HttpBackendConfig.json 的 appSecret）。</summary>
+    /// <summary>请求签名密钥；可被宿主运行时覆盖。</summary>
 
-    public static string AppSecret => Backend.AppSecret;
+    public static string AppSecret
+    {
+        get
+        {
+            lock (RuntimeBackendOverridesLock)
+            {
+                if (!string.IsNullOrEmpty(_runtimeAppSecret))
+                {
+                    return _runtimeAppSecret;
+                }
+            }
+
+            return Backend.AppSecret;
+        }
+    }
 
 
 
@@ -185,6 +213,47 @@ public static class HttpProjectConfig
         return applied > 0;
     }
 
+    /// <summary>
+    /// 运行时覆盖 apiHost / appSecret（不含协议的 主机:端口；空/空白表示不改该项）。
+    /// </summary>
+    /// <returns>至少成功覆盖一项返回 true。</returns>
+    public static bool MergeRuntimeBackendConnection(string apiHost, string appSecret)
+    {
+        bool applied = false;
+        lock (RuntimeBackendOverridesLock)
+        {
+            if (!string.IsNullOrWhiteSpace(apiHost))
+            {
+                _runtimeApiHost = StripUrlScheme(apiHost.Trim()).Trim().TrimEnd('/');
+                if (!string.IsNullOrEmpty(_runtimeApiHost))
+                {
+                    applied = true;
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(appSecret))
+            {
+                _runtimeAppSecret = appSecret.Trim();
+                applied = true;
+            }
+        }
+
+        return applied;
+    }
+
+    /// <summary>
+    /// 一次应用宿主下发的连接信息与请求头；任一项写入成功即返回 true。
+    /// </summary>
+    public static bool ApplyRuntimeHttpBackendConfig(
+        string apiHost,
+        string appSecret,
+        HttpBackendHeaderEntry[] headers)
+    {
+        bool hostOrSecret = MergeRuntimeBackendConnection(apiHost, appSecret);
+        bool headerApplied = MergeRuntimeRequestHeaders(headers);
+        return hostOrSecret || headerApplied;
+    }
+
     private static void ApplyRuntimeHeaderOverrides(Dictionary<string, string> headers)
     {
         if (headers == null)
@@ -208,6 +277,9 @@ public static class HttpProjectConfig
 
     private static readonly object RuntimeHeaderOverridesLock = new object();
     private static Dictionary<string, string> _runtimeHeaderOverrides;
+    private static readonly object RuntimeBackendOverridesLock = new object();
+    private static string _runtimeApiHost;
+    private static string _runtimeAppSecret;
 
     /// <summary>
     /// 将项目默认请求头合并进目标字典：默认项打底，<paramref name="additionalHeaders"/> 中非空键可覆盖。

@@ -709,7 +709,7 @@ callUnity('TransitionToEarth', '');
 
 ### 4.20 SetHttpRequestHeaders
 
-运行时合并覆盖 HTTP 默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
+运行时覆盖 HTTP 业务主机、签名密钥与默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
 
 
 | 项目       | 值                                             |
@@ -717,21 +717,26 @@ callUnity('TransitionToEarth', '');
 | `method` | `SetHttpRequestHeaders`                       |
 | `arg`    | JSON                                          |
 | Unity 方法 | `WebGLAPI.SetHttpRequestHeaders(string json)` |
-| MapApi   | `SetHttpRequestHeaders(headers)`              |
+| MapApi   | `SetHttpRequestHeaders(headers, apiHost, appSecret)` |
 
 
 
 | 字段                | 类型     | 必填  | 说明                                          |
 | ----------------- | ------ | --- | ------------------------------------------- |
-| `headers`         | array  | 是   | 请求头列表                                       |
-| `headers[].key`   | string | 是   | 如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
-| `headers[].value` | string | 是   | 非空才写入；空/空白不改变该 key                          |
+| `apiHost`         | string | 否   | 业务主机（`域名或IP:端口`，**不含协议**）；空/不传不改            |
+| `appSecret`       | string | 否   | 签名密钥；空/不传不改                                 |
+| `headers`         | array  | 否   | 请求头列表（可与上两项组合；至少一项有效）                       |
+| `headers[].key`   | string | 是*  | 如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
+| `headers[].value` | string | 是*  | 非空才写入；空/空白不改变该 key                          |
 
+\* 仅当传入对应 header 项时要求非空。
 
-**规则：** 未传入的 key 不动；value 为空不动；仅 key+value 均非空时覆盖/新增。
+**规则：** `apiHost` / `appSecret` / `headers` 至少成功写入一项；空字段保持现有配置；`apiHost` 若误带 `http://` 会自动去掉协议前缀。
 
 ```javascript
 callUnity('SetHttpRequestHeaders', JSON.stringify({
+  apiHost: 'metritag.vsoc.saas.test.press.com:10777',
+  appSecret: 'your-app-secret',
   headers: [
     { key: 'Satoken', value: '新token' },
     { key: 'X-Tenant-Id', value: '1' },
@@ -770,7 +775,7 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 | `TransitionToEarth`                       | `""`        |      | 板块 → 地球（可选联调）              |
 | `FocusPlateMapModule`                     | 模块名         |      | 聚焦板块模块（可选联调）               |
 | `RestorePlateMapCamera`                   | `""`        |      | 还原板块相机（可选联调）               |
-| `SetHttpRequestHeaders`                   | JSON        | ✅    | 运行时合并覆盖 HTTP 默认请求头         |
+| `SetHttpRequestHeaders`                   | JSON        | ✅    | 运行时覆盖 apiHost / appSecret / HTTP 请求头 |
 
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  

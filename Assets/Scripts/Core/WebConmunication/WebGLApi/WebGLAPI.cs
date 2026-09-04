@@ -752,9 +752,9 @@ public class WebGLAPI : MonoBehaviour
     }
 
     /// <summary>
-    /// 宿主调用：运行时合并覆盖 HTTP 默认请求头。
-    /// JSON：{"headers":[{"key":"Satoken","value":"新token"},{"key":"X-Tenant-Id","value":"1"},{"key":"Sys-Lang","value":"zh-CN"}]}
-    /// 未传入的 key、或 value 为空，不改变该 key 现有值。
+    /// 宿主调用：运行时覆盖 HTTP 主机、签名密钥与默认请求头。
+    /// JSON：{"apiHost":"host:port","appSecret":"...","headers":[{"key":"Satoken","value":"..."}]}
+    /// 空字段不改；headers 规则同前。
     /// </summary>
     public void SetHttpRequestHeaders(string json)
     {
@@ -768,7 +768,7 @@ public class WebGLAPI : MonoBehaviour
         }
 
         SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
-        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers))
+        if (!MapApi.Instance.SetHttpRequestHeaders(request.headers, request.apiHost, request.appSecret))
         {
             Debug.LogWarning($"[WebGLAPI] SetHttpRequestHeaders 失败: {json}");
             return;

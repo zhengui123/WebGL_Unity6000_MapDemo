@@ -377,14 +377,17 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetCarYawRotation",
 
 ---
 
-### 2.20 `SetHttpRequestHeaders` — 运行时配置 HTTP 请求头
+### 2.20 `SetHttpRequestHeaders` — 运行时配置 HTTP 主机 / 密钥 / 请求头
 
 
-合并覆盖默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务 HTTP 请求自动带上。
+覆盖业务主机、签名密钥与默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务 HTTP 请求自动使用。
 
 ```java
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders",
-    "{\"headers\":["
+    "{"
+    + "\"apiHost\":\"metritag.vsoc.saas.test.press.com:10777\","
+    + "\"appSecret\":\"your-app-secret\","
+    + "\"headers\":["
     + "{\"key\":\"Satoken\",\"value\":\"新token\"},"
     + "{\"key\":\"X-Tenant-Id\",\"value\":\"1\"},"
     + "{\"key\":\"Sys-Lang\",\"value\":\"zh-CN\"}"
@@ -393,17 +396,22 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders",
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `headers` | array | 是 | 请求头列表 |
-| `headers[].key` | string | 是 | 请求头名，如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
-| `headers[].value` | string | 是 | 非空才写入；空或空白则**不改变**该 key 现有值 |
+| `apiHost` | string | 否 | 业务主机（`域名或IP:端口`，**不含协议**）；空/不传不改 |
+| `appSecret` | string | 否 | 签名密钥；空/不传不改 |
+| `headers` | array | 否 | 请求头列表（可与上两项组合；至少一项有效） |
+| `headers[].key` | string | 是* | 请求头名，如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
+| `headers[].value` | string | 是* | 非空才写入；空或空白则**不改变**该 key 现有值 |
+
+\* 仅当传入对应 header 项时要求非空。
 
 **规则：**
 
-- 未传入的 key：不改变
-- value 为空 / 空白：不改变该 key
-- 仅 key 与 value 均非空时覆盖（可新增配置中原本没有的 key）
+- `apiHost` / `appSecret` / `headers` 至少成功写入一项
+- 空字段：不改变现有配置
+- `apiHost` 误带 `http://` / `https://` 时会自动去掉协议前缀
+- headers：未传入的 key 不改；value 为空不改；key+value 均非空时覆盖/新增
 
-对应 Unity：`MapApi.SetHttpRequestHeaders` → `HttpProjectConfig.MergeRuntimeRequestHeaders`。
+对应 Unity：`MapApi.SetHttpRequestHeaders` → `HttpProjectConfig.ApplyRuntimeHttpBackendConfig`。
 
 ---
 
@@ -590,7 +598,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `TransitionToEarth` | `""` | 板块 → 地球（可选联调；WebGL 同名） |
 | `FocusPlateMapModule` | 模块名 | 聚焦板块模块（可选联调；WebGL 同名） |
 | `RestorePlateMapCamera` | `""` | 还原板块相机（可选联调；WebGL 同名） |
-| `SetHttpRequestHeaders` | JSON | 运行时合并覆盖 HTTP 默认请求头 |
+| `SetHttpRequestHeaders` | JSON | 运行时覆盖 apiHost / appSecret / HTTP 请求头 |
 
 ---
 

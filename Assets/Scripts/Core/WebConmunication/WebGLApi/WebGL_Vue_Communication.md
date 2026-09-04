@@ -182,7 +182,7 @@ handlers: {
 | `RequestVehicleHeatmapOnce`               | JSON / `""`        | `RequestVehicleHeatmapOnce(string)`               | `RequestVehicleHeatmapOnce`               | ✅              |
 | `RequestCarVehicleData`                   | `""` 或 JSON        | `RequestCarVehicleData(string)`                   | `RequestCarVehicleData`                   | ✅              |
 | `RequestSecurityEventDetail`              | `""` 或 JSON        | `RequestSecurityEventDetail(string)`              | `RequestSecurityEventDetail`              | ✅              |
-| `SetHttpRequestHeaders`                   | JSON               | `SetHttpRequestHeaders(string)`                   | `SetHttpRequestHeaders`                   | 按需             |
+| `SetHttpRequestHeaders`                   | JSON               | `SetHttpRequestHeaders(string)`                   | `SetHttpRequestHeaders`                   | apiHost/appSecret/头 |
 
 
 
