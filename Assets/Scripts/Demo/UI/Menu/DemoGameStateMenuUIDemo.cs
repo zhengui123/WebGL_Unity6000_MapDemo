@@ -3,11 +3,17 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Demo GameState 上层菜单：入口按钮绑定到 <see cref="DemoGameStateUINavigator"/>。
+/// 与 FPS 同行的「显示菜单」勾选框控制入口列表显隐（折叠时保留 FPS/菜单开关与标题）。
 /// </summary>
 [DisallowMultipleComponent]
 public class DemoGameStateMenuUIDemo : MonoBehaviour
 {
     [SerializeField] private DemoGameStateUINavigator _navigator;
+    [SerializeField] private Toggle _menuVisibleToggle;
+    [SerializeField] private GameObject _menuContent;
+    [SerializeField] private RectTransform _menuPanelRect;
+    [SerializeField] private float _expandedPanelHeight = 640f;
+    [SerializeField] private float _collapsedPanelHeight = 96f;
     [SerializeField] private Button _controlStateJumpEntryButton;
     [SerializeField] private Button _plateMapHighlightEntryButton;
     [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
@@ -23,6 +29,12 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
 
     private void Awake()
     {
+        if (_menuVisibleToggle != null)
+        {
+            _menuVisibleToggle.onValueChanged.AddListener(OnMenuVisibleToggleChanged);
+            ApplyMenuContentVisible(_menuVisibleToggle.isOn);
+        }
+
         if (_controlStateJumpEntryButton != null)
         {
             _controlStateJumpEntryButton.onClick.AddListener(OnControlStateJumpEntryClicked);
@@ -86,6 +98,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_menuVisibleToggle != null)
+        {
+            _menuVisibleToggle.onValueChanged.RemoveListener(OnMenuVisibleToggleChanged);
+        }
+
         if (_controlStateJumpEntryButton != null)
         {
             _controlStateJumpEntryButton.onClick.RemoveListener(OnControlStateJumpEntryClicked);
@@ -145,6 +162,28 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         {
             _securityEventDetailEntryButton.onClick.RemoveListener(OnSecurityEventDetailEntryClicked);
         }
+    }
+
+    private void OnMenuVisibleToggleChanged(bool visible)
+    {
+        ApplyMenuContentVisible(visible);
+    }
+
+    private void ApplyMenuContentVisible(bool visible)
+    {
+        if (_menuContent != null)
+        {
+            _menuContent.SetActive(visible);
+        }
+
+        if (_menuPanelRect == null)
+        {
+            return;
+        }
+
+        Vector2 size = _menuPanelRect.sizeDelta;
+        size.y = visible ? _expandedPanelHeight : _collapsedPanelHeight;
+        _menuPanelRect.sizeDelta = size;
     }
 
     private void OnControlStateJumpEntryClicked()

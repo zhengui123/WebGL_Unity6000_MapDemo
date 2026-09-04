@@ -47,8 +47,12 @@ public static class ControlStateStartUIBuilder
     private const string ThreatLocalAlertTestMenuLabel = ThreatLocalAlertTestUIDemoBuilder.MenuLabel;
     private const string CarVehicleDataMenuLabel = CarVehicleDataUIDemoBuilder.MenuLabel;
     private const string SecurityEventDetailMenuLabel = SecurityEventDetailUIDemoBuilder.MenuLabel;
-    private const string FpsDisplayToggleRowName = "FpsDisplayToggle";
     private const string FpsDisplayMenuLabel = "显示 FPS";
+    private const string MenuContentName = "MenuContent";
+    private const string MenuVisibleToggleRowName = "FpsAndMenuToggleRow";
+    private const string MenuVisibleToggleLabel = "显示菜单";
+    private const float MenuTitleRowHeight = 28f;
+    private const float MenuCollapsedPanelHeight = 96f;
     private const string FpsOverlayName = "DemoFpsOverlay";
     private const int FpsOverlaySortOrder = 100;
     private const float FpsValueLabelWidth = 96f;
@@ -327,113 +331,118 @@ public static class ControlStateStartUIBuilder
 
         float y = -12f;
 
-        fpsDisplayToggle = CreateLabeledToggle(
+        CreateFpsAndMenuToggleRow(
             panel.transform,
             resources,
-            FpsDisplayToggleRowName,
-            FpsDisplayMenuLabel,
             12f,
             y,
             PanelWidth - 24f,
             RowHeight,
-            false);
+            out fpsDisplayToggle,
+            out Toggle menuVisibleToggle);
         ApplyToggleCheckmarkSprite(fpsDisplayToggle, resources.checkmark);
+        ApplyToggleCheckmarkSprite(menuVisibleToggle, resources.checkmark);
         y -= RowHeight + 8f;
 
-        CreateLabel(panel.transform, "Demo 功能菜单", 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Normal);
-        y -= 28f + 12f;
+        CreateLabel(panel.transform, "Demo 功能菜单", 12f, y, PanelWidth - 24f, MenuTitleRowHeight, 18, FontStyle.Normal);
+        y -= MenuTitleRowHeight + 12f;
+
+        GameObject menuContent = new GameObject(MenuContentName, typeof(RectTransform));
+        SetupChildRect(menuContent, panel.transform, 0f, y, PanelWidth, 1f);
+        Transform contentParent = menuContent.transform;
+        float contentY = 0f;
 
         GameObject entryButtonGo = DefaultControls.CreateButton(resources);
         entryButtonGo.name = "ControlStateJumpEntryButton";
-        SetupChildRect(entryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(entryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text entryButtonText = entryButtonGo.GetComponentInChildren<Text>();
         if (entryButtonText != null)
         {
             entryButtonText.text = ControlStateJumpUiTitle;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject highlightEntryButtonGo = DefaultControls.CreateButton(resources);
         highlightEntryButtonGo.name = "PlateMapHighlightEntryButton";
-        SetupChildRect(highlightEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(highlightEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text highlightEntryButtonText = highlightEntryButtonGo.GetComponentInChildren<Text>();
         if (highlightEntryButtonText != null)
         {
             highlightEntryButtonText.text = PlateMapHighlightMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject heatmapEntryButtonGo = DefaultControls.CreateButton(resources);
         heatmapEntryButtonGo.name = "VehicleHeatmapUpdateEntryButton";
-        SetupChildRect(heatmapEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(heatmapEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text heatmapEntryButtonText = heatmapEntryButtonGo.GetComponentInChildren<Text>();
         if (heatmapEntryButtonText != null)
         {
             heatmapEntryButtonText.text = VehicleHeatmapMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject carPanelUiEntryButtonGo = DefaultControls.CreateButton(resources);
         carPanelUiEntryButtonGo.name = "CarPanelUIEntryButton";
-        SetupChildRect(carPanelUiEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(carPanelUiEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text carPanelUiEntryButtonText = carPanelUiEntryButtonGo.GetComponentInChildren<Text>();
         if (carPanelUiEntryButtonText != null)
         {
             carPanelUiEntryButtonText.text = CarPanelUiMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject previousLevelEntryButtonGo = DefaultControls.CreateButton(resources);
         previousLevelEntryButtonGo.name = "PreviousLevelEntryButton";
-        SetupChildRect(previousLevelEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(previousLevelEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text previousLevelEntryButtonText = previousLevelEntryButtonGo.GetComponentInChildren<Text>();
         if (previousLevelEntryButtonText != null)
         {
             previousLevelEntryButtonText.text = PreviousLevelMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject bigScreenCarouselEntryButtonGo = DefaultControls.CreateButton(resources);
         bigScreenCarouselEntryButtonGo.name = "BigScreenCarouselEntryButton";
-        SetupChildRect(bigScreenCarouselEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(bigScreenCarouselEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text bigScreenCarouselEntryButtonText = bigScreenCarouselEntryButtonGo.GetComponentInChildren<Text>();
         if (bigScreenCarouselEntryButtonText != null)
         {
             bigScreenCarouselEntryButtonText.text = BigScreenCarouselMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject httpApiTestEntryButtonGo = DefaultControls.CreateButton(resources);
         httpApiTestEntryButtonGo.name = "HttpApiTestEntryButton";
-        SetupChildRect(httpApiTestEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(httpApiTestEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text httpApiTestEntryButtonText = httpApiTestEntryButtonGo.GetComponentInChildren<Text>();
         if (httpApiTestEntryButtonText != null)
         {
             httpApiTestEntryButtonText.text = HttpApiTestMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject androidBridgeApiEntryButtonGo = DefaultControls.CreateButton(resources);
         androidBridgeApiEntryButtonGo.name = "AndroidBridgeApiEntryButton";
-        SetupChildRect(androidBridgeApiEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(androidBridgeApiEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text androidBridgeApiEntryButtonText = androidBridgeApiEntryButtonGo.GetComponentInChildren<Text>();
         if (androidBridgeApiEntryButtonText != null)
         {
             androidBridgeApiEntryButtonText.text = AndroidBridgeApiMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject threatHighRiskSecurityEventEntryButtonGo = DefaultControls.CreateButton(resources);
         threatHighRiskSecurityEventEntryButtonGo.name = "ThreatHighRiskSecurityEventEntryButton";
-        SetupChildRect(threatHighRiskSecurityEventEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(threatHighRiskSecurityEventEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text threatHighRiskSecurityEventEntryButtonText =
             threatHighRiskSecurityEventEntryButtonGo.GetComponentInChildren<Text>();
         if (threatHighRiskSecurityEventEntryButtonText != null)
@@ -441,11 +450,11 @@ public static class ControlStateStartUIBuilder
             threatHighRiskSecurityEventEntryButtonText.text = ThreatHighRiskSecurityEventMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject threatLocalAlertTestEntryButtonGo = DefaultControls.CreateButton(resources);
         threatLocalAlertTestEntryButtonGo.name = "ThreatLocalAlertTestEntryButton";
-        SetupChildRect(threatLocalAlertTestEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(threatLocalAlertTestEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text threatLocalAlertTestEntryButtonText =
             threatLocalAlertTestEntryButtonGo.GetComponentInChildren<Text>();
         if (threatLocalAlertTestEntryButtonText != null)
@@ -453,31 +462,44 @@ public static class ControlStateStartUIBuilder
             threatLocalAlertTestEntryButtonText.text = ThreatLocalAlertTestMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject carVehicleDataEntryButtonGo = DefaultControls.CreateButton(resources);
         carVehicleDataEntryButtonGo.name = "CarVehicleDataEntryButton";
-        SetupChildRect(carVehicleDataEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(carVehicleDataEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text carVehicleDataEntryButtonText = carVehicleDataEntryButtonGo.GetComponentInChildren<Text>();
         if (carVehicleDataEntryButtonText != null)
         {
             carVehicleDataEntryButtonText.text = CarVehicleDataMenuLabel;
         }
 
-        y -= MenuButtonHeight + 8f;
+        contentY -= MenuButtonHeight + 8f;
 
         GameObject securityEventDetailEntryButtonGo = DefaultControls.CreateButton(resources);
         securityEventDetailEntryButtonGo.name = "SecurityEventDetailEntryButton";
-        SetupChildRect(securityEventDetailEntryButtonGo, panel.transform, 12f, y, PanelWidth - 24f, MenuButtonHeight);
+        SetupChildRect(securityEventDetailEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
         Text securityEventDetailEntryButtonText = securityEventDetailEntryButtonGo.GetComponentInChildren<Text>();
         if (securityEventDetailEntryButtonText != null)
         {
             securityEventDetailEntryButtonText.text = SecurityEventDetailMenuLabel;
         }
 
+        float contentHeight = Mathf.Abs(contentY) + MenuButtonHeight;
+        RectTransform contentRect = menuContent.GetComponent<RectTransform>();
+        contentRect.sizeDelta = new Vector2(PanelWidth, contentHeight);
+
+        float expandedPanelHeight = layout.SizeDelta.y > 1f
+            ? layout.SizeDelta.y
+            : Mathf.Abs(y) + contentHeight + 12f;
+
         DemoGameStateMenuUIDemo menuDemo = panel.AddComponent<DemoGameStateMenuUIDemo>();
         SerializedObject serializedMenu = new SerializedObject(menuDemo);
         serializedMenu.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedMenu.FindProperty("_menuVisibleToggle").objectReferenceValue = menuVisibleToggle;
+        serializedMenu.FindProperty("_menuContent").objectReferenceValue = menuContent;
+        serializedMenu.FindProperty("_menuPanelRect").objectReferenceValue = panelRect;
+        serializedMenu.FindProperty("_expandedPanelHeight").floatValue = expandedPanelHeight;
+        serializedMenu.FindProperty("_collapsedPanelHeight").floatValue = MenuCollapsedPanelHeight;
         serializedMenu.FindProperty("_controlStateJumpEntryButton").objectReferenceValue =
             entryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_plateMapHighlightEntryButton").objectReferenceValue =
@@ -508,6 +530,83 @@ public static class ControlStateStartUIBuilder
         ApplyPanelTextNormalStyle(panel);
 
         return panel;
+    }
+
+    /// <summary>第一行：显示 FPS + 显示菜单（并排勾选，避免进界面后被挡）。</summary>
+    private static void CreateFpsAndMenuToggleRow(
+        Transform parent,
+        DefaultControls.Resources resources,
+        float x,
+        float y,
+        float width,
+        float height,
+        out Toggle fpsToggle,
+        out Toggle menuVisibleToggle)
+    {
+        GameObject row = new GameObject(MenuVisibleToggleRowName, typeof(RectTransform));
+        row.transform.SetParent(parent, false);
+        SetupChildRect(row, parent, x, y, width, height);
+
+        const float toggleSize = 28f;
+        const float gap = 12f;
+        float halfWidth = (width - gap) * 0.5f;
+
+        fpsToggle = CreateInlineLabeledToggle(
+            row.transform,
+            resources,
+            "FpsToggle",
+            FpsDisplayMenuLabel,
+            0f,
+            0f,
+            halfWidth,
+            height,
+            toggleSize,
+            false);
+
+        menuVisibleToggle = CreateInlineLabeledToggle(
+            row.transform,
+            resources,
+            "MenuVisibleToggle",
+            MenuVisibleToggleLabel,
+            halfWidth + gap,
+            0f,
+            halfWidth,
+            height,
+            toggleSize,
+            true);
+    }
+
+    private static Toggle CreateInlineLabeledToggle(
+        Transform parent,
+        DefaultControls.Resources resources,
+        string name,
+        string labelText,
+        float x,
+        float y,
+        float width,
+        float height,
+        float toggleSize,
+        bool defaultValue)
+    {
+        GameObject group = new GameObject(name, typeof(RectTransform));
+        group.transform.SetParent(parent, false);
+        SetupChildRect(group, parent, x, y, width, height);
+
+        float labelWidth = Mathf.Max(40f, width - toggleSize - 6f);
+        CreateLabel(group.transform, labelText, 0f, 0f, labelWidth, height, 14, FontStyle.Normal);
+
+        GameObject toggleGo = DefaultControls.CreateToggle(resources);
+        toggleGo.name = "Toggle";
+        SetupChildRect(
+            toggleGo,
+            group.transform,
+            labelWidth + 4f,
+            -(height - toggleSize) * 0.5f,
+            toggleSize,
+            toggleSize);
+        Toggle toggle = toggleGo.GetComponent<Toggle>();
+        toggle.isOn = defaultValue;
+        return toggle;
     }
 
     /// <summary>FPS 文本独立 Overlay，与菜单同区域对齐，排序置于最前。</summary>
