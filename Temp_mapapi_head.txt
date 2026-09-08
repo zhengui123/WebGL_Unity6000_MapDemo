@@ -1,0 +1,25 @@
+﻿using System;
+using UnityEngine;
+
+/// <summary>
+/// 鍦板浘瀵瑰 API锛氳Е鍙戝湴鐞?鏉垮潡杩囨浮锛屽苟鍙€氳繃 <see cref="EventManager"/> 璁㈤槄鍔ㄧ敾缁撴潫浜嬩欢銆?/// </summary>
+public class MapApi : UnitySingle<MapApi>
+{
+
+    /// <summary>鎾斁鍦扮悆 鈫?鏉垮潡杩囨浮銆?/summary>
+    public void TransitionToPlateMap()
+    {
+        Debug.Log("[MapApi] TransitionToPlateMap");
+        EarthTransition earthTransition = EarthTransition.Instance;
+        if (earthTransition == null)
+        {
+            Debug.LogWarning("[MapApi] 鏈壘鍒?EarthTransition锛屾棤娉曞垏鎹㈠埌鏉垮潡鍦板浘銆?);
+            return;
+        }
+
+        earthTransition.TransitionToPlateMap();
+    }
+
+    /// <summary>鎾斁鏉垮潡 鈫?鍦扮悆杩囨浮銆?/summary>
+    public void TransitionToEarth()
+    {

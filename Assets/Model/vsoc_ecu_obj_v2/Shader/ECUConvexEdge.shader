@@ -22,8 +22,9 @@ Shader "VSOC/ECU/ConvexEdge"
         _RimPower ("外轮廓衰减", Range(0.5, 8)) = 2.5
 
         [Header(Triangle Wireframe)]
-        _LineWidth ("线宽(0=无线)", Range(0, 3)) = 1.5
-        _LineSoftness ("线边缘柔和", Range(0.01, 2)) = 0.5
+        _LineWidth ("线宽/墨量(0=无线,可<1)", Range(0, 4)) = 0.5
+        _LineSoftness ("滤波半径(防断线)", Range(0.35, 1.5)) = 0.75
+        [HideInInspector] _MinPixelWidth ("(弃用)", Range(0, 3)) = 0
     }
 
     SubShader
@@ -61,6 +62,7 @@ Shader "VSOC/ECU/ConvexEdge"
             float _RimPower;
             float _LineWidth;
             float _LineSoftness;
+            float _MinPixelWidth; // 保留兼容旧材质序列化，Coverage AA 不再使用
 
             struct appdata
             {
@@ -89,18 +91,23 @@ Shader "VSOC/ECU/ConvexEdge"
 
             float ComputeTriangleEdge(float3 bary)
             {
-                // 0 = 无线；不再钳到 0.5，可细到看不见
-                float width = max(_LineWidth, 0.0);
-                if (width <= 1e-4)
+                // Coverage AA：细线不加粗实心带宽，用固定滤波核保证连续，线宽只控墨量/观感粗细
+                float w = _LineWidth;
+                if (w <= 1e-4)
                 {
                     return 0.0;
                 }
 
-                float soft = min(max(_LineSoftness, 0.01), width);
-                // WebGL / 刚从隐藏激活时，fwidth 偶发过大 → 边带占满三角面，线显得特别粗
-                float3 d = clamp(fwidth(bary), 1e-6, 0.15);
-                float3 a3 = smoothstep(d * (width - soft), d * (width + soft), bary);
-                return saturate(1.0 - min(min(a3.x, a3.y), a3.z));
+                float dist = min(min(bary.x, bary.y), bary.z);
+                float fw = max(fwidth(dist), 1e-6);
+                float d = dist / fw; // 距边像素距离
+
+                float aa = max(_LineSoftness, 0.55); // 滤波半径，保证亚像素不断线
+                // 细线：peak < 1 → 更淡/更细；粗线：peak=1 + core 实心带
+                float peak = saturate(sqrt(w / aa));
+                float core = max(w - aa * 0.35, 0.0);
+                float cover = 1.0 - smoothstep(core, core + aa, d);
+                return saturate(peak * cover);
             }
 
             float ComputeCreaseEdge(float3 worldNormal, float3 worldPos)

@@ -10,8 +10,9 @@ Shader "VSOC/ECU/ConvexEdge1"
         [HDR] _EdgeColor ("边界线颜色", Color) = (0.55, 1.85, 2.2, 1)
 
         [Header(Wireframe)]
-        _LineWidth ("线宽(0=无线)", Range(0, 8)) = 1.5
-        _LineSoftness ("线边缘柔和", Range(0.01, 2)) = 0.5
+        _LineWidth ("线宽/墨量(0=无线,可<1)", Range(0, 4)) = 0.5
+        _LineSoftness ("滤波半径(防断线)", Range(0.35, 1.5)) = 0.75
+        [HideInInspector] _MinPixelWidth ("(弃用)", Range(0, 3)) = 0
 
         [Header(Fallback Crease)]
         _CreaseSensitivity ("硬折角敏感度", Range(0.1, 80)) = 22
@@ -50,6 +51,7 @@ Shader "VSOC/ECU/ConvexEdge1"
             half4 _EdgeColor;
             float _LineWidth;
             float _LineSoftness;
+            float _MinPixelWidth;
             float _CreaseSensitivity;
             float _CreaseStrength;
             float _CreaseSharpness;
@@ -87,18 +89,21 @@ Shader "VSOC/ECU/ConvexEdge1"
                 float s = i.bary.x + i.bary.y + i.bary.z;
                 if (s > 0.5 && s < 1.5)
                 {
-                    float width = max(_LineWidth, 0.0);
-                    if (width <= 1e-4)
+                    float w = _LineWidth;
+                    if (w <= 1e-4)
                     {
                         edge = 0.0;
                     }
                     else
                     {
-                        float soft = min(max(_LineSoftness, 0.01), width);
-                        // WebGL / 刚从隐藏激活时，fwidth 偶发过大 → 边带占满三角面，线显得特别粗
-                        float3 d = clamp(fwidth(i.bary), 1e-6, 0.15);
-                        float3 a3 = smoothstep(d * (width - soft), d * (width + soft), i.bary);
-                        edge = saturate(1.0 - min(min(a3.x, a3.y), a3.z));
+                        float dist = min(min(i.bary.x, i.bary.y), i.bary.z);
+                        float fw = max(fwidth(dist), 1e-6);
+                        float d = dist / fw;
+                        float aa = max(_LineSoftness, 0.55);
+                        float peak = saturate(sqrt(w / aa));
+                        float core = max(w - aa * 0.35, 0.0);
+                        float cover = 1.0 - smoothstep(core, core + aa, d);
+                        edge = saturate(peak * cover);
                     }
                 }
                 else
