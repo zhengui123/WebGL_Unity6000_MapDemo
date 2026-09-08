@@ -122,7 +122,7 @@ public static class SecurityEventDetailApi
     {
         if (response == null || !response.IsSuccess || response.data == null)
         {
-            Debug.LogWarning("[SecurityEventDetailApi] ApplySuccessfulResponse 跳过：响应为空或业务未成功。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] ApplySuccessfulResponse 跳过：响应为空或业务未成功。");
             return false;
         }
 
@@ -133,12 +133,12 @@ public static class SecurityEventDetailApi
         if (panel != null)
         {
             panel.ApplyDetailData(response.data, showPanel);
-            Debug.Log(
+            LogManager.LogBackend(
                 $"[SecurityEventDetailApi] 已缓存并刷新 GJ_Panel：{response.data.event_name} / {response.data.vin}");
         }
         else
         {
-            Debug.LogWarning("[SecurityEventDetailApi] 未找到 GJPanel，已缓存数据但未刷新面板。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 GJPanel，已缓存数据但未刷新面板。");
         }
 
         TrySpawnEventPoi(response.data);
@@ -156,18 +156,18 @@ public static class SecurityEventDetailApi
         bool hasRecord = data.TryApplyRecordData(out string errorMessage);
         if (!hasRecord && !string.IsNullOrWhiteSpace(data.record_data))
         {
-            Debug.LogWarning($"[SecurityEventDetailApi] record_data 解析失败：{errorMessage}");
+            LogManager.LogBackendWarning($"[SecurityEventDetailApi] record_data 解析失败：{errorMessage}");
         }
 
         if (data.TryGetRecordLongitudeLatitude(out double longitude, out double latitude))
         {
-            Debug.Log($"[SecurityEventDetailApi] 经纬度：longitude={longitude}, latitude={latitude}");
+            LogManager.LogBackend($"[SecurityEventDetailApi] 经纬度：longitude={longitude}, latitude={latitude}");
             return true;
         }
 
         if (!string.IsNullOrWhiteSpace(data.record_data) || data.originalMap != null)
         {
-            Debug.LogWarning("[SecurityEventDetailApi] record_data / originalMap 中未包含有效经纬度。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] record_data / originalMap 中未包含有效经纬度。");
         }
 
         return hasRecord;
@@ -182,14 +182,14 @@ public static class SecurityEventDetailApi
 
         if (!data.TryGetRecordLongitudeLatitude(out double longitude, out double latitude))
         {
-            Debug.LogWarning("[SecurityEventDetailApi] 无有效经纬度，跳过 POI 生成。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 无有效经纬度，跳过 POI 生成。");
             return;
         }
 
         string provinceCode = ResolveProvinceCode(data);
         if (string.IsNullOrWhiteSpace(provinceCode) || provinceCode == "0")
         {
-            Debug.LogWarning(
+            LogManager.LogBackendWarning(
                 "[SecurityEventDetailApi] originalMap.province 无效，无法生成 POI（需要省级 adcode）。");
             return;
         }
@@ -197,12 +197,12 @@ public static class SecurityEventDetailApi
         POI_Manager poiManager = POI_Manager.Instance;
         if (poiManager == null)
         {
-            Debug.LogWarning("[SecurityEventDetailApi] 未找到 POI_Manager，跳过 POI 生成。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 POI_Manager，跳过 POI 生成。");
             return;
         }
 
         poiManager.SpawnPoiDelayed(provinceCode, POIType.yellow, longitude, latitude);
-        Debug.Log(
+        LogManager.LogBackend(
             $"[SecurityEventDetailApi] 已请求生成 POI：province={provinceCode}, lon={longitude}, lat={latitude}");
     }
 
@@ -238,24 +238,24 @@ public static class SecurityEventDetailApi
     {
         if (result == null)
         {
-            Debug.LogWarning("[SecurityEventDetailApi] 请求结果为空。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 请求结果为空。");
             return;
         }
 
         string body = string.IsNullOrEmpty(result.RawBody) ? "(空)" : result.RawBody;
         if (result.IsCancelled)
         {
-            Debug.Log("[SecurityEventDetailApi] 请求已取消。");
+            LogManager.LogBackend("[SecurityEventDetailApi] 请求已取消。");
             return;
         }
 
         if (result.IsSuccess)
         {
-            Debug.Log($"[SecurityEventDetailApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
+            LogManager.LogBackend($"[SecurityEventDetailApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
             return;
         }
 
-        Debug.LogWarning(
+        LogManager.LogBackendWarning(
             $"[SecurityEventDetailApi] 请求失败，状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{body}");
     }
 }

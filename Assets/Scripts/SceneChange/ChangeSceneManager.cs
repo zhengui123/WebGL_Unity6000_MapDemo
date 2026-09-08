@@ -22,25 +22,25 @@ public class ChangeSceneManager : UnitySingle<ChangeSceneManager>
 
         if (string.IsNullOrEmpty(sceneName))
         {
-            Debug.LogWarning("[ChangeSceneDemo] 场景名为空。");
+            LogManager.LogFeatureWarning("[ChangeSceneDemo] 场景名为空。");
             return;
         }
 
         Scene active = SceneManager.GetActiveScene();
         if (active.IsValid() && active.name == sceneName)
         {
-            Debug.Log($"[ChangeSceneDemo] 已在场景 {sceneName}，跳过加载。");
+            LogManager.LogFeature($"[ChangeSceneDemo] 已在场景 {sceneName}，跳过加载。");
             return;
         }
 
         _isLoading = true;
-        Debug.Log("[ChangeSceneDemo] ChangeScene: " + sceneName);
+        LogManager.LogFeature("[ChangeSceneDemo] ChangeScene: " + sceneName);
 
         AsyncOperation op = SceneManager.LoadSceneAsync(sceneName);
         if (op == null)
         {
             _isLoading = false;
-            Debug.LogError("[ChangeSceneDemo] LoadSceneAsync 失败，请检查 Build Settings: " + sceneName);
+            LogManager.LogFeatureError("[ChangeSceneDemo] LoadSceneAsync 失败，请检查 Build Settings: " + sceneName);
             return;
         }
 

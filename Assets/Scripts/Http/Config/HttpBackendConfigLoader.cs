@@ -27,18 +27,18 @@ public static class HttpBackendConfigLoader
 
         if (!TryReadConfigJson(out string json))
         {
-            Debug.Log($"[HttpBackendConfig] 未找到本地配置，使用程序默认：{defaults.ApiScheme}://{defaults.ApiHost}");
+            LogManager.LogBackend($"[HttpBackendConfig] 未找到本地配置，使用程序默认：{defaults.ApiScheme}://{defaults.ApiHost}");
             return defaults;
         }
 
         if (!HttpJsonParser.TryParse(json, out HttpBackendConfigFile file, out string parseError))
         {
-            Debug.LogWarning($"[HttpBackendConfig] 配置解析失败，使用程序默认：{parseError}");
+            LogManager.LogBackendWarning($"[HttpBackendConfig] 配置解析失败，使用程序默认：{parseError}");
             return defaults;
         }
 
         HttpBackendResolvedConfig resolved = MergeFileIntoDefaults(file, defaults);
-        Debug.Log($"[HttpBackendConfig] 已加载本地配置：{resolved.ApiScheme}://{resolved.ApiHost}，请求头 {resolved.HeaderEntries.Count} 项");
+        LogManager.LogBackend($"[HttpBackendConfig] 已加载本地配置：{resolved.ApiScheme}://{resolved.ApiHost}，请求头 {resolved.HeaderEntries.Count} 项");
         return resolved;
     }
 
@@ -58,7 +58,7 @@ public static class HttpBackendConfigLoader
         }
         catch (Exception exception)
         {
-            Debug.LogWarning($"[HttpBackendConfig] 读取配置失败：{path}\n{exception.Message}");
+            LogManager.LogBackendWarning($"[HttpBackendConfig] 读取配置失败：{path}\n{exception.Message}");
             return false;
         }
     }

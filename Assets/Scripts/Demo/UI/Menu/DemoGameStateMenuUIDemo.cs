@@ -229,7 +229,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -241,7 +241,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -253,7 +253,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -265,7 +265,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -277,7 +277,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -289,7 +289,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -301,7 +301,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -313,7 +313,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -325,7 +325,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -337,7 +337,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -349,7 +349,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -361,7 +361,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

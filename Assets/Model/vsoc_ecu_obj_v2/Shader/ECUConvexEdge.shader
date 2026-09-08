@@ -1,6 +1,7 @@
 // ECU 零件双色线框：不透明填充 + 边线
-// 模式：硬折角（默认，去对角）/ 三角面全边线（重心坐标）
-// Built-in RP / Opaque / 需 Geometry Shader
+// Crease：法线导数硬折角（无需 GS）
+// Triangle：网格 COLOR 重心坐标全边线（WebGL 可用；需 EcuWireframeMeshPrep）
+// Built-in RP / Opaque / 全平台无 Geometry Shader
 
 Shader "VSOC/ECU/ConvexEdge"
 {
@@ -21,7 +22,7 @@ Shader "VSOC/ECU/ConvexEdge"
         _RimPower ("外轮廓衰减", Range(0.5, 8)) = 2.5
 
         [Header(Triangle Wireframe)]
-        _LineWidth ("线宽(像素近似)", Range(0, 8)) = 1.5
+        _LineWidth ("线宽(0=无线)", Range(0, 3)) = 1.5
         _LineSoftness ("线边缘柔和", Range(0.01, 2)) = 0.5
     }
 
@@ -45,11 +46,9 @@ Shader "VSOC/ECU/ConvexEdge"
             Tags { "LightMode" = "ForwardBase" }
 
             CGPROGRAM
-            #pragma target 4.0
-            #pragma require derivatives
+            #pragma target 3.0
             #pragma multi_compile_local _EDGEMODE_CREASE _EDGEMODE_TRIANGLE
             #pragma vertex vert
-            #pragma geometry geom
             #pragma fragment frag
             #include "UnityCG.cginc"
 
@@ -67,67 +66,43 @@ Shader "VSOC/ECU/ConvexEdge"
             {
                 float4 vertex : POSITION;
                 float3 normal : NORMAL;
+                float4 color : COLOR;
             };
 
-            struct v2g
+            struct v2f
             {
                 float4 pos : SV_POSITION;
                 float3 worldPos : TEXCOORD0;
                 float3 worldNormal : TEXCOORD1;
+                float3 bary : TEXCOORD2;
             };
 
-            struct g2f
+            v2f vert(appdata v)
             {
-                float4 pos : SV_POSITION;
-                float3 worldPos : TEXCOORD0;
-                float3 worldNormal : TEXCOORD1;
-                noperspective float3 bary : TEXCOORD2;
-            };
-
-            v2g vert(appdata v)
-            {
-                v2g o;
+                v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
                 o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
                 o.worldNormal = UnityObjectToWorldNormal(v.normal);
+                o.bary = v.color.rgb;
                 return o;
-            }
-
-            [maxvertexcount(3)]
-            void geom(triangle v2g input[3], inout TriangleStream<g2f> stream)
-            {
-                g2f o0;
-                o0.pos = input[0].pos;
-                o0.worldPos = input[0].worldPos;
-                o0.worldNormal = input[0].worldNormal;
-                o0.bary = float3(1, 0, 0);
-                stream.Append(o0);
-
-                g2f o1;
-                o1.pos = input[1].pos;
-                o1.worldPos = input[1].worldPos;
-                o1.worldNormal = input[1].worldNormal;
-                o1.bary = float3(0, 1, 0);
-                stream.Append(o1);
-
-                g2f o2;
-                o2.pos = input[2].pos;
-                o2.worldPos = input[2].worldPos;
-                o2.worldNormal = input[2].worldNormal;
-                o2.bary = float3(0, 0, 1);
-                stream.Append(o2);
             }
 
             float ComputeTriangleEdge(float3 bary)
             {
-                float width = max(_LineWidth, 0.5);
-                float soft = max(_LineSoftness, 0.01);
-                float3 d = fwidth(bary);
+                // 0 = 无线；不再钳到 0.5，可细到看不见
+                float width = max(_LineWidth, 0.0);
+                if (width <= 1e-4)
+                {
+                    return 0.0;
+                }
+
+                float soft = min(max(_LineSoftness, 0.01), width);
+                // WebGL / 刚从隐藏激活时，fwidth 偶发过大 → 边带占满三角面，线显得特别粗
+                float3 d = clamp(fwidth(bary), 1e-6, 0.15);
                 float3 a3 = smoothstep(d * (width - soft), d * (width + soft), bary);
                 return saturate(1.0 - min(min(a3.x, a3.y), a3.z));
             }
 
-            // 共面四边形对角线两侧法线几乎不变 → 不画；真实折角 + 外轮廓才画
             float ComputeCreaseEdge(float3 worldNormal, float3 worldPos)
             {
                 float3 n = normalize(worldNormal);
@@ -144,12 +119,27 @@ Shader "VSOC/ECU/ConvexEdge"
                 return smoothstep(threshold, threshold + band, edge);
             }
 
-            fixed4 frag(g2f i) : SV_Target
+            // 未准备重心时 COLOR 常为白 (1,1,1)，sum≈3；准备后插值 sum≈1
+            bool HasValidBarycentric(float3 bary)
+            {
+                float s = bary.x + bary.y + bary.z;
+                return s > 0.5 && s < 1.5;
+            }
+
+            fixed4 frag(v2f i) : SV_Target
             {
                 float edge = 0;
 
             #if defined(_EDGEMODE_TRIANGLE)
-                edge = ComputeTriangleEdge(i.bary);
+                if (HasValidBarycentric(i.bary))
+                {
+                    edge = ComputeTriangleEdge(i.bary);
+                }
+                else
+                {
+                    // 未挂 Prep 时回退折角，避免全黑/全亮
+                    edge = ComputeCreaseEdge(i.worldNormal, i.worldPos);
+                }
             #else
                 edge = ComputeCreaseEdge(i.worldNormal, i.worldPos);
             #endif
@@ -161,5 +151,5 @@ Shader "VSOC/ECU/ConvexEdge"
         }
     }
 
-    FallBack "Diffuse"
+    FallBack "Mobile/Diffuse"
 }

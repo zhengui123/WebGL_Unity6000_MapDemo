@@ -197,7 +197,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (!HighRiskSecurityEventApi.TryParseAndStoreResponse(json, out _, out string error))
         {
             RefreshStatus($"注入失败（{label}）：{error}");
-            Debug.LogWarning($"[ThreatLocalAlertTestUIDemo] 注入失败：{error}\n{json}");
+            LogManager.LogFeatureWarning($"[ThreatLocalAlertTestUIDemo] 注入失败：{error}\n{json}");
             return;
         }
 
@@ -288,7 +288,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[ThreatLocalAlertTestUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[ThreatLocalAlertTestUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -336,14 +336,14 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
         RefreshStatus(
             $"Vin 下钻 | vin={vin} | 车{vehicleHold:F1}s → 攻击链路{attackHold:F1}s → 零件各{partHold:F1}s");
-        Debug.Log($"[ThreatLocalAlertTestUIDemo] ThreatVehicleEntryRequested vin={vin}");
+        LogManager.LogFeature($"[ThreatLocalAlertTestUIDemo] ThreatVehicleEntryRequested vin={vin}");
     }
 
     private void HandleDrillReserved(ThreatProvinceAlertContext context)
     {
         string code = context?.ProvinceCode ?? "-";
         RefreshStatus($"[预留] 威胁下钻钩子：province={code}");
-        Debug.Log($"[ThreatLocalAlertTestUIDemo] ThreatProvinceDrillReserved province={code}");
+        LogManager.LogFeature($"[ThreatLocalAlertTestUIDemo] ThreatProvinceDrillReserved province={code}");
     }
 
     private void RefreshResultList()
@@ -508,7 +508,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         GameObject host = new GameObject("ThreatAlertFlowRunner");
         host.AddComponent<ThreatAlertFlowRunner>();
         DontDestroyOnLoad(host);
-        Debug.Log("[ThreatLocalAlertTestUIDemo] 已自动创建 ThreatAlertFlowRunner。");
+        LogManager.LogFeature("[ThreatLocalAlertTestUIDemo] 已自动创建 ThreatAlertFlowRunner。");
     }
 
     private void ApplyRuntimeTextStyle()

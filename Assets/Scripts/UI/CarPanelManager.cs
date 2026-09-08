@@ -93,7 +93,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     {
         if (CarPanel == null)
         {
-            Debug.LogError("[CarPanelManager] CarPanel 未赋值。");
+            LogManager.LogFeatureError("[CarPanelManager] CarPanel 未赋值。");
             return;
         }
 
@@ -116,7 +116,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     {
         if (!IsVehicleLevel())
         {
-            Debug.LogWarning("[CarPanelManager] 当前非 VehicleLevel，无法打开车辆 UI。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法打开车辆 UI。");
             return false;
         }
 
@@ -127,13 +127,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (CarPanel == null)
         {
-            Debug.LogError("[CarPanelManager] CarPanel 未赋值，请使用场景中已配置的 CarPanelManager（如 UI_CarPanelManager）。");
+            LogManager.LogFeatureError("[CarPanelManager] CarPanel 未赋值，请使用场景中已配置的 CarPanelManager（如 UI_CarPanelManager）。");
             return false;
         }
 
         if (gridLine == null)
         {
-            Debug.LogError("[CarPanelManager] GridLine 未赋值，请在 Inspector 中绑定 gridLine。");
+            LogManager.LogFeatureError("[CarPanelManager] GridLine 未赋值，请在 Inspector 中绑定 gridLine。");
             return false;
         }
 
@@ -153,7 +153,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
         if (slides.Count == 0)
         {
-            Debug.LogWarning("[CarPanelManager] 无零部件可轮播。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 无零部件可轮播。");
             return false;
         }
 
@@ -167,7 +167,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     {
         if (slides == null || slides.Count == 0)
         {
-            Debug.LogWarning("[CarPanelManager] 轮播数据为空。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 轮播数据为空。");
             return false;
         }
 
@@ -213,7 +213,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         MessageListPanel panel = ResolveMessageListPanel(start3DObjectName);
         if (panel == null)
         {
-            Debug.LogWarning("[CarPanelManager] 未找到 MessageListPanel，跳过消息列表刷新。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 未找到 MessageListPanel，跳过消息列表刷新。");
             return true;
         }
 
@@ -230,7 +230,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         MessageListPanel panel = ResolveMessageListPanel();
         if (panel == null)
         {
-            Debug.LogWarning("[CarPanelManager] 未找到 MessageListPanel，跳过消息列表刷新。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 未找到 MessageListPanel，跳过消息列表刷新。");
             return;
         }
 
@@ -263,7 +263,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (!IsVehicleLevel())
         {
-            Debug.LogWarning("[CarPanelManager] 当前非 VehicleLevel，无法关闭车辆 UI。");
+            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法关闭车辆 UI。");
             InvokePendingCloseCallback();
             return;
         }
@@ -329,7 +329,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (StartPartMessageCarouselFromCache())
         {
-            Debug.Log($"[CarPanelManager] 进入 VehicleLevel 后已重启轮播 | source={source}");
+            LogManager.LogFeature($"[CarPanelManager] 进入 VehicleLevel 后已重启轮播 | source={source}");
         }
     }
 

@@ -153,7 +153,7 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
     {
         if (!TryGetModuleByName(moduleName, out PlateMapDisplayModule module))
         {
-            Debug.LogWarning($"[PlateMapHighlightController] 未找到模块：{moduleName}");
+            LogManager.LogFeatureWarning($"[PlateMapHighlightController] 未找到模块：{moduleName}");
             return false;
         }
 
@@ -190,7 +190,7 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
             }
             else
             {
-                Debug.LogWarning($"[PlateMapHighlightController] 未找到模块：{moduleNames[i]}");
+                LogManager.LogFeatureWarning($"[PlateMapHighlightController] 未找到模块：{moduleNames[i]}");
             }
         }
 
@@ -215,7 +215,7 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
         }
 
         ApplyHighlightState(_highlightDuration, _highlightEase);
-        Debug.Log($"[PlateMapHighlightController] 高亮模块数：{_highlightedModules.Count}");
+        LogManager.LogFeature($"[PlateMapHighlightController] 高亮模块数：{_highlightedModules.Count}");
     }
 
     /// <summary>取消全部板块高亮，所有模块发光强度回到材质默认值。</summary>

@@ -232,7 +232,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
         if (!Hub.InvokeIsGeoConverterReady(PlateMapKey))
         {
-            // Debug.LogWarning($"[PlateMapVehiclePointController] 地理转换未就绪：{PlateMapKey}");
+            // LogManager.LogFeatureWarning($"[PlateMapVehiclePointController] 地理转换未就绪：{PlateMapKey}");
             _initialized = false;
             _instancedRenderer?.ClearInstances();
             return;
@@ -561,7 +561,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         }
 
         _mappedPointCubesSpawned = true;
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateMapVehiclePointController] 已一次性创建 {mappedInputs.Count} 个映射调试 Cube → {_mapRoot.name}/VehiclePoints");
     }
 

@@ -109,7 +109,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         ResolveReferences();
         if (_plateTransitionController == null || _cityTransitionController == null)
         {
-            Debug.LogError("[PlateToCityOrchestrator] 未找到阶段过渡控制器。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 未找到阶段过渡控制器。");
             return false;
         }
 
@@ -149,7 +149,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         ResolveReferences();
         if (_plateTransitionController == null || _cityTransitionController == null)
         {
-            Debug.LogError("[PlateToCityOrchestrator] 未找到阶段过渡控制器。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 未找到阶段过渡控制器。");
             return false;
         }
 
@@ -210,14 +210,14 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_cityTransitionController == null)
         {
-            Debug.LogError("[PlateToCityOrchestrator] 阶段一完成，但未找到 GaodeToCityTransitionController。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 阶段一完成，但未找到 GaodeToCityTransitionController。");
             ResetOrchestration();
             return;
         }
 
         if (!_cityTransitionController.PlayTransition())
         {
-            Debug.LogError("[PlateToCityOrchestrator] 阶段二正播启动失败。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 阶段二正播启动失败。");
             ResetOrchestration();
         }
     }
@@ -241,14 +241,14 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_plateTransitionController == null)
         {
-            Debug.LogError("[PlateToCityOrchestrator] 阶段二倒播完成，但未找到 PlateToGaodeMapTransitionController。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 阶段二倒播完成，但未找到 PlateToGaodeMapTransitionController。");
             ResetOrchestration();
             return;
         }
 
         if (!_plateTransitionController.PlayTransitionReverse(_activeProvinceName))
         {
-            Debug.LogError("[PlateToCityOrchestrator] 阶段一倒播启动失败。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 阶段一倒播启动失败。");
             ResetOrchestration();
         }
     }
@@ -292,7 +292,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_carModelDissolveController == null)
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接完成正播。");
+            LogManager.LogFeatureWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接完成正播。");
             CompleteForwardOrchestration();
             return;
         }
@@ -300,7 +300,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.ForwardEndToKj;
         if (!_carModelDissolveController.SwitchToKjCar())
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] SwitchToKjCar 未启动，直接完成正播。");
+            LogManager.LogFeatureWarning("[PlateToCityOrchestrator] SwitchToKjCar 未启动，直接完成正播。");
             _carPhase = OrchestratorCarPhase.None;
             CompleteForwardOrchestration();
         }
@@ -314,7 +314,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (_carModelDissolveController == null)
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接开始倒播。");
+            LogManager.LogFeatureWarning("[PlateToCityOrchestrator] 未找到 CarModelDissolveController，跳过车辆溶解并直接开始倒播。");
             BeginReverseMapTransitions();
             return;
         }
@@ -322,7 +322,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.ReverseStartToRealy;
         if (!_carModelDissolveController.SwitchToRealyCar())
         {
-            Debug.LogWarning("[PlateToCityOrchestrator] SwitchToRealyCar 未启动，直接开始倒播。");
+            LogManager.LogFeatureWarning("[PlateToCityOrchestrator] SwitchToRealyCar 未启动，直接开始倒播。");
             _carPhase = OrchestratorCarPhase.None;
             BeginReverseMapTransitions();
         }
@@ -342,7 +342,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
 
         if (!started)
         {
-            Debug.LogWarning(forward
+            LogManager.LogFeatureWarning(forward
                 ? "[PlateToCityOrchestrator] PlayHideTransition 未启动，继续等待车辆切换完成。"
                 : "[PlateToCityOrchestrator] PlayHideTransitionReverse 未启动，继续等待车辆切换完成。");
         }
@@ -354,14 +354,14 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         ResolveReferences();
         if (_cityTransitionController == null)
         {
-            Debug.LogError("[PlateToCityOrchestrator] 未找到 GaodeToCityTransitionController，倒播中止。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 未找到 GaodeToCityTransitionController，倒播中止。");
             ResetOrchestration();
             return;
         }
 
         if (!_cityTransitionController.PlayTransitionReverse())
         {
-            Debug.LogError("[PlateToCityOrchestrator] 阶段二倒播启动失败。");
+            LogManager.LogFeatureError("[PlateToCityOrchestrator] 阶段二倒播启动失败。");
             ResetOrchestration();
         }
     }

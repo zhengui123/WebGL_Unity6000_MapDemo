@@ -60,7 +60,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
     {
         if (Instance != null && Instance != this)
         {
-            Debug.LogWarning("[EarthTransition] 场景中存在多个实例，将销毁重复对象。");
+            LogManager.LogFeatureWarning("[EarthTransition] 场景中存在多个实例，将销毁重复对象。");
             Destroy(gameObject);
             return;
         }
@@ -262,7 +262,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
             _foreignPlateMapPositionConfig.TryGetLocalPosition(plateCode, out Vector3 localPosition))
         {
             plateMapObj.transform.localPosition = localPosition;
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[EarthTransition] AllPlateMap 国外配置 | code={plateCode} | local={localPosition}");
             return;
         }
@@ -279,7 +279,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         if (_useManualPlateMapPosition)
         {
             plateMapObj.transform.localPosition = _manualPlateMapLocalPosition;
-            Debug.Log($"[EarthTransition] AllPlateMap 使用手动局部坐标：{_manualPlateMapLocalPosition}");
+            LogManager.LogFeature($"[EarthTransition] AllPlateMap 使用手动局部坐标：{_manualPlateMapLocalPosition}");
             return;
         }
 
@@ -296,7 +296,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
         Vector3 viewCenterWorldPos =
             mainCameraTransform.position + mainCameraTransform.forward * plateMapCenterDistance;
         plateMapObj.transform.position = viewCenterWorldPos;
-        Debug.Log($"{logPrefix}：{viewCenterWorldPos}");
+        LogManager.LogFeature($"{logPrefix}：{viewCenterWorldPos}");
     }
 
     /// <summary>运行时设置 AllPlateMap 手动局部坐标，并开启手动开关（不改旋转/缩放）。</summary>
@@ -382,7 +382,7 @@ public class EarthTransition : UnitySingle<EarthTransition>
 
     private bool CanPlayTransition()
     {
-        Debug.Log("[EarthTransition] CanPlayTransition: " + (mainCameraTransform != null && fogController != null));
+        LogManager.LogFeature("[EarthTransition] CanPlayTransition: " + (mainCameraTransform != null && fogController != null));
         return mainCameraTransform != null && fogController != null;
     }
 

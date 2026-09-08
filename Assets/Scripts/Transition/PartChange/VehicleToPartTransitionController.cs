@@ -155,7 +155,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (_firstTarget == null || _secondTarget == null)
         {
-            Debug.LogError("[VehicleToPart] 未配置第一或第二目标 Transform。");
+            LogManager.LogFeatureError("[VehicleToPart] 未配置第一或第二目标 Transform。");
             return false;
         }
 
@@ -181,14 +181,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (_kjCarRoot == null)
         {
-            Debug.LogError("[VehicleToPart] 未找到 KJ_Car。");
+            LogManager.LogFeatureError("[VehicleToPart] 未找到 KJ_Car。");
             return false;
         }
 
         PrepareKjCarDissolve();
         if (_kjDissolve.MaterialCount == 0)
         {
-            Debug.LogWarning("[VehicleToPart] KJ_Car 未找到带 _DissolveAmount 的材质。");
+            LogManager.LogFeatureWarning("[VehicleToPart] KJ_Car 未找到带 _DissolveAmount 的材质。");
         }
 
         KillSequence();
@@ -229,19 +229,19 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (string.IsNullOrEmpty(partId) || !TryResolvePart(partId, out Transform part))
         {
-            Debug.LogError("[VehicleToPart] 倒播失败：未指定零件ID或找不到对应零件。");
+            LogManager.LogFeatureError("[VehicleToPart] 倒播失败：未指定零件ID或找不到对应零件。");
             return false;
         }
 
         if (_firstTarget == null || _secondTarget == null)
         {
-            Debug.LogError("[VehicleToPart] 未配置第一或第二目标 Transform。");
+            LogManager.LogFeatureError("[VehicleToPart] 未配置第一或第二目标 Transform。");
             return false;
         }
 
         if (!TryGetPartInitialState(part, out PartInitialState initialState))
         {
-            Debug.LogWarning("[VehicleToPart] 未找到零件开局位姿缓存，倒播终点将使用当前位姿。");
+            LogManager.LogFeatureWarning("[VehicleToPart] 未找到零件开局位姿缓存，倒播终点将使用当前位姿。");
             ApplyCachedPoseFromCurrentTransform(part);
         }
         else
@@ -252,7 +252,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveKjCarReference();
         if (_kjCarRoot == null)
         {
-            Debug.LogError("[VehicleToPart] 未找到 KJ_Car。");
+            LogManager.LogFeatureError("[VehicleToPart] 未找到 KJ_Car。");
             return false;
         }
 
@@ -282,7 +282,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         part = null;
         if (_partRoots == null || _partRoots.Count == 0)
         {
-            Debug.LogError("[VehicleToPart] 零件列表为空，请在 Inspector 中挂载。");
+            LogManager.LogFeatureError("[VehicleToPart] 零件列表为空，请在 Inspector 中挂载。");
             return false;
         }
 
@@ -291,7 +291,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
             part = FindFirstValidPart();
             if (part == null)
             {
-                Debug.LogError("[VehicleToPart] 列表中没有有效的零件 Transform。");
+                LogManager.LogFeatureError("[VehicleToPart] 列表中没有有效的零件 Transform。");
             }
 
             return part != null;
@@ -309,7 +309,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
             }
         }
 
-        Debug.LogError($"[VehicleToPart] 未在列表中找到 id 为「{partId}」的零件。");
+        LogManager.LogFeatureError($"[VehicleToPart] 未在列表中找到 id 为「{partId}」的零件。");
         return false;
     }
 
@@ -559,6 +559,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
                 continue;
             }
 
+            // 先写重心网格再隐藏，避免 Prep.Awake 被跳过；首次显示时 fwidth 也不依赖「碰巧先跑」
+            EcuWireframeMeshPrep[] preps = part.GetComponentsInChildren<EcuWireframeMeshPrep>(true);
+            for (int p = 0; p < preps.Length; p++)
+            {
+                if (preps[p] != null)
+                {
+                    preps[p].Prepare();
+                }
+            }
+
             part.gameObject.SetActive(false);
 
             _partInitialStates[part.GetInstanceID()] = new PartInitialState
@@ -566,7 +576,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
                 LocalPosition = part.localPosition,
                 LocalRotation = part.localRotation,
                 LocalScale = part.localScale,
-                IsActive = part.gameObject.activeSelf
+                // 玩法开局统一隐藏（勿在 SetActive(false) 后再读 activeSelf）
+                IsActive = false
             };
         }
     }
@@ -722,7 +733,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         GridLine gridLine = ResolveGridLine();
         if (gridLine == null)
         {
-            Debug.LogWarning("[VehicleToPart] 未找到 GridLine，无法设置零部件显隐。");
+            LogManager.LogFeatureWarning("[VehicleToPart] 未找到 GridLine，无法设置零部件显隐。");
             return;
         }
 
@@ -753,7 +764,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (_firstTarget == null || _secondTarget == null)
         {
-            Debug.LogError("[AttackPathToPart] 未配置第一或第二目标 Transform。");
+            LogManager.LogFeatureError("[AttackPathToPart] 未配置第一或第二目标 Transform。");
             return false;
         }
 
@@ -779,14 +790,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveKjCarReference();
         if (_kjCarRoot == null)
         {
-            Debug.LogError("[VehicleToAttackPath] 未找到 KJ_Car。");
+            LogManager.LogFeatureError("[VehicleToAttackPath] 未找到 KJ_Car。");
             return false;
         }
 
         PrepareKjCarDissolve();
         if (_kjDissolve.MaterialCount == 0)
         {
-            Debug.LogWarning("[VehicleToAttackPath] KJ_Car 未找到带 _DissolveAmount 的材质。");
+            LogManager.LogFeatureWarning("[VehicleToAttackPath] KJ_Car 未找到带 _DissolveAmount 的材质。");
         }
 
         KillSequence();
@@ -818,7 +829,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveKjCarReference();
         if (_kjCarRoot == null)
         {
-            Debug.LogError("[AttackPathToVehicle] 未找到 KJ_Car。");
+            LogManager.LogFeatureError("[AttackPathToVehicle] 未找到 KJ_Car。");
             return false;
         }
 
@@ -847,7 +858,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         controller = ResolveAttackPathController();
         if (controller == null)
         {
-            Debug.LogError("[VehicleToAttackPath] 未配置 AttackPathController。");
+            LogManager.LogFeatureError("[VehicleToAttackPath] 未配置 AttackPathController。");
             return false;
         }
 
@@ -900,7 +911,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
             CarVehicleDataController dataController = CarVehicleDataController.Instance;
             if (dataController == null || !dataController.ApplyAttackPathsFromCacheForTransition())
             {
-                Debug.LogWarning("[VehicleToAttackPath] 无攻击链路缓存或加载失败，跳过连线绘制。");
+                LogManager.LogFeatureWarning("[VehicleToAttackPath] 无攻击链路缓存或加载失败，跳过连线绘制。");
             }
         }
 

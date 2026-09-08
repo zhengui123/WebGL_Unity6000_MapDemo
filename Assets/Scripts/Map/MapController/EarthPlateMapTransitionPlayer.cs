@@ -50,7 +50,7 @@ public class EarthPlateMapTransitionPlayer : MonoBehaviour
 
         if (_config == null)
         {
-            Debug.LogWarning("[过渡] 未找到 EarthPlateTransitionConfig，请执行 Tools/地图/创建过渡动画资源。");
+            LogManager.LogFeatureWarning("[过渡] 未找到 EarthPlateTransitionConfig，请执行 Tools/地图/创建过渡动画资源。");
         }
     }
 

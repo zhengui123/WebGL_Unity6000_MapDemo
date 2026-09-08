@@ -79,7 +79,7 @@ public class MessageListPanelDemo : MonoBehaviour
         MessageListPanel panel = ResolvePanel();
         if (panel == null)
         {
-            Debug.LogWarning("[MessageListPanelDemo] 未找到 MessageListPanel，请拖入引用或挂到 CarImg 上。");
+            LogManager.LogFeatureWarning("[MessageListPanelDemo] 未找到 MessageListPanel，请拖入引用或挂到 CarImg 上。");
             return;
         }
 
@@ -88,7 +88,7 @@ public class MessageListPanelDemo : MonoBehaviour
             : SampleUnprotectedEvents;
 
         panel.SetMessageList(_title, _protectionState, events);
-        Debug.Log($"[MessageListPanelDemo] 已刷新：{_title} / {_protectionState} / 事件数 {events.Count}（最多显示 {MessageListPanel.MaxMessageCount} 条）。");
+        LogManager.LogFeature($"[MessageListPanelDemo] 已刷新：{_title} / {_protectionState} / 事件数 {events.Count}（最多显示 {MessageListPanel.MaxMessageCount} 条）。");
     }
 
     [ContextMenu("切换防护状态并刷新")]

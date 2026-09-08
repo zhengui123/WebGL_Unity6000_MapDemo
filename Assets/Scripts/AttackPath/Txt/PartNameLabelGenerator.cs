@@ -51,7 +51,7 @@ public class PartNameLabelGenerator : MonoBehaviour
             created++;
         }
 
-        Debug.Log($"[PartNameLabelGenerator] 已重置并生成 {created} 个标签。");
+        LogManager.LogFeature($"[PartNameLabelGenerator] 已重置并生成 {created} 个标签。");
     }
 
     /// <summary>删除已生成的标签组件与 PartNameLabel 子物体。</summary>
@@ -110,7 +110,7 @@ public class PartNameLabelGenerator : MonoBehaviour
             updated++;
         }
 
-        Debug.Log($"[PartNameLabelGenerator] 已更新 {updated} 个标签样式。");
+        LogManager.LogFeature($"[PartNameLabelGenerator] 已更新 {updated} 个标签样式。");
     }
 
     private void ClearLabelsInternal(bool log)
@@ -170,7 +170,7 @@ public class PartNameLabelGenerator : MonoBehaviour
 
         if (log)
         {
-            Debug.Log($"[PartNameLabelGenerator] 已删除 {removed} 个标签组件。");
+            LogManager.LogFeature($"[PartNameLabelGenerator] 已删除 {removed} 个标签组件。");
         }
     }
 

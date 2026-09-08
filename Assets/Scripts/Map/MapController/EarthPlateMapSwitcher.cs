@@ -147,7 +147,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
     private void HandleArrivedChina(double longitude, double latitude)
     {
         SwitchToPlateMap();
-        Debug.Log(
+        LogManager.LogFeature(
             $"[EarthPlateMapSwitcher] 到达中国 ({longitude:F2}, {latitude:F2})，切换板块（过渡: {_earthToPlateTransition}）。");
     }
 
@@ -168,7 +168,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
         }
 
         ShowEarthHidePlate();
-        Debug.Log(
+        LogManager.LogFeature(
             $"[EarthPlateMapSwitcher] 相机距离 {cameraLocalY:F0} 大于 {_restoreEarthMaxCameraLocalY:F0}，已还原地球显示。");
         OnRestoredEarthByCameraDistance?.Invoke();
     }
@@ -180,7 +180,7 @@ public class EarthPlateMapSwitcher : MonoBehaviour
     {
         if (_plateMapRoot == null)
         {
-            Debug.LogWarning("[EarthPlateMapSwitcher] 未指定板块地图根节点。");
+            LogManager.LogFeatureWarning("[EarthPlateMapSwitcher] 未指定板块地图根节点。");
             return;
         }
 

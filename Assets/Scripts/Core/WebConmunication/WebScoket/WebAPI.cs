@@ -8,11 +8,11 @@ public class WebAPI : UnitySingle<WebAPI>
 
     public void GoNext()
     {
-        Debug.Log("GoNext");
+        LogManager.LogHost("GoNext");
     }
     
     public void GoLeft()
     {
-        Debug.Log("GoLeft");
+        LogManager.LogHost("GoLeft");
     }
 }

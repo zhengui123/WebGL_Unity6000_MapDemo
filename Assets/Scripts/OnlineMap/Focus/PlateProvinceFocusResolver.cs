@@ -71,13 +71,13 @@ public static class PlateProvinceFocusResolver
         if (string.IsNullOrWhiteSpace(name) &&
             !TryResolveUnitDisplayName(normalized, out name))
         {
-            Debug.LogWarning($"[PlateProvinceFocusResolver] 缓存失败：code={normalized} 无法解析显示名。");
+            LogManager.LogFeatureWarning($"[PlateProvinceFocusResolver] 缓存失败：code={normalized} 无法解析显示名。");
             return false;
         }
 
         _cachedProvinceCode = normalized;
         _cachedProvinceName = name.Trim();
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateProvinceFocusResolver] 已缓存省级 | code={_cachedProvinceCode} | name={_cachedProvinceName}");
         return true;
     }
@@ -130,7 +130,7 @@ public static class PlateProvinceFocusResolver
             return;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateProvinceFocusResolver] 清空省级缓存 | was code={_cachedProvinceCode} name={_cachedProvinceName}");
         _cachedProvinceCode = null;
         _cachedProvinceName = null;

@@ -107,13 +107,13 @@ public class DemoAndroidBridgeApiUIDemo : MonoBehaviour
     {
         if (_yawAngleInput == null || string.IsNullOrWhiteSpace(_yawAngleInput.text))
         {
-            Debug.LogWarning("[DemoAndroidBridgeApiUIDemo] 请输入 Yaw 角度。");
+            LogManager.LogFeatureWarning("[DemoAndroidBridgeApiUIDemo] 请输入 Yaw 角度。");
             return;
         }
 
         if (!float.TryParse(_yawAngleInput.text.Trim(), out float yawAngle))
         {
-            Debug.LogWarning($"[DemoAndroidBridgeApiUIDemo] 无效角度: {_yawAngleInput.text}");
+            LogManager.LogFeatureWarning($"[DemoAndroidBridgeApiUIDemo] 无效角度: {_yawAngleInput.text}");
             return;
         }
 
@@ -125,7 +125,7 @@ public class DemoAndroidBridgeApiUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoAndroidBridgeApiUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoAndroidBridgeApiUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -142,7 +142,7 @@ public class DemoAndroidBridgeApiUIDemo : MonoBehaviour
     {
         if (AndroidMessage.Instance == null)
         {
-            Debug.LogWarning("[DemoAndroidBridgeApiUIDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
+            LogManager.LogFeatureWarning("[DemoAndroidBridgeApiUIDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
             return;
         }
 
@@ -151,7 +151,7 @@ public class DemoAndroidBridgeApiUIDemo : MonoBehaviour
             yawAngle = yawAngle,
             instant = false,
         });
-        Debug.Log($"[DemoAndroidBridgeApiUIDemo] 模拟 Android 调用 SetCarYawRotation: {json}");
+        LogManager.LogFeature($"[DemoAndroidBridgeApiUIDemo] 模拟 Android 调用 SetCarYawRotation: {json}");
         AndroidMessage.Instance.SetCarYawRotation(json);
     }
 

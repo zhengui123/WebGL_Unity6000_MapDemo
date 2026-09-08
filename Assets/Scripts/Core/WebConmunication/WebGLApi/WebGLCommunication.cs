@@ -21,12 +21,12 @@ public class WebGLCommunication : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            Debug.Log("unity发出消息之前");
+            LogManager.LogHost("unity发出消息之前");
             GetDataFromHTML("unity发出消息");
         }
         if (Input.GetKeyDown(KeyCode.W))
         {
-            Debug.Log("unity发出消息01--之前");
+            LogManager.LogHost("unity发出消息01--之前");
             CallUnityFunction("unity发出消息01--", nameof(CallbackTest));
         }
 
@@ -34,7 +34,7 @@ public class WebGLCommunication : MonoBehaviour
 
     public void CallbackTest(string msg) 
     {
-        Debug.Log("Unity输出返回结果：" + msg);
+        LogManager.LogHost("Unity输出返回结果：" + msg);
     }
 #endif
 }

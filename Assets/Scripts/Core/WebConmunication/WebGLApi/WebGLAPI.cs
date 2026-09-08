@@ -27,9 +27,6 @@ public class WebGLAPI : MonoBehaviour
     [Header("Demo（可选）")]
     [SerializeField] private Text showMessageText;
 
-    [Header("通信日志")]
-    [SerializeField] private bool _enableCommunicationLog = true;
-
     [SerializeField] private string lastHostMessage = "";
 
     public string LastHostMessage => lastHostMessage;
@@ -96,18 +93,14 @@ public class WebGLAPI : MonoBehaviour
 
     private void LogCommunication(string direction, string method, string payload)
     {
-        if (!_enableCommunicationLog)
-        {
-            return;
-        }
-
+        // 受 LogManager「Web/Android 交互」开关控制
         if (string.IsNullOrEmpty(payload))
         {
-            Debug.Log($"[WebGLAPI] {direction} | {method}");
+            LogManager.LogHost($"[WebGLAPI] {direction} | {method}");
             return;
         }
 
-        Debug.Log($"[WebGLAPI] {direction} | {method} | {payload}");
+        LogManager.LogHost($"[WebGLAPI] {direction} | {method} | {payload}");
     }
 
     private void OnEnable()
@@ -222,7 +215,7 @@ public class WebGLAPI : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.LogError($"[WebGLAPI] {method} failed: {e}");
+            LogManager.LogHostError($"[WebGLAPI] {method} failed: {e}");
         }
 #endif
     }
@@ -516,7 +509,7 @@ public class WebGLAPI : MonoBehaviour
             return true;
         }
 
-        Debug.LogWarning($"[WebGLAPI] {callerName}: 无效的 controlState={controlState}，有效范围为 0~5。");
+        LogManager.LogHostWarning($"[WebGLAPI] {callerName}: 无效的 controlState={controlState}，有效范围为 0~5。");
         return false;
     }
 
@@ -559,7 +552,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] TransitionToControlState: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] TransitionToControlState: JSON 为空。");
             return;
         }
 
@@ -572,7 +565,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!ok)
         {
-            Debug.LogWarning($"[WebGLAPI] TransitionToControlState 启动失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] TransitionToControlState 启动失败: {json}");
             return;
         }
 
@@ -586,7 +579,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.TransitionToNextControlState())
         {
-            Debug.LogWarning("[WebGLAPI] TransitionToNextControlState 启动失败。");
+            LogManager.LogHostWarning("[WebGLAPI] TransitionToNextControlState 启动失败。");
             return;
         }
 
@@ -600,7 +593,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.TransitionToPreviousControlState())
         {
-            Debug.LogWarning("[WebGLAPI] TransitionToPreviousControlState 启动失败。");
+            LogManager.LogHostWarning("[WebGLAPI] TransitionToPreviousControlState 启动失败。");
             return;
         }
 
@@ -615,14 +608,14 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] SetBigScreenAutoCarouselEnabled: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] SetBigScreenAutoCarouselEnabled: JSON 为空。");
             return;
         }
 
         BigScreenAutoCarouselRequest request = JsonUtility.FromJson<BigScreenAutoCarouselRequest>(json);
         if (!MapApi.Instance.SetBigScreenAutoCarouselEnabled(request.enabled))
         {
-            Debug.LogWarning($"[WebGLAPI] SetBigScreenAutoCarouselEnabled 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] SetBigScreenAutoCarouselEnabled 失败: {json}");
             return;
         }
 
@@ -637,7 +630,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.PauseGame())
         {
-            Debug.LogWarning("[WebGLAPI] PauseGame 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] PauseGame 失败。");
             return;
         }
 
@@ -652,7 +645,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.ResumeGame())
         {
-            Debug.LogWarning("[WebGLAPI] ResumeGame 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] ResumeGame 失败。");
             return;
         }
 
@@ -668,7 +661,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.ExitThreatDrill())
         {
-            Debug.LogWarning("[WebGLAPI] ExitThreatDrill 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] ExitThreatDrill 失败。");
             return;
         }
 
@@ -684,7 +677,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.RefreshThreatCooldown())
         {
-            Debug.LogWarning("[WebGLAPI] RefreshThreatCooldown 失败（可能未在冷却中）。");
+            LogManager.LogHostWarning("[WebGLAPI] RefreshThreatCooldown 失败（可能未在冷却中）。");
             return;
         }
 
@@ -700,7 +693,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.StartThreatHighRiskPolling())
         {
-            Debug.LogWarning("[WebGLAPI] StartThreatHighRiskPolling 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] StartThreatHighRiskPolling 失败。");
             return;
         }
 
@@ -716,7 +709,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.StopThreatHighRiskPolling())
         {
-            Debug.LogWarning("[WebGLAPI] StopThreatHighRiskPolling 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] StopThreatHighRiskPolling 失败。");
             return;
         }
 
@@ -734,7 +727,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] SetWorldMapRegionDefaults: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] SetWorldMapRegionDefaults: JSON 为空。");
             return;
         }
 
@@ -744,7 +737,7 @@ public class WebGLAPI : MonoBehaviour
         bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode);
         if (!ok)
         {
-            Debug.LogWarning($"[WebGLAPI] SetWorldMapRegionDefaults 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] SetWorldMapRegionDefaults 失败: {json}");
             return;
         }
 
@@ -763,14 +756,14 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] SetHttpRequestHeaders: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] SetHttpRequestHeaders: JSON 为空。");
             return;
         }
 
         SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
         if (!MapApi.Instance.SetHttpRequestHeaders(request.headers, request.apiHost, request.appSecret))
         {
-            Debug.LogWarning($"[WebGLAPI] SetHttpRequestHeaders 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] SetHttpRequestHeaders 失败: {json}");
             return;
         }
 
@@ -785,7 +778,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.CloseCarVehicleDataUi())
         {
-            Debug.LogWarning("[WebGLAPI] CloseCarUI 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] CloseCarUI 失败。");
             return;
         }
 
@@ -800,7 +793,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.CloseGJPanel())
         {
-            Debug.LogWarning("[WebGLAPI] CloseGJPanel 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] CloseGJPanel 失败。");
             return;
         }
 
@@ -818,7 +811,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
             return;
         }
 
@@ -826,7 +819,7 @@ public class WebGLAPI : MonoBehaviour
             JsonUtility.FromJson<VehicleHeatmapSpecifiedTimePollingRequest>(json);
         if (!MapApi.Instance.StartVehicleHeatmapSpecifiedTimePolling(request.startTime, request.endTime))
         {
-            Debug.LogWarning($"[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
             return;
         }
 
@@ -844,7 +837,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.StopVehicleHeatmapSpecifiedTimePolling())
         {
-            Debug.LogWarning("[WebGLAPI] StopVehicleHeatmapSpecifiedTimePolling 失败。");
+            LogManager.LogHostWarning("[WebGLAPI] StopVehicleHeatmapSpecifiedTimePolling 失败。");
             return;
         }
 
@@ -874,7 +867,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (!MapApi.Instance.RequestVehicleHeatmapOnce(startTime, endTime, isReplay))
         {
-            Debug.LogWarning($"[WebGLAPI] RequestVehicleHeatmapOnce 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] RequestVehicleHeatmapOnce 失败: {json}");
             return;
         }
 
@@ -898,7 +891,7 @@ public class WebGLAPI : MonoBehaviour
         {
             if (!MapApi.Instance.RequestCarVehicleData())
             {
-                Debug.LogWarning("[WebGLAPI] RequestCarVehicleData 失败（默认参数）。");
+                LogManager.LogHostWarning("[WebGLAPI] RequestCarVehicleData 失败（默认参数）。");
                 return;
             }
 
@@ -909,13 +902,13 @@ public class WebGLAPI : MonoBehaviour
         PartProtectionStatusRequest request = JsonUtility.FromJson<PartProtectionStatusRequest>(json);
         if (request == null)
         {
-            Debug.LogWarning($"[WebGLAPI] RequestCarVehicleData: JSON 解析失败 | {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] RequestCarVehicleData: JSON 解析失败 | {json}");
             return;
         }
 
         if (!MapApi.Instance.RequestCarVehicleData(request.encryptVin, request.startTime, request.endTime))
         {
-            Debug.LogWarning($"[WebGLAPI] RequestCarVehicleData 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] RequestCarVehicleData 失败: {json}");
             return;
         }
 
@@ -939,7 +932,7 @@ public class WebGLAPI : MonoBehaviour
         {
             if (!MapApi.Instance.RequestSecurityEventDetail())
             {
-                Debug.LogWarning("[WebGLAPI] RequestSecurityEventDetail 失败（默认参数）。");
+                LogManager.LogHostWarning("[WebGLAPI] RequestSecurityEventDetail 失败（默认参数）。");
                 return;
             }
 
@@ -950,7 +943,7 @@ public class WebGLAPI : MonoBehaviour
         SecurityEventDetailRequest request = JsonUtility.FromJson<SecurityEventDetailRequest>(json);
         if (request == null)
         {
-            Debug.LogWarning($"[WebGLAPI] RequestSecurityEventDetail: JSON 解析失败 | {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] RequestSecurityEventDetail: JSON 解析失败 | {json}");
             return;
         }
 
@@ -960,7 +953,7 @@ public class WebGLAPI : MonoBehaviour
                 request.processEndTime,
                 request.tenantId))
         {
-            Debug.LogWarning($"[WebGLAPI] RequestSecurityEventDetail 失败: {json}");
+            LogManager.LogHostWarning($"[WebGLAPI] RequestSecurityEventDetail 失败: {json}");
             return;
         }
 
@@ -981,13 +974,13 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[WebGLAPI] SetCarYawRotation: JSON 为空。");
+            LogManager.LogHostWarning("[WebGLAPI] SetCarYawRotation: JSON 为空。");
             return;
         }
 
         if (!TryResolveCarYawRotate())
         {
-            Debug.LogWarning("[WebGLAPI] SetCarYawRotation 失败：未找到车辆旋转控制器。");
+            LogManager.LogHostWarning("[WebGLAPI] SetCarYawRotation 失败：未找到车辆旋转控制器。");
             return;
         }
 

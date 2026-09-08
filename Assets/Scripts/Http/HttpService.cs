@@ -177,7 +177,7 @@ public class HttpService : UnitySingle<HttpService>
 
         int queueLen = _pendingJobs.Count;
         int queuePosition = queueLen;
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HttpService] 入队 | 在途={activeBefore} | 排队总长={queueLen} | 本请求排队位置={queuePosition} | 并行上限={MaxConcurrent}");
 
         TryStartPendingJobs();

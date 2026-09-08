@@ -20,7 +20,7 @@ public class WebSocketDemo : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Q))
         {
-            Debug.Log(Application.platform);
+            LogManager.LogHost(Application.platform.ToString());
             if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 SendCustomMessage(WebSocketDataType.Txt,"这里是纯文本格式");
@@ -29,7 +29,7 @@ public class WebSocketDemo : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Debug.Log("当前平台" + Application.platform);
+            LogManager.LogHost("当前平台" + Application.platform);
             if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.WindowsPlayer)
             {
                 //WebSocketController.Instance.SendWebScoketOnlyJson(WebSocketDataType.Txt,"这里是Windos版本");

@@ -10,14 +10,14 @@ public class ChangeSceneDemo : MonoBehaviour
 
     private void Start()
     {
-        // Debug.Log("[ChangeSceneDemo] Awake");
+        // LogManager.LogFeature("[ChangeSceneDemo] Awake");
         // if (_instance != null && _instance != this)
         // {
-        //     Debug.Log("[ChangeSceneDemo] Destroy duplicate instance");
+        //     LogManager.LogFeature("[ChangeSceneDemo] Destroy duplicate instance");
         //     Destroy(gameObject);
         //     return;
         // }
-        Debug.Log("[ChangeSceneDemo] Set instance");
+        LogManager.LogFeature("[ChangeSceneDemo] Set instance");
         _instance = this;
         DontDestroyOnLoad(gameObject);
     }

@@ -21,15 +21,15 @@ public class WebSocketProcessing : MonoBehaviour
     {
         try
         {
-            Debug.Log("websocket接收消息--开头");
+            LogManager.LogHost("websocket接收消息--开头");
 
             WebSocketData data = JsonMapper.ToObject<WebSocketData>(msg);
-            Debug.Log("websocket接收消息-head-" + data.head);
-            Debug.Log("websocket接收消息-userId-" + data.userId);
-            Debug.Log("websocket接收消息-jsonType-" + data.jsonType);
+            LogManager.LogHost("websocket接收消息-head-" + data.head);
+            LogManager.LogHost("websocket接收消息-userId-" + data.userId);
+            LogManager.LogHost("websocket接收消息-jsonType-" + data.jsonType);
 
-            Debug.Log("websocket接收消息-json-" + data.json);
-            Debug.Log("websocket接收消息--结尾");
+            LogManager.LogHost("websocket接收消息-json-" + data.json);
+            LogManager.LogHost("websocket接收消息--结尾");
 
             if (data.head != "Unity")
             {
@@ -43,7 +43,7 @@ public class WebSocketProcessing : MonoBehaviour
             switch (data.jsonType)
             {
                 case WebSocketDataType.Method:
-                    Debug.Log("websocket接受方法调用：" + data.json);
+                    LogManager.LogHost("websocket接受方法调用：" + data.json);
 
                     Type type = typeof(WebAPI);
                     
@@ -53,13 +53,13 @@ public class WebSocketProcessing : MonoBehaviour
                     
                     break;
                 case WebSocketDataType.Txt:
-                    Debug.Log("websocket接受文本消息：" + data.json);
+                    LogManager.LogHost("websocket接受文本消息：" + data.json);
                     break;
             }
         }
         catch (Exception e)
         {
-            Debug.Log("websocket接收消息不符合Unity自定义结构--" + e);
+            LogManager.LogHost("websocket接收消息不符合Unity自定义结构--" + e);
         }
     }
 

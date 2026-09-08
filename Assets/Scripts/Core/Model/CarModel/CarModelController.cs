@@ -30,7 +30,7 @@ public class CarModelController : MonoBehaviour
     public void OnPlateToVehicleViewTransitionStarted(string provinceName)
     {
         showStandObj.SetActive(false);
-        Debug.Log("车辆板块开始进入");
+        LogManager.LogFeature("车辆板块开始进入");
         carModelRotateController.ResetRotation();
         carModelRotateController.SetDragEnabled(false);
     }
@@ -40,7 +40,7 @@ public class CarModelController : MonoBehaviour
     /// </summary>
     public void OnPlateToVehicleViewTransitionCompleted(string provinceName)
     {
-        Debug.Log("车辆板块进入完成");
+        LogManager.LogFeature("车辆板块进入完成");
 
         showStandObj.SetActive(true);
         carModelRotateController.SetDragEnabled(true);
@@ -51,7 +51,7 @@ public class CarModelController : MonoBehaviour
     /// </summary>
     public void OnVehicleToPlateViewTransitionStarted(string provinceName)
     {
-        Debug.Log("车辆板块开始退出");
+        LogManager.LogFeature("车辆板块开始退出");
         showStandObj.SetActive(false);
         carModelRotateController.SetDragEnabled(false);
 

@@ -156,7 +156,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         MapApi mapApi = MapApi.Instance;
         if (mapApi == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
             return;
         }
 
@@ -168,7 +168,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         MapApi mapApi = MapApi.Instance;
         if (mapApi == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
             return;
         }
 
@@ -180,14 +180,14 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         MapApi mapApi = MapApi.Instance;
         if (mapApi == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
             return;
         }
 
         ApplyDelayedStartSecondsFromInput();
         if (!mapApi.SetBigScreenAutoCarouselEnabled(true, bypassDelayedStart: true))
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 立即开启自动轮播失败。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 立即开启自动轮播失败。");
         }
     }
 
@@ -195,7 +195,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
     {
         if (!TrySetCarouselEnabled(false))
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 关闭自动轮播失败。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 关闭自动轮播失败。");
         }
     }
 
@@ -204,11 +204,11 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         MapApi mapApi = MapApi.Instance;
         if (mapApi == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
             return;
         }
 
-        Debug.Log("[DemoBigScreenCarouselUIDemo] 模拟 WebGL 宿主通信。");
+        LogManager.LogFeature("[DemoBigScreenCarouselUIDemo] 模拟 WebGL 宿主通信。");
         mapApi.NotifyBigScreenHostCommunication();
     }
 
@@ -217,7 +217,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -247,7 +247,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
 
         if (!float.TryParse(_delayedStartInput.text.Trim(), out float delaySeconds))
         {
-            Debug.LogWarning($"[DemoBigScreenCarouselUIDemo] 无效延时秒数: {_delayedStartInput.text}");
+            LogManager.LogFeatureWarning($"[DemoBigScreenCarouselUIDemo] 无效延时秒数: {_delayedStartInput.text}");
             return -1f;
         }
 
@@ -259,7 +259,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         GameManager manager = GameManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 GameManager。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 GameManager。");
             return;
         }
 
@@ -271,7 +271,7 @@ public class DemoBigScreenCarouselUIDemo : MonoBehaviour
         MapApi mapApi = MapApi.Instance;
         if (mapApi == null)
         {
-            Debug.LogWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[DemoBigScreenCarouselUIDemo] 未找到 MapApi。");
             return false;
         }
 

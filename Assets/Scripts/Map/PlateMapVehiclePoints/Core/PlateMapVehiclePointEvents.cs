@@ -305,7 +305,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
         string plateMapName = ResolvePlateMapNameByProvinceCode(provinceCode);
         if (string.IsNullOrWhiteSpace(plateMapName))
         {
-            Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册 provinceCode={provinceCode} 的场景板块。");
+            LogManager.LogFeatureWarning($"[PlateMapVehiclePointEvents] 未注册 provinceCode={provinceCode} 的场景板块。");
             return false;
         }
 
@@ -453,7 +453,7 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     {
         if (!TryGetHandlers(plateMapName, out PlateHandlers handlers) || handlers.RefreshVehiclePointsDisplay == null)
         {
-            // Debug.LogWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 RefreshVehiclePointsDisplay。");
+            // LogManager.LogFeatureWarning($"[PlateMapVehiclePointEvents] 未注册板块「{plateMapName}」的 RefreshVehiclePointsDisplay。");
             return false;
         }
 

@@ -216,21 +216,21 @@ public class AttackPathController : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(startPartName) || string.IsNullOrWhiteSpace(endPartName))
         {
-            Debug.LogWarning("[AttackPathController] Add 失败：起点或终点零件名为空。");
+            LogManager.LogFeatureWarning("[AttackPathController] Add 失败：起点或终点零件名为空。");
             return false;
         }
 
         GridLine gridLine = ResolveGridLine();
         if (gridLine == null)
         {
-            Debug.LogError("[AttackPathController] Add 失败：未找到 GridLine。");
+            LogManager.LogFeatureError("[AttackPathController] Add 失败：未找到 GridLine。");
             return false;
         }
 
         if (!gridLine.TryGetPartTransform(startPartName.Trim(), out Transform startPart)
             || !gridLine.TryGetPartTransform(endPartName.Trim(), out Transform endPart))
         {
-            Debug.LogError($"[AttackPathController] Add 失败：未找到零件 Transform（{startPartName} → {endPartName}）。");
+            LogManager.LogFeatureError($"[AttackPathController] Add 失败：未找到零件 Transform（{startPartName} → {endPartName}）。");
             return false;
         }
 
@@ -432,7 +432,7 @@ public class AttackPathController : MonoBehaviour
 
     private void ConfigureLineRenderer(LineInstance instance, IReadOnlyList<Vector3> localPath)
     {
-        Debug.Log("-----------!!!!!!!!!!!!");
+        LogManager.LogFeature("-----------!!!!!!!!!!!!");
         LineRenderer lineRenderer = instance.LineRenderer;
         lineRenderer.useWorldSpace = false;
         lineRenderer.textureMode = LineTextureMode.Stretch;
@@ -479,7 +479,7 @@ public class AttackPathController : MonoBehaviour
     {
         if (_lineTransform == null)
         {
-            Debug.LogError("[AttackPathController] 未配置 _lineTransform 模板。");
+            LogManager.LogFeatureError("[AttackPathController] 未配置 _lineTransform 模板。");
             return null;
         }
 
@@ -514,7 +514,7 @@ public class AttackPathController : MonoBehaviour
         LineRenderer lineRenderer = lineObject.GetComponent<LineRenderer>();
         if (lineRenderer == null)
         {
-            Debug.LogError("[AttackPathController] AttackPathLine 缺少 LineRenderer 组件。");
+            LogManager.LogFeatureError("[AttackPathController] AttackPathLine 缺少 LineRenderer 组件。");
             return null;
         }
 

@@ -66,14 +66,14 @@ public class ControlStatePreviousLevelUIDemo : MonoBehaviour
             ControlStateHierarchyInputNavigation.FindFromTransitionController();
         if (navigation == null)
         {
-            Debug.LogWarning("[ControlStatePreviousLevelUIDemo] 未找到 ControlStateHierarchyInputNavigation。");
+            LogManager.LogFeatureWarning("[ControlStatePreviousLevelUIDemo] 未找到 ControlStateHierarchyInputNavigation。");
             return;
         }
 
         bool useInstant = _instantTransitionToggle != null && _instantTransitionToggle.isOn;
         if (!navigation.TryTransitionToPreviousLevel(useInstant))
         {
-            Debug.LogWarning("[ControlStatePreviousLevelUIDemo] 返回上一级未能启动。");
+            LogManager.LogFeatureWarning("[ControlStatePreviousLevelUIDemo] 返回上一级未能启动。");
         }
     }
 
@@ -82,7 +82,7 @@ public class ControlStatePreviousLevelUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[ControlStatePreviousLevelUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[ControlStatePreviousLevelUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

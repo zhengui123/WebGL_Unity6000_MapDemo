@@ -113,11 +113,11 @@ public class LatestVinLocationApiMockTest : MonoBehaviour
     {
         if (!VehicleHeatmapApi.TryApplySuccessfulResponseFromJson(_responseJson, _provinceCode, out string error))
         {
-            Debug.LogError($"[LatestVinLocationApiMockTest] 模拟失败：{error}");
+            LogManager.LogFeatureError($"[LatestVinLocationApiMockTest] 模拟失败：{error}");
             return;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[LatestVinLocationApiMockTest] 已应用模拟热力点（按 data[].c 分省）");
     }
 

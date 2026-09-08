@@ -125,7 +125,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
         if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceCode, out string normalized) ||
             normalized == PlateMapBoundaryDatabase.NationalProvinceCode)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[CarHotManager] 省级热力图 provinceCode 无效：{provinceCode}，回退全国。");
             EnterNationalHeatmap();
             return;
@@ -150,7 +150,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
         VehicleHeatmapApiController api = VehicleHeatmapApiController.Instance;
         if (api == null)
         {
-            Debug.LogWarning("[CarHotManager] VehicleHeatmapApiController 未找到。");
+            LogManager.LogFeatureWarning("[CarHotManager] VehicleHeatmapApiController 未找到。");
             return;
         }
 
@@ -257,7 +257,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
         PlateMapGeoConverter geo = FindGeoConverterForModuleName(moduleName);
         if (geo == null)
         {
-            Debug.LogWarning($"[CarHotManager] 无法从模块「{moduleName}」解析 provinceCode。");
+            LogManager.LogFeatureWarning($"[CarHotManager] 无法从模块「{moduleName}」解析 provinceCode。");
             return PlateMapBoundaryDatabase.NationalProvinceCode;
         }
 
@@ -323,7 +323,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
     {
         if (_logStateChanges)
         {
-            Debug.Log($"[CarHotManager] {message}");
+            LogManager.LogFeature($"[CarHotManager] {message}");
         }
     }
 }

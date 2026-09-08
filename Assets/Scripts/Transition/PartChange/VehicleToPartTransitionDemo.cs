@@ -36,7 +36,7 @@ public class VehicleToPartTransitionDemo : MonoBehaviour
 
             if (started)
             {
-                Debug.Log($"[VehicleToPartDemo] 正播：{(string.IsNullOrEmpty(partId) ? "列表默认第一项" : partId)}");
+                LogManager.LogFeature($"[VehicleToPartDemo] 正播：{(string.IsNullOrEmpty(partId) ? "列表默认第一项" : partId)}");
             }
         }
         else if (Input.GetKeyDown(_reverseKey))
@@ -44,7 +44,7 @@ public class VehicleToPartTransitionDemo : MonoBehaviour
             bool started = controller.PlayTransitionReverse();
             if (started)
             {
-                Debug.Log($"[VehicleToPartDemo] 倒播：{controller.LastPartName}");
+                LogManager.LogFeature($"[VehicleToPartDemo] 倒播：{controller.LastPartName}");
             }
         }
     }

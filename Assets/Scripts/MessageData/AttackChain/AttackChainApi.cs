@@ -47,7 +47,7 @@ public static class AttackChainApi
         }
 
         string url = BuildRequestUrl();
-        Debug.Log(
+        LogManager.LogBackend(
             $"[AttackChainApi] POST {url} | encryptVin={requestBody.encryptVin} | " +
             $"startTime={requestBody.startTime} | endTime={requestBody.endTime}");
 
@@ -109,11 +109,11 @@ public static class AttackChainApi
     {
         if (response?.data == null)
         {
-            Debug.Log("[AttackChainApi] 业务成功，data 为空。");
+            LogManager.LogBackend("[AttackChainApi] 业务成功，data 为空。");
             return;
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[AttackChainApi] 业务成功 | nodes={response.data.NodeCount} | links={response.data.LinkCount}");
     }
 
@@ -121,24 +121,24 @@ public static class AttackChainApi
     {
         if (result == null)
         {
-            Debug.LogWarning("[AttackChainApi] 请求结果为空。");
+            LogManager.LogBackendWarning("[AttackChainApi] 请求结果为空。");
             return;
         }
 
         string body = string.IsNullOrEmpty(result.RawBody) ? "(空)" : result.RawBody;
         if (result.IsCancelled)
         {
-            Debug.Log("[AttackChainApi] 请求已取消。");
+            LogManager.LogBackend("[AttackChainApi] 请求已取消。");
             return;
         }
 
         if (result.IsSuccess)
         {
-            Debug.Log($"[AttackChainApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
+            LogManager.LogBackend($"[AttackChainApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
             return;
         }
 
-        Debug.LogWarning(
+        LogManager.LogBackendWarning(
             $"[AttackChainApi] 请求失败，状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{body}");
     }
 }

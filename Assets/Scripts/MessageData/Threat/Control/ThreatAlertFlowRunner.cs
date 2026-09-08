@@ -147,7 +147,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (IsInInterruptCooldown)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ThreatAlertFlowRunner] 威胁冷却中，拒绝启动流程 | 剩余={_interruptCooldownRemaining:F0}s");
             return false;
         }
@@ -155,7 +155,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         bool interruptedCarousel = TryStopAutoCarouselForThreatDrill(out string carouselMode);
         if (interruptedCarousel)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 已停止自动轮播（{carouselMode}），威胁下钻从全国开始。");
         }
 
@@ -164,7 +164,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             : GameManager.ControlState.CountryLevel;
         if (startState != GameManager.ControlState.CountryLevel)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 当前为 {startState}，将先瞬时回国家级再从头下钻。");
         }
 
@@ -295,7 +295,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         // 退出打断不改 ControlState，保持当前级别。
         StartInterruptCooldown();
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner] 已退出威胁下钻 | wasRunning={wasRunning} | " +
             $"control={GameManager.Instance?.CurrentState} | 冷却={_interruptCooldownSeconds:F0}s");
         return true;
@@ -308,12 +308,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         if (!IsInInterruptCooldown)
         {
-            Debug.LogWarning("[ThreatAlertFlowRunner] 当前不在威胁冷却中，忽略刷新冷却。");
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] 当前不在威胁冷却中，忽略刷新冷却。");
             return false;
         }
 
         StartInterruptCooldown();
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner] 已刷新威胁冷却 | {_interruptCooldownSeconds:F0}s");
         return true;
     }
@@ -344,7 +344,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 ApplyCountryStageVisuals(qualified);
                 if (qualified == null || qualified.Count == 0)
                 {
-                    Debug.Log("[ThreatAlertFlowRunner] 数据刷新后无达标省，跳过国家停留剩余时间。");
+                    LogManager.LogFeature("[ThreatAlertFlowRunner] 数据刷新后无达标省，跳过国家停留剩余时间。");
                     _skipCurrentHold = true;
                 }
 
@@ -367,11 +367,11 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             }
             case ThreatVisualStage.PartHold:
             {
-                Debug.Log("[ThreatAlertFlowRunner] 零件级停留中收到新数据，保持当前零件展示。");
+                LogManager.LogFeature("[ThreatAlertFlowRunner] 零件级停留中收到新数据，保持当前零件展示。");
                 break;
             }
             default:
-                Debug.Log("[ThreatAlertFlowRunner] 过渡动画中收到新数据，待当前步骤完成后使用最新缓存。");
+                LogManager.LogFeature("[ThreatAlertFlowRunner] 过渡动画中收到新数据，待当前步骤完成后使用最新缓存。");
                 break;
         }
     }
@@ -426,7 +426,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         float total = Mathf.Max(0.1f, _interruptCooldownSeconds);
         _interruptCooldownRemaining = total;
-        Debug.Log($"[ThreatAlertFlowRunner] 威胁冷却开始 | {total:F0}s（期间不检测）");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 威胁冷却开始 | {total:F0}s（期间不检测）");
 
         while (_interruptCooldownRemaining > 0f)
         {
@@ -436,7 +436,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _interruptCooldownRemaining = 0f;
         _interruptCooldownRoutine = null;
-        Debug.Log("[ThreatAlertFlowRunner] 威胁冷却结束，交由轮询控制器先请求接口再评估。");
+        LogManager.LogFeature("[ThreatAlertFlowRunner] 威胁冷却结束，交由轮询控制器先请求接口再评估。");
         // 不再直接用本地缓存 Evaluate：先 Request，入库后再 EvaluateAfterDataUpdated。
         HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
     }
@@ -504,12 +504,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 ControlStateHierarchyTransitionController.Instance;
             if (hierarchy == null)
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     "[ThreatAlertFlowRunner] 未找到 ControlStateHierarchyTransitionController，无法跳回国家级。");
                 yield break;
             }
 
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 瞬时回国家级 | from={gm.CurrentState}");
             yield return WaitForHierarchyTransition(
                 hierarchy,
@@ -539,7 +539,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         ApplyCountryStageVisuals(qualified);
 
         float countryHold = Mathf.Max(0.1f, _countryLevelHoldSeconds);
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner] 国家阶段：达标省={qualified?.Count ?? 0}，" +
             $"停留={countryHold:F1}s");
 
@@ -586,7 +586,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         ApplyProvinceStageVisuals(provinceCode, events);
 
         float provinceHold = Mathf.Max(0.1f, _provinceLevelHoldSeconds);
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner] 省级阶段：province={provinceCode}，事件={events?.Count ?? 0}，" +
             $"停留={provinceHold:F1}s");
 
@@ -609,7 +609,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (qualifyingVins.Count > 0)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 省级达标 Vin 数={qualifyingVins.Count}，开始轮流下钻 | province={provinceCode}");
 
             string provinceDisplayName = ResolveProvinceDisplayName(provinceCode, plateModuleName);
@@ -617,7 +617,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             {
                 string encryptVin = qualifyingVins[i];
                 bool hasNextVin = i < qualifyingVins.Count - 1;
-                Debug.Log(
+                LogManager.LogFeature(
                     $"[ThreatAlertFlowRunner] Vin 下钻 ({i + 1}/{qualifyingVins.Count}) | vin={encryptVin} | " +
                     $"hasNextVin={hasNextVin}");
                 ThreatVehicleEntryRequested?.Invoke(encryptVin);
@@ -630,13 +630,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             }
 
             store.RemoveProvinceEventsAndExclude(provinceCode);
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 该省全部 Vin 下钻完成，将回国家级处理下一达标省 | province={provinceCode}");
         }
         else
         {
             store.RemoveProvinceEventsAndExclude(provinceCode);
-            Debug.Log($"[ThreatAlertFlowRunner] 无 Vin 达阈值，已删除并排除该省告警：{provinceCode}");
+            LogManager.LogFeature($"[ThreatAlertFlowRunner] 无 Vin 达阈值，已删除并排除该省告警：{provinceCode}");
         }
 
         ThreatProvinceDrillReserved?.Invoke(context);
@@ -665,16 +665,16 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _visualStage = ThreatVisualStage.VehicleHold;
         float vehicleHold = Mathf.Max(0.1f, _vehicleLevelHoldSeconds);
-        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留 | vin={encryptVin} | {vehicleHold:F1}s");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 车辆级停留 | vin={encryptVin} | {vehicleHold:F1}s");
         yield return WaitHoldSeconds(vehicleHold, $"车辆级停留 vin={encryptVin}");
         _visualStage = ThreatVisualStage.None;
 
-        Debug.Log($"[ThreatAlertFlowRunner] 车辆级停留结束，进入攻击链路 | vin={encryptVin}");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 车辆级停留结束，进入攻击链路 | vin={encryptVin}");
         yield return RunTimedStep($"车辆→攻击链路 vin={encryptVin}", TransitionToAttackPathLevelAndWait());
         bool atAttackPathLevel = IsAtAttackPathLevel();
         if (!atAttackPathLevel)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ThreatAlertFlowRunner] 车辆→攻击链路过渡未完成，仍继续后续阶段（使用已有缓存） | vin={encryptVin} | " +
                 $"control={GameManager.Instance?.CurrentState}");
         }
@@ -683,14 +683,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         _visualStage = ThreatVisualStage.AttackPathHold;
         float attackHold = Mathf.Max(0.1f, _attackPathLevelHoldSeconds);
-        Debug.Log($"[ThreatAlertFlowRunner] 攻击链路级停留 | vin={encryptVin} | {attackHold:F1}s");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 攻击链路级停留 | vin={encryptVin} | {attackHold:F1}s");
         yield return WaitHoldSeconds(attackHold, $"攻击链路级停留 vin={encryptVin}");
         _visualStage = ThreatVisualStage.None;
 
         List<string> partIds = ResolvePartIdsForDrill();
         if (partIds.Count == 0)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
             yield return ReturnToVehicleLevelFromDrill();
             yield break;
         }
@@ -719,7 +719,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             // 零件加载/切换完成后立刻开始停留计时
             _visualStage = ThreatVisualStage.PartHold;
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partIds.Count}) | part={partId} | {partHold:F1}s");
             yield return WaitHoldSeconds(
                 partHold,
@@ -731,12 +731,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (hasNextVin)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 本 Vin 全部零件展示完毕，已回车辆级，即将用下一 Vin 重新请求车辆数据 | vin={encryptVin}");
         }
         else
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 省内最后一辆 Vin 展示完毕，已回车辆级，随后回国家级 | vin={encryptVin}");
         }
     }
@@ -764,7 +764,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             ControlStateHierarchyTransitionController.Instance;
         if (hierarchy == null)
         {
-            Debug.LogWarning("[ThreatAlertFlowRunner] 无法进入车辆级：缺少层级过渡控制器。");
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] 无法进入车辆级：缺少层级过渡控制器。");
             yield break;
         }
 
@@ -828,7 +828,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (gm != null && gm.CurrentState != GameManager.ControlState.VehicleLevel)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ThreatAlertFlowRunner] 车辆→攻击链路取消：当前非车辆级 ({gm.CurrentState})。");
             _lastTransitionSucceeded = false;
             yield break;
@@ -847,7 +847,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
         else
         {
-            Debug.LogWarning("[ThreatAlertFlowRunner] MapApi 车辆→攻击路径启动失败，尝试层级控制器。");
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] MapApi 车辆→攻击路径启动失败，尝试层级控制器。");
             ControlStateHierarchyTransitionController hierarchy =
                 ControlStateHierarchyTransitionController.Instance;
             if (hierarchy != null)
@@ -864,7 +864,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _lastTransitionSucceeded = IsAtAttackPathLevel();
         if (!_lastTransitionSucceeded)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ThreatAlertFlowRunner] 车辆→攻击链路未完成 | control={gm?.CurrentState}");
         }
     }
@@ -896,7 +896,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         EventManager em = EventManager.Instance;
         if (em == null || MapApi.Instance == null)
         {
-            Debug.LogWarning("[ThreatAlertFlowRunner] 无 EventManager/MapApi，跳过零件过渡。");
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] 无 EventManager/MapApi，跳过零件过渡。");
             yield break;
         }
 
@@ -917,7 +917,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         bool started = MapApi.Instance.TransitionVehicleToPart(partId);
         if (!started)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
             _lastTransitionSucceeded = false;
             if (partToPart)
             {
@@ -975,18 +975,18 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         CarVehicleDataController controller = CarVehicleDataController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[ThreatAlertFlowRunner] 未找到 CarVehicleDataController，跳过车辆信息请求。");
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] 未找到 CarVehicleDataController，跳过车辆信息请求。");
             yield break;
         }
 
-        Debug.Log($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
         // 关键点：不要阻塞车辆停留计时。
         // 先用已有缓存立即刷新车辆 UI；接口成功/失败都让流程按停留秒数继续跳转。
         controller.TryShowVehicleUiFromCache();
 
         if (controller.IsRequesting)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ThreatAlertFlowRunner] 检测到已有车辆请求进行中，跳过本次请求启动（仍继续用当前缓存） | vin={encryptVin}");
             yield break;
         }
@@ -999,7 +999,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             {
                 if (!success)
                 {
-                    Debug.LogWarning(
+                    LogManager.LogFeatureWarning(
                         $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续（继续使用已有缓存） | vin={encryptVin} | error={error}");
                 }
             });
@@ -1102,7 +1102,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         List<string> vins = CollectVinsMeetingThreshold(events);
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner] 省级数据已刷新 | province={_activeProvinceCode} | " +
             $"events={events?.Count ?? 0} | qualifyingVins={vins.Count}");
     }
@@ -1114,14 +1114,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return;
         }
 
-        Debug.Log($"[ThreatAlertFlowRunner] 车辆级数据刷新 | vin={_activeEncryptVin}");
+        LogManager.LogFeature($"[ThreatAlertFlowRunner] 车辆级数据刷新 | vin={_activeEncryptVin}");
         StartCoroutine(RequestVehicleDataAndWait(_activeEncryptVin));
     }
 
     private void RefreshAttackPathStageVisuals()
     {
         ApplyAttackPathStageVisuals(IsAtAttackPathLevel());
-        Debug.Log("[ThreatAlertFlowRunner] 攻击链路画面已按最新缓存刷新。");
+        LogManager.LogFeature("[ThreatAlertFlowRunner] 攻击链路画面已按最新缓存刷新。");
     }
 
     private static void ApplyAttackPathStageVisuals(bool preferAttackPathLevel = true)
@@ -1171,7 +1171,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             provinceCode: provinceCode);
         if (!started)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 跳转 {from} → {targetState} 启动失败。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 跳转 {from} → {targetState} 启动失败。");
             yield break;
         }
 
@@ -1229,7 +1229,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -1239,7 +1239,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
             _lastTransitionSucceeded = false;
             unsubscribe(OnTransitionStepDone);
             yield break;
@@ -1268,7 +1268,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -1278,7 +1278,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
             unsubscribe(OnTransitionStepDoneWithName);
             yield break;
         }
@@ -1304,7 +1304,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -1314,7 +1314,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
             unsubscribe(OnTransitionStepDoneWithPart);
             yield break;
         }
@@ -1480,14 +1480,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         float start = Time.unscaledTime;
         if (_logStageTiming)
         {
-            Debug.Log($"[ThreatAlertFlowRunner][计时] 开始 | {stepName}");
+            LogManager.LogFeature($"[ThreatAlertFlowRunner][计时] 开始 | {stepName}");
         }
 
         yield return step;
 
         if (_logStageTiming)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner][计时] 结束 | {stepName} | 实际={Time.unscaledTime - start:F2}s");
         }
     }
@@ -1496,7 +1496,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         if (!completed)
         {
-            Debug.LogWarning($"[ThreatAlertFlowRunner] {stepName} 等待完成超时。");
+            LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 等待完成超时。");
         }
 
         if (!_logStageTiming)
@@ -1505,7 +1505,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         float elapsed = Time.unscaledTime - waitStart;
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner][计时] 过渡等待 | {stepName} | 实际={elapsed:F2}s | " +
             $"完成={completed} | control={GameManager.Instance?.CurrentState}");
     }
@@ -1515,7 +1515,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         float start = Time.unscaledTime;
         if (_logStageTiming && !string.IsNullOrEmpty(stepName))
         {
-            Debug.Log($"[ThreatAlertFlowRunner][计时] 停留开始 | {stepName} | 配置={seconds:F2}s");
+            LogManager.LogFeature($"[ThreatAlertFlowRunner][计时] 停留开始 | {stepName} | 配置={seconds:F2}s");
         }
 
         _holdCountdownTotal = seconds;
@@ -1566,7 +1566,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         float elapsed = Time.unscaledTime - start;
         float delta = elapsed - configuredSeconds;
         string skipTag = skipped ? " | 已跳过" : string.Empty;
-        Debug.Log(
+        LogManager.LogFeature(
             $"[ThreatAlertFlowRunner][计时] 停留结束 | {stepName} | 实际={elapsed:F2}s | " +
             $"配置={configuredSeconds:F2}s | 偏差={delta:+#.##;-#.##;0.00}s{skipTag}");
     }
@@ -1584,7 +1584,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             MapApi.Instance.SetBigScreenAutoCarouselEnabled(true, bypassDelayedStart: true);
         }
 
-        Debug.Log("[ThreatAlertFlowRunner] 无达标省，GameManager → Default，已开启自动轮播。");
+        LogManager.LogFeature("[ThreatAlertFlowRunner] 无达标省，GameManager → Default，已开启自动轮播。");
     }
 
     private void HandleProvinceFocusCompleted(string _)

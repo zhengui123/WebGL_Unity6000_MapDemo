@@ -350,7 +350,7 @@ public class CountryMapZoomController : MonoBehaviour
         _countryHomeRigPosition = _cameraRig.position;
         _countryHomeRigRotation = _cameraRig.rotation;
         _hasCountryHomePose = true;
-        Debug.Log(
+        LogManager.LogFeature(
             $"[CountryMapZoom] 已缓存国家级初始 CameraPivot | pos={_countryHomeRigPosition} | euler={_countryHomeRigRotation.eulerAngles}");
     }
 

@@ -148,7 +148,7 @@ public class WorldMapRegionController : MonoBehaviour
             GameManager gm = GameManager.Instance;
             if (gm == null || !gm.SetDefaultProvinceCode(defaultUnitCode.Trim()))
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[WorldMapRegionController] 国内默认省 code 无效：{defaultUnitCode}，仍切换国内。");
             }
         }
@@ -162,13 +162,13 @@ public class WorldMapRegionController : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(plateCode))
         {
-            Debug.LogWarning("[WorldMapRegionController] SwitchToForeignPlate: plateCode 为空。");
+            LogManager.LogFeatureWarning("[WorldMapRegionController] SwitchToForeignPlate: plateCode 为空。");
             return false;
         }
 
         if (!TryFindForeignBinding(plateCode.Trim(), out ForeignPlateBinding binding))
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[WorldMapRegionController] 未配置国外板块 code={plateCode}。请在 Inspector 填写 firstClassCode（与 WorldMapRegionCodes.json 一致）。");
             return false;
         }
@@ -207,7 +207,7 @@ public class WorldMapRegionController : MonoBehaviour
             return SwitchToForeignPlate(plate.plateCode);
         }
 
-        Debug.LogWarning($"[WorldMapRegionController] 未找到国外板块名={name}");
+        LogManager.LogFeatureWarning($"[WorldMapRegionController] 未找到国外板块名={name}");
         return false;
     }
 
@@ -244,7 +244,7 @@ public class WorldMapRegionController : MonoBehaviour
         RestorePlateRootOriginalPose(_domesticPlateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(WorldMapRegionCodeTable.DomesticNationalCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
-        Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
+        LogManager.LogFeature($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }
 
     private void ApplyForeign(ForeignPlateBinding binding, bool instantNationalView)
@@ -264,7 +264,7 @@ public class WorldMapRegionController : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(plateCode))
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 "[WorldMapRegionController] 国外板块缺少 plateCode。" + WorldMapRegionCodeTable.PlateCodeNote);
         }
 
@@ -284,7 +284,7 @@ public class WorldMapRegionController : MonoBehaviour
         RestorePlateRootOriginalPose(binding.plateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(plateCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
-        Debug.Log($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
+        LogManager.LogFeature($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
     }
 
     private void SetWorldModeBackgroundLineVisible(bool visible)

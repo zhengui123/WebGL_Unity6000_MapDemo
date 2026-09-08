@@ -51,7 +51,7 @@ public static class WorldMapRegionContext
 
         if (string.IsNullOrWhiteSpace(PlateCode))
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 "[WorldMapRegionContext] 国外板块 code 为空。请配置 firstClassCode（如 EAST_ASIA）。");
         }
 

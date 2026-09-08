@@ -170,20 +170,20 @@ public class PlateMapGeoConverter : MonoBehaviour
 
         if (_westAnchor.marker == null || _eastAnchor.marker == null)
         {
-            // Debug.LogWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」未指定 Left/Right 控制点。");
+            // LogManager.LogFeatureWarning($"[PlateMapGeoConverter] 板块「{PlateMapKey}」未指定 Left/Right 控制点。");
             return;
         }
 
         if (!IsMappingGeometryValid())
         {
-            // Debug.LogWarning(
+            // LogManager.LogFeatureWarning(
             //     $"[PlateMapGeoConverter] 板块「{PlateMapKey}」锚点无效：西东 X 或经度重合，或两锚点纬度/Z 无法构成有效映射。");
             // return;
         }
 
         _isReady = true;
 
-        // Debug.Log(
+        // LogManager.LogFeature(
         //     $"[PlateMapGeoConverter] 映射就绪 | code={_provinceCode} | 板块「{PlateMapKey}」 | " +
         //     $"西 lon={_westAnchor.longitude:F6} lat={_westAnchor.latitude:F6} @ {_westAnchor.marker.localPosition} | " +
         //     $"东 lon={_eastAnchor.longitude:F6} lat={_eastAnchor.latitude:F6} @ {_eastAnchor.marker.localPosition}");

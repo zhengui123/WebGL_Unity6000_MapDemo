@@ -144,7 +144,7 @@ public static class PlateMapBoundaryDatabase
         string json = LoadConfigJsonText(DomesticResourcesConfigName);
         if (!TryParseResponse(json, out PlateMapBoundaryResponse response))
         {
-            Debug.LogError($"[PlateMapBoundaryDatabase] 无法加载国内配置：{DomesticConfigDisplayPath}");
+            LogManager.LogFeatureError($"[PlateMapBoundaryDatabase] 无法加载国内配置：{DomesticConfigDisplayPath}");
             return lookup;
         }
 
@@ -159,7 +159,7 @@ public static class PlateMapBoundaryDatabase
         string json = LoadConfigJsonText(ForeignResourcesConfigName);
         if (!TryParseResponse(json, out PlateMapBoundaryResponse response))
         {
-            Debug.LogWarning($"[PlateMapBoundaryDatabase] 未加载国外配置：{ForeignConfigDisplayPath}");
+            LogManager.LogFeatureWarning($"[PlateMapBoundaryDatabase] 未加载国外配置：{ForeignConfigDisplayPath}");
             return lookup;
         }
 

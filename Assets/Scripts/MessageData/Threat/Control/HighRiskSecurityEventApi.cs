@@ -51,7 +51,7 @@ public static class HighRiskSecurityEventApi
     {
         if (_isDomesticRequestInProgress || _activeBatch != null)
         {
-            Debug.LogWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的全国请求。");
+            LogManager.LogBackendWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的全国请求。");
             return;
         }
 
@@ -64,7 +64,7 @@ public static class HighRiskSecurityEventApi
             resolvedEndTime);
 
         _isDomesticRequestInProgress = true;
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApi] 开始全国请求，" +
             $"firstClassCode={regionCodes.FirstClassCode}，secondClassCode={regionCodes.SecondClassCode}，" +
             $"startTime={resolvedStartTime}，endTime={resolvedEndTime}");
@@ -90,7 +90,7 @@ public static class HighRiskSecurityEventApi
                     string body = result != null && !string.IsNullOrWhiteSpace(result.RawBody)
                         ? result.RawBody
                         : BuildResponseJsonText(result, response);
-                    Debug.LogWarning(
+                    LogManager.LogBackendWarning(
                         $"[HighRiskSecurityEventApi] 全国请求失败详情：" +
                         $"IsSuccess={result?.IsSuccess}，StatusCode={result?.StatusCode}，Error={result?.Error}\n" +
                         $"业务 code={response?.code}，msg={response?.msg}\n结果内容：\n{body}");
@@ -108,7 +108,7 @@ public static class HighRiskSecurityEventApi
 
                 ThreatProvinceAlertController.EvaluateAfterDataUpdated();
 
-                Debug.Log(
+                LogManager.LogBackend(
                     $"[HighRiskSecurityEventApi] 全国请求完成，成功={batchResult.SuccessRegionCount}，" +
                     $"失败={batchResult.FailedRegionCount}，总事件数={batchResult.TotalEventCount}");
 
@@ -154,13 +154,13 @@ public static class HighRiskSecurityEventApi
     {
         if (_activeBatch != null || _isDomesticRequestInProgress)
         {
-            Debug.LogWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的分批请求。");
+            LogManager.LogBackendWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的分批请求。");
             return;
         }
 
         if (regions == null || regions.Count == 0)
         {
-            Debug.LogWarning($"[HighRiskSecurityEventApi] 未找到可请求的区域编码，scope={scope}。");
+            LogManager.LogBackendWarning($"[HighRiskSecurityEventApi] 未找到可请求的区域编码，scope={scope}。");
             onCompleted?.Invoke(null, new HighRiskSecurityEventBatchResult());
             return;
         }
@@ -176,7 +176,7 @@ public static class HighRiskSecurityEventApi
         };
 
         HighRiskSecurityEventDataStore.Instance.BeginBatch();
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApi] 开始分批请求，scope={scope}，区域数={regions.Count}，" +
             $"startTime={startTime}，endTime={endTime}");
         RequestNextRegionInBatch();
@@ -279,7 +279,7 @@ public static class HighRiskSecurityEventApi
             batch.StartTime,
             batch.EndTime);
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApi] 分批请求进度 {batch.NextIndex}/{batch.Regions.Count}，" +
             $"firstClassCode={regionCodes.FirstClassCode}，secondClassCode={regionCodes.SecondClassCode}");
 
@@ -315,7 +315,7 @@ public static class HighRiskSecurityEventApi
 
         ThreatProvinceAlertController.EvaluateAfterDataUpdated();
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApi] 分批请求完成，成功={batchResult.SuccessRegionCount}，" +
             $"失败={batchResult.FailedRegionCount}，总事件数={batchResult.TotalEventCount}");
 
@@ -394,7 +394,7 @@ public static class HighRiskSecurityEventApi
         }
 
         string url = BuildRequestUrl();
-        Debug.Log($"[HighRiskSecurityEventApi] 请求 URL：{url}");
+        LogManager.LogBackend($"[HighRiskSecurityEventApi] 请求 URL：{url}");
         HttpService.Instance.PostJson<HighRiskSecurityEventRequest, HighRiskSecurityEventResponse>(
             url,
             requestBody,
@@ -414,19 +414,19 @@ public static class HighRiskSecurityEventApi
     {
         if (result == null)
         {
-            Debug.LogWarning("[HighRiskSecurityEventApi] 请求结果为空。");
+            LogManager.LogBackendWarning("[HighRiskSecurityEventApi] 请求结果为空。");
             return;
         }
 
         if (result.IsCancelled)
         {
-            Debug.Log("[HighRiskSecurityEventApi] 请求已取消。");
+            LogManager.LogBackend("[HighRiskSecurityEventApi] 请求已取消。");
             return;
         }
 
         if (!result.IsSuccess)
         {
-            Debug.LogWarning(
+            LogManager.LogBackendWarning(
                 $"[HighRiskSecurityEventApi] 请求失败，{FormatRegionCodesForLog(regionCodes)}，" +
                 $"状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{BuildResponseJsonText(result, response)}");
             return;
@@ -451,14 +451,14 @@ public static class HighRiskSecurityEventApi
 
         if (bizOk)
         {
-            Debug.Log(
+            LogManager.LogBackend(
                 $"[HighRiskSecurityEventApi] 成功接收 JSON，{FormatRegionCodesForLog(regionCodes)}，" +
                 $"{requestHint}事件数={count}\n响应 JSON：\n{json}");
             return;
         }
 
         string bizMessage = response != null ? $"code={response.code}，msg={response.msg}" : "响应对象为空";
-        Debug.LogWarning(
+        LogManager.LogBackendWarning(
             $"[HighRiskSecurityEventApi] HTTP 成功但业务失败，{FormatRegionCodesForLog(regionCodes)}，" +
             $"{requestHint}{bizMessage}\n响应 JSON：\n{json}");
     }
@@ -481,7 +481,7 @@ public static class HighRiskSecurityEventApi
 
         int count = response.data != null ? response.data.Length : 0;
         string json = BuildResponseJsonText(result, response);
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApi] {action}（补打日志）：{FormatRegionCodesForLog(regionCodes)}，" +
             $"事件数={count}\n响应 JSON：\n{json}");
     }
@@ -494,12 +494,12 @@ public static class HighRiskSecurityEventApi
 
         if (bizOk)
         {
-            Debug.Log($"[HighRiskSecurityEventApi] {action}，事件数={count}\n响应 JSON：\n{body}");
+            LogManager.LogBackend($"[HighRiskSecurityEventApi] {action}，事件数={count}\n响应 JSON：\n{body}");
             return;
         }
 
         string bizMessage = response != null ? $"code={response.code}，msg={response.msg}" : "响应为空";
-        Debug.LogWarning($"[HighRiskSecurityEventApi] {action}，{bizMessage}\n响应 JSON：\n{body}");
+        LogManager.LogBackendWarning($"[HighRiskSecurityEventApi] {action}，{bizMessage}\n响应 JSON：\n{body}");
     }
 
     private static string BuildResponseJsonText(HttpRequestResult result, HighRiskSecurityEventResponse response)

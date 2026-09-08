@@ -39,7 +39,7 @@ public class POI_Manager : UnitySingle<POI_Manager>
     {
         if (!TryResolvePoiPrefab(type, out GameObject prefab, out Vector3 targetScale))
         {
-            Debug.LogWarning($"[POI_Manager] 未找到类型 {type} 对应 POI 预制体。");
+            LogManager.LogFeatureWarning($"[POI_Manager] 未找到类型 {type} 对应 POI 预制体。");
             return;
         }
 
@@ -65,7 +65,7 @@ public class POI_Manager : UnitySingle<POI_Manager>
         RectTransform rect = obj.transform as RectTransform;
         if (rect == null)
         {
-            Debug.LogWarning($"[POI_Manager] Prefab「{prefab.name}」不是 UI（缺少 RectTransform），已销毁。");
+            LogManager.LogFeatureWarning($"[POI_Manager] Prefab「{prefab.name}」不是 UI（缺少 RectTransform），已销毁。");
             Destroy(obj);
             return;
         }
@@ -252,14 +252,14 @@ public class POI_Manager : UnitySingle<POI_Manager>
         Camera mainCamera = Camera.main;
         if (mainCamera == null)
         {
-            Debug.LogWarning("[POI_Manager] 未找到 Camera.main，无法挂载 UI POI。");
+            LogManager.LogFeatureWarning("[POI_Manager] 未找到 Camera.main，无法挂载 UI POI。");
             return false;
         }
 
         canvas = mainCamera.GetComponentInChildren<Canvas>(true);
         if (canvas == null)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[POI_Manager] 主摄像机「{mainCamera.name}」下未找到 Canvas，无法挂载 UI POI。");
             return false;
         }

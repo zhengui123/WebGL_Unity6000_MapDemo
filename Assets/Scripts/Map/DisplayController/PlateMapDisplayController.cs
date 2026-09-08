@@ -176,7 +176,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         if (applied > 0)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[PlateMapDisplayController] 开局已覆盖默认聚焦偏移 {applied} 个 GeoConverter | " +
                 $"offset={_defaultFocusCenterWorldOffset}");
         }
@@ -417,7 +417,7 @@ public class PlateMapDisplayController : MonoBehaviour
     {
         if (!TryGetModuleByName(moduleName, out PlateMapDisplayModule module))
         {
-            Debug.LogWarning($"[PlateMapDisplayController] 未找到模块：{moduleName}");
+            LogManager.LogFeatureWarning($"[PlateMapDisplayController] 未找到模块：{moduleName}");
             return false;
         }
 
@@ -465,7 +465,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         if (!TryComputeRigPositionForModuleAtViewCenter(module, fogLocalKeep, viewDistance, out Vector3 rigTargetPos))
         {
-            Debug.LogWarning("[PlateMapDisplayController] 无法计算聚焦机位。");
+            LogManager.LogFeatureWarning("[PlateMapDisplayController] 无法计算聚焦机位。");
             return;
         }
 
@@ -497,7 +497,7 @@ public class PlateMapDisplayController : MonoBehaviour
                 EventManager.Instance?.TriggerPlateMapFocusModuleCompleted(moduleKey);
             });
 
-        Debug.Log($"[PlateMapDisplayController] 聚焦模块：{moduleKey} | viewDistance={viewDistance:F1}");
+        LogManager.LogFeature($"[PlateMapDisplayController] 聚焦模块：{moduleKey} | viewDistance={viewDistance:F1}");
     }
 
     /// <summary>
@@ -579,7 +579,7 @@ public class PlateMapDisplayController : MonoBehaviour
         Vector3 fogLocalKeep = _cameraTransform.localPosition;
         if (!TryComputeRigPositionForModuleAtViewCenter(module, fogLocalKeep, viewDistance, out Vector3 rigTargetPos))
         {
-            Debug.LogWarning("[PlateMapDisplayController] 瞬时刷新聚焦机位失败。");
+            LogManager.LogFeatureWarning("[PlateMapDisplayController] 瞬时刷新聚焦机位失败。");
             return false;
         }
 
@@ -592,7 +592,7 @@ public class PlateMapDisplayController : MonoBehaviour
             _cameraZoomController.ZoomControlEnabled = true;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateMapDisplayController] 瞬时刷新聚焦 | module={module.ModuleKey} | " +
             $"viewDistance={viewDistance:F1} | offset={ResolveFocusCenterWorldOffset(module)}");
         return true;
@@ -649,7 +649,7 @@ public class PlateMapDisplayController : MonoBehaviour
             if (depth > 1f)
             {
                 float longestXZ = Mathf.Max(bounds.size.x, bounds.size.z);
-                Debug.Log(
+                LogManager.LogFeature(
                     $"[PlateMapDisplayController] 省聚焦严格装框 | module={module.ModuleKey} | " +
                     $"fill={_provinceViewportFillRatio:P0} | viewDistance={depth:F1} | " +
                     $"longestXZ={longestXZ:F1} | boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1})");
@@ -757,7 +757,7 @@ public class PlateMapDisplayController : MonoBehaviour
                 EventManager.Instance?.TriggerPlateMapRestoreCameraCompleted();
             });
 
-        Debug.Log("[PlateMapDisplayController] 正在还原摄像机位置（国家级 Home）。");
+        LogManager.LogFeature("[PlateMapDisplayController] 正在还原摄像机位置（国家级 Home）。");
         return true;
     }
 
@@ -839,7 +839,7 @@ public class PlateMapDisplayController : MonoBehaviour
         if (PlateProvinceFocusResolver.HasCachedProvince ||
             PlateProvinceFocusResolver.HasCachedModuleName)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 "[PlateMapDisplayController] 车辆回省级未能解析到缓存模块，保持隐藏以免亮错国家。" +
                 $" | module={PlateProvinceFocusResolver.CachedModuleName}" +
                 $" | code={PlateProvinceFocusResolver.CachedProvinceCode}");
@@ -1185,7 +1185,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
             return;
         }
-        Debug.Log($"[PlateMapDisplayController] 点击模块：{hit.collider.transform.parent.name}");
+        LogManager.LogFeature($"[PlateMapDisplayController] 点击模块：{hit.collider.transform.parent.name}");
         PlateMapDisplayModule module = hit.collider.transform.parent.GetComponentInParent<PlateMapDisplayModule>();
         if (module == null || !IsRegisteredModule(module))
         {
@@ -1332,7 +1332,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         RefreshModuleList();
         UnityEditor.EditorUtility.SetDirty(this);
-        Debug.Log($"[PlateMapDisplayController] 已添加 {added} 个模块标记。");
+        LogManager.LogFeature($"[PlateMapDisplayController] 已添加 {added} 个模块标记。");
     }
 #endif
 }

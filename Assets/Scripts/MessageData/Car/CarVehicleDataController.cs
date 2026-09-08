@@ -83,7 +83,7 @@ public class CarVehicleDataController : MonoBehaviour
         if (_isRequesting)
         {
             onCompleted?.Invoke(false, "已有请求进行中。");
-            Debug.LogWarning("[CarVehicleDataController] 已有请求进行中，忽略。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 已有请求进行中，忽略。");
             return;
         }
 
@@ -98,7 +98,7 @@ public class CarVehicleDataController : MonoBehaviour
         _pendingPartResponse = null;
         _pendingAttackResponse = null;
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[CarVehicleDataController] 开始双接口请求 | vin={_activeEncryptVin} | " +
             $"start={_activeStartTime} | end={_activeEndTime}");
 
@@ -173,7 +173,7 @@ public class CarVehicleDataController : MonoBehaviour
         _pendingPartResponse = _partOk ? response : null;
         if (!_partOk)
         {
-            Debug.LogWarning("[CarVehicleDataController] 防护状态接口失败。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 防护状态接口失败。");
         }
 
         CompleteOne();
@@ -185,7 +185,7 @@ public class CarVehicleDataController : MonoBehaviour
         _pendingAttackResponse = _attackOk ? response : null;
         if (!_attackOk)
         {
-            Debug.LogWarning("[CarVehicleDataController] 攻击链路接口失败。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 攻击链路接口失败。");
         }
 
         CompleteOne();
@@ -203,7 +203,7 @@ public class CarVehicleDataController : MonoBehaviour
         if (!_partOk || !_attackOk)
         {
             string error = "双接口未全部成功，未覆盖缓存。";
-            Debug.LogWarning($"[CarVehicleDataController] {error}");
+            LogManager.LogBackendWarning($"[CarVehicleDataController] {error}");
             _onBatchCompleted?.Invoke(false, error);
             _onBatchCompleted = null;
             return;
@@ -232,12 +232,12 @@ public class CarVehicleDataController : MonoBehaviour
 
         if (!vehicleShown && HasCarouselCache() && !IsVehicleLevel())
         {
-            Debug.Log("[CarVehicleDataController] 零部件数据已缓存，待进入 VehicleLevel 后自动轮播。");
+            LogManager.LogBackend("[CarVehicleDataController] 零部件数据已缓存，待进入 VehicleLevel 后自动轮播。");
         }
 
         if (!attackShown && HasAttackPathCache() && !IsAttackPathLevel())
         {
-            Debug.Log("[CarVehicleDataController] 攻击链路数据已缓存，待进入 AttackPathLevel 后自动展示。");
+            LogManager.LogBackend("[CarVehicleDataController] 攻击链路数据已缓存，待进入 AttackPathLevel 后自动展示。");
         }
     }
 
@@ -263,14 +263,14 @@ public class CarVehicleDataController : MonoBehaviour
 
         if (_carPanelManager == null)
         {
-            Debug.LogWarning("[CarVehicleDataController] 未找到 CarPanelManager。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 未找到 CarPanelManager。");
             return false;
         }
 
         bool opened = _carPanelManager.StartPartMessageCarouselFromCache();
         if (opened)
         {
-            Debug.Log("[CarVehicleDataController] 已通知 CarPanelManager 开始/重启零部件轮播。");
+            LogManager.LogBackend("[CarVehicleDataController] 已通知 CarPanelManager 开始/重启零部件轮播。");
         }
 
         return opened;
@@ -307,14 +307,14 @@ public class CarVehicleDataController : MonoBehaviour
         AttackPathController controller = ResolveAttackPathController();
         if (controller == null)
         {
-            Debug.LogWarning("[CarVehicleDataController] 未找到 AttackPathController。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 未找到 AttackPathController。");
             return false;
         }
 
         List<AttackChainPathEntry> entries = Store.BuildAttackPathEntries();
         if (entries.Count == 0)
         {
-            Debug.LogWarning("[CarVehicleDataController] 攻击链路缓存无有效映射条目。");
+            LogManager.LogBackendWarning("[CarVehicleDataController] 攻击链路缓存无有效映射条目。");
             return false;
         }
 
@@ -322,7 +322,7 @@ public class CarVehicleDataController : MonoBehaviour
         int added = controller.ApplyPartLinks(entries);
         if (added > 0)
         {
-            Debug.Log($"[CarVehicleDataController] 已加载 {added} 条攻击路径。");
+            LogManager.LogBackend($"[CarVehicleDataController] 已加载 {added} 条攻击路径。");
         }
 
         VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;

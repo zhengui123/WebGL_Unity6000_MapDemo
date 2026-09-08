@@ -45,20 +45,20 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
         GameManager manager = GameManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法进入下一级。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法进入下一级。");
             return false;
         }
 
         if (_transitionController == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
             return false;
         }
 
         GameManager.ControlState current = manager.CurrentState;
         if (!ControlStateHierarchyAdjacency.TryGetNextState(current, out GameManager.ControlState next))
         {
-            Debug.Log($"[ControlStateHierarchyInputNavigation] 当前 {current} 无下一级。");
+            LogManager.LogFeature($"[ControlStateHierarchyInputNavigation] 当前 {current} 无下一级。");
             return false;
         }
 
@@ -71,7 +71,7 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
         GameManager manager = GameManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法进入车辆大屏。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法进入车辆大屏。");
             return false;
         }
 
@@ -82,7 +82,7 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
 
         if (_transitionController == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
             return false;
         }
 
@@ -103,20 +103,20 @@ public class ControlStateHierarchyInputNavigation : MonoBehaviour
         GameManager manager = GameManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法返回上一级。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 GameManager，无法返回上一级。");
             return false;
         }
 
         if (_transitionController == null)
         {
-            Debug.LogWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyInputNavigation] 未找到 ControlStateHierarchyTransitionController。");
             return false;
         }
 
         GameManager.ControlState current = manager.CurrentState;
         if (!ControlStateHierarchyAdjacency.TryGetPreviousState(current, out GameManager.ControlState previous))
         {
-            Debug.Log($"[ControlStateHierarchyInputNavigation] 当前 {current} 无上一级。");
+            LogManager.LogFeature($"[ControlStateHierarchyInputNavigation] 当前 {current} 无上一级。");
             return false;
         }
 

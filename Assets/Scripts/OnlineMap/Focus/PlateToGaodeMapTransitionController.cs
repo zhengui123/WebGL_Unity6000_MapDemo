@@ -80,19 +80,19 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         ResolveReferences();
         if (_allPlateMapRoot == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 AllPlateMap。");
+            LogManager.LogFeatureError("[PlateToGaodeMapTransition] 未找到 AllPlateMap。");
             return false;
         }
 
         if (_gaodeMapController == null || _gaodeMapController.OnlineMaps == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapController.OnlineMaps。");
+            LogManager.LogFeatureError("[PlateToGaodeMapTransition] 未找到 GaodeMapController.OnlineMaps。");
             return false;
         }
 
         if (_gaodeRawImageVisibility == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
+            LogManager.LogFeatureError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
             return false;
         }
 
@@ -136,7 +136,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         _sequence.OnComplete(CompleteTransition);
         ForceCompleteSequenceIfInstant();
         EventManager.Instance?.TriggerPlateToGaodeMapTransitionStarted(_activeProvinceName);
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateToGaodeMapTransition] 正播开始 | code={_activeProvinceCode} | name={_activeProvinceName}");
         return true;
     }
@@ -161,13 +161,13 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
         ResolveReferences();
         if (_allPlateMapRoot == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 AllPlateMap。");
+            LogManager.LogFeatureError("[PlateToGaodeMapTransition] 未找到 AllPlateMap。");
             return false;
         }
 
         if (_gaodeRawImageVisibility == null)
         {
-            Debug.LogError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
+            LogManager.LogFeatureError("[PlateToGaodeMapTransition] 未找到 GaodeMapRawImageVisibility。");
             return false;
         }
 
@@ -257,7 +257,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
 
             if (!focused)
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[PlateToGaodeMapTransition] 二维经纬度设置失败 | code={_activeProvinceCode} name={provinceName}");
             }
         }
@@ -342,7 +342,7 @@ public class PlateToGaodeMapTransitionController : MonoBehaviour
     {
         if (_plateMapDisplayController == null)
         {
-            Debug.LogWarning("[PlateToGaodeMapTransition] 未找到 PlateMapDisplayController，板块淡出将跳过。");
+            LogManager.LogFeatureWarning("[PlateToGaodeMapTransition] 未找到 PlateMapDisplayController，板块淡出将跳过。");
             return;
         }
 

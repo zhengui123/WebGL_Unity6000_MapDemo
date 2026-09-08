@@ -91,7 +91,7 @@ public class PlateMapShandongProvincePointFilter
             return true;
         }
 
-        Debug.LogWarning("[PlateMapShandongProvincePointFilter] 省界 JSON 未加载，请在 Inspector 指定 ShandongBoundary.json。");
+        LogManager.LogFeatureWarning("[PlateMapShandongProvincePointFilter] 省界 JSON 未加载，请在 Inspector 指定 ShandongBoundary.json。");
         return false;
     }
 

@@ -117,7 +117,7 @@ public class MouseDragYawRotate : MonoBehaviour
         if (_isDragging)
         {
             NotifyYawChanged(YawAngle, false);
-            Debug.Log($"[MouseDragYawRotate] 拖拽结束, Yaw={YawAngle:F1}°");
+            LogManager.LogFeature($"[MouseDragYawRotate] 拖拽结束, Yaw={YawAngle:F1}°");
         }
 
         _isDragging = false;
@@ -165,7 +165,7 @@ public class MouseDragYawRotate : MonoBehaviour
         _hasTargetRotation = true;
         _rotateTarget.rotation = _startRotation;
         NotifyYawChanged(YawAngle, false);
-        Debug.Log($"[MouseDragYawRotate] 重置旋转, Yaw={YawAngle:F1}°");
+        LogManager.LogFeature($"[MouseDragYawRotate] 重置旋转, Yaw={YawAngle:F1}°");
     }
 
     /// <summary>设置 Y 轴旋转角度（0~360）。</summary>
@@ -176,7 +176,7 @@ public class MouseDragYawRotate : MonoBehaviour
     {
         if (_rotateTarget == null)
         {
-            Debug.LogWarning("[MouseDragYawRotate] SetYawAngle 失败：旋转目标为空。");
+            LogManager.LogFeatureWarning("[MouseDragYawRotate] SetYawAngle 失败：旋转目标为空。");
             return;
         }
 
@@ -192,7 +192,7 @@ public class MouseDragYawRotate : MonoBehaviour
             _isApiSmoothing = false;
         }
 
-        Debug.Log($"[MouseDragYawRotate] 设置 Yaw={normalizedYaw:F1}°, instant={instant}");
+        LogManager.LogFeature($"[MouseDragYawRotate] 设置 Yaw={normalizedYaw:F1}°, instant={instant}");
 
         if (notify && !_isApiSmoothing)
         {
@@ -278,7 +278,7 @@ public class MouseDragYawRotate : MonoBehaviour
     {
         float normalizedYaw = NormalizeYaw(yawAngle);
         _lastNotifiedYaw = normalizedYaw;
-        Debug.Log($"[MouseDragYawRotate] Yaw 变化: {normalizedYaw:F1}°, isDragging={isDragging}");
+        LogManager.LogFeature($"[MouseDragYawRotate] Yaw 变化: {normalizedYaw:F1}°, isDragging={isDragging}");
         OnYawAngleChanged?.Invoke(normalizedYaw, isDragging);
 
         //同步测试
@@ -289,7 +289,7 @@ public class MouseDragYawRotate : MonoBehaviour
         //     yawAngle = yawAngle,
         //     instant = isDragging,
         // });
-        // Debug.Log($"[DemoAndroidBridgeApiUIDemo] 模拟 Android 调用 SetCarYawRotation: {json}");
+        // LogManager.LogFeature($"[DemoAndroidBridgeApiUIDemo] 模拟 Android 调用 SetCarYawRotation: {json}");
         // AndroidMessage.Instance.SetCarYawRotation(json);
     }
 

@@ -42,7 +42,7 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
 
         if (points.Length == 0)
         {
-            Debug.LogError("[PlateMapVehiclePointsJsonApiDemo] 未生成任何点位。");
+            LogManager.LogFeatureError("[PlateMapVehiclePointsJsonApiDemo] 未生成任何点位。");
             return;
         }
 
@@ -54,7 +54,7 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
 #endif
 
         bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_provinceCode, json);
-        Debug.Log(ok
+        LogManager.LogFeature(ok
             ? $"[PlateMapVehiclePointsJsonApiDemo] 已推送到 provinceCode={_provinceCode}，{points.Length} 个点。"
             : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
     }
@@ -64,19 +64,19 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
     {
         if (_sampleJsonAsset == null)
         {
-            Debug.LogError("[PlateMapVehiclePointsJsonApiDemo] 未指定 Sample Json Asset。");
+            LogManager.LogFeatureError("[PlateMapVehiclePointsJsonApiDemo] 未指定 Sample Json Asset。");
             return;
         }
 
         bool ok = PlateMapAPI.Instance.UpdateVehiclePointsFromJson(_provinceCode, _sampleJsonAsset.text);
-        Debug.Log(ok ? $"[PlateMapVehiclePointsJsonApiDemo] 样本 JSON 已推送到 provinceCode={_provinceCode}。" : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
+        LogManager.LogFeature(ok ? $"[PlateMapVehiclePointsJsonApiDemo] 样本 JSON 已推送到 provinceCode={_provinceCode}。" : "[PlateMapVehiclePointsJsonApiDemo] 推送失败。");
     }
 
     private static void LogJsonPreview(string json)
     {
         const int maxLen = 280;
         string preview = json.Length <= maxLen ? json : json.Substring(0, maxLen) + "...";
-        Debug.Log($"[PlateMapVehiclePointsJsonApiDemo] JSON 预览：{preview}");
+        LogManager.LogFeature($"[PlateMapVehiclePointsJsonApiDemo] JSON 预览：{preview}");
     }
 
 #if UNITY_EDITOR
@@ -97,7 +97,7 @@ public class PlateMapVehiclePointsJsonApiDemo : UnitySingle<PlateMapVehiclePoint
 
         File.WriteAllText(fullPath, json);
         UnityEditor.AssetDatabase.Refresh();
-        Debug.Log($"[PlateMapVehiclePointsJsonApiDemo] 已导出 JSON：Assets/{_exportJsonPath}");
+        LogManager.LogFeature($"[PlateMapVehiclePointsJsonApiDemo] 已导出 JSON：Assets/{_exportJsonPath}");
     }
 #endif
 }

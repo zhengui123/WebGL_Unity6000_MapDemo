@@ -91,7 +91,7 @@ public static class VehicleHeatmapApi
     {
         if (response == null || !response.IsSuccess)
         {
-            Debug.LogWarning("[VehicleHeatmapApi] ApplySuccessfulResponse 跳过：响应为空或业务未成功。");
+            LogManager.LogBackendWarning("[VehicleHeatmapApi] ApplySuccessfulResponse 跳过：响应为空或业务未成功。");
             return;
         }
 
@@ -105,7 +105,7 @@ public static class VehicleHeatmapApi
         Dictionary<string, List<LatestVinLocationItem>> groups = GroupByProvinceCode(response?.data);
         if (groups.Count == 0)
         {
-            Debug.LogWarning("[VehicleHeatmapApi] 响应无有效省级分组（data[].c），未刷新地图点位。");
+            LogManager.LogBackendWarning("[VehicleHeatmapApi] 响应无有效省级分组（data[].c），未刷新地图点位。");
             return;
         }
 
@@ -123,13 +123,13 @@ public static class VehicleHeatmapApi
             if (!controllerUpdated)
             {
                 PlateMapAPI.Instance.TryResolvePlateMapName(pair.Key, out string plateMapName);
-                Debug.LogWarning(
+                LogManager.LogBackendWarning(
                     $"[VehicleHeatmapApi] 点位已按 c={pair.Key} 分组（{plateMapName}），" +
                     "但 Controller 未注册或未启用；启用后将从 Hub 缓存同步。");
             }
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[VehicleHeatmapApi] 已按 c 同步 {pointCount} 个热力点到 {provinceCount} 个省级板块。");
     }
 
@@ -149,7 +149,7 @@ public static class VehicleHeatmapApi
             LatestVinLocationItem item = items[i];
             if (item == null || string.IsNullOrWhiteSpace(item.c))
             {
-                Debug.LogWarning($"[VehicleHeatmapApi] 跳过无省级 code(c) 的点位 index={i}。");
+                LogManager.LogBackendWarning($"[VehicleHeatmapApi] 跳过无省级 code(c) 的点位 index={i}。");
                 continue;
             }
 
@@ -176,27 +176,27 @@ public static class VehicleHeatmapApi
     {
         if (result == null)
         {
-            Debug.LogWarning("[VehicleHeatmapApi] 请求结果为空。");
+            LogManager.LogBackendWarning("[VehicleHeatmapApi] 请求结果为空。");
             return;
         }
 
         string body = string.IsNullOrEmpty(result.RawBody) ? "(空)" : result.RawBody;
         if (result.IsCancelled)
         {
-            Debug.Log("[VehicleHeatmapApi] 请求已取消。");
+            LogManager.LogBackend("[VehicleHeatmapApi] 请求已取消。");
             return;
         }
 
         if (!result.IsSuccess)
         {
-            Debug.LogWarning(
+            LogManager.LogBackendWarning(
                 $"[VehicleHeatmapApi] 请求失败，状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{body}");
             return;
         }
 
         int count = response?.data != null ? response.data.Length : 0;
         bool bizOk = response != null && response.IsSuccess;
-        Debug.Log(
+        LogManager.LogBackend(
             $"[VehicleHeatmapApi] 请求成功，状态码={result.StatusCode}，业务成功={bizOk}，点数={count}\n响应 JSON：\n{body}");
     }
 }

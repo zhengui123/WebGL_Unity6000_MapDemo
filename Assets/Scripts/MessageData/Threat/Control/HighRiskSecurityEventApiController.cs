@@ -67,13 +67,13 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
         {
             _pausedByCooldown = true;
             StopPollCoroutineOnly();
-            Debug.Log(
+            LogManager.LogBackend(
                 $"[HighRiskSecurityEventApiController] 已记录开启轮询，但威胁冷却中，暂不请求 | 间隔={IntervalSeconds}s");
             return true;
         }
 
         StartPollCoroutine();
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApiController] 已开启轮询，间隔={IntervalSeconds}s");
         return true;
     }
@@ -83,7 +83,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     {
         _wantPolling = false;
         StopPollCoroutineOnly();
-        Debug.Log("[HighRiskSecurityEventApiController] 已停止轮询。");
+        LogManager.LogBackend("[HighRiskSecurityEventApiController] 已停止轮询。");
         return true;
     }
 
@@ -92,7 +92,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     {
         _pausedByCooldown = true;
         StopPollCoroutineOnly();
-        Debug.Log(
+        LogManager.LogBackend(
             $"[HighRiskSecurityEventApiController] 威胁冷却开始，暂停轮询请求 | wantPolling={_wantPolling}");
     }
 
@@ -106,12 +106,12 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
 
         if (!_wantPolling)
         {
-            Debug.Log(
+            LogManager.LogBackend(
                 "[HighRiskSecurityEventApiController] 威胁冷却结束，当前未开启轮询，不请求、不评估本地缓存。");
             return;
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             "[HighRiskSecurityEventApiController] 威胁冷却结束，先请求接口更新数据后再恢复轮询。");
         StartPollCoroutine();
     }
@@ -121,7 +121,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     {
         if (_pausedByCooldown || IsThreatInterruptCooldownActive())
         {
-            Debug.Log("[HighRiskSecurityEventApiController] 冷却中，跳过单次请求。");
+            LogManager.LogBackend("[HighRiskSecurityEventApiController] 冷却中，跳过单次请求。");
             return;
         }
 
@@ -172,7 +172,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
             HttpService http = HttpService.Instance;
             int active = http != null ? http.ActiveRequestCount : 0;
             int pending = http != null ? http.PendingRequestCount : 0;
-            Debug.Log(
+            LogManager.LogBackend(
                 "[HighRiskSecurityEventApiController] 同业务跳过：上一次高危事件尚未结束，未入 HttpService 队 | " +
                 $"Http在途={active} | Http排队={pending}");
             return false;

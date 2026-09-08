@@ -138,7 +138,7 @@ public class GaodeMapController : MonoBehaviour
             return true;
         }
 
-        Debug.LogWarning("[GaodeMapController] 未找到 OnlineMaps 组件。");
+        LogManager.LogFeatureWarning("[GaodeMapController] 未找到 OnlineMaps 组件。");
         return false;
     }
 

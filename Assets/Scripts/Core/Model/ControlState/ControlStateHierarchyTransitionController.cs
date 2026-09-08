@@ -70,7 +70,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     {
         if (_isBootstrapping)
         {
-            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
             return;
         }
 
@@ -131,7 +131,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                 return true;
             }
 
-            Debug.LogWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
+            LogManager.LogFeatureWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
             return false;
         }
 
@@ -216,7 +216,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager manager = GameManager.Instance;
             if (manager == null)
             {
-                Debug.LogWarning("[ControlStateHierarchyTransitionController] 未找到 GameManager。");
+                LogManager.LogFeatureWarning("[ControlStateHierarchyTransitionController] 未找到 GameManager。");
                 yield break;
             }
 
@@ -278,7 +278,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager.ControlState expectedNext = GetNextStateToward(currentState, targetState);
             if (expectedNext == currentState)
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[ControlStateHierarchyTransitionController] 无法从 {currentState} 向目标 {targetState} 规划下一步，中止。");
                 yield break;
             }
@@ -294,20 +294,20 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager.ControlState nextState = GameManagerDemoAccess.GetCurrentState(manager);
             if (nextState == currentState)
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[ControlStateHierarchyTransitionController] 过渡后状态未变化：{currentState}，目标 {targetState}，中止。");
                 yield break;
             }
 
             if (nextState != expectedNext)
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[ControlStateHierarchyTransitionController] 状态跳变异常：{currentState} → {nextState}，期望 {expectedNext}，中止。");
                 yield break;
             }
         }
 
-        Debug.LogWarning(
+        LogManager.LogFeatureWarning(
             $"[ControlStateHierarchyTransitionController] 超过最大步数 {MaxTransitionSteps}，当前 {GameManagerDemoAccess.GetCurrentState(manager)}，目标 {targetState}。");
     }
 
@@ -494,7 +494,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             yield break;
         }
 
-        Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未定义的过渡边：{from} → {to}");
+        LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未定义的过渡边：{from} → {to}");
     }
 
     private IEnumerator GoToProvinceLevel(string moduleName)
@@ -505,7 +505,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (string.IsNullOrWhiteSpace(key))
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 "[ControlStateHierarchyTransitionController] 默认省未解析到板块模块名，无法进入省级。");
             yield break;
         }
@@ -603,7 +603,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -613,7 +613,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
             unsubscribe(OnStepDone);
             yield break;
         }
@@ -631,7 +631,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -641,7 +641,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
             unsubscribe(OnStepDoneWithName);
             yield break;
         }
@@ -659,7 +659,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
             yield break;
         }
 
@@ -669,7 +669,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
             unsubscribe(OnStepDoneWithNameAndId);
             yield break;
         }
@@ -717,7 +717,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!predicate() && stepName != "等待其它过渡结束")
         {
-            Debug.LogWarning($"[ControlStateHierarchyTransitionController] {stepName} 超时（{_stepTimeoutSeconds}s）。");
+            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 超时（{_stepTimeoutSeconds}s）。");
         }
     }
 
@@ -844,7 +844,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         GameManager.ControlState actual = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : targetState;
-        Debug.Log($"[ControlStateHierarchyTransitionController] 跳转结束，目标 {targetState}，当前 {actual}。");
+        LogManager.LogFeature($"[ControlStateHierarchyTransitionController] 跳转结束，目标 {targetState}，当前 {actual}。");
     }
 
     private void LateUpdate()

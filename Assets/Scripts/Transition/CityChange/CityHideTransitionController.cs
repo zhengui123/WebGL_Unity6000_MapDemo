@@ -134,13 +134,13 @@ public class CityHideTransitionController : MonoBehaviour
         ResolveReferences();
         if (_cityRawImageVisibility == null)
         {
-            Debug.LogError("[CityHideTransition] 未找到 CityRawImageVisibility / City_RawImg。");
+            LogManager.LogFeatureError("[CityHideTransition] 未找到 CityRawImageVisibility / City_RawImg。");
             return false;
         }
 
         if (_mainCamera == null)
         {
-            Debug.LogError("[CityHideTransition] 未找到主摄像机。");
+            LogManager.LogFeatureError("[CityHideTransition] 未找到主摄像机。");
             return false;
         }
 

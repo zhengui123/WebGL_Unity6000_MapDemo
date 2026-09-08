@@ -116,11 +116,11 @@ public class GameManager : UnitySingle<GameManager>
         ApplyStateSideEffects(_currentState);
 
             
-        EventManager.Instance.OnTransitionToPlateMapCompleted += ()=>{ Debug.Log("地球 → 板块过渡动画全部播放完毕");};
-        EventManager.Instance.OnTransitionToEarthCompleted += ()=>{Debug.Log("板块 → 地球过渡动画全部播放完毕");};
-        EventManager.Instance.OnPlateMapDisplayFocus += moduleName =>{Debug.Log("板块模块开始聚焦：" + moduleName);};
-        EventManager.Instance.OnPlateMapFocusModuleCompleted += moduleName =>{Debug.Log("板块模块聚焦动画完成：" + moduleName);};
-        EventManager.Instance.OnPlateMapRestoreCameraCompleted += () =>{Debug.Log("板块相机还原动画完成");};
+        EventManager.Instance.OnTransitionToPlateMapCompleted += ()=>{ LogManager.LogFeature("地球 → 板块过渡动画全部播放完毕");};
+        EventManager.Instance.OnTransitionToEarthCompleted += ()=>{LogManager.LogFeature("板块 → 地球过渡动画全部播放完毕");};
+        EventManager.Instance.OnPlateMapDisplayFocus += moduleName =>{LogManager.LogFeature("板块模块开始聚焦：" + moduleName);};
+        EventManager.Instance.OnPlateMapFocusModuleCompleted += moduleName =>{LogManager.LogFeature("板块模块聚焦动画完成：" + moduleName);};
+        EventManager.Instance.OnPlateMapRestoreCameraCompleted += () =>{LogManager.LogFeature("板块相机还原动画完成");};
     }
 
     private void OnDisable()
@@ -164,7 +164,7 @@ public class GameManager : UnitySingle<GameManager>
         Time.timeScale = 0f;
         DG.Tweening.DOTween.PauseAll();
         _isPaused = true;
-        Debug.Log("[GameManager] 游戏已暂停");
+        LogManager.LogFeature("[GameManager] 游戏已暂停");
         OnPauseStateChanged?.Invoke(true);
     }
 
@@ -179,7 +179,7 @@ public class GameManager : UnitySingle<GameManager>
         Time.timeScale = _timeScaleBeforePause > 0f ? _timeScaleBeforePause : 1f;
         DG.Tweening.DOTween.PlayAll();
         _isPaused = false;
-        Debug.Log("[GameManager] 游戏已恢复");
+        LogManager.LogFeature("[GameManager] 游戏已恢复");
         OnPauseStateChanged?.Invoke(false);
     }
 
@@ -338,7 +338,7 @@ public class GameManager : UnitySingle<GameManager>
         string moduleName = ResolveProvinceModuleName(provinceModuleName);
         if (string.IsNullOrWhiteSpace(moduleName))
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[GameManager] 无法聚焦省级：模块名为空，且默认省 code={DefaultProvinceCode} 未解析到板块。");
             return;
         }
@@ -354,7 +354,7 @@ public class GameManager : UnitySingle<GameManager>
     {
         if (string.IsNullOrWhiteSpace(provinceCode))
         {
-            Debug.LogWarning("[GameManager] SetDefaultProvinceCode: provinceCode 为空。");
+            LogManager.LogFeatureWarning("[GameManager] SetDefaultProvinceCode: provinceCode 为空。");
             return false;
         }
 
@@ -366,13 +366,13 @@ public class GameManager : UnitySingle<GameManager>
 
         if (!TryResolveProvinceNameByCode(normalized, out string provinceName))
         {
-            Debug.LogWarning($"[GameManager] SetDefaultProvinceCode: 未找到 code={normalized} 对应省名。");
+            LogManager.LogFeatureWarning($"[GameManager] SetDefaultProvinceCode: 未找到 code={normalized} 对应省名。");
             return false;
         }
 
         _defaultProvinceCode = normalized;
         _defaultProvinceName = provinceName;
-        Debug.Log($"[GameManager] 默认省已更新 | code={_defaultProvinceCode} | name={_defaultProvinceName}");
+        LogManager.LogFeature($"[GameManager] 默认省已更新 | code={_defaultProvinceCode} | name={_defaultProvinceName}");
         return true;
     }
 
@@ -496,7 +496,7 @@ public class GameManager : UnitySingle<GameManager>
         }
 
         _currentPlaybackState = newState;
-        Debug.Log($"[GameManager] 大屏播放状态 → {newState}");
+        LogManager.LogFeature($"[GameManager] 大屏播放状态 → {newState}");
         OnPlaybackStateChanged?.Invoke(newState);
     }
 

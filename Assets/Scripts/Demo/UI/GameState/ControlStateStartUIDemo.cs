@@ -126,7 +126,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -137,7 +137,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
     {
         if (MapApi.Instance == null)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 未找到 MapApi。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 未找到 MapApi。");
             return;
         }
 
@@ -145,13 +145,13 @@ public class ControlStateStartUIDemo : MonoBehaviour
             ControlStateHierarchyTransitionController.Instance;
         if (controller != null && controller.IsBootstrapping)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 正在跳转中，请稍候。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 正在跳转中，请稍候。");
             return;
         }
 
         if (_targetStateDropdown == null)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 未绑定目标状态下拉列表。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 未绑定目标状态下拉列表。");
             return;
         }
 
@@ -176,7 +176,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
         if (!started)
         {
-            Debug.LogWarning("[ControlStateStartUIDemo] 跳转未能启动。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 跳转未能启动。");
         }
     }
 

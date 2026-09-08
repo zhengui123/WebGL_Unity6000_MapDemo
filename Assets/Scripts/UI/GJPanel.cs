@@ -52,7 +52,7 @@ public class GJPanel : MonoBehaviour
         }
         else if (_instance != this)
         {
-            Debug.LogWarning("[GJPanel] 场景中存在多个 GJPanel，仅首个实例作为 Instance。");
+            LogManager.LogFeatureWarning("[GJPanel] 场景中存在多个 GJPanel，仅首个实例作为 Instance。");
         }
 
         EnsureReferences();
@@ -128,7 +128,7 @@ public class GJPanel : MonoBehaviour
     {
         if (data == null)
         {
-            Debug.LogWarning("[GJPanel] data 为空，未刷新面板。");
+            LogManager.LogFeatureWarning("[GJPanel] data 为空，未刷新面板。");
             return false;
         }
 
@@ -146,7 +146,7 @@ public class GJPanel : MonoBehaviour
     {
         if (response == null || !response.IsSuccess || response.data == null)
         {
-            Debug.LogWarning("[GJPanel] 响应为空或业务失败，未刷新面板。");
+            LogManager.LogFeatureWarning("[GJPanel] 响应为空或业务失败，未刷新面板。");
             return false;
         }
 

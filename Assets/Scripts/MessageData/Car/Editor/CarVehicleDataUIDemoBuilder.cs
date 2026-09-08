@@ -35,7 +35,7 @@ public static class CarVehicleDataUIDemoBuilder
         CarVehicleDataController controller = FindSceneCarVehicleDataController();
         if (controller == null)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[CarVehicleDataUIDemoBuilder] 未在场景 {ManagerRootName}/{ControllerObjectName} 找到 CarVehicleDataController，" +
                 "请先在该节点挂载脚本；Demo 面板将仅保留 UI。");
         }

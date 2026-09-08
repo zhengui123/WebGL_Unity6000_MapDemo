@@ -62,7 +62,7 @@ public static class WorldMapRegionCodeTable
         TextAsset asset = Resources.Load<TextAsset>(ResourcePath);
         if (asset == null || string.IsNullOrWhiteSpace(asset.text))
         {
-            Debug.LogWarning($"[WorldMapRegionCodeTable] 未找到 Resources/{ResourcePath}.json，国外对照表为空。");
+            LogManager.LogFeatureWarning($"[WorldMapRegionCodeTable] 未找到 Resources/{ResourcePath}.json，国外对照表为空。");
             _file = new WorldMapRegionCodesFile { data = Array.Empty<GaodeProvinceAdcodeItem>() };
             _loaded = true;
             return;
@@ -74,7 +74,7 @@ public static class WorldMapRegionCodeTable
         }
         catch (Exception ex)
         {
-            Debug.LogError($"[WorldMapRegionCodeTable] 解析 JSON 失败：{ex.Message}");
+            LogManager.LogFeatureError($"[WorldMapRegionCodeTable] 解析 JSON 失败：{ex.Message}");
             _file = new WorldMapRegionCodesFile { data = Array.Empty<GaodeProvinceAdcodeItem>() };
         }
 

@@ -148,7 +148,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[CarVehicleDataUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[CarVehicleDataUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 
@@ -180,7 +180,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
             _resultText.text = message ?? string.Empty;
         }
 
-        Debug.Log($"[CarVehicleDataUIDemo] {message}");
+        LogManager.LogFeature($"[CarVehicleDataUIDemo] {message}");
     }
 
     private static void Bind(Button button, UnityEngine.Events.UnityAction action, bool bind)

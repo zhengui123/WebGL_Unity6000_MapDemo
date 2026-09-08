@@ -49,7 +49,7 @@ public static class ThreatProvinceAlertController
     {
         if (IsInInterruptCooldown)
         {
-            Debug.Log(
+            LogManager.LogBackend(
                 $"[ThreatProvinceAlertController] 威胁冷却中，跳过检测 | 剩余={InterruptCooldownRemaining:F0}s");
             return;
         }
@@ -66,7 +66,7 @@ public static class ThreatProvinceAlertController
                 running.RefreshVisualsFromCache();
             }
 
-            Debug.Log(
+            LogManager.LogBackend(
                 "[ThreatProvinceAlertController] 威胁处理中，仅刷新数据与当前阶段画面，不重新进入流程。" +
                 $" 达标省数={qualifiedProvinces?.Count ?? 0}");
             return;
@@ -81,7 +81,7 @@ public static class ThreatProvinceAlertController
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
         if (runner == null)
         {
-            Debug.LogError(
+            LogManager.LogBackendError(
                 "[ThreatProvinceAlertController] 场景中未找到 ThreatAlertFlowRunner，请挂到任意常驻物体上。");
             return;
         }
@@ -92,20 +92,20 @@ public static class ThreatProvinceAlertController
         if (!runner.TryStartThreatFlow())
         {
             _isProcessing = false;
-            Debug.LogWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行或冷却中）。");
+            LogManager.LogBackendWarning("[ThreatProvinceAlertController] 威胁流程启动失败（可能已在运行或冷却中）。");
             return;
         }
 
         if (carouselActive)
         {
-            Debug.Log(
+            LogManager.LogBackend(
                 "[ThreatProvinceAlertController] 检测到自动轮播/延时等待，已停轮播并从全国进入威胁下钻。");
         }
         else if (ThreatAlertFlowRunner.IsInVehicleDrillControlState() ||
                  (GameManager.Instance != null &&
                   GameManager.Instance.CurrentState != GameManager.ControlState.CountryLevel))
         {
-            Debug.Log(
+            LogManager.LogBackend(
                 "[ThreatProvinceAlertController] 非国家级触发威胁，将先瞬时回国家再从头下钻。");
         }
     }
@@ -130,7 +130,7 @@ public static class ThreatProvinceAlertController
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
         if (runner == null)
         {
-            Debug.LogWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法退出威胁下钻。");
+            LogManager.LogBackendWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法退出威胁下钻。");
             return false;
         }
 
@@ -145,7 +145,7 @@ public static class ThreatProvinceAlertController
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
         if (runner == null)
         {
-            Debug.LogWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法刷新冷却。");
+            LogManager.LogBackendWarning("[ThreatProvinceAlertController] 未找到 ThreatAlertFlowRunner，无法刷新冷却。");
             return false;
         }
 
@@ -160,7 +160,7 @@ public static class ThreatProvinceAlertController
         ThreatAlertFlowRunner runner = ThreatAlertFlowRunner.Instance;
         if (runner == null || !runner.IsRunning)
         {
-            Debug.LogWarning("[ThreatProvinceAlertController] 当前没有进行中的威胁流程，忽略 Complete 调用。");
+            LogManager.LogBackendWarning("[ThreatProvinceAlertController] 当前没有进行中的威胁流程，忽略 Complete 调用。");
             return;
         }
 

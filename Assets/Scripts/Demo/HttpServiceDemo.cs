@@ -82,12 +82,12 @@ public class HttpServiceDemo : MonoBehaviour
         string url = _getUrl != null ? _getUrl.Trim() : string.Empty;
         if (string.IsNullOrEmpty(url))
         {
-            Debug.LogError("[HttpServiceDemo] GET 失败：URL 为空。");
+            LogManager.LogFeatureError("[HttpServiceDemo] GET 失败：URL 为空。");
             return;
         }
 
         Dictionary<string, string> headers = CollectHeaders();
-        Debug.Log($"[HttpServiceDemo] GET 请求：{url}");
+        LogManager.LogFeature($"[HttpServiceDemo] GET 请求：{url}");
 
         HttpService.Instance.Get<JsonPlaceholderTodoData>(url, OnGetResponse, headers);
     }
@@ -97,14 +97,14 @@ public class HttpServiceDemo : MonoBehaviour
     {
         if (!TryBuildPostUrl(out string url, out string buildError))
         {
-            Debug.LogError($"[HttpServiceDemo] POST 失败：{buildError}");
+            LogManager.LogFeatureError($"[HttpServiceDemo] POST 失败：{buildError}");
             return;
         }
 
         Dictionary<string, string> headers = CollectHeaders();
         string jsonBody = BuildPostJsonBody();
 
-        Debug.Log($"[HttpServiceDemo] POST 请求：{url}\n提交 JSON：{jsonBody}");
+        LogManager.LogFeature($"[HttpServiceDemo] POST 请求：{url}\n提交 JSON：{jsonBody}");
 
         HttpService.Instance.Post(url, jsonBody, OnPostResponse, headers);
     }
@@ -125,7 +125,7 @@ public class HttpServiceDemo : MonoBehaviour
             return;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[HttpServiceDemo] GET 解析 → userId={data.userId}, id={data.id}, " +
             $"title=\"{data.title}\", completed={data.completed}");
     }
@@ -139,24 +139,24 @@ public class HttpServiceDemo : MonoBehaviour
     {
         if (result == null)
         {
-            Debug.LogError($"[HttpServiceDemo] {method} 失败：结果为空。");
+            LogManager.LogFeatureError($"[HttpServiceDemo] {method} 失败：结果为空。");
             return;
         }
 
         if (result.IsCancelled)
         {
-            Debug.Log($"[HttpServiceDemo] {method} 已停止。");
+            LogManager.LogFeature($"[HttpServiceDemo] {method} 已停止。");
             return;
         }
 
         string message = BuildResultLogText(method, result);
         if (result.IsSuccess)
         {
-            Debug.Log(message);
+            LogManager.LogFeature(message);
             return;
         }
 
-        Debug.LogError(message);
+        LogManager.LogFeatureError(message);
     }
 
     private static string BuildResultLogText(string method, HttpRequestResult result)

@@ -12,7 +12,7 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
     {
         if (!VehicleMapPointJson.TryParse(vehiclePointsJson, out VehicleMapPointData[] points, out string error))
         {
-            Debug.LogError($"[PlateMapAPI] UpdateVehiclePointsFromJson 失败：{error}");
+            LogManager.LogFeatureError($"[PlateMapAPI] UpdateVehiclePointsFromJson 失败：{error}");
             return false;
         }
 
@@ -25,7 +25,7 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
         PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
         if (hub == null)
         {
-            Debug.LogError("[PlateMapAPI] PlateMapVehiclePointEvents 未初始化。");
+            LogManager.LogFeatureError("[PlateMapAPI] PlateMapVehiclePointEvents 未初始化。");
             return false;
         }
 
@@ -111,7 +111,7 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
             return true;
         }
 
-        Debug.LogWarning(
+        LogManager.LogFeatureWarning(
             $"[PlateMapAPI] 未找到 code={provinceCode} 对应场景板块（WorldMap：请确认 GeoConverter 已注册或对照表有中文名）。");
         return false;
     }

@@ -98,7 +98,7 @@ public static class EarthPlateParticleMaterials
         }
 
         _fallbackTexture = CreateProceduralSoftCircle(128);
-        Debug.LogWarning("[EarthPlateParticleMaterials] 未找到配置贴图，使用临时程序柔圆。请执行 Tools/地图/创建过渡动画资源。");
+        LogManager.LogFeatureWarning("[EarthPlateParticleMaterials] 未找到配置贴图，使用临时程序柔圆。请执行 Tools/地图/创建过渡动画资源。");
         return _fallbackTexture;
     }
 
@@ -202,6 +202,6 @@ public static class EarthPlateParticleMaterials
 
         _loggedSource = true;
         string texName = mat.mainTexture != null ? mat.mainTexture.name : "无贴图";
-        Debug.Log($"[EarthPlateParticleMaterials] {label} 材质={mat.name}, 贴图={texName}, Shader={mat.shader.name}");
+        LogManager.LogFeature($"[EarthPlateParticleMaterials] {label} 材质={mat.name}, 贴图={texName}, Shader={mat.shader.name}");
     }
 }

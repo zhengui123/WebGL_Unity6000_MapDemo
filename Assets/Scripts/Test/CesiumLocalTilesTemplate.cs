@@ -38,7 +38,7 @@
 //     {
 //         if (!File.Exists(_tilesetJsonPath))
 //         {
-//             Debug.LogError($"[CesiumLocalTilesTemplate] 未找到 tileset.json: {_tilesetJsonPath}");
+//             LogManager.LogFeatureError($"[CesiumLocalTilesTemplate] 未找到 tileset.json: {_tilesetJsonPath}");
 //             return;
 //         }
 
@@ -51,7 +51,7 @@
 //                 out double hMin,
 //                 out double hMax))
 //         {
-//             Debug.LogError("[CesiumLocalTilesTemplate] 解析 tileset.json 范围失败。");
+//             LogManager.LogFeatureError("[CesiumLocalTilesTemplate] 解析 tileset.json 范围失败。");
 //             return;
 //         }
 
@@ -81,12 +81,12 @@
 //             }
 //             else
 //             {
-//                 Debug.LogWarning("[CesiumLocalTilesTemplate] 未找到 MainCamera，跳过相机自动定位。");
+//                 LogManager.LogFeatureWarning("[CesiumLocalTilesTemplate] 未找到 MainCamera，跳过相机自动定位。");
 //             }
 //         }
 
-//         Debug.Log($"[CesiumLocalTilesTemplate] Lon: {lonMin:F6}~{lonMax:F6}, Lat: {latMin:F6}~{latMax:F6}, Height: {hMin:F1}~{hMax:F1}");
-//         Debug.Log($"[CesiumLocalTilesTemplate] Center: lon={lonCenter:F6}, lat={latCenter:F6}, h={hCenter:F1}");
+//         LogManager.LogFeature($"[CesiumLocalTilesTemplate] Lon: {lonMin:F6}~{lonMax:F6}, Lat: {latMin:F6}~{latMax:F6}, Height: {hMin:F1}~{hMax:F1}");
+//         LogManager.LogFeature($"[CesiumLocalTilesTemplate] Center: lon={lonCenter:F6}, lat={latCenter:F6}, h={hCenter:F1}");
 //     }
 
 //     private void Start()

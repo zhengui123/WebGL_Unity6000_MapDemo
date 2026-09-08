@@ -66,20 +66,20 @@ public class PlateMapHighlightUIDemo : MonoBehaviour
         PlateMapHighlightController controller = PlateMapHighlightController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[PlateMapHighlightUIDemo] 未找到 PlateMapHighlightController。");
+            LogManager.LogFeatureWarning("[PlateMapHighlightUIDemo] 未找到 PlateMapHighlightController。");
             return;
         }
 
         string moduleName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
         if (string.IsNullOrWhiteSpace(moduleName))
         {
-            Debug.LogWarning("[PlateMapHighlightUIDemo] 未选择省市名。");
+            LogManager.LogFeatureWarning("[PlateMapHighlightUIDemo] 未选择省市名。");
             return;
         }
 
         if (!controller.HighlightModule(moduleName))
         {
-            Debug.LogWarning($"[PlateMapHighlightUIDemo] 高亮失败：{moduleName}");
+            LogManager.LogFeatureWarning($"[PlateMapHighlightUIDemo] 高亮失败：{moduleName}");
         }
     }
 
@@ -88,7 +88,7 @@ public class PlateMapHighlightUIDemo : MonoBehaviour
         PlateMapHighlightController controller = PlateMapHighlightController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[PlateMapHighlightUIDemo] 未找到 PlateMapHighlightController。");
+            LogManager.LogFeatureWarning("[PlateMapHighlightUIDemo] 未找到 PlateMapHighlightController。");
             return;
         }
 
@@ -100,7 +100,7 @@ public class PlateMapHighlightUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[PlateMapHighlightUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[PlateMapHighlightUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

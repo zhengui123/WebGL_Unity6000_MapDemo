@@ -72,7 +72,7 @@ public class CarPanelUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[CarPanelUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[CarPanelUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

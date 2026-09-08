@@ -10,11 +10,11 @@ public class MapApi : UnitySingle<MapApi>
     /// <summary>播放地球 → 板块过渡。</summary>
     public void TransitionToPlateMap()
     {
-        Debug.Log("[MapApi] TransitionToPlateMap");
+        LogManager.LogFeature("[MapApi] TransitionToPlateMap");
         EarthTransition earthTransition = EarthTransition.Instance;
         if (earthTransition == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 EarthTransition，无法切换到板块地图。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 EarthTransition，无法切换到板块地图。");
             return;
         }
 
@@ -27,7 +27,7 @@ public class MapApi : UnitySingle<MapApi>
         EarthTransition earthTransition = EarthTransition.Instance;
         if (earthTransition == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 EarthTransition，无法切换到地球。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 EarthTransition，无法切换到地球。");
             return;
         }
 
@@ -42,7 +42,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateMapDisplayController controller = PlateMapDisplayController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateMapDisplayController，无法聚焦模块。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapDisplayController，无法聚焦模块。");
             return false;
         }
 
@@ -55,7 +55,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateMapDisplayController controller = PlateMapDisplayController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateMapDisplayController，无法还原相机。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapDisplayController，无法还原相机。");
             return false;
         }
 
@@ -68,7 +68,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateMapHighlightController controller = PlateMapHighlightController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateMapHighlightController，无法高亮模块。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapHighlightController，无法高亮模块。");
             return false;
         }
 
@@ -81,7 +81,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateMapHighlightController controller = PlateMapHighlightController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateMapHighlightController，无法取消高亮。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapHighlightController，无法取消高亮。");
             return;
         }
 
@@ -94,7 +94,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
         if (orchestrator == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
             return false;
         }
 
@@ -107,7 +107,7 @@ public class MapApi : UnitySingle<MapApi>
         PlateToCityMapTransitionOrchestrator orchestrator = PlateToCityMapTransitionOrchestrator.Instance;
         if (orchestrator == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 PlateToCityMapTransitionOrchestrator。");
             return false;
         }
 
@@ -133,7 +133,7 @@ public class MapApi : UnitySingle<MapApi>
         CarPanelManager manager = CarPanelManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 CarPanelManager，无法打开车辆 UI。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 CarPanelManager，无法打开车辆 UI。");
             return;
         }
 
@@ -146,7 +146,7 @@ public class MapApi : UnitySingle<MapApi>
         CarPanelManager manager = CarPanelManager.Instance;
         if (manager == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 CarPanelManager，无法关闭车辆 UI。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 CarPanelManager，无法关闭车辆 UI。");
             return;
         }
 
@@ -175,7 +175,7 @@ public class MapApi : UnitySingle<MapApi>
         GJPanel panel = GJPanel.Instance;
         if (panel == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 GJPanel，无法关闭。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 GJPanel，无法关闭。");
             return false;
         }
 
@@ -191,7 +191,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法开启指定时段轮询。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法开启指定时段轮询。");
             return false;
         }
 
@@ -206,7 +206,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法关闭指定时段轮询。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法关闭指定时段轮询。");
             return false;
         }
 
@@ -222,7 +222,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法单次请求热力图。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法单次请求热力图。");
             return false;
         }
 
@@ -241,7 +241,7 @@ public class MapApi : UnitySingle<MapApi>
         CarVehicleDataController controller = CarVehicleDataController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 CarVehicleDataController，无法请求车辆态势数据。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 CarVehicleDataController，无法请求车辆态势数据。");
             return false;
         }
 
@@ -270,7 +270,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 零件过渡。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 零件过渡。");
             return false;
         }
 
@@ -284,7 +284,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放零件 → 车辆过渡。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放零件 → 车辆过渡。");
             return false;
         }
 
@@ -297,7 +297,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 攻击路径过渡。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 攻击路径过渡。");
             return false;
         }
 
@@ -310,7 +310,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 车辆过渡。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 车辆过渡。");
             return false;
         }
 
@@ -324,7 +324,7 @@ public class MapApi : UnitySingle<MapApi>
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 零件过渡。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放攻击路径 → 零件过渡。");
             return false;
         }
 
@@ -357,7 +357,7 @@ public class MapApi : UnitySingle<MapApi>
     {
         if (!Enum.IsDefined(typeof(GameManager.ControlState), targetState))
         {
-            Debug.LogWarning($"[MapApi] 无效的 targetState：{targetState}，有效范围为 0~5。");
+            LogManager.LogFeatureWarning($"[MapApi] 无效的 targetState：{targetState}，有效范围为 0~5。");
             return false;
         }
 
@@ -365,7 +365,7 @@ public class MapApi : UnitySingle<MapApi>
             ControlStateHierarchyTransitionController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyTransitionController，无法执行层级跳转。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 ControlStateHierarchyTransitionController，无法执行层级跳转。");
             return false;
         }
 
@@ -399,7 +399,7 @@ public class MapApi : UnitySingle<MapApi>
             ControlStateHierarchyInputNavigation.FindFromTransitionController();
         if (navigation == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
             return false;
         }
 
@@ -413,7 +413,7 @@ public class MapApi : UnitySingle<MapApi>
             ControlStateHierarchyInputNavigation.FindFromTransitionController();
         if (navigation == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 ControlStateHierarchyInputNavigation。");
             return false;
         }
 
@@ -426,7 +426,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -454,7 +454,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -468,7 +468,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -482,7 +482,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -496,7 +496,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -510,7 +510,7 @@ public class MapApi : UnitySingle<MapApi>
         BigScreenCarouselController controller = BigScreenCarouselController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 BigScreenCarouselController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 BigScreenCarouselController。");
             return false;
         }
 
@@ -523,7 +523,7 @@ public class MapApi : UnitySingle<MapApi>
     {
         if (GameManager.Instance == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 GameManager，无法暂停。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 GameManager，无法暂停。");
             return false;
         }
 
@@ -536,7 +536,7 @@ public class MapApi : UnitySingle<MapApi>
     {
         if (GameManager.Instance == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 GameManager，无法恢复。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 GameManager，无法恢复。");
             return false;
         }
 
@@ -568,7 +568,7 @@ public class MapApi : UnitySingle<MapApi>
         HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法开启威胁轮询。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法开启威胁轮询。");
             return false;
         }
 
@@ -583,7 +583,7 @@ public class MapApi : UnitySingle<MapApi>
         HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
         if (controller == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法停止威胁轮询。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 HighRiskSecurityEventApiController，无法停止威胁轮询。");
             return false;
         }
 
@@ -600,13 +600,13 @@ public class MapApi : UnitySingle<MapApi>
         WorldMapRegionController region = WorldMapRegionController.Instance;
         if (region == null)
         {
-            Debug.LogWarning("[MapApi] 未找到 WorldMapRegionController。");
+            LogManager.LogFeatureWarning("[MapApi] 未找到 WorldMapRegionController。");
             return false;
         }
 
         if (string.IsNullOrWhiteSpace(provinceCode))
         {
-            Debug.LogWarning("[MapApi] SetWorldMapRegionDefaults：provinceCode 为空。");
+            LogManager.LogFeatureWarning("[MapApi] SetWorldMapRegionDefaults：provinceCode 为空。");
             return false;
         }
 
@@ -646,12 +646,12 @@ public class MapApi : UnitySingle<MapApi>
     {
         if (!HttpProjectConfig.ApplyRuntimeHttpBackendConfig(apiHost, appSecret, headers))
         {
-            Debug.LogWarning(
+            LogManager.LogBackendWarning(
                 "[MapApi] SetHttpRequestHeaders：无有效写入（需非空 apiHost / appSecret，或 key+value 均非空的 headers）。");
             return false;
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[MapApi] SetHttpRequestHeaders 已应用 | apiHost={HttpProjectConfig.ApiHost} | " +
             $"appSecret={(string.IsNullOrEmpty(HttpProjectConfig.AppSecret) ? "(空)" : "(已设置)")}");
         return true;

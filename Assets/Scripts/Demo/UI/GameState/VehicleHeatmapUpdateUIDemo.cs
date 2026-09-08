@@ -50,13 +50,13 @@ public class VehicleHeatmapUpdateUIDemo : MonoBehaviour
     {
         if (_pointsDemo == null)
         {
-            Debug.LogWarning("[VehicleHeatmapUpdateUIDemo] 未找到 PlateMapShandongRandomPointsDemo。");
+            LogManager.LogFeatureWarning("[VehicleHeatmapUpdateUIDemo] 未找到 PlateMapShandongRandomPointsDemo。");
             return;
         }
 
         if (_pointCountInput == null || string.IsNullOrWhiteSpace(_pointCountInput.text))
         {
-            Debug.LogWarning("[VehicleHeatmapUpdateUIDemo] 请输入点位数量。");
+            LogManager.LogFeatureWarning("[VehicleHeatmapUpdateUIDemo] 请输入点位数量。");
             return;
         }
 
@@ -68,7 +68,7 @@ public class VehicleHeatmapUpdateUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[VehicleHeatmapUpdateUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[VehicleHeatmapUpdateUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

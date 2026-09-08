@@ -105,7 +105,7 @@ public class CarModelDissolveController : MonoBehaviour
         ResolveReferences();
         if (_realyCarRoot == null || _kjCarRoot == null)
         {
-            Debug.LogError("[CarModelDissolve] 未找到 RealyCar 或 KJ_Car。");
+            LogManager.LogFeatureError("[CarModelDissolve] 未找到 RealyCar 或 KJ_Car。");
             return false;
         }
 
@@ -124,7 +124,7 @@ public class CarModelDissolveController : MonoBehaviour
 
         if (hideGroup.MaterialCount == 0 || appearGroup.MaterialCount == 0)
         {
-            Debug.LogWarning("[CarModelDissolve] 未找到带 _DissolveAmount 的材质，请检查子物体材质与 Shader。");
+            LogManager.LogFeatureWarning("[CarModelDissolve] 未找到带 _DissolveAmount 的材质，请检查子物体材质与 Shader。");
             return false;
         }
 

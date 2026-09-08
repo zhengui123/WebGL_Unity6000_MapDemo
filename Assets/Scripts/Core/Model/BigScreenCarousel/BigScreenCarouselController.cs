@@ -167,11 +167,11 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     if (!enabled)
     {
       CancelDelayedStart();
-      Debug.Log("[BigScreenCarousel] 延时开轮播功能已关闭。");
+      LogManager.LogFeature("[BigScreenCarousel] 延时开轮播功能已关闭。");
       return;
     }
 
-    Debug.Log("[BigScreenCarousel] 延时开轮播功能已开启。");
+    LogManager.LogFeature("[BigScreenCarousel] 延时开轮播功能已开启。");
     if (!_autoCarouselEnabled)
     {
       ScheduleAutoCarouselStart(_defaultDelayedStartSeconds);
@@ -194,7 +194,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
       {
         _autoCarouselEnabled = false;
         StopCarouselRoutine();
-        Debug.Log("[BigScreenCarousel] 自动轮播已关闭。");
+        LogManager.LogFeature("[BigScreenCarousel] 自动轮播已关闭。");
       }
 
       return;
@@ -225,7 +225,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
 
     if (!_delayedStartFeatureEnabled)
     {
-      Debug.LogWarning("[BigScreenCarousel] 延时开轮播功能已关闭，改为立即开启。");
+      LogManager.LogFeatureWarning("[BigScreenCarousel] 延时开轮播功能已关闭，改为立即开启。");
       SetAutoCarouselEnabled(true, bypassDelayedStart: true);
       return;
     }
@@ -246,7 +246,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     }
 
     _delayedStartCoroutine = StartCoroutine(DelayedStartRoutine(_activeDelayedStartSeconds));
-    Debug.Log($"[BigScreenCarousel] 已预约 {_activeDelayedStartSeconds:0.#}s 后开启轮播。");
+    LogManager.LogFeature($"[BigScreenCarousel] 已预约 {_activeDelayedStartSeconds:0.#}s 后开启轮播。");
   }
 
   /// <summary>取消尚未开始的延时开启。</summary>
@@ -260,7 +260,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     StopCoroutine(_delayedStartCoroutine);
     _delayedStartCoroutine = null;
     _delayedStartTargetUnscaledTime = -1f;
-    Debug.Log("[BigScreenCarousel] 已取消延时开启轮播。");
+    LogManager.LogFeature("[BigScreenCarousel] 已取消延时开启轮播。");
   }
 
   /// <summary>
@@ -282,7 +282,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     {
       _autoCarouselEnabled = false;
       StopCarouselRoutine();
-      Debug.Log("[BigScreenCarousel] 收到宿主通信，已暂停自动轮播并进入延时重开判定。");
+      LogManager.LogFeature("[BigScreenCarousel] 收到宿主通信，已暂停自动轮播并进入延时重开判定。");
     }
 
     float delaySeconds = _activeDelayedStartSeconds > 0f
@@ -311,7 +311,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     }
 
     _loggedAndroidCarouselDisabled = true;
-    Debug.Log("[BigScreenCarousel] Android 版本不启用自动轮播，由宿主控制大屏切换。");
+    LogManager.LogFeature("[BigScreenCarousel] Android 版本不启用自动轮播，由宿主控制大屏切换。");
   }
 
   private void BeginAutoCarouselAsEnabled()
@@ -324,7 +324,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
   {
     SetPlaybackStateDefault();
     StartCarouselRoutine();
-    Debug.Log("[BigScreenCarousel] 自动轮播已开启，大屏播放状态 → 默认。");
+    LogManager.LogFeature("[BigScreenCarousel] 自动轮播已开启，大屏播放状态 → 默认。");
   }
 
   private static void SetPlaybackStateDefault()
@@ -364,7 +364,7 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
     GameManager manager = GameManager.Instance;
     if (manager == null)
     {
-      Debug.LogWarning("[BigScreenCarousel] 未找到 GameManager。");
+      LogManager.LogFeatureWarning("[BigScreenCarousel] 未找到 GameManager。");
       return false;
     }
 
@@ -484,13 +484,13 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
       ControlStateHierarchyTransitionController.Instance;
     if (controller == null)
     {
-      Debug.LogWarning("[BigScreenCarousel] 未找到 ControlStateHierarchyTransitionController。");
+      LogManager.LogFeatureWarning("[BigScreenCarousel] 未找到 ControlStateHierarchyTransitionController。");
       return false;
     }
 
     if (controller.IsBootstrapping)
     {
-      Debug.LogWarning("[BigScreenCarousel] 正在跳转中，跳过本次轮播。");
+      LogManager.LogFeatureWarning("[BigScreenCarousel] 正在跳转中，跳过本次轮播。");
       return false;
     }
 
@@ -502,14 +502,14 @@ public class BigScreenCarouselController : UnitySingle<BigScreenCarouselControll
 
     if (currentState == targetState)
     {
-      Debug.Log($"[BigScreenCarousel] 已在 {BigScreenCarouselScreenMap.GetDisplayName(screenType)}，跳过。");
+      LogManager.LogFeature($"[BigScreenCarousel] 已在 {BigScreenCarouselScreenMap.GetDisplayName(screenType)}，跳过。");
       return true;
     }
 
     hierarchyTransitionStarted = controller.TransitionToState(_useInstantTransition, targetState);
     if (hierarchyTransitionStarted)
     {
-      Debug.Log(
+      LogManager.LogFeature(
         $"[BigScreenCarousel] 轮播切换：{BigScreenCarouselScreenMap.GetDisplayName(screenType)}（{targetState}）。");
     }
 

@@ -94,7 +94,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     {
         if (string.IsNullOrWhiteSpace(startTime) || string.IsNullOrWhiteSpace(endTime))
         {
-            Debug.LogWarning(
+            LogManager.LogBackendWarning(
                 "[VehicleHeatmapApiController] StartSpecifiedTimePolling 失败：起止时间不能为空。");
             return false;
         }
@@ -113,7 +113,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             RequestOnce();
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[VehicleHeatmapApiController] 已开启指定时段轮询：{_specifiedStartTime} ~ {_specifiedEndTime}，isReplay=true。");
         return true;
     }
@@ -130,7 +130,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             RequestOnce();
         }
 
-        Debug.Log("[VehicleHeatmapApiController] 已关闭指定时段轮询，恢复默认轮询（isReplay=false）。");
+        LogManager.LogBackend("[VehicleHeatmapApiController] 已关闭指定时段轮询，恢复默认轮询（isReplay=false）。");
         return true;
     }
 
@@ -144,7 +144,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
 
         _isPolling = true;
         _pollCoroutine = StartCoroutine(PollRoutine());
-        Debug.Log(
+        LogManager.LogBackend(
             $"[VehicleHeatmapApiController] 已开启轮询，间隔={IntervalSeconds}s，" +
             $"mode={(_isSpecifiedTimePolling ? "指定时段" : "默认")}，" +
             $"province={(string.IsNullOrEmpty(_provinceCode) ? "(全国默认)" : _provinceCode)}。");
@@ -165,7 +165,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             _pollCoroutine = null;
         }
 
-        Debug.Log("[VehicleHeatmapApiController] 已停止轮询。");
+        LogManager.LogBackend("[VehicleHeatmapApiController] 已停止轮询。");
     }
 
     /// <summary>立即请求一次（不影响轮询状态；参数由当前模式决定）。</summary>
@@ -191,7 +191,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             return false;
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[VehicleHeatmapApiController] 单次请求 | start={resolvedStart} | end={resolvedEnd} | isReplay={isReplay}");
         return true;
     }
@@ -204,7 +204,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             HttpService http = HttpService.Instance;
             int active = http != null ? http.ActiveRequestCount : 0;
             int pending = http != null ? http.PendingRequestCount : 0;
-            Debug.Log(
+            LogManager.LogBackend(
                 "[VehicleHeatmapApiController] 同业务跳过：上一次车辆热力图尚未结束，未入 HttpService 队 | " +
                 $"Http在途={active} | Http排队={pending}");
             return false;

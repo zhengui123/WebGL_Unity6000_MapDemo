@@ -153,7 +153,7 @@ public static class ControlStateStartUIBuilder
     {
         if (!TryFindTargetCanvas(out Canvas canvas))
         {
-            Debug.LogError($"[ControlStateStartUIBuilder] 未在 {UiRootName} 下找到 Canvas。");
+            LogManager.LogFeatureError($"[ControlStateStartUIBuilder] 未在 {UiRootName} 下找到 Canvas。");
             return;
         }
 
@@ -316,7 +316,7 @@ public static class ControlStateStartUIBuilder
         Undo.RegisterCreatedObjectUndo(uiRoot, "刷新创建全部 Demo UI");
         Selection.activeGameObject = uiRoot;
         EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
-        Debug.Log($"[ControlStateStartUIBuilder] 已刷新创建全部 Demo UI：{UiRootName}/Canvas/{UiRootObjectName}。");
+        LogManager.LogFeature($"[ControlStateStartUIBuilder] 已刷新创建全部 Demo UI：{UiRootName}/Canvas/{UiRootObjectName}。");
     }
 
     private static GameObject CreateMenuPanel(
@@ -2475,7 +2475,7 @@ public static class ControlStateStartUIBuilder
         Font font = AssetDatabase.LoadAssetAtPath<Font>(DemoUiFontPath);
         if (font == null)
         {
-            Debug.LogWarning($"[ControlStateStartUIBuilder] 未找到字体：{DemoUiFontPath}，将使用 LegacyRuntime.ttf。");
+            LogManager.LogFeatureWarning($"[ControlStateStartUIBuilder] 未找到字体：{DemoUiFontPath}，将使用 LegacyRuntime.ttf。");
         }
 
         return font;
@@ -2577,7 +2577,7 @@ public static class ControlStateStartUIBuilder
         canvas = Object.FindFirstObjectByType<Canvas>();
         if (canvas != null)
         {
-            Debug.LogWarning(
+            LogManager.LogFeatureWarning(
                 $"[ControlStateStartUIBuilder] 未找到 {UiRootName}，已回退到场景中的 Canvas：{canvas.name}");
             return true;
         }
@@ -2747,14 +2747,14 @@ public static class ControlStateStartUIBuilder
         Transform itemLabelTransform = dropdown.transform.Find(DropdownItemLabelPath);
         if (itemLabelTransform == null)
         {
-            Debug.LogWarning($"[ControlStateStartUIBuilder] 未找到 Dropdown Item Label：{DropdownItemLabelPath}");
+            LogManager.LogFeatureWarning($"[ControlStateStartUIBuilder] 未找到 Dropdown Item Label：{DropdownItemLabelPath}");
             return;
         }
 
         Text itemLabel = itemLabelTransform.GetComponent<Text>();
         if (itemLabel == null)
         {
-            Debug.LogWarning("[ControlStateStartUIBuilder] Dropdown Item Label 缺少 Text 组件。");
+            LogManager.LogFeatureWarning("[ControlStateStartUIBuilder] Dropdown Item Label 缺少 Text 组件。");
             return;
         }
 

@@ -47,7 +47,7 @@ public static class PartProtectionStatusApi
         }
 
         string url = BuildRequestUrl();
-        Debug.Log(
+        LogManager.LogBackend(
             $"[PartProtectionStatusApi] POST {url} | encryptVin={requestBody.encryptVin} | " +
             $"startTime={requestBody.startTime} | endTime={requestBody.endTime}");
 
@@ -109,11 +109,11 @@ public static class PartProtectionStatusApi
     {
         if (response?.data == null)
         {
-            Debug.Log("[PartProtectionStatusApi] 业务成功，data 为空。");
+            LogManager.LogBackend("[PartProtectionStatusApi] 业务成功，data 为空。");
             return;
         }
 
-        Debug.Log(
+        LogManager.LogBackend(
             $"[PartProtectionStatusApi] 业务成功 | unprotected={response.data.UnprotectedCount} | " +
             $"protected={response.data.ProtectedCount}");
     }
@@ -122,24 +122,24 @@ public static class PartProtectionStatusApi
     {
         if (result == null)
         {
-            Debug.LogWarning("[PartProtectionStatusApi] 请求结果为空。");
+            LogManager.LogBackendWarning("[PartProtectionStatusApi] 请求结果为空。");
             return;
         }
 
         string body = string.IsNullOrEmpty(result.RawBody) ? "(空)" : result.RawBody;
         if (result.IsCancelled)
         {
-            Debug.Log("[PartProtectionStatusApi] 请求已取消。");
+            LogManager.LogBackend("[PartProtectionStatusApi] 请求已取消。");
             return;
         }
 
         if (result.IsSuccess)
         {
-            Debug.Log($"[PartProtectionStatusApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
+            LogManager.LogBackend($"[PartProtectionStatusApi] 请求成功，状态码={result.StatusCode}，响应 JSON：\n{body}");
             return;
         }
 
-        Debug.LogWarning(
+        LogManager.LogBackendWarning(
             $"[PartProtectionStatusApi] 请求失败，状态码={result.StatusCode}，错误={result.Error}\n响应 JSON：\n{body}");
     }
 }

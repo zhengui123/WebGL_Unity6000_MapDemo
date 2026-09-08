@@ -687,7 +687,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         if (!string.IsNullOrEmpty(method))
         {
             SetJsonResultText($"{method} 已停止");
-            Debug.Log($"[HttpApiTestUIDemo] {method} 已停止。");
+            LogManager.LogFeature($"[HttpApiTestUIDemo] {method} 已停止。");
         }
     }
 
@@ -717,7 +717,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         if (result.IsCancelled)
         {
             SetJsonResultText($"{method} 已停止");
-            Debug.Log($"[HttpApiTestUIDemo] {method} 已停止。");
+            LogManager.LogFeature($"[HttpApiTestUIDemo] {method} 已停止。");
             return;
         }
 
@@ -729,7 +729,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
                 result.Error,
                 result.RawBody);
             SetJsonResultText(errorText, result.RawBody);
-            Debug.LogError($"[HttpApiTestUIDemo] {method} 失败：{result.Error}\n{result.RawBody}");
+            LogManager.LogFeatureError($"[HttpApiTestUIDemo] {method} 失败：{result.Error}\n{result.RawBody}");
             return;
         }
 
@@ -739,7 +739,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             null,
             result.RawBody);
         SetJsonResultText(successText, result.RawBody);
-        Debug.Log($"[HttpApiTestUIDemo] {method} 成功，状态码={result.StatusCode}");
+        LogManager.LogFeature($"[HttpApiTestUIDemo] {method} 成功，状态码={result.StatusCode}");
 
         TryApplySecurityEventDetailToGJPanel(result.RawBody);
 
@@ -776,11 +776,11 @@ public class HttpApiTestUIDemo : MonoBehaviour
     {
         if (!HttpJsonParser.TryParse(rawBody, out JsonPlaceholderTodoData data, out string parseError))
         {
-            Debug.LogWarning($"[HttpApiTestUIDemo] GET 响应未能解析为 JsonPlaceholderTodoData：{parseError}");
+            LogManager.LogFeatureWarning($"[HttpApiTestUIDemo] GET 响应未能解析为 JsonPlaceholderTodoData：{parseError}");
             return;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[HttpApiTestUIDemo] GET 解析 → userId={data.userId}, id={data.id}, " +
             $"title=\"{data.title}\", completed={data.completed}");
     }
@@ -996,7 +996,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         }
         else if (_jsonResultText == null && _fallbackResponseLabel == null)
         {
-            Debug.Log($"[HttpApiTestUIDemo] 响应结果:\n{display}");
+            LogManager.LogFeature($"[HttpApiTestUIDemo] 响应结果:\n{display}");
         }
     }
 
@@ -1371,7 +1371,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[HttpApiTestUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[HttpApiTestUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

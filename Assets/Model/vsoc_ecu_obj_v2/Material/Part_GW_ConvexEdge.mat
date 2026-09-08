@@ -13,13 +13,13 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _EDGEMODE_TRIANGLE
-  m_InvalidKeywords: []
+  m_InvalidKeywords:
+  - _SURFACETYPE_TRANSPARENT
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap:
-    RenderType: Opaque
+  stringTagMap: {}
   disabledShaderPasses: []
   m_LockedProperties: 
   m_SavedProperties:
@@ -27,16 +27,38 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
+    - _Alpha: 1
     - _CreaseSensitivity: 80
     - _CreaseSharpness: 1
     - _CreaseStrength: 0
+    - _DepthAlphaClip: 0.02
+    - _DissolveAmount: 0
+    - _DissolveNoiseScale: 12
     - _EdgeMode: 1
+    - _FacingMinGlow: 1
+    - _FillStrength: 2
+    - _FresnelIntensity: 4
+    - _FresnelPower: 1.88
+    - _GridIntensity: 2
+    - _GridLineWidth: 0.2
+    - _GridScale: 1
+    - _GridWorldScale: 0.28
+    - _HoloDstBlend: 10
+    - _HoloSrcBlend: 5
+    - _HoloZWrite: 0
     - _LineSoftness: 0.01
-    - _LineWidth: 0
+    - _LineWidth: 0.3
+    - _RimAlphaBoost: 1
     - _RimPower: 1.2
     - _RimStrength: 2
+    - _ScanDensity: 18
+    - _ScanIntensity: 0.22
+    - _ScanSpeed: 0
+    - _SurfaceFacingMin: 0.08
+    - _SurfaceType: 0
     m_Colors:
     - _BaseColor: {r: 0.03524386, g: 0.13270377, b: 0.2264151, a: 1}
     - _EdgeColor: {r: 0.13854587, g: 2.7992828, b: 5.874346, a: 1}
+    - _GlowColor: {r: 0.3, g: 0.95, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

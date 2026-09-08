@@ -55,7 +55,7 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
     {
         if (!TryResolveFocusDataByName(provinceName, out ChinaProvinceMapFocusData data))
         {
-            Debug.LogWarning($"[GaodeMapProvinceFocusController] 未找到区域数据：{provinceName}");
+            LogManager.LogFeatureWarning($"[GaodeMapProvinceFocusController] 未找到区域数据：{provinceName}");
             return false;
         }
 
@@ -73,7 +73,7 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
 
         if (!PlateProvinceFocusResolver.TryProvinceCodeToFocusName(provinceCode, out string provinceName))
         {
-            Debug.LogWarning($"[GaodeMapProvinceFocusController] 无法从 code={provinceCode} 解析区域名。");
+            LogManager.LogFeatureWarning($"[GaodeMapProvinceFocusController] 无法从 code={provinceCode} 解析区域名。");
             return false;
         }
 
@@ -91,13 +91,13 @@ public class GaodeMapProvinceFocusController : MonoBehaviour
         GaodeMapController controller = ResolveReferences();
         if (controller == null)
         {
-            Debug.LogWarning("[GaodeMapProvinceFocusController] 未找到 GaodeMapController。");
+            LogManager.LogFeatureWarning("[GaodeMapProvinceFocusController] 未找到 GaodeMapController。");
             return false;
         }
 
         float zoom = ResolveFocusZoom(data);
         controller.LocateTo(data.Longitude, data.Latitude, Mathf.RoundToInt(zoom));
-        Debug.Log(
+        LogManager.LogFeature(
             $"[GaodeMapProvinceFocusController] 聚焦区域：{data.ProvinceName}（{data.Longitude:F4}, {data.Latitude:F4}, zoom={zoom}）");
         return true;
     }

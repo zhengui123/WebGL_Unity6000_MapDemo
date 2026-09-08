@@ -201,7 +201,7 @@ public class AndroidMessage : MonoBehaviour
             isDragging = isDragging,
         };
         string json = JsonUtility.ToJson(notify);
-        Debug.Log($"[AndroidMessage] 车辆 Yaw 回调: {json}");
+        LogManager.LogHost($"[AndroidMessage] 车辆 Yaw 回调: {json}");
         OnCarYawRotationNotified?.Invoke(notify);
         CallActivity("onUnityCarYawRotationChanged", json);
     }
@@ -226,7 +226,7 @@ public class AndroidMessage : MonoBehaviour
             vin = vin,
             partId = partId ?? string.Empty,
         });
-        Debug.Log(
+        LogManager.LogHost(
             $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
@@ -250,7 +250,7 @@ public class AndroidMessage : MonoBehaviour
             vin = vin,
             partId = partId ?? string.Empty,
         });
-        Debug.Log(
+        LogManager.LogHost(
             $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
@@ -266,10 +266,10 @@ public class AndroidMessage : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"[AndroidMessage] {method} failed: {e}");
+            LogManager.LogHostError($"[AndroidMessage] {method} failed: {e}");
         }
 #else
-        Debug.Log($"[AndroidMessage] Editor mock {method}: {arg}");
+        LogManager.LogHost($"[AndroidMessage] Editor mock {method}: {arg}");
 #endif
     }
 
@@ -576,7 +576,7 @@ public class AndroidMessage : MonoBehaviour
             return true;
         }
 
-        Debug.LogWarning($"[AndroidMessage] {callerName}: 无效的 controlState={controlState}，有效范围为 0~5。");
+        LogManager.LogHostWarning($"[AndroidMessage] {callerName}: 无效的 controlState={controlState}，有效范围为 0~5。");
         return false;
     }
 
@@ -604,7 +604,7 @@ public class AndroidMessage : MonoBehaviour
     private void HandleFromAndroid(string channel, string message)
     {
         lastAndroidMessage = $"[{channel}] {message}";
-        Debug.Log("[AndroidMessage] " + lastAndroidMessage);
+        LogManager.LogHost("[AndroidMessage] " + lastAndroidMessage);
         OnAndroidMessageReceived?.Invoke(lastAndroidMessage);
     }
 
@@ -645,7 +645,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] TransitionToControlState: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] TransitionToControlState: JSON 为空。");
             return;
         }
 
@@ -658,7 +658,7 @@ public class AndroidMessage : MonoBehaviour
 
         if (!ok)
         {
-            Debug.LogWarning($"[AndroidMessage] TransitionToControlState 启动失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] TransitionToControlState 启动失败: {json}");
         }
     }
 
@@ -667,7 +667,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.TransitionToNextControlState())
         {
-            Debug.LogWarning("[AndroidMessage] TransitionToNextControlState 启动失败。");
+            LogManager.LogHostWarning("[AndroidMessage] TransitionToNextControlState 启动失败。");
         }
     }
 
@@ -676,7 +676,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.TransitionToPreviousControlState())
         {
-            Debug.LogWarning("[AndroidMessage] TransitionToPreviousControlState 启动失败。");
+            LogManager.LogHostWarning("[AndroidMessage] TransitionToPreviousControlState 启动失败。");
         }
     }
 
@@ -685,14 +685,14 @@ public class AndroidMessage : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] SetBigScreenAutoCarouselEnabled: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] SetBigScreenAutoCarouselEnabled: JSON 为空。");
             return;
         }
 
         BigScreenAutoCarouselRequest request = JsonUtility.FromJson<BigScreenAutoCarouselRequest>(json);
         if (!MapApi.Instance.SetBigScreenAutoCarouselEnabled(request.enabled))
         {
-            Debug.LogWarning($"[AndroidMessage] SetBigScreenAutoCarouselEnabled 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] SetBigScreenAutoCarouselEnabled 失败: {json}");
         }
     }
 
@@ -704,7 +704,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.PauseGame())
         {
-            Debug.LogWarning("[AndroidMessage] PauseGame 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] PauseGame 失败。");
         }
     }
 
@@ -716,7 +716,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.ResumeGame())
         {
-            Debug.LogWarning("[AndroidMessage] ResumeGame 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] ResumeGame 失败。");
         }
     }
 
@@ -728,7 +728,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.ExitThreatDrill())
         {
-            Debug.LogWarning("[AndroidMessage] ExitThreatDrill 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] ExitThreatDrill 失败。");
         }
     }
 
@@ -740,7 +740,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.RefreshThreatCooldown())
         {
-            Debug.LogWarning("[AndroidMessage] RefreshThreatCooldown 失败（可能未在冷却中）。");
+            LogManager.LogHostWarning("[AndroidMessage] RefreshThreatCooldown 失败（可能未在冷却中）。");
         }
     }
 
@@ -752,7 +752,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.StartThreatHighRiskPolling())
         {
-            Debug.LogWarning("[AndroidMessage] StartThreatHighRiskPolling 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] StartThreatHighRiskPolling 失败。");
         }
     }
 
@@ -764,7 +764,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.StopThreatHighRiskPolling())
         {
-            Debug.LogWarning("[AndroidMessage] StopThreatHighRiskPolling 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] StopThreatHighRiskPolling 失败。");
         }
     }
 
@@ -777,7 +777,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] SetWorldMapRegionDefaults: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] SetWorldMapRegionDefaults: JSON 为空。");
             return;
         }
 
@@ -787,7 +787,7 @@ public class AndroidMessage : MonoBehaviour
         bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode);
         if (!ok)
         {
-            Debug.LogWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");
         }
     }
 
@@ -801,14 +801,14 @@ public class AndroidMessage : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] SetHttpRequestHeaders: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] SetHttpRequestHeaders: JSON 为空。");
             return;
         }
 
         SetHttpRequestHeadersRequest request = JsonUtility.FromJson<SetHttpRequestHeadersRequest>(json);
         if (!MapApi.Instance.SetHttpRequestHeaders(request.headers, request.apiHost, request.appSecret))
         {
-            Debug.LogWarning($"[AndroidMessage] SetHttpRequestHeaders 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] SetHttpRequestHeaders 失败: {json}");
         }
     }
 
@@ -829,7 +829,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.CloseGJPanel())
         {
-            Debug.LogWarning("[AndroidMessage] CloseGJPanel 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] CloseGJPanel 失败。");
         }
     }
 
@@ -840,11 +840,11 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void StartVehicleHeatmapSpecifiedTimePolling(string json)
     {
-        Debug.Log($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 收到: {json}");
+        LogManager.LogHost($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 收到: {json}");
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling: JSON 为空。");
             return;
         }
 
@@ -852,7 +852,7 @@ public class AndroidMessage : MonoBehaviour
             JsonUtility.FromJson<VehicleHeatmapSpecifiedTimePollingRequest>(json);
         if (!MapApi.Instance.StartVehicleHeatmapSpecifiedTimePolling(request.startTime, request.endTime))
         {
-            Debug.LogWarning($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] StartVehicleHeatmapSpecifiedTimePolling 失败: {json}");
         }
     }
 
@@ -864,7 +864,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (!MapApi.Instance.StopVehicleHeatmapSpecifiedTimePolling())
         {
-            Debug.LogWarning("[AndroidMessage] StopVehicleHeatmapSpecifiedTimePolling 失败。");
+            LogManager.LogHostWarning("[AndroidMessage] StopVehicleHeatmapSpecifiedTimePolling 失败。");
         }
     }
 
@@ -876,7 +876,7 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void RequestVehicleHeatmapOnce(string json)
     {
-        Debug.Log($"[AndroidMessage] RequestVehicleHeatmapOnce 收到: {json}");
+        LogManager.LogHost($"[AndroidMessage] RequestVehicleHeatmapOnce 收到: {json}");
 
         string startTime = null;
         string endTime = null;
@@ -892,7 +892,7 @@ public class AndroidMessage : MonoBehaviour
 
         if (!MapApi.Instance.RequestVehicleHeatmapOnce(startTime, endTime, isReplay))
         {
-            Debug.LogWarning($"[AndroidMessage] RequestVehicleHeatmapOnce 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] RequestVehicleHeatmapOnce 失败: {json}");
         }
     }
 
@@ -904,13 +904,13 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void RequestCarVehicleData(string json)
     {
-        Debug.Log($"[AndroidMessage] RequestCarVehicleData 收到: {json}");
+        LogManager.LogHost($"[AndroidMessage] RequestCarVehicleData 收到: {json}");
 
         if (string.IsNullOrWhiteSpace(json))
         {
             if (!MapApi.Instance.RequestCarVehicleData())
             {
-                Debug.LogWarning("[AndroidMessage] RequestCarVehicleData 失败（默认参数）。");
+                LogManager.LogHostWarning("[AndroidMessage] RequestCarVehicleData 失败（默认参数）。");
             }
 
             return;
@@ -919,13 +919,13 @@ public class AndroidMessage : MonoBehaviour
         PartProtectionStatusRequest request = JsonUtility.FromJson<PartProtectionStatusRequest>(json);
         if (request == null)
         {
-            Debug.LogWarning($"[AndroidMessage] RequestCarVehicleData: JSON 解析失败 | {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] RequestCarVehicleData: JSON 解析失败 | {json}");
             return;
         }
 
         if (!MapApi.Instance.RequestCarVehicleData(request.encryptVin, request.startTime, request.endTime))
         {
-            Debug.LogWarning($"[AndroidMessage] RequestCarVehicleData 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] RequestCarVehicleData 失败: {json}");
         }
     }
 
@@ -937,13 +937,13 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void RequestSecurityEventDetail(string json)
     {
-        Debug.Log($"[AndroidMessage] RequestSecurityEventDetail 收到: {json}");
+        LogManager.LogHost($"[AndroidMessage] RequestSecurityEventDetail 收到: {json}");
 
         if (string.IsNullOrWhiteSpace(json))
         {
             if (!MapApi.Instance.RequestSecurityEventDetail())
             {
-                Debug.LogWarning("[AndroidMessage] RequestSecurityEventDetail 失败（默认参数）。");
+                LogManager.LogHostWarning("[AndroidMessage] RequestSecurityEventDetail 失败（默认参数）。");
             }
 
             return;
@@ -952,7 +952,7 @@ public class AndroidMessage : MonoBehaviour
         SecurityEventDetailRequest request = JsonUtility.FromJson<SecurityEventDetailRequest>(json);
         if (request == null)
         {
-            Debug.LogWarning($"[AndroidMessage] RequestSecurityEventDetail: JSON 解析失败 | {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] RequestSecurityEventDetail: JSON 解析失败 | {json}");
             return;
         }
 
@@ -962,7 +962,7 @@ public class AndroidMessage : MonoBehaviour
                 request.processEndTime,
                 request.tenantId))
         {
-            Debug.LogWarning($"[AndroidMessage] RequestSecurityEventDetail 失败: {json}");
+            LogManager.LogHostWarning($"[AndroidMessage] RequestSecurityEventDetail 失败: {json}");
         }
     }
 
@@ -973,24 +973,24 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void SetCarYawRotation(string json)
     {
-        Debug.Log($"[AndroidMessage] SetCarYawRotation 收到: {json}");
+        LogManager.LogHost($"[AndroidMessage] SetCarYawRotation 收到: {json}");
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            Debug.LogWarning("[AndroidMessage] SetCarYawRotation: JSON 为空。");
+            LogManager.LogHostWarning("[AndroidMessage] SetCarYawRotation: JSON 为空。");
             return;
         }
 
         if (!TryResolveCarYawRotate())
         {
-            Debug.LogWarning("[AndroidMessage] SetCarYawRotation 失败：未找到车辆旋转控制器。");
+            LogManager.LogHostWarning("[AndroidMessage] SetCarYawRotation 失败：未找到车辆旋转控制器。");
             return;
         }
 
         SetCarYawRotationRequest request = JsonUtility.FromJson<SetCarYawRotationRequest>(json);
         bool instant = json.Contains("\"instant\"") && request.instant;
         _carYawRotate.SetYawAngle(request.yawAngle, instant, notify: true);
-        Debug.Log($"[AndroidMessage] SetCarYawRotation 已应用: yaw={NormalizeYawAngle(request.yawAngle):F1}°, instant={instant}");
+        LogManager.LogHost($"[AndroidMessage] SetCarYawRotation 已应用: yaw={NormalizeYawAngle(request.yawAngle):F1}°, instant={instant}");
     }
 
     private void TrySubscribeCarYawRotation()
@@ -1002,7 +1002,7 @@ public class AndroidMessage : MonoBehaviour
 
         _carYawRotate.OnYawAngleChanged -= HandleCarYawAngleChanged;
         _carYawRotate.OnYawAngleChanged += HandleCarYawAngleChanged;
-        Debug.Log("[AndroidMessage] 已订阅车辆 Yaw 旋转回调。");
+        LogManager.LogHost("[AndroidMessage] 已订阅车辆 Yaw 旋转回调。");
     }
 
     private void UnsubscribeCarYawRotation()

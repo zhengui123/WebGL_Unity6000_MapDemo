@@ -12,7 +12,7 @@ public class POI_Demo : MonoBehaviour
     {
         if (poiManager == null || plateMapVehiclePointController == null)
         {
-            Debug.LogWarning("[POI_Demo] 缺少 poiManager 或 plateMapVehiclePointController 引用。");
+            LogManager.LogFeatureWarning("[POI_Demo] 缺少 poiManager 或 plateMapVehiclePointController 引用。");
             return;
         }
 

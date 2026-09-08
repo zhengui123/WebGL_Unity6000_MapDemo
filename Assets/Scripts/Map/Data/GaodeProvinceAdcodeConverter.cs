@@ -94,7 +94,7 @@ public static class GaodeProvinceAdcodeConverter
         string json = LoadConfigJsonText();
         if (!TryParseResponse(json, out GaodeProvinceAdcodeResponse response))
         {
-            Debug.LogError($"[GaodeProvinceAdcodeConverter] 无法加载配置：{ConfigDisplayPath}");
+            LogManager.LogFeatureError($"[GaodeProvinceAdcodeConverter] 无法加载配置：{ConfigDisplayPath}");
             return Array.Empty<(string, string, string)>();
         }
 

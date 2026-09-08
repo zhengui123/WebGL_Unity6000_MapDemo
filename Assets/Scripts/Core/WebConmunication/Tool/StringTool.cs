@@ -12,7 +12,7 @@ public class StringTool : UnitySingle<StringTool>
       
         byte[]myByte = System.Convert.FromBase64String(base64);
         string txt = System.Text.Encoding.UTF8.GetString(myByte);
-        Debug.Log("Base64转字符串结果：" + txt);
+        LogManager.LogHost("Base64转字符串结果：" + txt);
         return txt;
     }
     
@@ -23,7 +23,7 @@ public class StringTool : UnitySingle<StringTool>
     {
         byte[] myByte = System.Text.Encoding.UTF8.GetBytes(txt);
         string base64 = System.Convert.ToBase64String(myByte);
-        Debug.Log("字符串转base64结果：" + base64);
+        LogManager.LogHost("字符串转base64结果：" + base64);
 
         return base64;
     }

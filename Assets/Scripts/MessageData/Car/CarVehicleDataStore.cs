@@ -131,7 +131,7 @@ public sealed class CarVehicleDataStore
             if (!TryResolvePartNameByIp(ipToPartName, link.sourceIp, out string startPartName)
                 || !TryResolvePartNameByIp(ipToPartName, link.targetIp, out string endPartName))
             {
-                Debug.LogWarning(
+                LogManager.LogFeatureWarning(
                     $"[CarVehicleDataStore] 跳过无法映射 IP 的攻击链路：{link.sourceIp} → {link.targetIp}");
                 continue;
             }

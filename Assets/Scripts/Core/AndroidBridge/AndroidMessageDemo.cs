@@ -36,11 +36,11 @@ public class AndroidMessageDemo : MonoBehaviour
     {
         if (AndroidMessage.Instance == null)
         {
-            Debug.LogWarning("[AndroidMessageDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
+            LogManager.LogFeatureWarning("[AndroidMessageDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
             return;
         }
 
-        Debug.Log($"[AndroidMessageDemo] 模拟 Android 调用 TransitionToControlState: {_sampleJson}");
+        LogManager.LogFeature($"[AndroidMessageDemo] 模拟 Android 调用 TransitionToControlState: {_sampleJson}");
         AndroidMessage.Instance.TransitionToControlState(_sampleJson);
     }
 
@@ -52,11 +52,11 @@ public class AndroidMessageDemo : MonoBehaviour
     {
         if (AndroidMessage.Instance == null)
         {
-            Debug.LogWarning("[AndroidMessageDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
+            LogManager.LogFeatureWarning("[AndroidMessageDemo] 场景中未找到 AndroidMessage（AndroidBridge）。");
             return;
         }
 
-        Debug.Log($"[AndroidMessageDemo] 模拟 Android 调用 SetCarYawRotation: {_sampleCarYawJson}");
+        LogManager.LogFeature($"[AndroidMessageDemo] 模拟 Android 调用 SetCarYawRotation: {_sampleCarYawJson}");
         AndroidMessage.Instance.SetCarYawRotation(_sampleCarYawJson);
     }
 }

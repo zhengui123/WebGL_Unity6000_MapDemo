@@ -119,7 +119,7 @@
 //             return;
 //         }
 
-//         Debug.Log(
+//         LogManager.LogFeature(
 //             $"[地球中心] 对齐前 世界坐标 {earthCenterWorld} | CesiumGeoreference 局部 {geoLocal}");
 
 //         AlignEarthCenterToMapRootCenter(earthCenterWorld);
@@ -248,7 +248,7 @@
 
 //         if (_logLongitudeLatitudeOnClick)
 //         {
-//             Debug.Log($"[地图拾取] 经度 {longitude:F6}°, 纬度 {latitude:F6}°, 椭球高 {height:F2} m（WGS84）");
+//             LogManager.LogFeature($"[地图拾取] 经度 {longitude:F6}°, 纬度 {latitude:F6}°, 椭球高 {height:F2} m（WGS84）");
 //         }
 
 //         Vector2 screenPos = Input.mousePosition;
@@ -359,7 +359,7 @@
 //         geoLocal = Vector3.zero;
 //         if (_georeference == null)
 //         {
-//             Debug.LogWarning("[MapController] 未找到 CesiumGeoreference，无法获取地球中心坐标。");
+//             LogManager.LogFeatureWarning("[MapController] 未找到 CesiumGeoreference，无法获取地球中心坐标。");
 //             return false;
 //         }
 
@@ -396,7 +396,7 @@
 //             return;
 //         }
 
-//         Debug.Log(
+//         LogManager.LogFeature(
 //             $"[地球中心] 已对准 MapRoot 枢轴 {targetCenter} | 对齐后世界 {afterWorld} | 局部 {afterGeoLocal}");
 //     }
 
@@ -508,7 +508,7 @@
 
 //         if (_logScreenCenterLongitudeLatitude)
 //         {
-//             Debug.Log($"[屏幕中心] 经度 {longitude:F4}°, 纬度 {latitude:F4}°");
+//             LogManager.LogFeature($"[屏幕中心] 经度 {longitude:F4}°, 纬度 {latitude:F4}°");
 //         }
 
 //         bool inChina = IsInsideChinaLongitudeLatitude(longitude, latitude);
@@ -518,7 +518,7 @@
 //         if (insideTriggerZone && !_wasInsideChinaTriggerZone)
 //         {
 //             _wasInsideChinaTriggerZone = true;
-//             Debug.Log("到达中国");
+//             LogManager.LogFeature("到达中国");
 //             OnArrivedChina?.Invoke(longitude, latitude);
 //         }
 //         else if (!insideTriggerZone)

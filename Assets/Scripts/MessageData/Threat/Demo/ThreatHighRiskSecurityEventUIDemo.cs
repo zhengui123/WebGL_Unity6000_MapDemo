@@ -231,7 +231,7 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
         {
-            Debug.LogWarning("[ThreatHighRiskSecurityEventUIDemo] 未找到 DemoGameStateUINavigator。");
+            LogManager.LogFeatureWarning("[ThreatHighRiskSecurityEventUIDemo] 未找到 DemoGameStateUINavigator。");
             return;
         }
 

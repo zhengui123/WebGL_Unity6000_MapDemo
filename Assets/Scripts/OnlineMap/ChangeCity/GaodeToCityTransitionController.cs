@@ -108,26 +108,26 @@ public class GaodeToCityTransitionController : MonoBehaviour
         ResolveReferences();
         if (_gaodeMapController == null || _gaodeMapController.OnlineMaps == null)
         {
-            Debug.LogError("[GaodeToCityTransition] 未找到 GaodeMapController.OnlineMaps。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 未找到 GaodeMapController.OnlineMaps。");
             return false;
         }
 
         if (_gaodeRawImageVisibility == null)
         {
-            Debug.LogError("[GaodeToCityTransition] 未找到 GaodeMapRawImageVisibility。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 未找到 GaodeMapRawImageVisibility。");
             return false;
         }
 
         if (_cityMakerRoot == null)
         {
-            Debug.LogError("[GaodeToCityTransition] 未找到 City-Maker。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 未找到 City-Maker。");
             return false;
         }
 
         _activeFocusPose = GetCurrentFocusPose();
         if (_activeFocusPose == null || !_activeFocusPose.IsValid())
         {
-            Debug.LogError("[GaodeToCityTransition] 拉近终点数组为空或当前标号缺少 Marker Transform。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 拉近终点数组为空或当前标号缺少 Marker Transform。");
             return false;
         }
 
@@ -198,13 +198,13 @@ public class GaodeToCityTransitionController : MonoBehaviour
         ResolveReferences();
         if (_gaodeMapController == null || _gaodeMapController.OnlineMaps == null)
         {
-            Debug.LogError("[GaodeToCityTransition] 未找到 GaodeMapController.OnlineMaps。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 未找到 GaodeMapController.OnlineMaps。");
             return false;
         }
 
         if (_gaodeRawImageVisibility == null)
         {
-            Debug.LogError("[GaodeToCityTransition] 未找到 GaodeMapRawImageVisibility。");
+            LogManager.LogFeatureError("[GaodeToCityTransition] 未找到 GaodeMapRawImageVisibility。");
             return false;
         }
 
@@ -691,12 +691,12 @@ public class GaodeToCityTransitionController : MonoBehaviour
         CityCameraPoseSettings pose = GetCurrentFocusPose();
         if (pose == null)
         {
-            Debug.LogWarning("[GaodeToCityTransition] 拉近终点数组为空。");
+            LogManager.LogFeatureWarning("[GaodeToCityTransition] 拉近终点数组为空。");
             return;
         }
 
         pose.SyncMarkersFrom(_cameraTransform, _vehicleParentTransform);
-        Debug.Log($"[GaodeToCityTransition] 已同步标号 {_focusPoseIndex} 的 Marker。");
+        LogManager.LogFeature($"[GaodeToCityTransition] 已同步标号 {_focusPoseIndex} 的 Marker。");
     }
 
     [ContextMenu("测试：Gaode → City 过渡")]

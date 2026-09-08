@@ -104,7 +104,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         }
 
         int count = points != null ? points.Length : 0;
-        Debug.Log($"[PlateMapShandongRandomPointsDemo] 板块「{plateMapName}」点位已更新，共 {count} 个。");
+        LogManager.LogFeature($"[PlateMapShandongRandomPointsDemo] 板块「{plateMapName}」点位已更新，共 {count} 个。");
     }
 
 
@@ -124,7 +124,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     {
         if (!int.TryParse(text, out int count) || count <= 0)
         {
-            Debug.LogWarning($"[PlateMapShandongRandomPointsDemo] 无效的点位数量：{text}");
+            LogManager.LogFeatureWarning($"[PlateMapShandongRandomPointsDemo] 无效的点位数量：{text}");
             return;
         }
 
@@ -156,38 +156,38 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
 
         if (!PushVehiclePointsJson(pointsJson))
         {
-            Debug.LogError("[PlateMapShandongRandomPointsDemo] 首次推送点位失败。");
+            LogManager.LogFeatureError("[PlateMapShandongRandomPointsDemo] 首次推送点位失败。");
             _bulkDataRoundTripCoroutine = null;
             yield break;
         }
 
-        Debug.Log($"[PlateMapShandongRandomPointsDemo] 已推送 {points.Length} 个点位，即将清空。");
+        LogManager.LogFeature($"[PlateMapShandongRandomPointsDemo] 已推送 {points.Length} 个点位，即将清空。");
 
         if (!ClearVehiclePoints())
         {
-            Debug.LogError("[PlateMapShandongRandomPointsDemo] 清空点位失败。");
+            LogManager.LogFeatureError("[PlateMapShandongRandomPointsDemo] 清空点位失败。");
             _bulkDataRoundTripCoroutine = null;
             yield break;
         }
 
-        Debug.Log("[PlateMapShandongRandomPointsDemo] 点位已清空。");
+        LogManager.LogFeature("[PlateMapShandongRandomPointsDemo] 点位已清空。");
 
         float delay = Mathf.Max(0f, _bulkDataReloadDelayAfterClearSeconds);
         if (delay > 0f)
         {
-            Debug.Log(
+            LogManager.LogFeature(
                 $"[PlateMapShandongRandomPointsDemo] 清空后等待 {delay:F1}s，再通过 JSON 字符串回灌。");
             yield return new WaitForSeconds(delay);
         }
 
         if (!ImportVehiclePointsFromJson(pointsJson))
         {
-            Debug.LogError("[PlateMapShandongRandomPointsDemo] JSON 字符串回灌失败。");
+            LogManager.LogFeatureError("[PlateMapShandongRandomPointsDemo] JSON 字符串回灌失败。");
             _bulkDataRoundTripCoroutine = null;
             yield break;
         }
 
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateMapShandongRandomPointsDemo] 大量数据接入测试完成：清空后延时 {delay:F1}s，已用字符串回灌 {points.Length} 个点位。");
         _bulkDataRoundTripCoroutine = null;
     }
@@ -195,7 +195,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     private void LogPointsJsonOutput(string pointsJson, int pointCount)
     {
         int length = pointsJson != null ? pointsJson.Length : 0;
-        Debug.Log(
+        LogManager.LogFeature(
             $"[PlateMapShandongRandomPointsDemo] 点位 JSON 字符串（{pointCount} 个，{length} 字符）：{pointsJson}");
     }
 
@@ -212,7 +212,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
 
         if (points == null || points.Length == 0)
         {
-            Debug.LogError("[PlateMapShandongRandomPointsDemo] 未生成任何点位。");
+            LogManager.LogFeatureError("[PlateMapShandongRandomPointsDemo] 未生成任何点位。");
             points = Array.Empty<VehicleMapPointData>();
             return false;
         }
@@ -237,7 +237,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(pointsJson))
         {
-            Debug.LogWarning("[PlateMapShandongRandomPointsDemo] 点位 JSON 为空。");
+            LogManager.LogFeatureWarning("[PlateMapShandongRandomPointsDemo] 点位 JSON 为空。");
             return false;
         }
 
@@ -248,7 +248,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
 
         if (!VehicleMapPointJson.TryParse(pointsJson, out VehicleMapPointData[] points, out string error))
         {
-            Debug.LogError($"[PlateMapShandongRandomPointsDemo] JSON 解析失败：{error}");
+            LogManager.LogFeatureError($"[PlateMapShandongRandomPointsDemo] JSON 解析失败：{error}");
             return false;
         }
 
@@ -282,7 +282,7 @@ public class PlateMapShandongRandomPointsDemo : MonoBehaviour
         }
 #endif
 
-        Debug.Log(ok
+        LogManager.LogFeature(ok
             ? $"[PlateMapShandongRandomPointsDemo] 已推送到 {_plateMapName}，{points.Length} 个点（省界采样={_useProvinceBoundarySampling}）。"
             : "[PlateMapShandongRandomPointsDemo] 推送失败。");
     }

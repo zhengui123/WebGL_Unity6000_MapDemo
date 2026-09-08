@@ -40,7 +40,7 @@ public static class ThreatProvinceCenterLookup
             return true;
         }
 
-        Debug.LogWarning($"[ThreatProvinceCenterLookup] 未找到省中心：code={provinceCode}");
+        LogManager.LogFeatureWarning($"[ThreatProvinceCenterLookup] 未找到省中心：code={provinceCode}");
         return false;
     }
 }

@@ -72,7 +72,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
     private void OnOpen()
     {
         isConnected = true;
-        Debug.Log("websocket链接成功!");
+        LogManager.LogHost("websocket链接成功!");
         StopConnectCoroutine();
         websocket.SendText("Unity连接成功");
 
@@ -83,7 +83,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
     /// </summary>
     private void OnError(string e)
     {
-        Debug.Log("websocket链接出错!： " + e);
+        LogManager.LogHost("websocket链接出错!： " + e);
         isConnected = false;
     }
 
@@ -93,7 +93,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
     void OnClose(WebSocketCloseCode e)
     {
         
-        Debug.Log("websocket链接关闭：" + e);
+        LogManager.LogHost("websocket链接关闭：" + e);
         isConnected = false;
 
         //断线触发-重新连接
@@ -106,7 +106,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
     public void OnMessage(byte[] bytes) 
     {
         var message = System.Text.Encoding.UTF8.GetString(bytes);
-        Debug.Log("websocket接收到消息! (" + bytes.Length + " bytes) " + message);
+        LogManager.LogHost("websocket接收到消息! (" + bytes.Length + " bytes) " + message);
 
         WebSocketEvent.OnMessage?.Invoke(message);
       
@@ -129,7 +129,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
             }
             else if(Application.platform == RuntimePlatform.WebGLPlayer)
             {
-                Debug.Log("webgl版本断线重连，重新new");
+                LogManager.LogHost("webgl版本断线重连，重新new");
                 Init();
             }
         }
@@ -144,7 +144,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
         isConnecting = true;
         while (!isConnected)
         {
-            Debug.Log("准备重连");
+            LogManager.LogHost("准备重连");
             
          
             yield return websocket.Connect() ;
@@ -197,7 +197,7 @@ public class WebSocketController : UnitySingle<WebSocketController>
     /// </summary>
     private async void OnApplicationQuit()
     {
-        Debug.Log("Unity程序退出");
+        LogManager.LogHost("Unity程序退出");
         
         await websocket.Close();
     }

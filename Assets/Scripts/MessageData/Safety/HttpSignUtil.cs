@@ -34,7 +34,7 @@ public static class HttpSignUtil
         string appSecret = HttpProjectConfig.AppSecret;
         if (string.IsNullOrEmpty(appSecret))
         {
-            Debug.LogWarning("[HttpSignUtil] appSecret 为空，跳过签名（请在 HttpBackendConfig.json 配置）。");
+            LogManager.LogBackendWarning("[HttpSignUtil] appSecret 为空，跳过签名（请在 HttpBackendConfig.json 配置）。");
             return;
         }
 
