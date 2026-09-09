@@ -38896,7 +38896,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd61da4d0718d7647a073fbebc09c5d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LanguageManager
-  _currentLanguage: 0
+  _currentLanguage: 1
   _applyOnValidate: 1
 --- !u!1 &611274037
 GameObject:
@@ -85151,10 +85151,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd670fdb1ffe0449b4e3493f0683a52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
-  _enableFeatureTestLog: 0
-  _enableBackendHttpLog: 0
+  _enableFeatureTestLog: 1
+  _enableBackendHttpLog: 1
   _enableHostBridgeLog: 1
-  _enableFailureLog: 0
+  _enableFailureLog: 1
 --- !u!1 &1379197796
 GameObject:
   m_ObjectHideFlags: 0
@@ -85344,6 +85344,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GaodeMapController
   _onlineMaps: {fileID: 0}
+  _chineseCustomProviderUrl: https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}
+  _englishCustomProviderUrl: https://webrd01.is.autonavi.com/appmaptile?lang=en&size=1&scale=1&style=8&x={x}&y={y}&z={z}
 --- !u!114 &1389356382
 MonoBehaviour:
   m_ObjectHideFlags: 0
