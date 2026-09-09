@@ -747,7 +747,30 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 
 ---
 
-### 4.21 接口汇总表（父 → Unity）
+### 4.21 SetUiLanguage
+
+切换场景 UI 语言（仅 GJ / MessageList 等固定标签；后端数据与 Demo 菜单不翻译）。
+
+| 项 | 值 |
+|----|-----|
+| `method` | `SetUiLanguage` |
+| Unity 方法 | `WebGLAPI.SetUiLanguage(string arg)` |
+| MapApi | `SetUiLanguage(languageCode)` |
+
+**arg 二选一：**
+
+- JSON：`{"language":"en-US"}`
+- 纯字符串：`en-US` / `zh-CN` / `en` / `zh`
+
+```javascript
+callUnity('SetUiLanguage', JSON.stringify({ language: 'en-US' }));
+// 或
+callUnity('SetUiLanguage', 'zh-CN');
+```
+
+---
+
+### 4.22 接口汇总表（父 → Unity）
 
 
 | method                                    | arg         | JSON | 说明                         |
@@ -776,6 +799,7 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 | `FocusPlateMapModule`                     | 模块名         |      | 聚焦板块模块（可选联调）               |
 | `RestorePlateMapCamera`                   | `""`        |      | 还原板块相机（可选联调）               |
 | `SetHttpRequestHeaders`                   | JSON        | ✅    | 运行时覆盖 apiHost / appSecret / HTTP 请求头 |
+| `SetUiLanguage`                           | JSON / 语言码   | ✅    | 切换场景 UI 语言（仅固定标签） |
 
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  

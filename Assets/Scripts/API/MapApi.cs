@@ -657,6 +657,30 @@ public class MapApi : UnitySingle<MapApi>
         return true;
     }
 
+    /// <summary>
+    /// 切换场景 UI 语言（仅固定标签；后端数据与 Demo 菜单不翻译）。
+    /// 支持：zh / zh-CN / en / en-US 等。
+    /// </summary>
+    public bool SetUiLanguage(string languageCode)
+    {
+        if (!LanguageManager.Instance.SetLanguageByCode(languageCode))
+        {
+            LogManager.LogFeatureWarning($"[MapApi] SetUiLanguage 失败：{languageCode}");
+            return false;
+        }
+
+        LogManager.LogFeature($"[MapApi] SetUiLanguage → {LanguageManager.Instance.CurrentLanguage}");
+        return true;
+    }
+
+    /// <summary>当前场景 UI 语言。</summary>
+    public UiLanguage GetUiLanguage()
+    {
+        return LanguageManager.Instance != null
+            ? LanguageManager.Instance.CurrentLanguage
+            : UiLanguage.Chinese;
+    }
+
     /// <summary>当前默认省 code。</summary>
     public string GetDefaultProvinceCode()
     {

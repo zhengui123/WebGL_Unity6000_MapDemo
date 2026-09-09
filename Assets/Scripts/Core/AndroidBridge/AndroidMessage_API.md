@@ -415,6 +415,25 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetHttpRequestHeaders",
 
 ---
 
+### 2.21 `SetUiLanguage` — 切换场景 UI 语言
+
+仅切换场景正式面板固定标签（如告警面板字段名、防护状态）；**不翻译后端数据与 Demo 菜单**。
+
+```csharp
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetUiLanguage",
+    "{\"language\":\"en-US\"}");
+// 或
+UnityPlayer.UnitySendMessage("AndroidBridge", "SetUiLanguage", "zh-CN");
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `language` | string | `zh` / `zh-CN` / `en` / `en-US` 等 |
+
+对应 Unity：`MapApi.SetUiLanguage` → `LanguageManager.SetLanguageByCode`。
+
+---
+
 ## 三、Unity → Android（MainActivity 回调）
 
 在 `MainActivity` 中实现下列 **`public`** 方法（方法名区分大小写，须完全一致）：
@@ -599,6 +618,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `FocusPlateMapModule` | 模块名 | 聚焦板块模块（可选联调；WebGL 同名） |
 | `RestorePlateMapCamera` | `""` | 还原板块相机（可选联调；WebGL 同名） |
 | `SetHttpRequestHeaders` | JSON | 运行时覆盖 apiHost / appSecret / HTTP 请求头 |
+| `SetUiLanguage` | JSON / 语言码 | 切换场景 UI 语言（仅固定标签） |
 
 ---
 

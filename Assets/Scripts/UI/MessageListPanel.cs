@@ -23,9 +23,23 @@ public class MessageListPanel : MonoBehaviour
     [SerializeField] private Sprite _protectedIcon;
     [SerializeField] private Sprite _unprotectedIcon;
 
+    private ProtectionStateType _lastProtectionState;
+    private bool _hasProtectionState;
+
     private void Awake()
     {
         EnsureReferences();
+    }
+
+    private void OnEnable()
+    {
+        LanguageManager.OnLanguageChanged += HandleLanguageChanged;
+        RefreshLocalizedStateText();
+    }
+
+    private void OnDisable()
+    {
+        LanguageManager.OnLanguageChanged -= HandleLanguageChanged;
     }
 
     private void OnValidate()
@@ -48,6 +62,8 @@ public class MessageListPanel : MonoBehaviour
             _titleText.text = title ?? string.Empty;
         }
 
+        _lastProtectionState = protectionState;
+        _hasProtectionState = true;
         if (_stateText != null)
         {
             _stateText.text = ProtectionStateTypeExtensions.ToDisplayText(protectionState);
@@ -55,6 +71,21 @@ public class MessageListPanel : MonoBehaviour
 
         ApplyStateIcon(protectionState);
         ApplyMessageTexts(abnormalEvents);
+    }
+
+    private void HandleLanguageChanged(UiLanguage _)
+    {
+        RefreshLocalizedStateText();
+    }
+
+    private void RefreshLocalizedStateText()
+    {
+        if (!_hasProtectionState || _stateText == null)
+        {
+            return;
+        }
+
+        _stateText.text = ProtectionStateTypeExtensions.ToDisplayText(_lastProtectionState);
     }
 
     /// <summary>运行时替换防护状态图例（贴图资源就绪后调用）。</summary>
@@ -241,9 +272,9 @@ public static class ProtectionStateTypeExtensions
         switch (state)
         {
             case ProtectionStateType.Protected:
-                return "已防护";
+                return LanguageManager.Get(UiTextKeys.MsgStateProtected);
             case ProtectionStateType.Unprotected:
-                return "未防护";
+                return LanguageManager.Get(UiTextKeys.MsgStateUnprotected);
             default:
                 return string.Empty;
         }

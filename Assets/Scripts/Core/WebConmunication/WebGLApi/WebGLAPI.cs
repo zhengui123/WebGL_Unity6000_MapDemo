@@ -770,6 +770,48 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(SetHttpRequestHeaders), "已应用");
     }
 
+    /// <summary>
+    /// 宿主调用：切换场景 UI 语言（仅固定标签）。
+    /// JSON：{"language":"en-US"}；也可直接传语言码字符串 en-US / zh-CN。
+    /// </summary>
+    public void SetUiLanguage(string arg)
+    {
+        NotifyHostCommunicationReceived(nameof(SetUiLanguage), arg);
+        LogCommunication("← Host", nameof(SetUiLanguage), arg);
+
+        string languageCode = ExtractUiLanguageCode(arg);
+        if (string.IsNullOrWhiteSpace(languageCode))
+        {
+            LogManager.LogHostWarning("[WebGLAPI] SetUiLanguage: 语言码为空。");
+            return;
+        }
+
+        if (!MapApi.Instance.SetUiLanguage(languageCode))
+        {
+            LogManager.LogHostWarning($"[WebGLAPI] SetUiLanguage 失败: {arg}");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(SetUiLanguage), $"已切换 → {MapApi.Instance.GetUiLanguage()}");
+    }
+
+    private static string ExtractUiLanguageCode(string arg)
+    {
+        if (string.IsNullOrWhiteSpace(arg))
+        {
+            return null;
+        }
+
+        string trimmed = arg.Trim();
+        if (trimmed.StartsWith("{", System.StringComparison.Ordinal))
+        {
+            SetUiLanguageRequest request = JsonUtility.FromJson<SetUiLanguageRequest>(trimmed);
+            return request.language;
+        }
+
+        return trimmed;
+    }
+
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>
     public void CloseCarUI()
     {
