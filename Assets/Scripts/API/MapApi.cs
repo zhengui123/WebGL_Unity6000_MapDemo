@@ -669,16 +669,13 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        LogManager.LogFeature($"[MapApi] SetUiLanguage → {LanguageManager.Instance.CurrentLanguage}");
         return true;
     }
 
     /// <summary>当前场景 UI 语言。</summary>
     public UiLanguage GetUiLanguage()
     {
-        return LanguageManager.Instance != null
-            ? LanguageManager.Instance.CurrentLanguage
-            : UiLanguage.Chinese;
+        return LanguageManager.Instance.CurrentLanguage;
     }
 
     /// <summary>当前默认省 code。</summary>

@@ -67,7 +67,6 @@ public class GJPanel : MonoBehaviour
         }
 
         EnsureReferences();
-        ApplyLocalizedLabels();
         if (_hideOnAwake)
         {
             HidePanel();
@@ -87,7 +86,6 @@ public class GJPanel : MonoBehaviour
 
     private void OnDestroy()
     {
-        LanguageManager.OnLanguageChanged -= HandleLanguageChanged;
         if (_instance == this)
         {
             _instance = null;

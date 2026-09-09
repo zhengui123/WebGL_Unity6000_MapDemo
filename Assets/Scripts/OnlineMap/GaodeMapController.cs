@@ -5,7 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 场景中 GaodeMap（Online Maps + 高德瓦片）的控制脚本。
 /// 随 <see cref="LanguageManager"/> 切换高德瓦片 <c>lang</c>（中文 zh_cn / 英文 en）。
-/// 切换前等待瓦片加载完成，避免 WebGL 上 Dictionary Reset 竞态崩溃。
+/// 切换前等待瓦片空闲；无瓦片时只改 URL 不 Reset，避免 WebGL Dictionary 竞态。
 /// </summary>
 [DisallowMultipleComponent]
 public class GaodeMapController : MonoBehaviour
@@ -32,8 +32,8 @@ public class GaodeMapController : MonoBehaviour
     private bool _started;
     private UiLanguage? _pendingLanguage;
     private Coroutine _waitTilesIdleCoroutine;
+    private Coroutine _deferredInitialApplyCoroutine;
 
-    /// <summary>场景中的 GaodeMap 控制器。</summary>
     public static GaodeMapController Instance
     {
         get
@@ -62,14 +62,15 @@ public class GaodeMapController : MonoBehaviour
 
         if (_started)
         {
-            RequestTileLanguage(ResolveCurrentUiLanguage());
+            QueueTileLanguage(ResolveCurrentUiLanguage());
         }
     }
 
     private void Start()
     {
         _started = true;
-        RequestTileLanguage(ResolveCurrentUiLanguage());
+        QueueTileLanguage(ResolveCurrentUiLanguage());
+        _deferredInitialApplyCoroutine = StartCoroutine(DeferredInitialApply());
     }
 
     private void OnDisable()
@@ -77,13 +78,11 @@ public class GaodeMapController : MonoBehaviour
         LanguageManager.OnLanguageChanged -= HandleLanguageChanged;
         OnlineMapsTile.OnAllTilesLoaded -= HandleAllTilesLoaded;
         StopWaitTilesIdleCoroutine();
+        StopDeferredInitialApplyCoroutine();
     }
 
     private void OnDestroy()
     {
-        LanguageManager.OnLanguageChanged -= HandleLanguageChanged;
-        OnlineMapsTile.OnAllTilesLoaded -= HandleAllTilesLoaded;
-        StopWaitTilesIdleCoroutine();
         if (_instance == this)
         {
             _instance = null;
@@ -110,13 +109,11 @@ public class GaodeMapController : MonoBehaviour
         }
     }
 
-    /// <summary>定位到指定经纬度，并设置缩放级别。</summary>
     public void LocateTo(double longitude, double latitude, int zoom)
     {
         LocateTo(longitude, latitude, (int?)zoom);
     }
 
-    /// <summary>读取当前地图中心经纬度。</summary>
     public bool TryGetCenter(out double longitude, out double latitude)
     {
         longitude = 0;
@@ -131,36 +128,38 @@ public class GaodeMapController : MonoBehaviour
         return true;
     }
 
-    /// <summary>读取当前缩放级别。</summary>
     public int GetCurrentZoom()
     {
         return TryGetMap(out OnlineMaps map) ? map.zoom : 0;
     }
 
-    /// <summary>
-    /// 请求按 UI 语言切换高德 CustomProviderUrl。
-    /// 若仍有瓦片在加载，则等到空闲（或超时）后再 Reset/重绘。
-    /// </summary>
+    /// <summary>请求按 UI 语言切换高德 CustomProviderUrl（空闲或超时后再提交）。</summary>
     public void ApplyTileLanguage(UiLanguage language)
     {
-        RequestTileLanguage(language);
+        QueueTileLanguage(language);
+        TryApplyPendingTileLanguage(forceAfterTimeout: false);
     }
 
-    private void RequestTileLanguage(UiLanguage language)
+    private IEnumerator DeferredInitialApply()
+    {
+        // 等 OnlineMaps 过完首帧初始化，再尝试应用语言瓦片
+        yield return null;
+        _deferredInitialApplyCoroutine = null;
+        TryApplyPendingTileLanguage(forceAfterTimeout: false);
+    }
+
+    private void QueueTileLanguage(UiLanguage language)
     {
         _pendingLanguage = language;
-        TryApplyPendingTileLanguage(forceAfterTimeout: false);
     }
 
     private void HandleLanguageChanged(UiLanguage language)
     {
-        if (!_started)
+        QueueTileLanguage(language);
+        if (_started)
         {
-            _pendingLanguage = language;
-            return;
+            TryApplyPendingTileLanguage(forceAfterTimeout: false);
         }
-
-        RequestTileLanguage(language);
     }
 
     private void HandleAllTilesLoaded()
@@ -190,19 +189,20 @@ public class GaodeMapController : MonoBehaviour
         if (string.IsNullOrWhiteSpace(url))
         {
             LogManager.LogFeatureWarning("[GaodeMapController] CustomProviderUrl 为空，跳过瓦片语言切换。");
-            _pendingLanguage = null;
-            StopWaitTilesIdleCoroutine();
+            ClearPendingAndWait();
             return;
         }
 
-        if (map.customProviderURL == url)
+        if (UrlsEqual(map.customProviderURL, url))
         {
-            _pendingLanguage = null;
-            StopWaitTilesIdleCoroutine();
+            ClearPendingAndWait();
             return;
         }
 
-        if (!forceAfterTimeout && !AreTilesIdle(map))
+        bool noTiles = HasNoTiles(map);
+        bool idle = noTiles || AreTilesIdle(map);
+
+        if (!forceAfterTimeout && !idle)
         {
             EnsureWaitTilesIdleCoroutine();
             return;
@@ -212,15 +212,24 @@ public class GaodeMapController : MonoBehaviour
         _pendingLanguage = null;
 
         map.customProviderURL = url;
-        if (map.tileManager != null)
+
+        // 尚无瓦片时只改 URL，避免初始化期 Reset 导致 WebGL Dictionary 崩溃
+        if (!noTiles && map.tileManager != null)
         {
             map.tileManager.Reset();
         }
 
         map.RedrawImmediately();
         LogManager.LogFeature(
-            $"[GaodeMapController] 瓦片语言 → {language} | url lang={(language == UiLanguage.English ? "en" : "zh_cn")}" +
-            (forceAfterTimeout ? " | 超时强制切换" : string.Empty));
+            $"[GaodeMapController] 瓦片语言 → {language} | lang={(language == UiLanguage.English ? "en" : "zh_cn")}" +
+            (noTiles ? " | 无瓦片仅改URL" : string.Empty) +
+            (forceAfterTimeout ? " | 超时强制" : string.Empty));
+    }
+
+    private void ClearPendingAndWait()
+    {
+        _pendingLanguage = null;
+        StopWaitTilesIdleCoroutine();
     }
 
     private void EnsureWaitTilesIdleCoroutine()
@@ -230,10 +239,11 @@ public class GaodeMapController : MonoBehaviour
             return;
         }
 
-        _waitTilesIdleCoroutine = StartCoroutine(WaitTilesIdleThenApply());
+        _waitTilesIdleCoroutine = StartCoroutine(WaitTilesIdleTimeout());
     }
 
-    private IEnumerator WaitTilesIdleThenApply()
+    /// <summary>仅超时兜底；正常路径依赖 OnAllTilesLoaded。</summary>
+    private IEnumerator WaitTilesIdleTimeout()
     {
         float timeout = Mathf.Max(0.1f, _tileIdleWaitTimeoutSeconds);
         float elapsed = 0f;
@@ -246,18 +256,16 @@ public class GaodeMapController : MonoBehaviour
                 yield break;
             }
 
-            if (TryGetMap(out OnlineMaps map) && AreTilesIdle(map))
-            {
-                _waitTilesIdleCoroutine = null;
-                TryApplyPendingTileLanguage(forceAfterTimeout: false);
-                yield break;
-            }
-
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
         _waitTilesIdleCoroutine = null;
+        if (!_pendingLanguage.HasValue)
+        {
+            yield break;
+        }
+
         LogManager.LogFeatureWarning(
             $"[GaodeMapController] 等待瓦片空闲超时（{timeout:0.##}s），强制切换语言瓦片。");
         TryApplyPendingTileLanguage(forceAfterTimeout: true);
@@ -274,10 +282,18 @@ public class GaodeMapController : MonoBehaviour
         _waitTilesIdleCoroutine = null;
     }
 
-    /// <summary>
-    /// 无 loading / 未完成下载的瓦片时视为空闲（与 OnlineMapsTile.MarkLoaded 判定一致）。
-    /// </summary>
-    private static bool AreTilesIdle(OnlineMaps map)
+    private void StopDeferredInitialApplyCoroutine()
+    {
+        if (_deferredInitialApplyCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(_deferredInitialApplyCoroutine);
+        _deferredInitialApplyCoroutine = null;
+    }
+
+    private static bool HasNoTiles(OnlineMaps map)
     {
         if (map == null || map.tileManager == null)
         {
@@ -285,11 +301,17 @@ public class GaodeMapController : MonoBehaviour
         }
 
         List<OnlineMapsTile> tiles = map.tileManager.tiles;
-        if (tiles == null || tiles.Count == 0)
+        return tiles == null || tiles.Count == 0;
+    }
+
+    private static bool AreTilesIdle(OnlineMaps map)
+    {
+        if (HasNoTiles(map))
         {
             return true;
         }
 
+        List<OnlineMapsTile> tiles = map.tileManager.tiles;
         for (int i = 0; i < tiles.Count; i++)
         {
             OnlineMapsTile tile = tiles[i];
@@ -309,6 +331,16 @@ public class GaodeMapController : MonoBehaviour
         return true;
     }
 
+    private static bool UrlsEqual(string a, string b)
+    {
+        if (string.IsNullOrWhiteSpace(a) || string.IsNullOrWhiteSpace(b))
+        {
+            return false;
+        }
+
+        return string.Equals(a.Trim(), b.Trim(), System.StringComparison.Ordinal);
+    }
+
     private string GetProviderUrl(UiLanguage language)
     {
         return language == UiLanguage.English
@@ -318,9 +350,7 @@ public class GaodeMapController : MonoBehaviour
 
     private static UiLanguage ResolveCurrentUiLanguage()
     {
-        return LanguageManager.Instance != null
-            ? LanguageManager.Instance.CurrentLanguage
-            : UiLanguage.Chinese;
+        return LanguageManager.Instance.CurrentLanguage;
     }
 
     private void ResolveReferences()

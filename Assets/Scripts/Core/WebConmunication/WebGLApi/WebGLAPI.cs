@@ -779,8 +779,7 @@ public class WebGLAPI : MonoBehaviour
         NotifyHostCommunicationReceived(nameof(SetUiLanguage), arg);
         LogCommunication("← Host", nameof(SetUiLanguage), arg);
 
-        string languageCode = ExtractUiLanguageCode(arg);
-        if (string.IsNullOrWhiteSpace(languageCode))
+        if (!LanguageManager.TryExtractLanguageCodeFromHostArg(arg, out string languageCode))
         {
             LogManager.LogHostWarning("[WebGLAPI] SetUiLanguage: 语言码为空。");
             return;
@@ -793,23 +792,6 @@ public class WebGLAPI : MonoBehaviour
         }
 
         LogCommunication("← Host", nameof(SetUiLanguage), $"已切换 → {MapApi.Instance.GetUiLanguage()}");
-    }
-
-    private static string ExtractUiLanguageCode(string arg)
-    {
-        if (string.IsNullOrWhiteSpace(arg))
-        {
-            return null;
-        }
-
-        string trimmed = arg.Trim();
-        if (trimmed.StartsWith("{", System.StringComparison.Ordinal))
-        {
-            SetUiLanguageRequest request = JsonUtility.FromJson<SetUiLanguageRequest>(trimmed);
-            return request.language;
-        }
-
-        return trimmed;
     }
 
     /// <summary>宿主调用：关闭车辆 UI（停止零部件轮播 + 关闭连线面板）。arg 传 ""。</summary>

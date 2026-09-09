@@ -3,30 +3,29 @@ using System.Collections.Generic;
 /// <summary>场景 UI 中英文文案表（仅固定标签；后端内容不翻译）。</summary>
 public static class UiLocaleTable
 {
-    private static readonly Dictionary<string, string> Zh = new Dictionary<string, string>
+    private readonly struct Entry
     {
-        { UiTextKeys.GjTitle, "告警事件" },
-        { UiTextKeys.GjLabelEventName, "事件名称：" },
-        { UiTextKeys.GjLabelRiskName, "风险名称：" },
-        { UiTextKeys.GjLabelHappenTime, "发生时间：" },
-        { UiTextKeys.GjLabelVin, "VIN：" },
-        { UiTextKeys.GjLabelPartType, "零部件类型：" },
-        { UiTextKeys.GjLabelVehicleInfo, "品牌/车系/车型：" },
-        { UiTextKeys.MsgStateProtected, "已防护" },
-        { UiTextKeys.MsgStateUnprotected, "未防护" },
-    };
+        public readonly string Zh;
+        public readonly string En;
 
-    private static readonly Dictionary<string, string> En = new Dictionary<string, string>
+        public Entry(string zh, string en)
+        {
+            Zh = zh;
+            En = en;
+        }
+    }
+
+    private static readonly Dictionary<string, Entry> Table = new Dictionary<string, Entry>
     {
-        { UiTextKeys.GjTitle, "Alert Event" },
-        { UiTextKeys.GjLabelEventName, "Event Name:" },
-        { UiTextKeys.GjLabelRiskName, "Risk Name:" },
-        { UiTextKeys.GjLabelHappenTime, "Time:" },
-        { UiTextKeys.GjLabelVin, "VIN:" },
-        { UiTextKeys.GjLabelPartType, "Part Type:" },
-        { UiTextKeys.GjLabelVehicleInfo, "Brand / Series / Model:" },
-        { UiTextKeys.MsgStateProtected, "Protected" },
-        { UiTextKeys.MsgStateUnprotected, "Unprotected" },
+        { UiTextKeys.GjTitle, new Entry("告警事件", "Alert Event") },
+        { UiTextKeys.GjLabelEventName, new Entry("事件名称：", "Event Name:") },
+        { UiTextKeys.GjLabelRiskName, new Entry("风险名称：", "Risk Name:") },
+        { UiTextKeys.GjLabelHappenTime, new Entry("发生时间：", "Time:") },
+        { UiTextKeys.GjLabelVin, new Entry("VIN：", "VIN:") },
+        { UiTextKeys.GjLabelPartType, new Entry("零部件类型：", "Part Type:") },
+        { UiTextKeys.GjLabelVehicleInfo, new Entry("品牌/车系/车型：", "Brand / Series / Model:") },
+        { UiTextKeys.MsgStateProtected, new Entry("已防护", "Protected") },
+        { UiTextKeys.MsgStateUnprotected, new Entry("未防护", "Unprotected") },
     };
 
     public static string Get(string key, UiLanguage language)
@@ -36,17 +35,11 @@ public static class UiLocaleTable
             return string.Empty;
         }
 
-        Dictionary<string, string> table = language == UiLanguage.English ? En : Zh;
-        if (table.TryGetValue(key, out string value))
+        if (!Table.TryGetValue(key, out Entry entry))
         {
-            return value;
+            return key;
         }
 
-        if (Zh.TryGetValue(key, out string fallback))
-        {
-            return fallback;
-        }
-
-        return key;
+        return language == UiLanguage.English ? entry.En : entry.Zh;
     }
 }

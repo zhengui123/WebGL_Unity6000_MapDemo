@@ -47,14 +47,6 @@ public struct SetHttpRequestHeadersRequest
     public HttpBackendHeaderEntry[] headers;
 }
 
-/// <summary>切换场景 UI 语言。</summary>
-[System.Serializable]
-public struct SetUiLanguageRequest
-{
-    /// <summary>语言码：zh / zh-CN / en / en-US 等。</summary>
-    public string language;
-}
-
 /// <summary>
 /// Unity → Android 操控级别跳转通知（JSON 字段名需与此一致）。
 /// </summary>
@@ -827,8 +819,7 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void SetUiLanguage(string arg)
     {
-        string languageCode = ExtractUiLanguageCode(arg);
-        if (string.IsNullOrWhiteSpace(languageCode))
+        if (!LanguageManager.TryExtractLanguageCodeFromHostArg(arg, out string languageCode))
         {
             LogManager.LogHostWarning("[AndroidMessage] SetUiLanguage: 语言码为空。");
             return;
@@ -838,23 +829,6 @@ public class AndroidMessage : MonoBehaviour
         {
             LogManager.LogHostWarning($"[AndroidMessage] SetUiLanguage 失败: {arg}");
         }
-    }
-
-    private static string ExtractUiLanguageCode(string arg)
-    {
-        if (string.IsNullOrWhiteSpace(arg))
-        {
-            return null;
-        }
-
-        string trimmed = arg.Trim();
-        if (trimmed.StartsWith("{", StringComparison.Ordinal))
-        {
-            SetUiLanguageRequest request = JsonUtility.FromJson<SetUiLanguageRequest>(trimmed);
-            return request.language;
-        }
-
-        return trimmed;
     }
 
     /// <summary>
