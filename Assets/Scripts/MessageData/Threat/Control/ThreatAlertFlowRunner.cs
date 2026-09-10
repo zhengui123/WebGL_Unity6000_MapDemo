@@ -1578,13 +1578,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
         ThreatProvinceAlertController.NotifyAllAlertsCompleted();
 
-        // 自然跑完：进入自动轮播循环（不进冷却）。
-        if (MapApi.Instance != null)
-        {
-            MapApi.Instance.SetBigScreenAutoCarouselEnabled(true, bypassDelayedStart: true);
-        }
+        // 原逻辑：威胁下钻自然跑完后进入大屏自动轮播（不进冷却）。
+        // 现需求：结束后不再开启轮播（避免 轮播_LB_Controller inactive 时 StartCoroutine 报错）。
+        // if (MapApi.Instance != null)
+        // {
+        //     MapApi.Instance.SetBigScreenAutoCarouselEnabled(true, bypassDelayedStart: true);
+        // }
 
-        LogManager.LogFeature("[ThreatAlertFlowRunner] 无达标省，GameManager → Default，已开启自动轮播。");
+        LogManager.LogFeature("[ThreatAlertFlowRunner] 无达标省，GameManager → Default（不开自动轮播）。");
     }
 
     private void HandleProvinceFocusCompleted(string _)
