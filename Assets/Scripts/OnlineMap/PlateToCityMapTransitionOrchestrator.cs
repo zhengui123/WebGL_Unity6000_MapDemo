@@ -1,9 +1,11 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 /// <summary>
 /// 板块地图 → 二维 GaodeMap → 城市模型 两阶段过渡总控。
 /// 正播：阶段一 → 阶段二 → SwitchToKjCar + PlayHideTransition 并行；倒播：SwitchToRealyCar + PlayHideTransitionReverse 并行 → 地图倒放。
+/// 正播在城市模型显现时、倒播在过渡开始时短时开启 CityCamera 刷新 RT，超时后关闭。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
@@ -15,6 +17,14 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     [SerializeField] private CarModelDissolveController _carModelDissolveController;
     [SerializeField] private CityHideTransitionController _cityHideTransitionController;
 
+    [Header("CityCamera RT 预热（省份↔车辆）")]
+    [Tooltip("城市渲染相机；留空则按名称 CityCamera 查找。")]
+    [SerializeField] private Camera _cityCamera;
+    [Tooltip("正播：城市模型显现后开启相机刷新贴图的时长（秒）。")]
+    [SerializeField] private float _cityCameraWarmupSeconds = 1f;
+    [Tooltip("倒播：过渡开始时开启相机刷新贴图的时长（秒）。")]
+    [SerializeField] private float _cityCameraWarmupSecondsReverse = 2f;
+
     [Header("默认省份（无法从聚焦板块解析 code 时回退）")]
     [SerializeField] private string _defaultProvinceName = "山东";
 
@@ -23,6 +33,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     /// <summary>编排器触发的车辆溶解阶段（正播末尾 / 倒播开头）。</summary>
     private OrchestratorCarPhase _carPhase = OrchestratorCarPhase.None;
     private string _activeProvinceName;
+    private Coroutine _cityCameraWarmupCoroutine;
 
     private enum OrchestratorCarPhase
     {
@@ -52,6 +63,7 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
     {
         _instance = this;
         ResolveReferences();
+        SetCityCameraEnabled(false);
     }
 
     private void OnEnable()
@@ -88,10 +100,13 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         em.OnGaodeMapToPlateTransitionCompleted -= HandlePlateStageReverseCompleted;
         em.OnCarSwitchToKjCarCompleted -= HandleCarSwitchToKjCarCompleted;
         em.OnCarSwitchToRealyCarCompleted -= HandleCarSwitchToRealyCarCompleted;
+
+        StopCityCameraWarmup(disableCamera: true);
     }
 
     private void OnDestroy()
     {
+        StopCityCameraWarmup(disableCamera: true);
         if (_instance == this)
         {
             _instance = null;
@@ -165,6 +180,8 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _isOrchestrating = true;
         _isForwardOrchestration = false;
         _carPhase = OrchestratorCarPhase.None;
+
+        PulseCityCameraWarmup(_cityCameraWarmupSecondsReverse);
 
         EventManager.Instance?.TriggerCityToPlateMapTransitionReverseStarted(_activeProvinceName);
         EventManager.Instance?.TriggerVehicleToPlateViewTransitionStarted(_activeProvinceName);
@@ -401,6 +418,61 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         _carPhase = OrchestratorCarPhase.None;
     }
 
+    /// <summary>正播：城市模型显现时开启 CityCamera 刷新 RT（使用正播预热时长）。</summary>
+    public void PulseCityCameraWarmupOnCityReveal()
+    {
+        PulseCityCameraWarmup(_cityCameraWarmupSeconds);
+    }
+
+    /// <summary>开启 CityCamera 刷新 RT，预热结束后关闭。</summary>
+    private void PulseCityCameraWarmup(float warmupSeconds)
+    {
+        ResolveReferences();
+        if (_cityCamera == null)
+        {
+            LogManager.LogFeatureWarning("[PlateToCityOrchestrator] 未找到 CityCamera，跳过 RT 预热。");
+            return;
+        }
+
+        StopCityCameraWarmup(disableCamera: false);
+        SetCityCameraEnabled(true);
+        float seconds = Mathf.Max(0.01f, warmupSeconds);
+        _cityCameraWarmupCoroutine = StartCoroutine(DisableCityCameraAfterDelay(seconds));
+        LogManager.LogFeature($"[PlateToCityOrchestrator] CityCamera 预热开启 {seconds:0.##}s");
+    }
+
+    private IEnumerator DisableCityCameraAfterDelay(float seconds)
+    {
+        yield return new WaitForSecondsRealtime(seconds);
+        _cityCameraWarmupCoroutine = null;
+        SetCityCameraEnabled(false);
+        LogManager.LogFeature("[PlateToCityOrchestrator] CityCamera 预热结束，已关闭");
+    }
+
+    private void StopCityCameraWarmup(bool disableCamera)
+    {
+        if (_cityCameraWarmupCoroutine != null)
+        {
+            StopCoroutine(_cityCameraWarmupCoroutine);
+            _cityCameraWarmupCoroutine = null;
+        }
+
+        if (disableCamera)
+        {
+            SetCityCameraEnabled(false);
+        }
+    }
+
+    private void SetCityCameraEnabled(bool enabled)
+    {
+        if (_cityCamera == null)
+        {
+            return;
+        }
+
+        _cityCamera.enabled = enabled;
+    }
+
     private string ResolveProvinceName(string provinceNameOrCodeOverride)
     {
         return PlateProvinceFocusResolver.ResolveProvinceName(
@@ -428,6 +500,28 @@ public class PlateToCityMapTransitionOrchestrator : MonoBehaviour
         if (_cityHideTransitionController == null)
         {
             _cityHideTransitionController = CityHideTransitionController.Instance;
+        }
+
+        if (_cityCamera == null)
+        {
+            GameObject cityCameraGo = GameObject.Find("CityCamera");
+            if (cityCameraGo != null)
+            {
+                _cityCamera = cityCameraGo.GetComponent<Camera>();
+            }
+        }
+
+        if (_cityCamera == null)
+        {
+            Camera[] cameras = FindObjectsByType<Camera>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < cameras.Length; i++)
+            {
+                if (cameras[i] != null && cameras[i].name == "CityCamera")
+                {
+                    _cityCamera = cameras[i];
+                    break;
+                }
+            }
         }
     }
 

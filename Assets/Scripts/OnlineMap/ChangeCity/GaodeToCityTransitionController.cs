@@ -395,6 +395,8 @@ public class GaodeToCityTransitionController : MonoBehaviour
     private void ShowAndFrameCityMaker()
     {
         _cityMakerRoot.SetActive(true);
+        // 正播：城市模型显现时再预热 CityCamera，刷新 RT
+        PlateToCityMapTransitionOrchestrator.Instance?.PulseCityCameraWarmupOnCityReveal();
     }
 
     private Tween TweenToFocusPose(CityCameraPoseSettings target)
