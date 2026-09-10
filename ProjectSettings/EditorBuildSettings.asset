@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/EarthModelDemo0_NoCity.unity
-    guid: 517f31e1f55a0be49a0f80eea9c53529
+    path: Assets/Scenes/EarthModelDemo.unity
+    guid: 0d8c51fc397148245b64b434b0c18df3
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0
