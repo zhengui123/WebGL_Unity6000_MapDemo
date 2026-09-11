@@ -15,64 +15,64 @@ MonoBehaviour:
   _entries:
   - plateCode: EAST_ASIA
     plateName: "\u4E1C\u4E9A"
-    localPosition: {x: -451, y: -605, z: -10}
+    localPosition: {x: -451, y: -605, z: 40}
   - plateCode: SOUTHEAST_ASIA
     plateName: "\u4E1C\u5357\u4E9A"
-    localPosition: {x: -453, y: -513, z: 252}
+    localPosition: {x: -453, y: -513, z: 290}
   - plateCode: CENTRAL_ASIA
     plateName: "\u4E2D\u4E9A"
-    localPosition: {x: -162, y: -436, z: -34}
+    localPosition: {x: -162, y: -436, z: -10}
   - plateCode: WA
     plateName: "\u897F\u4E9A"
-    localPosition: {x: -33, y: -567, z: 56}
+    localPosition: {x: -33, y: -567, z: 120}
   - plateCode: WESTERN_EUROPE
     plateName: "\u897F\u6B27"
-    localPosition: {x: 272, y: -429, z: -87}
+    localPosition: {x: 272, y: -429, z: -67}
   - plateCode: SOUTH_ASIA
     plateName: "\u5357\u4E9A"
-    localPosition: {x: -237, y: -493, z: 143}
+    localPosition: {x: -237, y: -493, z: 163}
   - plateCode: NORTHERN_EUROPE
     plateName: "\u5317\u6B27"
-    localPosition: {x: 237, y: -565, z: -260}
+    localPosition: {x: 237, y: -565, z: -230}
   - plateCode: CENTRAL_EUROPE
     plateName: "\u4E2D\u6B27"
-    localPosition: {x: 169, y: -332, z: -64}
+    localPosition: {x: 169, y: -332, z: -60}
   - plateCode: SOUTHERN_EUROPE
     plateName: "\u5357\u6B27"
     localPosition: {x: 237, y: -399, z: 26}
   - plateCode: EASTERN_EUROPE
     plateName: "\u4E1C\u6B27"
-    localPosition: {x: -353, y: -992, z: -359}
+    localPosition: {x: -353, y: -992, z: -309}
   - plateCode: NORTH_AFRICA
     plateName: "\u5317\u975E"
-    localPosition: {x: 184, y: -527, z: 151}
+    localPosition: {x: 184, y: -527, z: 181}
   - plateCode: WEST_AFRICA
     plateName: "\u897F\u975E"
-    localPosition: {x: 296, y: -393, z: 218}
+    localPosition: {x: 296, y: -393, z: 228}
   - plateCode: EAST_AFRICA
     plateName: "\u4E1C\u975E"
-    localPosition: {x: 42, y: -523, z: 243}
+    localPosition: {x: 42, y: -523, z: 303}
   - plateCode: CENTRAL_AFRICA
     plateName: "\u4E2D\u975E"
-    localPosition: {x: 159, y: -545, z: 261}
+    localPosition: {x: 159, y: -545, z: 311}
   - plateCode: SOUTHERN_AFRICA
     plateName: "\u5357\u90E8\u975E\u6D32"
-    localPosition: {x: 102, y: -474, z: 460}
+    localPosition: {x: 102, y: -404, z: 480}
   - plateCode: NORTH_AMERICA_REGION
     plateName: "\u5317\u7F8E"
-    localPosition: {x: 965, y: -1166, z: -367}
+    localPosition: {x: 965, y: -1166, z: -317}
   - plateCode: CENTRAL_AMERICA
     plateName: "\u4E2D\u7F8E\u6D32"
-    localPosition: {x: 944, y: -501, z: 170}
+    localPosition: {x: 944, y: -501, z: 220}
   - plateCode: CARIBBEAN
     plateName: "\u52A0\u52D2\u6BD4\u5730\u533A"
-    localPosition: {x: 776, y: -338, z: 175}
+    localPosition: {x: 776, y: -338, z: 225}
   - plateCode: SOUTH_AMERICA_REGION
     plateName: "\u5357\u7F8E"
-    localPosition: {x: 719, y: -881, z: 417}
+    localPosition: {x: 719, y: -881, z: 467}
   - plateCode: AUSTRALASIA
     plateName: "\u6FB3\u65B0"
-    localPosition: {x: -650, y: -661, z: 482}
+    localPosition: {x: -650, y: -661, z: 532}
   - plateCode: MELANESIA
     plateName: "\u7F8E\u62C9\u5C3C\u897F\u4E9A"
-    localPosition: {x: -752, y: -421, z: 389}
+    localPosition: {x: -752, y: -421, z: 400}

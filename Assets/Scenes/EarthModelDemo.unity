@@ -7515,7 +7515,7 @@ MonoBehaviour:
   plateViewLocalPos: {x: 0, y: 900, z: 0}
   plateMapCenterDistance: 1200
   _useManualPlateMapPosition: 1
-  _manualPlateMapLocalPosition: {x: -413, y: -1566, z: -230}
+  _manualPlateMapLocalPosition: {x: -413, y: -1566, z: -100}
   _useForeignPlateMapPositionConfig: 1
   _foreignPlateMapPositionConfig: {fileID: 11400000, guid: 30ad2253e4488374b973e05b9433c461, type: 2}
   goEarthAnimTime: 1

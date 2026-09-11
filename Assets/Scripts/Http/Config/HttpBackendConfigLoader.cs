@@ -183,7 +183,7 @@ public sealed class HttpBackendResolvedConfig
 
     private static readonly (string Key, string Value)[] DefaultHeaderEntries =
     {
-        ("Satoken", "7KKcfWTpJ0aVU3tmF83mqGlZfYH3HrprYRplx3FxmVomtajMuw1XDw3g595qjy2M"),
+        ("Satoken", "ARC5eJiy7IOs1q8lQ6bor4EqluZTl4nZWaUR6M2fMvC8UEzC49R38FFxC09lC1gi"),
         ("X-Tenant-Id", "1"),
         ("Sys-Lang", "zh-CN"),
     };
