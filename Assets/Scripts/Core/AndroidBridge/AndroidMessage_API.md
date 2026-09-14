@@ -461,17 +461,24 @@ public void onUnityControlStateTransition(String json) { }
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
 | `vin` | string | 当前车辆 VIN；当前无车辆上下文时为空字符串 |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
+| `eventIds` | string[] | `status=2`（威胁）时按当前层级整理的事件 ID；非威胁为空数组。国家=全部高危事件；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件防护待办 |
 
 **过渡开始示例：**
 
 ```json
-{"from":1,"to":2,"status":0,"provinceCode":"330000","vin":"","partId":""}
+{"from":1,"to":2,"status":0,"provinceCode":"330000","vin":"","partId":"","eventIds":[]}
+```
+
+**威胁-省级示例：**
+
+```json
+{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-01","evt-02"]}
 ```
 
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC"}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
 ```
 
 **接收示例：**
@@ -486,6 +493,7 @@ public void onUnityControlStateTransition(String json) {
         String provinceCode = obj.optString("provinceCode", "");
         String vin = obj.optString("vin", "");
         String partId = obj.optString("partId", "");
+        JSONArray eventIds = obj.optJSONArray("eventIds");
         if (from == -1) {
             Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId + ", status=" + status);
             // 隐藏 Loading、刷新原生界面

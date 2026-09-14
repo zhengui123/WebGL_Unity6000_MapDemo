@@ -73,6 +73,12 @@ public struct ControlStateTransitionNotify
 
     /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
     public string partId;
+
+    /// <summary>
+    /// 威胁播放状态（status=2）下按当前层级整理的 eventId 数组；非威胁时为空数组。
+    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件防护待办。
+    /// </summary>
+    public string[] eventIds;
 }
 
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
@@ -215,19 +221,13 @@ public class AndroidMessage : MonoBehaviour
             return;
         }
 
-        string provinceCode = ResolveCurrentProvinceCode();
-        string vin = ResolveCurrentVin();
-        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
-        {
-            from = fromState,
-            to = toState,
-            status = ResolveNotifyBigScreenStatus(),
-            provinceCode = provinceCode,
-            vin = vin,
-            partId = partId ?? string.Empty,
-        });
+        ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildStarted(
+            fromState,
+            toState,
+            partId);
+        string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
+            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -239,19 +239,12 @@ public class AndroidMessage : MonoBehaviour
             return;
         }
 
-        string provinceCode = ResolveCurrentProvinceCode();
-        string vin = ResolveCurrentVin();
-        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
-        {
-            from = ControlStateTransitionCompletedFrom,
-            to = toState,
-            status = ResolveNotifyBigScreenStatus(),
-            provinceCode = provinceCode,
-            vin = vin,
-            partId = partId ?? string.Empty,
-        });
+        ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildCompleted(
+            toState,
+            partId);
+        string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={provinceCode}, vin={vin}, json={json}");
+            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 

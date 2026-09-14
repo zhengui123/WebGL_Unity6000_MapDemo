@@ -61,6 +61,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
 
+    /// <summary>当前威胁流程正在处理的省/国家 code；未进入省级阶段时为空。</summary>
+    public string ActiveProvinceCode => _activeProvinceCode;
+
     /// <summary>是否处于主动打断后的冷却期。</summary>
     public bool IsInInterruptCooldown => _interruptCooldownRoutine != null;
 

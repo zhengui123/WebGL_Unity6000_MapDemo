@@ -141,21 +141,15 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
-        string provinceCode = ResolveCurrentProvinceCode();
-        string vin = ResolveCurrentVin();
-        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
-        {
-            from = fromState,
-            to = toState,
-            status = ResolveNotifyBigScreenStatus(),
-            provinceCode = provinceCode,
-            vin = vin,
-            partId = partId ?? string.Empty,
-        });
+        ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildStarted(
+            fromState,
+            toState,
+            partId);
+        string json = JsonUtility.ToJson(notify);
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"开始 {fromState}→{toState}, provinceCode={provinceCode}, vin={vin} | {json}");
+            $"开始 {fromState}→{toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -167,21 +161,14 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
-        string provinceCode = ResolveCurrentProvinceCode();
-        string vin = ResolveCurrentVin();
-        string json = JsonUtility.ToJson(new ControlStateTransitionNotify
-        {
-            from = AndroidMessage.ControlStateTransitionCompletedFrom,
-            to = toState,
-            status = ResolveNotifyBigScreenStatus(),
-            provinceCode = provinceCode,
-            vin = vin,
-            partId = partId ?? string.Empty,
-        });
+        ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildCompleted(
+            toState,
+            partId);
+        string json = JsonUtility.ToJson(notify);
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"完成 to={toState}, provinceCode={provinceCode}, vin={vin} | {json}");
+            $"完成 to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 

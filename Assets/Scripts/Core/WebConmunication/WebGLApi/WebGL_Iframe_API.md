@@ -871,20 +871,21 @@ if (data.method === 'onUnityWebGLReady') {
 | `provinceCode` | string |     | 取不到时为 `""`   | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
 | `vin`          | string |     | 无车辆上下文为 `""` | 当前车辆 VIN                                                   |
 | `partId`       | string |     | 无零件场景为 `""`  | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`                  |
+| `eventIds`     | string[] |     | `[]`           | `status=2` 时按层级整理的威胁 eventId；非威胁为空。国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件待办 |
 
 
 **过渡开始示例：**
 
 ```json
-{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":""}
+{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":[]}
 ```
 
 ```javascript
 function onUnityControlStateTransition(json) {
-  const { from, to, status, provinceCode, vin, partId } = JSON.parse(json);
+  const { from, to, status, provinceCode, vin, partId, eventIds } = JSON.parse(json);
   // status: 0 默认 | 1 告警定位 | 2 威胁
   if (from === -1) {
-    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏播放状态', status);
+    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏播放状态', status, 'eventIds', eventIds);
     // 隐藏 Loading、刷新 UI
   } else {
     console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin, '大屏播放状态', status);
@@ -896,7 +897,7 @@ function onUnityControlStateTransition(json) {
 **过渡完成示例：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC"}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
 ```
 
 **零件切换开始（4→4）：**
