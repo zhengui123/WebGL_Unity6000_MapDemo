@@ -119,7 +119,7 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     }
 
     /// <summary>
-    /// 关闭指定时段轮询：isReplay=false，恢复默认轮询参数（start 空、end 当前时间）。
+    /// 关闭指定时段轮询：isReplay=false，恢复默认轮询参数（start 当日 0 点、end 当前时间）。
     /// </summary>
     public bool StopSpecifiedTimePolling()
     {
@@ -131,6 +131,27 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         }
 
         LogManager.LogBackend("[VehicleHeatmapApiController] 已关闭指定时段轮询，恢复默认轮询（isReplay=false）。");
+        return true;
+    }
+
+    /// <summary>
+    /// 恢复默认热力图轮询：切回默认时间窗（当日 0 点～当前、isReplay=false）并启动轮询。
+    /// 已在轮询则立即按默认参数请求一次。
+    /// </summary>
+    public bool ResumeDefaultPolling()
+    {
+        ApplyDefaultPollingParameters();
+
+        if (!_isPolling)
+        {
+            StartPolling();
+        }
+        else
+        {
+            RequestOnce();
+        }
+
+        LogManager.LogBackend("[VehicleHeatmapApiController] 已恢复默认热力图轮询（isReplay=false）。");
         return true;
     }
 

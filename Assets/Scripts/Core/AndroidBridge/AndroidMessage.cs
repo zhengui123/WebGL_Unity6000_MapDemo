@@ -869,7 +869,7 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
-    /// Android 调用：关闭指定时段轮询，恢复默认热力图轮询。
+    /// Android 调用：关闭指定时段轮询，恢复默认热力图轮询参数（轮询不停）。
     /// UnitySendMessage("AndroidBridge", "StopVehicleHeatmapSpecifiedTimePolling", "");
     /// </summary>
     public void StopVehicleHeatmapSpecifiedTimePolling()
@@ -881,10 +881,36 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
+    /// Android 调用：关闭车辆热力图定时轮询（默认/指定时段均停止）。
+    /// UnitySendMessage("AndroidBridge", "StopVehicleHeatmapDefaultPolling", "");
+    /// </summary>
+    public void StopVehicleHeatmapDefaultPolling()
+    {
+        LogManager.LogHost("[AndroidMessage] StopVehicleHeatmapDefaultPolling 收到");
+        if (!MapApi.Instance.StopVehicleHeatmapDefaultPolling())
+        {
+            LogManager.LogHostWarning("[AndroidMessage] StopVehicleHeatmapDefaultPolling 失败。");
+        }
+    }
+
+    /// <summary>
+    /// Android 调用：恢复默认车辆热力图轮询（当日 0 点～当前、isReplay=false）。
+    /// UnitySendMessage("AndroidBridge", "ResumeVehicleHeatmapDefaultPolling", "");
+    /// </summary>
+    public void ResumeVehicleHeatmapDefaultPolling()
+    {
+        LogManager.LogHost("[AndroidMessage] ResumeVehicleHeatmapDefaultPolling 收到");
+        if (!MapApi.Instance.ResumeVehicleHeatmapDefaultPolling())
+        {
+            LogManager.LogHostWarning("[AndroidMessage] ResumeVehicleHeatmapDefaultPolling 失败。");
+        }
+    }
+
+    /// <summary>
     /// Android 调用：主动请求一次车辆热力图（不轮询）。
     /// UnitySendMessage("AndroidBridge", "RequestVehicleHeatmapOnce", json);
     /// json 示例：{"startTime":"2026-06-30 00:00:00","endTime":"2026-06-30 23:00:00","isReplay":true}
-    /// 起止时间可空：start 空、end 用当前时间；isReplay 对应后端历史数据开关。
+    /// 起止时间可空：空则 start=当日 0 点、end=当前时间；非空可传任意时段；历史查询建议 isReplay=true。
     /// </summary>
     public void RequestVehicleHeatmapOnce(string json)
     {

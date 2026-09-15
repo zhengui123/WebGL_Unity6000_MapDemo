@@ -179,6 +179,8 @@ handlers: {
 | `CloseGJPanel`                            | `""`               | `CloseGJPanel()`                                  | `CloseGJPanel()`                          | ✅              |
 | `StartVehicleHeatmapSpecifiedTimePolling` | JSON               | `StartVehicleHeatmapSpecifiedTimePolling(string)` | `StartVehicleHeatmapSpecifiedTimePolling` | ✅              |
 | `StopVehicleHeatmapSpecifiedTimePolling`  | `""`               | `StopVehicleHeatmapSpecifiedTimePolling()`        | `StopVehicleHeatmapSpecifiedTimePolling`  | ✅              |
+| `StopVehicleHeatmapDefaultPolling`        | `""`               | `StopVehicleHeatmapDefaultPolling()`              | `StopVehicleHeatmapDefaultPolling`        | ✅              |
+| `ResumeVehicleHeatmapDefaultPolling`      | `""`               | `ResumeVehicleHeatmapDefaultPolling()`            | `ResumeVehicleHeatmapDefaultPolling`      | ✅              |
 | `RequestVehicleHeatmapOnce`               | JSON / `""`        | `RequestVehicleHeatmapOnce(string)`               | `RequestVehicleHeatmapOnce`               | ✅              |
 | `RequestCarVehicleData`                   | `""` 或 JSON        | `RequestCarVehicleData(string)`                   | `RequestCarVehicleData`                   | ✅              |
 | `RequestSecurityEventDetail`              | `""` 或 JSON        | `RequestSecurityEventDetail(string)`              | `RequestSecurityEventDetail`              | ✅              |
@@ -468,6 +470,8 @@ callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
   endTime: '2026-06-30 23:00:00'
 }));
 callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
+callUnity('StopVehicleHeatmapDefaultPolling', '');
+callUnity('ResumeVehicleHeatmapDefaultPolling', '');
 callUnity('RequestVehicleHeatmapOnce', JSON.stringify({
   startTime: '2026-06-30 00:00:00',
   endTime: '2026-06-30 23:00:00',

@@ -13,7 +13,9 @@
 | `StartThreatHighRiskPolling` | 开启威胁高危事件定时轮询（默认约 60s） |
 | `StopThreatHighRiskPolling` | 停止威胁高危事件定时轮询 |
 | `SetWorldMapRegionDefaults` | 设置国内外默认区域并立刻切换（替代旧默认省接口） |
-| `RequestVehicleHeatmapOnce` | 按时间 / `isReplay` **只请求一次**热力图（不改轮询） |
+| `RequestVehicleHeatmapOnce` | 按时间 / `isReplay` **只请求一次**热力图（可任意时段；不改轮询） |
+| `StopVehicleHeatmapDefaultPolling` | 关闭热力图定时轮询 |
+| `ResumeVehicleHeatmapDefaultPolling` | 恢复默认热力图轮询（当日 0 点～当前） |
 | `SetHttpRequestHeaders` | 运行时覆盖 `apiHost` / `appSecret` / 请求头 |
 | `SetUiLanguage` | 切换场景 UI 语言（`zh` / `en` 等，仅固定标签） |
 
@@ -48,6 +50,7 @@
 - `PauseGame` / `ResumeGame`
 - `CloseCarUI` / `CloseGJPanel`
 - `StartVehicleHeatmapSpecifiedTimePolling` / `StopVehicleHeatmapSpecifiedTimePolling`
+- `StopVehicleHeatmapDefaultPolling` / `ResumeVehicleHeatmapDefaultPolling`
 - `RequestCarVehicleData` / `RequestSecurityEventDetail`
 - `SetCarYawRotation`
 - 地图过渡辅助：`TransitionToPlateMap` / `FocusPlateMapModule` / `RestorePlateMapCamera` / `TransitionToEarth` 等

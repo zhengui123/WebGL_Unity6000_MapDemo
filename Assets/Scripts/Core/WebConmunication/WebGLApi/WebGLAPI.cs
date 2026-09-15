@@ -840,7 +840,7 @@ public class WebGLAPI : MonoBehaviour
             $"已开启 | {request.startTime} ~ {request.endTime}");
     }
 
-    /// <summary>宿主调用：关闭指定时段轮询，恢复默认热力图轮询。arg 传 ""。</summary>
+    /// <summary>宿主调用：关闭指定时段轮询，恢复默认热力图轮询参数（轮询不停）。arg 传 ""。</summary>
     public void StopVehicleHeatmapSpecifiedTimePolling()
     {
         NotifyHostCommunicationReceived(nameof(StopVehicleHeatmapSpecifiedTimePolling), string.Empty);
@@ -852,12 +852,43 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
-        LogCommunication("← Host", nameof(StopVehicleHeatmapSpecifiedTimePolling), "已恢复默认轮询");
+        LogCommunication("← Host", nameof(StopVehicleHeatmapSpecifiedTimePolling), "已恢复默认轮询参数");
+    }
+
+    /// <summary>宿主调用：关闭车辆热力图定时轮询（默认/指定时段均停止）。arg 传 ""。</summary>
+    public void StopVehicleHeatmapDefaultPolling()
+    {
+        NotifyHostCommunicationReceived(nameof(StopVehicleHeatmapDefaultPolling), string.Empty);
+        LogCommunication("← Host", nameof(StopVehicleHeatmapDefaultPolling), string.Empty);
+
+        if (!MapApi.Instance.StopVehicleHeatmapDefaultPolling())
+        {
+            LogManager.LogHostWarning("[WebGLAPI] StopVehicleHeatmapDefaultPolling 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(StopVehicleHeatmapDefaultPolling), "已关闭热力图轮询");
+    }
+
+    /// <summary>宿主调用：恢复默认车辆热力图轮询（当日 0 点～当前、isReplay=false）。arg 传 ""。</summary>
+    public void ResumeVehicleHeatmapDefaultPolling()
+    {
+        NotifyHostCommunicationReceived(nameof(ResumeVehicleHeatmapDefaultPolling), string.Empty);
+        LogCommunication("← Host", nameof(ResumeVehicleHeatmapDefaultPolling), string.Empty);
+
+        if (!MapApi.Instance.ResumeVehicleHeatmapDefaultPolling())
+        {
+            LogManager.LogHostWarning("[WebGLAPI] ResumeVehicleHeatmapDefaultPolling 失败。");
+            return;
+        }
+
+        LogCommunication("← Host", nameof(ResumeVehicleHeatmapDefaultPolling), "已恢复默认热力图轮询");
     }
 
     /// <summary>
     /// 宿主调用：主动请求一次车辆热力图（不轮询）。
-    /// arg 为 JSON：{"startTime":"...","endTime":"...","isReplay":true}；也可传 ""（默认时间 + isReplay=false）。
+    /// arg 为 JSON：{"startTime":"...","endTime":"...","isReplay":true}；也可传 ""（当日 0 点～当前 + isReplay=false）。
+    /// 非空起止时间可传任意时段；历史查询建议 isReplay=true。
     /// </summary>
     public void RequestVehicleHeatmapOnce(string json)
     {

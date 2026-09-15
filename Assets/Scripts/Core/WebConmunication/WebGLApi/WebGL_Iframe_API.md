@@ -507,7 +507,8 @@ callUnity('CloseGJPanel', '');
 
 ### 4.13 RequestVehicleHeatmapOnce
 
-主动请求一次车辆热力图（**不轮询**）：按起止时间与 `isReplay` 发一次后端请求并走现有点位处理；不改轮询状态。
+主动请求一次车辆热力图（**不轮询**）：按起止时间与 `isReplay` 发一次后端请求并走现有点位处理；不改轮询状态。  
+**可传任意时段**：非空起止时间原样发给后端；空则当日 0 点～当前。历史查询建议 `isReplay: true`。
 
 
 | 项目       | 值                                                         |
@@ -519,11 +520,11 @@ callUnity('CloseGJPanel', '');
 
 
 
-| 字段          | 类型     | 必填  | 说明                      |
-| ----------- | ------ | --- | ----------------------- |
-| `startTime` | string | 否   | 空则不传 start              |
-| `endTime`   | string | 否   | 空则用当前时间                 |
-| `isReplay`  | bool   | 否   | 是否使用历史数据（后端 `isReplay`） |
+| 字段          | 类型     | 必填  | 说明                                      |
+| ----------- | ------ | --- | --------------------------------------- |
+| `startTime` | string | 否   | 非空可任意时刻；空则当日 00:00:00                   |
+| `endTime`   | string | 否   | 非空可任意时刻；空则当前时间                          |
+| `isReplay`  | bool   | 否   | 后端历史数据开关；默认 false；任意历史窗建议 true |
 
 
 ```javascript
@@ -569,7 +570,7 @@ callUnity('StartVehicleHeatmapSpecifiedTimePolling', JSON.stringify({
 
 ### 4.15 StopVehicleHeatmapSpecifiedTimePolling
 
-关闭指定时段模式，恢复默认轮询（`startTime` 空、`endTime` 当前时间、`isReplay=false`）。
+关闭指定时段模式，恢复默认轮询参数（当日 0 点～当前、`isReplay=false`）。**轮询本身不停**。
 
 
 | 项目       | 值                                                   |
@@ -586,7 +587,46 @@ callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
 
 ---
 
-### 4.16 RequestCarVehicleData
+### 4.16 StopVehicleHeatmapDefaultPolling
+
+关闭车辆热力图定时轮询（默认/指定时段均停止）。不清空已绘制点位。  
+说明：之后若 Unity 再次进入国家/省级，`CarHotManager` 仍可能自动重新开启轮询。
+
+
+| 项目       | 值                                              |
+| -------- | ---------------------------------------------- |
+| `method` | `StopVehicleHeatmapDefaultPolling`             |
+| `arg`    | `""`                                           |
+| Unity 方法 | `WebGLAPI.StopVehicleHeatmapDefaultPolling()`  |
+| MapApi   | `StopVehicleHeatmapDefaultPolling()`           |
+
+
+```javascript
+callUnity('StopVehicleHeatmapDefaultPolling', '');
+```
+
+---
+
+### 4.17 ResumeVehicleHeatmapDefaultPolling
+
+恢复默认热力图轮询：当日 0 点～当前、`isReplay=false`，并启动定时请求。
+
+
+| 项目       | 值                                                |
+| -------- | ------------------------------------------------ |
+| `method` | `ResumeVehicleHeatmapDefaultPolling`             |
+| `arg`    | `""`                                             |
+| Unity 方法 | `WebGLAPI.ResumeVehicleHeatmapDefaultPolling()`  |
+| MapApi   | `ResumeVehicleHeatmapDefaultPolling()`           |
+
+
+```javascript
+callUnity('ResumeVehicleHeatmapDefaultPolling', '');
+```
+
+---
+
+### 4.18 RequestCarVehicleData
 
 请求车辆态势双接口（零部件防护状态 + 攻击链路）。两端均成功后覆盖本地缓存；若当前已在车辆级，会打开车辆 UI 并开始零部件轮播。无成功/失败回调（只发不回）。
 
@@ -621,7 +661,7 @@ callUnity('RequestCarVehicleData', JSON.stringify({
 
 ---
 
-### 4.17 RequestSecurityEventDetail
+### 4.19 RequestSecurityEventDetail
 
 请求事件溯源详情（getSourceEventDetail）。成功后 Unity 侧缓存数据、刷新 `GJ_Panel`，并按经纬度生成 POI。无成功/失败回调（只发不回）。
 
@@ -658,7 +698,7 @@ callUnity('RequestSecurityEventDetail', JSON.stringify({
 
 ---
 
-### 4.18 SetCarYawRotation
+### 4.20 SetCarYawRotation
 
 设置车辆 3D 模型绕 Y 轴旋转（对应 `MouseDragYawRotate`）。
 
@@ -685,7 +725,7 @@ callUnity('SetCarYawRotation', JSON.stringify({ yawAngle: 90.0, instant: false }
 
 ---
 
-### 4.19 其它地图过渡（可选 / 联调）
+### 4.21 其它地图过渡（可选 / 联调）
 
 一般优先使用 `TransitionToControlState`；以下为底层地图过渡直调：
 
@@ -707,7 +747,7 @@ callUnity('TransitionToEarth', '');
 
 ---
 
-### 4.20 SetHttpRequestHeaders
+### 4.22 SetHttpRequestHeaders
 
 运行时覆盖 HTTP 业务主机、签名密钥与默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
 
@@ -747,7 +787,7 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 
 ---
 
-### 4.21 SetUiLanguage
+### 4.23 SetUiLanguage
 
 切换场景 UI 语言（仅 GJ / MessageList 等固定标签；后端数据与 Demo 菜单不翻译）。
 
@@ -770,7 +810,7 @@ callUnity('SetUiLanguage', 'zh-CN');
 
 ---
 
-### 4.22 接口汇总表（父 → Unity）
+### 4.24 接口汇总表（父 → Unity）
 
 
 | method                                    | arg         | JSON | 说明                         |
@@ -788,9 +828,11 @@ callUnity('SetUiLanguage', 'zh-CN');
 | `SetWorldMapRegionDefaults`               | JSON        | ✅    | 设置国内外默认并立刻切换               |
 | `CloseCarUI`                              | `""`        |      | 关闭车辆 UI / 停止轮播             |
 | `CloseGJPanel`                            | `""`        |      | 关闭告警面板 GJ_Panel            |
-| `RequestVehicleHeatmapOnce`               | JSON / `""` | ✅    | 主动请求一次热力图（不轮询）             |
+| `RequestVehicleHeatmapOnce`               | JSON / `""` | ✅    | 主动请求一次热力图（可任意时段；不轮询）      |
 | `StartVehicleHeatmapSpecifiedTimePolling` | JSON        | ✅    | 开启热力图指定时段轮询                |
-| `StopVehicleHeatmapSpecifiedTimePolling`  | `""`        |      | 关闭指定时段，恢复默认轮询              |
+| `StopVehicleHeatmapSpecifiedTimePolling`  | `""`        |      | 关闭指定时段，恢复默认轮询参数（轮询不停）     |
+| `StopVehicleHeatmapDefaultPolling`        | `""`        |      | 关闭热力图定时轮询                  |
+| `ResumeVehicleHeatmapDefaultPolling`      | `""`        |      | 恢复默认热力图轮询                  |
 | `RequestCarVehicleData`                   | `""` / JSON | ✅    | 请求车辆态势双接口                  |
 | `RequestSecurityEventDetail`              | `""` / JSON | ✅    | 请求事件溯源详情并刷新 GJ_Panel / POI |
 | `SetCarYawRotation`                       | JSON        | ✅    | 设置车辆 Yaw（联调；生产一般监听回调）      |
@@ -1149,6 +1191,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期         | 说明                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------- |
+| 2026-09    | 新增 `StopVehicleHeatmapDefaultPolling` / `ResumeVehicleHeatmapDefaultPolling`；明确 `RequestVehicleHeatmapOnce` 可任意时段 |
 | 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例 |
 | 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估 |
 | 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁 |

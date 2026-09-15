@@ -199,7 +199,7 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 关闭车辆热力图指定时段轮询，恢复默认轮询（start 空、end 当前时间、isReplay=false）。
+    /// 关闭车辆热力图指定时段轮询，恢复默认轮询参数（当日 0 点～当前、isReplay=false）；轮询本身不停。
     /// </summary>
     public bool StopVehicleHeatmapSpecifiedTimePolling()
     {
@@ -213,9 +213,38 @@ public class MapApi : UnitySingle<MapApi>
         return controller.StopSpecifiedTimePolling();
     }
 
+    /// <summary>关闭车辆热力图定时轮询（默认/指定时段均停止）；不清空已绘制点位。</summary>
+    public bool StopVehicleHeatmapDefaultPolling()
+    {
+        VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
+        if (controller == null)
+        {
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法关闭热力图轮询。");
+            return false;
+        }
+
+        controller.StopPolling();
+        return true;
+    }
+
+    /// <summary>
+    /// 恢复默认车辆热力图轮询：当日 0 点～当前、isReplay=false，并启动定时请求。
+    /// </summary>
+    public bool ResumeVehicleHeatmapDefaultPolling()
+    {
+        VehicleHeatmapApiController controller = VehicleHeatmapApiController.Instance;
+        if (controller == null)
+        {
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleHeatmapApiController，无法恢复默认热力图轮询。");
+            return false;
+        }
+
+        return controller.ResumeDefaultPolling();
+    }
+
     /// <summary>
     /// 主动请求一次车辆热力图（不启停轮询、不改轮询模式）。
-    /// 起止时间为空时：start 空、end 当前时间；isReplay 由参数指定。
+    /// 起止时间非空时按传入值查询（可任意时段）；空则 start=当日 0 点、end=当前时间；isReplay 由参数指定。
     /// </summary>
     public bool RequestVehicleHeatmapOnce(string startTime, string endTime, bool isReplay)
     {
