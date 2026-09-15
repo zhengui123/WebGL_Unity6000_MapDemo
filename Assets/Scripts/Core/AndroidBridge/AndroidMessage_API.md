@@ -459,9 +459,20 @@ public void onUnityControlStateTransition(String json) { }
 | `to` | int | 目标级别 `0~5` |
 | `status` | int | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
-| `vin` | string | 当前车辆 VIN；当前无车辆上下文时为空字符串 |
+| `vin` | string | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN；无车辆上下文时为空字符串 |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
-| `eventIds` | string[] | `status=2`（威胁）时按当前层级整理的事件 ID；非威胁为空数组。国家=全部高危事件；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件防护待办 |
+| `eventIds` | string[] | 见下方「eventIds 取值规则」 |
+
+**eventIds 取值规则（`status=2` 威胁时；非威胁恒为 `[]`）：**
+
+| `to` 级别 | eventIds |
+|-----------|----------|
+| `1` 国家 | 高危缓存全部 eventId |
+| `2` 省 | 当前省威胁事件 |
+| `3` 车辆 | 当前 VIN 在高危缓存中的事件列表 |
+| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表 |
+| `4` 零部件 | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
+| `0` 地球等 | `[]` |
 
 **过渡开始示例：**
 
@@ -472,10 +483,28 @@ public void onUnityControlStateTransition(String json) { }
 **威胁-省级示例：**
 
 ```json
-{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-01","evt-02"]}
+{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
 ```
 
-**过渡完成示例：**
+**威胁-攻击链路完成（车辆事件列表）：**
+
+```json
+{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
+```
+
+**威胁-零部件开始（仅当前这条 eventId）：**
+
+```json
+{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
+```
+
+**威胁-零部件完成（同零件下一条 pending，仍为单元素）：**
+
+```json
+{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
+```
+
+**过渡完成示例（非威胁-零件）：**
 
 ```json
 {"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
@@ -495,10 +524,16 @@ public void onUnityControlStateTransition(String json) {
         String partId = obj.optString("partId", "");
         JSONArray eventIds = obj.optJSONArray("eventIds");
         if (from == -1) {
-            Log.d("UnityBridge", "过渡完成, level=" + to + ", partId=" + partId + ", status=" + status);
-            // 隐藏 Loading、刷新原生界面
+            Log.d("UnityBridge", "过渡完成, level=" + to
+                    + ", partId=" + partId
+                    + ", vin=" + vin
+                    + ", status=" + status
+                    + ", eventIds=" + eventIds);
+            // 隐藏 Loading、刷新原生界面；威胁零件级时 eventIds 通常仅 1 个
         } else {
-            Log.d("UnityBridge", "过渡开始: " + from + " -> " + to + ", status=" + status);
+            Log.d("UnityBridge", "过渡开始: " + from + " -> " + to
+                    + ", status=" + status
+                    + ", eventIds=" + eventIds);
             // 展示 Loading
         }
     } catch (JSONException e) {

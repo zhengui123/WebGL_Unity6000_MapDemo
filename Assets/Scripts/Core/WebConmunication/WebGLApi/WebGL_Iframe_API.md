@@ -869,12 +869,23 @@ if (data.method === 'onUnityWebGLReady') {
 | `to`           | int    | ✅   | —            | 目标级别 `0~5`                                                 |
 | `status`       | int    |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | string |     | 取不到时为 `""`   | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
-| `vin`          | string |     | 无车辆上下文为 `""` | 当前车辆 VIN                                                   |
+| `vin`          | string |     | 无车辆上下文为 `""` | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN                                                   |
 | `partId`       | string |     | 无零件场景为 `""`  | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`                  |
-| `eventIds`     | string[] |     | `[]`           | `status=2` 时按层级整理的威胁 eventId；非威胁为空。国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件待办 |
+| `eventIds`     | string[] |     | `[]`           | 见下方「eventIds 取值规则」 |
 
 
-**过渡开始示例：**
+#### eventIds 取值规则（`status=2` 威胁时；非威胁恒为 `[]`）
+
+| `to` 级别 | eventIds |
+|-----------|----------|
+| `1` 国家 | 高危缓存全部 eventId |
+| `2` 省 | 当前省威胁事件 |
+| `3` 车辆 | 当前 VIN 在高危缓存中的事件列表 |
+| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表 |
+| `4` 零部件 | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
+| `0` 地球等 | `[]` |
+
+**过渡开始示例（非威胁）：**
 
 ```json
 {"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":[]}
@@ -888,28 +899,52 @@ function onUnityControlStateTransition(json) {
     console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏播放状态', status, 'eventIds', eventIds);
     // 隐藏 Loading、刷新 UI
   } else {
-    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin, '大屏播放状态', status);
+    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin, '大屏播放状态', status, 'eventIds', eventIds);
     // 显示 Loading
   }
 }
 ```
 
-**过渡完成示例：**
+**过渡完成示例（非威胁-零件）：**
 
 ```json
 {"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
 ```
 
-**零件切换开始（4→4）：**
+**威胁-省级（开始）：**
 
 ```json
-{"from":4,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"CCU"}
+{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
 ```
 
-**零件切换完成（切到 TBOX）：**
+**威胁-攻击链路完成（车辆事件列表）：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"TBOX"}
+{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
+```
+
+**威胁-零部件开始（仅当前这条 eventId）：**
+
+```json
+{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
+```
+
+**威胁-零部件完成（切到同零件下一条 / 或另一零件时仍为单元素）：**
+
+```json
+{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
+```
+
+**零件切换开始（4→4，非威胁）：**
+
+```json
+{"from":4,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"CCU","eventIds":[]}
+```
+
+**零件切换完成（切到 TBOX，非威胁）：**
+
+```json
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"TBOX","eventIds":[]}
 ```
 
 #### 会触发的 from → to 场景
@@ -1114,6 +1149,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期         | 说明                                                                                     |
 | ---------- | -------------------------------------------------------------------------------------- |
+| 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例 |
 | 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估 |
 | 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁 |
 | 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode` |
