@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 /// <summary>
@@ -63,6 +64,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     /// <summary>当前威胁流程正在处理的省/国家 code；未进入省级阶段时为空。</summary>
     public string ActiveProvinceCode => _activeProvinceCode;
+
+    /// <summary>当前威胁下钻车辆 encryptVin；未进入 Vin 阶段时为空。</summary>
+    public string ActiveEncryptVin => _activeEncryptVin;
 
     /// <summary>是否处于主动打断后的冷却期。</summary>
     public bool IsInInterruptCooldown => _interruptCooldownRoutine != null;
@@ -663,7 +667,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = provinceCode;
         _activePlateModuleName = plateModuleName;
 
-        yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceCode));
+        yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceCode, encryptVin));
         yield return RunTimedStep("车辆数据请求(非阻塞)", RequestVehicleDataAndWait(encryptVin));
 
         _visualStage = ThreatVisualStage.VehicleHold;
@@ -744,8 +748,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    private IEnumerator EnsureAtVehicleLevel(string provinceCode)
+    private IEnumerator EnsureAtVehicleLevel(string provinceCode, string encryptVin)
     {
+        if (!string.IsNullOrWhiteSpace(encryptVin))
+        {
+            _activeEncryptVin = encryptVin.Trim();
+        }
+
         GameManager gm = GameManager.Instance;
         if (gm == null)
         {
@@ -982,7 +991,19 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             yield break;
         }
 
-        LogManager.LogFeature($"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin}");
+        if (!string.IsNullOrWhiteSpace(encryptVin))
+        {
+            _activeEncryptVin = encryptVin.Trim();
+        }
+
+        ResolveVehicleQueryWindowFromThreatEvents(
+            encryptVin,
+            out string startTime,
+            out string endTime);
+
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin} | " +
+            $"startTime={startTime} | endTime={endTime}");
         // 关键点：不要阻塞车辆停留计时。
         // 先用已有缓存立即刷新车辆 UI；接口成功/失败都让流程按停留秒数继续跳转。
         controller.TryShowVehicleUiFromCache();
@@ -996,8 +1017,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         controller.Request(
             encryptVin,
-            startTime: null,
-            endTime: null,
+            startTime,
+            endTime,
             onCompleted: (success, error) =>
             {
                 if (!success)
@@ -1009,6 +1030,177 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         // 给一帧，避免后续阶段与请求回调在同一帧内竞争。
         yield return null;
+    }
+
+    /// <summary>
+    /// 按当前 VIN 威胁条目 processTime 组装车辆态势起止时间：
+    /// 单条 → start=当天 0 点、end=processTime；多条 → start=min 当天 0 点、end=max。
+    /// </summary>
+    private void ResolveVehicleQueryWindowFromThreatEvents(
+        string encryptVin,
+        out string startTime,
+        out string endTime)
+    {
+        startTime = ThreatQueryDefaults.StartTime;
+        endTime = ThreatQueryDefaults.EndTime;
+
+        if (string.IsNullOrWhiteSpace(encryptVin))
+        {
+            LogManager.LogFeatureWarning("[ThreatAlertFlowRunner] 车辆态势时间窗：vin 为空，使用威胁默认起止时间。");
+            return;
+        }
+
+        IReadOnlyList<HighRiskSecurityEventItem> events = CollectThreatEventsForVin(encryptVin);
+        if (events == null || events.Count == 0)
+        {
+            LogManager.LogFeatureWarning(
+                $"[ThreatAlertFlowRunner] 车辆态势时间窗：未找到 vin={encryptVin} 的威胁事件，使用默认起止时间。");
+            return;
+        }
+
+        DateTime? minTime = null;
+        DateTime? maxTime = null;
+        int parsedCount = 0;
+        for (int i = 0; i < events.Count; i++)
+        {
+            HighRiskSecurityEventItem item = events[i];
+            if (item == null || !TryParseThreatProcessTime(item.processTime, out DateTime processTime))
+            {
+                continue;
+            }
+
+            parsedCount++;
+            if (!minTime.HasValue || processTime < minTime.Value)
+            {
+                minTime = processTime;
+            }
+
+            if (!maxTime.HasValue || processTime > maxTime.Value)
+            {
+                maxTime = processTime;
+            }
+        }
+
+        if (!minTime.HasValue || !maxTime.HasValue)
+        {
+            LogManager.LogFeatureWarning(
+                $"[ThreatAlertFlowRunner] 车辆态势时间窗：vin={encryptVin} 的 processTime 均无法解析，使用默认起止时间。");
+            return;
+        }
+
+        // 单条与多条统一：start=min 当天 0 点，end=max(processTime)
+        startTime = minTime.Value.Date.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        endTime = maxTime.Value.ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 车辆态势时间窗已按 processTime 生成 | vin={encryptVin} | " +
+            $"events={events.Count} | parsed={parsedCount} | {startTime} → {endTime}");
+    }
+
+    private IReadOnlyList<HighRiskSecurityEventItem> CollectThreatEventsForVin(string encryptVin)
+    {
+        List<HighRiskSecurityEventItem> matched = new List<HighRiskSecurityEventItem>();
+        string vinKey = encryptVin.Trim();
+        string provinceCode = _activeProvinceCode;
+
+        IReadOnlyList<HighRiskSecurityEventItem> source = null;
+        bool fromAllEvents = false;
+        if (!string.IsNullOrWhiteSpace(provinceCode))
+        {
+            source = HighRiskSecurityEventDataStore.Instance?.GetEventsByProvince(provinceCode);
+        }
+
+        if (source == null || source.Count == 0)
+        {
+            source = HighRiskSecurityEventDataStore.Instance?.GetAllEvents();
+            fromAllEvents = true;
+        }
+
+        if (source == null || source.Count == 0)
+        {
+            return matched;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            HighRiskSecurityEventItem item = source[i];
+            if (item == null
+                || string.IsNullOrWhiteSpace(item.vin)
+                || !string.Equals(item.vin.Trim(), vinKey, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            // 全量回退时仍尽量限定当前威胁省（按条目 province）
+            if (fromAllEvents
+                && !string.IsNullOrWhiteSpace(provinceCode)
+                && !MatchesThreatProvince(item.province, provinceCode))
+            {
+                continue;
+            }
+
+            matched.Add(item);
+        }
+
+        return matched;
+    }
+
+    private static bool MatchesThreatProvince(string itemProvince, string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(itemProvince) || string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return false;
+        }
+
+        string itemKey = itemProvince.Trim();
+        string provinceKey = provinceCode.Trim();
+        if (string.Equals(itemKey, provinceKey, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        bool hasQuery = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceKey, out string normalizedQuery);
+        if (!hasQuery)
+        {
+            return false;
+        }
+
+        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(itemKey, out string normalizedItem))
+        {
+            return false;
+        }
+
+        return string.Equals(normalizedItem, normalizedQuery, StringComparison.Ordinal);
+    }
+
+    private static bool TryParseThreatProcessTime(string processTime, out DateTime result)
+    {
+        result = default;
+        if (string.IsNullOrWhiteSpace(processTime))
+        {
+            return false;
+        }
+
+        string trimmed = processTime.Trim();
+        string[] formats =
+        {
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd HH:mm",
+            "yyyy/MM/dd HH:mm:ss",
+            "yyyy/MM/dd HH:mm",
+            "yyyy-MM-ddTHH:mm:ss",
+        };
+
+        if (DateTime.TryParseExact(
+                trimmed,
+                formats,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.None,
+                out result))
+        {
+            return true;
+        }
+
+        return DateTime.TryParse(trimmed, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
     /// <summary>

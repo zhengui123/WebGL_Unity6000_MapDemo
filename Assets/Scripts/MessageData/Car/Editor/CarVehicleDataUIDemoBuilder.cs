@@ -54,7 +54,7 @@ public static class CarVehicleDataUIDemoBuilder
         InputField start = CreateLabeledInput(
             panel.transform, resources, demoUiFont, "StartTime", string.Empty, ref y);
         InputField end = CreateLabeledInput(
-            panel.transform, resources, demoUiFont, "EndTime", "2026-06-30 23:00:00", ref y);
+            panel.transform, resources, demoUiFont, "EndTime", string.Empty, ref y);
 
         Button httpBtn = CreateButton(
             panel.transform, resources, demoUiFont, "RequestHttpButton", "请求双接口(HTTP)", ref y);

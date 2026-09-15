@@ -43764,6 +43764,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mapRoot: {fileID: 1576851194}
   _instancedRenderer: {fileID: 1576851195}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: SD-001
     longitude: 116.63704157380155
@@ -100180,6 +100181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5619311476249859144}
   _instancedRenderer: {fileID: 4568125633109676497}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u798F\u5EFA-001"
     longitude: 118.42293501240016
@@ -101651,6 +101653,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 241557482512623247}
   _instancedRenderer: {fileID: 241557482512623249}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u66FC-001"
     longitude: 58.540350865986966
@@ -103120,6 +103123,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1854821276121122123}
   _instancedRenderer: {fileID: 5877421159323330039}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5E7F\u4E1C-001"
     longitude: 114.45854590320587
@@ -103230,6 +103234,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3542753041765293427}
   _instancedRenderer: {fileID: 960007043869710104}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9655\u897F-001"
     longitude: 107.45792498466373
@@ -104066,6 +104071,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 433489992607221416}
   _instancedRenderer: {fileID: 433489992607221418}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u83AB\u6851\u6BD4\u514B-001"
     longitude: 35.32755094576942
@@ -104724,6 +104730,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7679120444944165889}
   _instancedRenderer: {fileID: 7849840748447062433}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6D77\u5357-001"
     longitude: 110.8121763087511
@@ -106483,6 +106490,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4914948997367892672}
   _instancedRenderer: {fileID: 6637180802502221778}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5185\u8499\u53E4-001"
     longitude: 116.83129898649453
@@ -106937,6 +106945,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8115182978316823941}
   _instancedRenderer: {fileID: 6028151696240786344}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9752\u6D77-001"
     longitude: 95.84287900269031
@@ -108606,6 +108615,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3983486537521775858}
   _instancedRenderer: {fileID: 2067154798064278298}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B89\u5FBD-001"
     longitude: 116.83527540451288
@@ -109875,6 +109885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 966374613229114576}
   _instancedRenderer: {fileID: 966374613229114578}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u73BB\u5229\u7EF4\u4E9A-001"
     longitude: -69.05728809306254
@@ -109976,6 +109987,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _mapRoot: {fileID: 0}
   _instancedRenderer: {fileID: 7315261910977584068}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C71\u4E1C-001"
     longitude: 121.95139997088909
@@ -110492,6 +110504,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2469008941448952010}
   _instancedRenderer: {fileID: 1860390102581671944}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u897F\u85CF-001"
     longitude: 92.40757582491636
@@ -112843,6 +112856,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1332570280070328711}
   _instancedRenderer: {fileID: 1332570280070328713}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u82F1\u56FD-001"
     longitude: 0.3319741015753124
@@ -113204,6 +113218,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1353399687170455325}
   _instancedRenderer: {fileID: 1353399687170455327}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7259\u4E70\u52A0-001"
     longitude: -77.32608375260952
@@ -114837,6 +114852,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7074439393012184571}
   _instancedRenderer: {fileID: 2083611871588409671}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E91\u5357-001"
     longitude: 99.11351016776264
@@ -115306,6 +115322,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1548316947814759773}
   _instancedRenderer: {fileID: 1548316947814759775}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4EE5\u8272\u5217-001"
     longitude: 34.311662705079215
@@ -115599,6 +115616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1561856550457341952}
   _instancedRenderer: {fileID: 1561856550457341954}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E2D\u975E\u5171\u548C\u56FD-001"
     longitude: 25.212318632229426
@@ -117342,6 +117360,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8120074494844399734}
   _instancedRenderer: {fileID: 4578939266313924573}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9ED1\u9F99\u6C5F-001"
     longitude: 126.70173204404115
@@ -121383,6 +121402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 189928654624084952}
   _instancedRenderer: {fileID: 2149974021896628946}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B89\u9053\u5C14-001"
     longitude: 1.7147455749418157
@@ -124735,6 +124755,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 246640199966949467}
   _instancedRenderer: {fileID: 2516461283264190930}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CD5\u56FD-001"
     longitude: 8.56632464406141
@@ -125710,6 +125731,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2618520028550396405}
   _instancedRenderer: {fileID: 2618520028550396407}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5E0C\u814A-001"
     longitude: 22.077533712994068
@@ -126331,6 +126353,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2656636409481426110}
   _instancedRenderer: {fileID: 2656636409481426113}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u521A\u679C-001"
     longitude: 82.11349160365148
@@ -127337,6 +127360,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2719574728962701964}
   _instancedRenderer: {fileID: 2719574728962701966}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u5E03\u4E9A\u65B0\u51E0\u5185\u4E9A-001"
     longitude: 150.48042639156938
@@ -128693,6 +128717,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2349196181587151367}
   _instancedRenderer: {fileID: 3745739162041496243}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5E7F\u897F-001"
     longitude: 109.65645887976885
@@ -130390,6 +130415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2656180464634787685}
   _instancedRenderer: {fileID: 3029588625346748642}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u57FA\u65AF\u5766-001"
     longitude: 67.87247902822241
@@ -130976,6 +131002,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3101058713514736110}
   _instancedRenderer: {fileID: 3101058713514736112}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u52A0\u84EC-001"
     longitude: 11.003656282515124
@@ -131730,6 +131757,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3165957616235779977}
   _instancedRenderer: {fileID: 3165957616235779979}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65AF\u6D1B\u6587\u5C3C\u4E9A-001"
     longitude: 15.778032576732073
@@ -131862,6 +131890,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3167467945279984075}
   _instancedRenderer: {fileID: 3167467945279984077}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7F05\u7538-001"
     longitude: 99.62980256344508
@@ -132031,6 +132060,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8622435845396104188}
   _instancedRenderer: {fileID: 2384245234264940894}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E0A\u6D77-001"
     longitude: 121.60020265805721
@@ -133375,6 +133405,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 997078674563726969}
   _instancedRenderer: {fileID: 4990627157324294272}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CB3\u5357-001"
     longitude: 112.60065316212177
@@ -133474,6 +133505,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3291952305441658914}
   _instancedRenderer: {fileID: 3291952305441658916}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7279\u7ACB\u5C3C\u8FBE\u548C\u591A\u5DF4\u54E5-001"
     longitude: -61.446118580852044
@@ -133974,6 +134006,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1218114647836255267}
   _instancedRenderer: {fileID: 3314871514854689192}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6FB3\u5927\u5229\u4E9A-001"
     longitude: 132.24036464363053
@@ -136072,6 +136105,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1002742761439075869}
   _instancedRenderer: {fileID: 3551347209524073686}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u585E\u62C9\u5229\u6602-001"
     longitude: -12.107342986713093
@@ -137172,6 +137206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3641354059146258121}
   _instancedRenderer: {fileID: 3641354059146258123}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u5DF4\u591A\u65AF-001"
     longitude: -59.54004256755775
@@ -138313,6 +138348,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3774706168349846302}
   _instancedRenderer: {fileID: 3774706168349846304}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u610F\u5927\u5229-001"
     longitude: 7.663815205570842
@@ -139379,6 +139415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3879762697208835000}
   _instancedRenderer: {fileID: 3879762697208835002}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65E5\u672C-001"
     longitude: 137.17915633337634
@@ -139882,6 +139919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 357166976200238036}
   _instancedRenderer: {fileID: 3910955263952393465}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u67EC\u57D4\u5BE8-001"
     longitude: 107.38775654588335
@@ -140441,6 +140479,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8943054617084235655}
   _instancedRenderer: {fileID: 8074770358976929668}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6E56\u5317-001"
     longitude: 111.90135745477677
@@ -141134,6 +141173,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4024260358103184699}
   _instancedRenderer: {fileID: 4024260358103184701}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u62C9\u8131\u7EF4\u4E9A-001"
     longitude: 28.170705422259516
@@ -141335,6 +141375,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 870985946437471287}
   _instancedRenderer: {fileID: 4037258257540251744}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5317\u9A6C\u5176\u987F-001"
     longitude: 20.548493418480618
@@ -141735,6 +141776,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4071392509076841980}
   _instancedRenderer: {fileID: 4071392509076841982}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u591A\u54E5-001"
     longitude: 0.35189069788825045
@@ -142145,6 +142187,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8273075994663279177}
   _instancedRenderer: {fileID: 8632465066308170108}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5409\u6797-001"
     longitude: 129.6034031352997
@@ -142408,6 +142451,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4137189341924856537}
   _instancedRenderer: {fileID: 4137189341924856539}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4FC4\u7F57\u65AF-001"
     longitude: -173.68019990622997
@@ -142871,6 +142915,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1353735661636897669}
   _instancedRenderer: {fileID: 4198646370206883474}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65B0\u52A0\u5761-001"
     longitude: 104.04451781511307
@@ -144111,6 +144156,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1339124607420969299}
   _instancedRenderer: {fileID: 4279760446174722414}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6C99\u7279\u963F\u62C9\u4F2F-001"
     longitude: 39.15852780646139
@@ -144640,6 +144686,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 427242883172551193}
   _instancedRenderer: {fileID: 5114692189772007493}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u91CD\u5E86-001"
     longitude: 108.32031084918975
@@ -144899,6 +144946,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2696578332978095061}
   _instancedRenderer: {fileID: 4361139904065187546}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u591A\u7C73\u5C3C\u514B-001"
     longitude: -61.312930721590874
@@ -145020,6 +145068,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4362197425603261689}
   _instancedRenderer: {fileID: 4362197425603261691}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6590\u6D4E-001"
     longitude: 33.252718448638916
@@ -145141,6 +145190,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1698217471359844393}
   _instancedRenderer: {fileID: 4365603570243797293}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5409\u5E03\u63D0-001"
     longitude: 42.405705773234104
@@ -146045,6 +146095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3977707115084481635}
   _instancedRenderer: {fileID: 4432052227112162899}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8D8A\u5357-001"
     longitude: 102.50809281037311
@@ -146778,6 +146829,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4488918586889929508}
   _instancedRenderer: {fileID: 4488918586889929510}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E4C\u62C9\u572D-001"
     longitude: -53.41589727686733
@@ -147876,6 +147928,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1580170723890617669}
   _instancedRenderer: {fileID: 4581123956623153800}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9A6C\u91CC-001"
     longitude: 0.5023497164244191
@@ -148248,6 +148301,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4831413248149121270}
   _instancedRenderer: {fileID: 7811071185984051357}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6C5F\u897F-001"
     longitude: 114.75059689077735
@@ -148326,6 +148380,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 622616579989840144}
   _instancedRenderer: {fileID: 4617038677497318118}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u521A\u679C\u6C11\u4E3B\u5171\u548C\u56FD-001"
     longitude: 30.77433584213304
@@ -148496,6 +148551,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1400373798845668453}
   _instancedRenderer: {fileID: 4621470129922148460}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8499\u53E4-001"
     longitude: 112.52745942228466
@@ -148723,6 +148779,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4636413200680920149}
   _instancedRenderer: {fileID: 4636413200680920151}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65AF\u5A01\u58EB\u5170-001"
     longitude: 31.75253759853331
@@ -149327,6 +149384,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4676833567596346256}
   _instancedRenderer: {fileID: 4676833567596346258}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E1C\u5E1D\u6C76-001"
     longitude: 125.87274640597025
@@ -151624,6 +151682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2029344215358904347}
   _instancedRenderer: {fileID: 4908126933083968973}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u54E5\u65AF\u8FBE\u9ECE\u52A0-001"
     longitude: -84.65476306630717
@@ -151929,6 +151988,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3093752303406647486}
   _instancedRenderer: {fileID: 4925727630592883196}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CD5\u5C5E\u572D\u4E9A\u90A3\uFF08\u6CD5\uFF09-001"
     longitude: -52.25238609313965
@@ -152147,6 +152207,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 837149163401450778}
   _instancedRenderer: {fileID: 4944964965306875175}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C3C\u65E5\u5229\u4E9A-001"
     longitude: 10.559310425965322
@@ -152374,6 +152435,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4957543911480542137}
   _instancedRenderer: {fileID: 4957543911480542139}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5357\u975E-001"
     longitude: 29.98727694305626
@@ -153265,6 +153327,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4630677008780196296}
   _instancedRenderer: {fileID: 4046835705256745948}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6FB3\u95E8-001"
     longitude: 113.52741170719266
@@ -153353,6 +153416,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5070428541314890953}
   _instancedRenderer: {fileID: 5070428541314890955}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5723\u6587\u68EE\u7279\u548C\u683C\u6797\u7EB3\u4E01\u65AF-001"
     longitude: -61.20375829292925
@@ -153641,6 +153705,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4375232495493085633}
   _instancedRenderer: {fileID: 5088941342507541756}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4F0A\u6717-001"
     longitude: 53.81856701536117
@@ -153939,6 +154004,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1937985496399107392}
   _instancedRenderer: {fileID: 5105889554242609210}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u683C\u6797\u7EB3\u8FBE-001"
     longitude: -61.61025738566104
@@ -154451,6 +154517,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 286693603472593317}
   _instancedRenderer: {fileID: 5164638365529546972}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u82CF\u4E39-001"
     longitude: 32.77061883416684
@@ -155291,6 +155358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 820677064687924122}
   _instancedRenderer: {fileID: 5248293483842673836}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E2D\u56FD-001"
     longitude: 124.64801240360794
@@ -155468,6 +155536,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1560460572792762778}
   _instancedRenderer: {fileID: 5261178584568137644}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5409\u5C14\u5409\u65AF\u65AF\u5766-001"
     longitude: 74.63371330065911
@@ -156714,6 +156783,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5152168672604232360}
   _instancedRenderer: {fileID: 5346878778091169429}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9ECE\u5DF4\u5AE9-001"
     longitude: 36.11923821608184
@@ -157027,6 +157097,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4790340900554801408}
   _instancedRenderer: {fileID: 5368463863346445436}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7A81\u5C3C\u65AF-001"
     longitude: 7.612606725809141
@@ -158164,6 +158235,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4508804016822015874}
   _instancedRenderer: {fileID: 5440904460607179019}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7ACB\u9676\u5B9B-001"
     longitude: 21.718316608303468
@@ -158340,6 +158412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3887586052886732695}
   _instancedRenderer: {fileID: 5450909351082029836}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7F57\u9A6C\u5C3C\u4E9A-001"
     longitude: 21.905792935721763
@@ -158533,6 +158606,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5457166156005131822}
   _instancedRenderer: {fileID: 5457166156005131824}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5361\u5854\u5C14-001"
     longitude: 50.84280056596259
@@ -158657,6 +158731,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5279719921345205679}
   _instancedRenderer: {fileID: 2352373893704849619}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7518\u8083-001"
     longitude: 97.45364825871587
@@ -159524,6 +159599,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5042449726939842643}
   _instancedRenderer: {fileID: 5542267298691078694}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5188\u6BD4\u4E9A-001"
     longitude: -16.78712665475905
@@ -160243,6 +160319,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4059858303345683722}
   _instancedRenderer: {fileID: 5610347696650033778}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u54E5\u4F26\u6BD4\u4E9A-001"
     longitude: -69.66167557073459
@@ -160385,6 +160462,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5615275304458358019}
   _instancedRenderer: {fileID: 5615275304458358021}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u62C9\u572D-001"
     longitude: -58.15527841628523
@@ -160620,6 +160698,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2104651486219926363}
   _instancedRenderer: {fileID: 4860364849411947137}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6C5F\u82CF-001"
     longitude: 121.26681668174267
@@ -161537,6 +161616,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8290795253174858296}
   _instancedRenderer: {fileID: 7615417278964964192}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9999\u6E2F-001"
     longitude: 113.97319996565581
@@ -162068,6 +162148,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5784418512645729693}
   _instancedRenderer: {fileID: 5784418512645729695}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8D5E\u6BD4\u4E9A-001"
     longitude: 30.655744899370347
@@ -162244,6 +162325,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5789563718260830977}
   _instancedRenderer: {fileID: 5789563718260830979}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4F0A\u62C9\u514B-001"
     longitude: 45.8339827650434
@@ -162365,6 +162447,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2297193429098618521}
   _instancedRenderer: {fileID: 6773847171255096013}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6E56\u5357-001"
     longitude: 112.87667595148086
@@ -162549,6 +162632,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 149442064896630884}
   _instancedRenderer: {fileID: 5825998052999053895}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6D25\u5DF4\u5E03\u97E6-001"
     longitude: 28.07649007620995
@@ -163061,6 +163145,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5883069022477790368}
   _instancedRenderer: {fileID: 5883069022477790371}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-001"
     longitude: 166.5813238031078
@@ -163614,6 +163699,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2284446813405232901}
   _instancedRenderer: {fileID: 5922029539976543713}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5370\u5EA6\u5C3C\u897F\u4E9A-001"
     longitude: 103.78393280145531
@@ -164488,6 +164574,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1652581087648964679}
   _instancedRenderer: {fileID: 6020960556320336134}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5229\u6BD4\u4E9A-001"
     longitude: 17.192693757555162
@@ -164913,6 +165000,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6062050631461577102}
   _instancedRenderer: {fileID: 6062050631461577104}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5371\u5730\u9A6C\u62C9-001"
     longitude: -90.25379395484924
@@ -165691,6 +165779,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3919935231364091853}
   _instancedRenderer: {fileID: 6124886418030705363}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u585E\u5185\u52A0\u5C14-001"
     longitude: -11.955750149276355
@@ -165955,6 +166044,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1651700475136245810}
   _instancedRenderer: {fileID: 6131852383718074203}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u571F\u5E93\u66FC\u65AF\u5766-001"
     longitude: 52.65195616324418
@@ -166131,6 +166221,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6144191041500885314}
   _instancedRenderer: {fileID: 6144191041500885316}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E4C\u5E72\u8FBE-001"
     longitude: 33.209594378567886
@@ -166324,6 +166415,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4899760736077669747}
   _instancedRenderer: {fileID: 6150389149427541616}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9A6C\u8FBE\u52A0\u65AF\u52A0-001"
     longitude: 43.928645143903225
@@ -166533,6 +166625,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6157747202959213730}
   _instancedRenderer: {fileID: 6157747202959213732}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u82CF\u4E39-001"
     longitude: 34.28019259086898
@@ -166853,6 +166946,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5594794253973015424}
   _instancedRenderer: {fileID: 6178545764650972641}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u5C14\u5DF4\u5C3C\u4E9A-001"
     longitude: 19.328113316804377
@@ -167693,6 +167787,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6271656618299331256}
   _instancedRenderer: {fileID: 6271656618299331258}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5362\u65FA\u8FBE-001"
     longitude: 29.697691069892926
@@ -168552,6 +168647,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 427814578484427024}
   _instancedRenderer: {fileID: 6325399393050639596}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5854\u5409\u514B\u65AF\u5766-001"
     longitude: 72.09579306748356
@@ -168882,6 +168978,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6364908866560139560}
   _instancedRenderer: {fileID: 6364908866560139562}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u83B1\u7D22\u6258-001"
     longitude: 27.00588679587052
@@ -169466,6 +169563,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6410925255123783090}
   _instancedRenderer: {fileID: 6410925255123783092}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E4C\u5179\u522B\u514B\u65AF\u5766-001"
     longitude: 71.9012560234687
@@ -169683,6 +169781,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3779618819264931651}
   _instancedRenderer: {fileID: 6421031082095518637}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6D2A\u90FD\u62C9\u65AF-001"
     longitude: -84.4015326061708
@@ -169830,6 +169929,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4088702093749045612}
   _instancedRenderer: {fileID: 6424704025377961398}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5370\u5EA6-001"
     longitude: 70.87142459028314
@@ -170093,6 +170193,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6432961279537339178}
   _instancedRenderer: {fileID: 6432961279537339180}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5723\u591A\u7F8E\u548C\u666E\u6797\u897F\u6BD4-001"
     longitude: 6.673285037279129
@@ -170344,6 +170445,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6456976923417490521}
   _instancedRenderer: {fileID: 6456976923417490523}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u591A\u7C73\u5C3C\u52A0-001"
     longitude: -71.48578340800589
@@ -170695,6 +170797,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2131666401973171831}
   _instancedRenderer: {fileID: 6492717797218742766}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E4C\u514B\u5170-001"
     longitude: 24.311216427946135
@@ -171035,6 +171138,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6519204515245102844}
   _instancedRenderer: {fileID: 6519204515245102846}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B89\u54E5\u62C9-001"
     longitude: 18.81940856796831
@@ -171556,6 +171660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6173816932803730478}
   _instancedRenderer: {fileID: 6548677336089452498}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u54C8\u9A6C-001"
     longitude: -77.97026527515709
@@ -171677,6 +171782,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3401211449242463273}
   _instancedRenderer: {fileID: 6549004538626491557}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5766\u6851\u5C3C\u4E9A-001"
     longitude: 38.64280721504201
@@ -171979,6 +172085,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3394141525947437925}
   _instancedRenderer: {fileID: 6564951844613894665}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u8054\u914B-001"
     longitude: 55.37520067504556
@@ -172528,6 +172635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3711084485612089601}
   _instancedRenderer: {fileID: 6596769820318433384}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u745E\u5178-001"
     longitude: 20.907732868575977
@@ -172921,6 +173029,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6635464102890680417}
   _instancedRenderer: {fileID: 6635464102890680419}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6587\u83B1-001"
     longitude: 115.43369328975677
@@ -173812,6 +173921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6716939020807664385}
   _instancedRenderer: {fileID: 6716939020807664387}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4F2F\u5229\u5179-001"
     longitude: -88.11657954875682
@@ -174045,6 +174155,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3106057533612073976}
   _instancedRenderer: {fileID: 6727480344613933742}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u62FF\u9A6C-001"
     longitude: -78.87177231363376
@@ -174713,6 +174824,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6803707558033041518}
   _instancedRenderer: {fileID: 6803707558033041520}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u79D8\u9C81-001"
     longitude: -78.56635250921818
@@ -174857,6 +174969,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4067379172407066540}
   _instancedRenderer: {fileID: 6808652615496743299}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6240\u7F57\u95E8\u7FA4\u5C9B-001"
     longitude: 158.7079916747034
@@ -175092,6 +175205,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6823996524040304016}
   _instancedRenderer: {fileID: 6823996524040304018}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u6839\u5EF7-001"
     longitude: -64.79711190363128
@@ -175936,6 +176050,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1396156608434773074}
   _instancedRenderer: {fileID: 6888240504463751338}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u5C14\u53CA\u5229\u4E9A-001"
     longitude: 5.58718574835666
@@ -176055,6 +176170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6890029679727466184}
   _instancedRenderer: {fileID: 6890029679727466186}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7EB3\u7C73\u6BD4\u4E9A-001"
     longitude: 20.126858656135823
@@ -176189,6 +176305,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3085288979497253255}
   _instancedRenderer: {fileID: 8893612111836382822}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8D35\u5DDE-001"
     longitude: 107.38526410758494
@@ -176474,6 +176591,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1357812071379592123}
   _instancedRenderer: {fileID: 6917737026990871790}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u80AF\u5C3C\u4E9A-001"
     longitude: 35.05915042858078
@@ -176647,6 +176765,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8301441962851025764}
   _instancedRenderer: {fileID: 5339720114377645914}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E2D\u56FD\u5730\u56FE (1)-001"
     longitude: 85.35885963073372
@@ -177154,6 +177273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3813427105167914054}
   _instancedRenderer: {fileID: 6978179792793046751}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u68B5\u8482\u5188-001"
     longitude: 12.453787917768977
@@ -177476,6 +177596,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6985511052420569664}
   _instancedRenderer: {fileID: 6985511052420569666}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u51E0\u5185\u4E9A-001"
     longitude: -8.922932987159129
@@ -177597,6 +177718,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6267278449751326587}
   _instancedRenderer: {fileID: 6986575300067461941}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C3C\u52A0\u62C9\u74DC-001"
     longitude: -84.30003772439568
@@ -177916,6 +178038,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7000456782889705370}
   _instancedRenderer: {fileID: 7000456782889705372}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7F8E\u56FD-001"
     longitude: -98.05273464849824
@@ -178062,6 +178185,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7008667818838767436}
   _instancedRenderer: {fileID: 7008667818838767438}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u571F\u8033\u5176-001"
     longitude: 41.02873921394348
@@ -178316,6 +178440,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4892017129785724766}
   _instancedRenderer: {fileID: 7035878546592642950}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u82CF\u91CC\u5357-001"
     longitude: -54.33999005205078
@@ -178653,6 +178778,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2434484363551385743}
   _instancedRenderer: {fileID: 7055496941902988952}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5723\u5362\u897F\u4E9A-001"
     longitude: -61.06142192544635
@@ -178901,6 +179027,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2642265433200817351}
   _instancedRenderer: {fileID: 6624097771875649666}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C71\u897F-001"
     longitude: 112.1486576704383
@@ -178995,6 +179122,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7080727307197271410}
   _instancedRenderer: {fileID: 7080727307197271412}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u54C8\u8428\u514B\u65AF\u5766-001"
     longitude: 49.99085397300303
@@ -179096,6 +179224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5379725586873861052}
   _instancedRenderer: {fileID: 5762673481316098442}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u56DB\u5DDD-001"
     longitude: 100.88719957321882
@@ -180050,6 +180179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2970669621777876505}
   _instancedRenderer: {fileID: 7195414605624088497}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5965\u5730\u5229-001"
     longitude: 10.232426337897778
@@ -180239,6 +180369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3259632241399556948}
   _instancedRenderer: {fileID: 7205841017017055607}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6377\u514B-001"
     longitude: 15.116609233996314
@@ -181106,6 +181237,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7282781857002196154}
   _instancedRenderer: {fileID: 7282781857002196156}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u57C3\u585E\u4FC4\u6BD4\u4E9A-001"
     longitude: 43.5451759974801
@@ -181383,6 +181515,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3452040330854955595}
   _instancedRenderer: {fileID: 7302792090837798876}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E5F\u95E8-001"
     longitude: 47.78955421250021
@@ -181743,6 +181876,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7334256489112484293}
   _instancedRenderer: {fileID: 7334256489112484295}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65B0\u897F\u5170-001"
     longitude: 170.3414400287511
@@ -182242,6 +182376,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7382534927156841582}
   _instancedRenderer: {fileID: 7382534927156841584}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u57C3\u53CA-001"
     longitude: 35.75580087140224
@@ -182829,6 +182964,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7426603408478105355}
   _instancedRenderer: {fileID: 7426603408478105358}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: SD-001
     longitude: 117.12
@@ -182994,6 +183130,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4531121132983486698}
   _instancedRenderer: {fileID: 1945276033601091244}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CB3\u5317-001"
     longitude: 115.22212307521701
@@ -183087,6 +183224,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5293597718544907398}
   _instancedRenderer: {fileID: 7435802166655454024}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8D1D\u5B81-001"
     longitude: 0.8049789930464339
@@ -183361,6 +183499,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7450508280021177338}
   _instancedRenderer: {fileID: 7450508280021177340}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65AF\u6D1B\u4F10\u514B-001"
     longitude: 19.05906562591963
@@ -183980,6 +184119,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1002629852117327350}
   _instancedRenderer: {fileID: 7491402301418264904}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9A6C\u62C9\u7EF4-001"
     longitude: 34.98024561422881
@@ -184168,6 +184308,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 782257697953696666}
   _instancedRenderer: {fileID: 7498673067256165422}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C3C\u65E5\u5C14-001"
     longitude: 8.483539887531581
@@ -184519,6 +184660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7518954724434686026}
   _instancedRenderer: {fileID: 7518954724434686028}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5362\u68EE\u5821-001"
     longitude: 6.026757772292967
@@ -184743,6 +184885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7533119905978980343}
   _instancedRenderer: {fileID: 7533119905978980345}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CE2\u5170-001"
     longitude: 21.66587584795343
@@ -184891,6 +185034,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7535473885383727974}
   _instancedRenderer: {fileID: 7535473885383727976}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u9A6C\u6765\u897F\u4E9A-001"
     longitude: 100.85761018452163
@@ -185219,6 +185363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7552315677985076218}
   _instancedRenderer: {fileID: 7552315677985076220}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B5F\u52A0\u62C9\u56FD-001"
     longitude: 88.23907571658913
@@ -185382,6 +185527,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7558473787442630989}
   _instancedRenderer: {fileID: 7558473787442630991}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CE2\u591A\u9ECE\u5404\uFF08\u7F8E\uFF09-001"
     longitude: -65.60632560571139
@@ -185718,6 +185864,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2169979351934881666}
   _instancedRenderer: {fileID: 7606192719114015600}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u52A0\u7EB3-001"
     longitude: -1.0242542214531767
@@ -186249,6 +186396,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5780314556806210852}
   _instancedRenderer: {fileID: 7626157302603377535}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8461\u8404\u7259-001"
     longitude: -7.50798170462005
@@ -186567,6 +186715,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7668530641855766855}
   _instancedRenderer: {fileID: 7668530641855766857}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6469\u6D1B\u54E5-001"
     longitude: -15.729583644610464
@@ -186884,6 +187033,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4428960932192836403}
   _instancedRenderer: {fileID: 7691492715868329487}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E0D\u4E39-001"
     longitude: 89.61124032531711
@@ -187109,6 +187259,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2217597760209744029}
   _instancedRenderer: {fileID: 2884883305563294666}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8FBD\u5B81-001"
     longitude: 123.7023493307829
@@ -187825,6 +187976,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1966949851821953631}
   _instancedRenderer: {fileID: 7793457546703625679}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4FDD\u52A0\u5229\u4E9A-001"
     longitude: 24.653567026472274
@@ -187964,6 +188116,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2644516545065911899}
   _instancedRenderer: {fileID: 7796478742660769597}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u83F2\u5F8B\u5BBE-001"
     longitude: 125.31914275145755
@@ -188382,6 +188535,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 866514250803573403}
   _instancedRenderer: {fileID: 7824461178475160338}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u52D2\u65AF\u5766-001"
     longitude: 35.10066172941481
@@ -188503,6 +188657,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7824462855132288665}
   _instancedRenderer: {fileID: 7824462855132288667}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u82AC\u5170-001"
     longitude: 27.59419635205711
@@ -188622,6 +188777,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7825899906559192365}
   _instancedRenderer: {fileID: 7825899906559192367}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u767D\u4FC4\u7F57\u65AF-001"
     longitude: 25.653294271223103
@@ -188859,6 +189015,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3702143136325585019}
   _instancedRenderer: {fileID: 7837595470036113147}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5E03\u57FA\u7EB3\u6CD5\u7D22-001"
     longitude: -2.0722621510003165
@@ -189375,6 +189532,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7885902865230931278}
   _instancedRenderer: {fileID: 7885902865230931280}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u572D\u4E9A\u90A3-001"
     longitude: -61.18522862927374
@@ -189545,6 +189703,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6474864963232582106}
   _instancedRenderer: {fileID: 7890876522603860718}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5E03\u9686\u8FEA-001"
     longitude: 30.43291394398466
@@ -190161,6 +190320,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7953052741982026313}
   _instancedRenderer: {fileID: 7953052741982026315}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6469\u5C14\u591A\u74E6-001"
     longitude: 27.70383763669946
@@ -190339,6 +190499,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5124459404063991286}
   _instancedRenderer: {fileID: 7963417792375899199}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u585E\u5C14\u7EF4\u4E9A-001"
     longitude: 22.050298229353302
@@ -190478,6 +190639,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5227239331850927879}
   _instancedRenderer: {fileID: 7966149123579252190}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5DF4\u897F-001"
     longitude: -46.71878907566111
@@ -191250,6 +191412,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8021258785609111020}
   _instancedRenderer: {fileID: 8021258785609111022}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7D22\u9A6C\u91CC-001"
     longitude: 49.84369414780849
@@ -192563,6 +192726,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 326476706830500660}
   _instancedRenderer: {fileID: 8150482682609722753}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u59D4\u5185\u745E\u62C9-001"
     longitude: -64.49876544920357
@@ -192821,6 +192985,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8169909988107354475}
   _instancedRenderer: {fileID: 8169909988107354477}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u667A\u5229-001"
     longitude: -75.51862476212715
@@ -192942,6 +193107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8171324873677915994}
   _instancedRenderer: {fileID: 8171324873677915996}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8377\u5170-001"
     longitude: 5.7378889322812086
@@ -193374,6 +193540,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4716471000865041907}
   _instancedRenderer: {fileID: 8221748176204315590}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8D64\u9053\u51E0\u5185\u4E9A-001"
     longitude: 10.789025221060228
@@ -193754,6 +193921,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8043703538889745455}
   _instancedRenderer: {fileID: 8256799809913877431}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u79D1\u7279\u8FEA\u74E6-001"
     longitude: -6.499593960080418
@@ -194125,6 +194293,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1780167798652018633}
   _instancedRenderer: {fileID: 8284759243366492378}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5308\u7259\u5229-001"
     longitude: 17.944626226923106
@@ -194548,6 +194717,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8324307648305689716}
   _instancedRenderer: {fileID: 8324307648305689718}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65AF\u91CC\u5170\u5361-001"
     longitude: 81.4078441816282
@@ -194962,6 +195132,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8332756404812303015}
   _instancedRenderer: {fileID: 8332756404812303017}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u51B0\u5C9B-001"
     longitude: -15.810765588267031
@@ -195124,6 +195295,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8339840358005303665}
   _instancedRenderer: {fileID: 8339840358005303667}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6BD4\u5229\u65F6-001"
     longitude: 6.066094002827782
@@ -195260,6 +195432,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 219111785245551357}
   _instancedRenderer: {fileID: 8346996401200622885}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u79D1\u5A01\u7279-001"
     longitude: 47.28115401322566
@@ -195462,6 +195635,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8354218801994410969}
   _instancedRenderer: {fileID: 8354218801994410971}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u52A0\u62FF\u5927-001"
     longitude: -98.83052570038353
@@ -195796,6 +195970,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2861686720733025360}
   _instancedRenderer: {fileID: 8381982010130283466}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5FB7\u56FD-001"
     longitude: 11.45550080910914
@@ -196787,6 +196962,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8464764715589474768}
   _instancedRenderer: {fileID: 8464764715589474770}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E39\u9EA6-001"
     longitude: 11.161942874728936
@@ -197318,6 +197494,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8504065294747315968}
   _instancedRenderer: {fileID: 8504065294747315970}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u671D\u9C9C-001"
     longitude: 128.59901472227966
@@ -197692,6 +197869,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7491825202638998904}
   _instancedRenderer: {fileID: 509832488146025350}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B81\u590F-001"
     longitude: 105.11596679580212
@@ -197753,6 +197931,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8541998701696542085}
   _instancedRenderer: {fileID: 8541998701696542087}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u585E\u6D66\u8DEF\u65AF-001"
     longitude: 32.272319745218525
@@ -197923,6 +198102,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3759543768864107152}
   _instancedRenderer: {fileID: 8545971780916488241}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7231\u5C14\u5170-001"
     longitude: -6.125493516280301
@@ -198229,6 +198409,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7458708244200537547}
   _instancedRenderer: {fileID: 8565500177630785235}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u963F\u5BCC\u6C57-001"
     longitude: 72.95459261124779
@@ -198369,6 +198550,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8113313106164777757}
   _instancedRenderer: {fileID: 3345902953945667555}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5317\u4EAC-001"
     longitude: 117.08363104987144
@@ -199086,6 +199268,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8647538600651092511}
   _instancedRenderer: {fileID: 8647538600651092513}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8428\u5C14\u74E6\u591A-001"
     longitude: -88.63413409716713
@@ -199303,6 +199486,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8655571267667747532}
   _instancedRenderer: {fileID: 8655571267667747534}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u51E0\u5185\u4E9A\u6BD4\u7ECD-001"
     longitude: -15.754369306903385
@@ -199404,6 +199588,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 5915219369228194388}
   _instancedRenderer: {fileID: 4290955336968203437}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65B0\u7586-001"
     longitude: 73.9506090547517
@@ -199465,6 +199650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8659340998826957183}
   _instancedRenderer: {fileID: 8659340998826957185}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u4E4D\u5F97-001"
     longitude: 21.827029294579006
@@ -199630,6 +199816,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2508850021731764690}
   _instancedRenderer: {fileID: 8667496620251258223}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u7231\u6C99\u5C3C\u4E9A-001"
     longitude: 24.008586626940627
@@ -199867,6 +200054,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1928452689440517524}
   _instancedRenderer: {fileID: 8681826712752102954}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u74E6\u52AA\u963F\u56FE-001"
     longitude: 167.6352119054136
@@ -200018,6 +200206,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 4644746225799036997}
   _instancedRenderer: {fileID: 923784344537485995}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u53F0\u6E7E-001"
     longitude: 122.72914816057681
@@ -200213,6 +200402,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 2971994677996992267}
   _instancedRenderer: {fileID: 358186585390243595}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5929\u6D25-001"
     longitude: 117.24315866047144
@@ -200348,6 +200538,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3882856054582916291}
   _instancedRenderer: {fileID: 8724724256819781039}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5723\u9A6C\u529B\u8BFA-001"
     longitude: 12.502163414188317
@@ -200675,6 +200866,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 435966093046370178}
   _instancedRenderer: {fileID: 8748795913242711512}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5C3C\u6CCA\u5C14-001"
     longitude: 87.09362112448434
@@ -201292,6 +201484,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8787528427286860253}
   _instancedRenderer: {fileID: 8787528427286860255}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6D77\u5730-001"
     longitude: -72.3054366953038
@@ -201640,6 +201833,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8800525521532850279}
   _instancedRenderer: {fileID: 8800525521532850281}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u897F\u73ED\u7259-001"
     longitude: 1.2301301642955877
@@ -201924,6 +202118,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8816869114282954351}
   _instancedRenderer: {fileID: 8816869114282954353}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5217\u652F\u6566\u58EB\u767B-001"
     longitude: 9.580273571031853
@@ -202238,6 +202433,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 628038588343818966}
   _instancedRenderer: {fileID: 8843060302294195711}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u514B\u7F57\u5730\u4E9A-001"
     longitude: 15.442611107572361
@@ -202400,6 +202596,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 136332959994456217}
   _instancedRenderer: {fileID: 8857572381588601698}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u535A\u8328\u74E6\u7EB3-001"
     longitude: 26.901636821846864
@@ -202577,6 +202774,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3064391081436621651}
   _instancedRenderer: {fileID: 8869443204655592475}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6BDB\u91CC\u5854\u5C3C\u4E9A-001"
     longitude: -5.571372087631971
@@ -203112,6 +203310,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8911998209102751015}
   _instancedRenderer: {fileID: 8911998209102751017}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CE2\u9ED1-001"
     longitude: 19.05751736749471
@@ -203406,6 +203605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7317293872086608530}
   _instancedRenderer: {fileID: 8934227767495377041}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5580\u9EA6\u9686-001"
     longitude: 15.893259518192735
@@ -203527,6 +203727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 3311862740084690391}
   _instancedRenderer: {fileID: 8935126481100451049}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5384\u74DC\u591A\u5C14-001"
     longitude: -80.4694074134922
@@ -203684,6 +203885,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6371126560042755276}
   _instancedRenderer: {fileID: 8942623687070959068}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u632A\u5A01-001"
     longitude: 8.45927632496975
@@ -203840,6 +204042,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8947724840272073783}
   _instancedRenderer: {fileID: 8947724840272073785}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u745E\u58EB-001"
     longitude: 9.839046499351639
@@ -204161,6 +204364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8981667473303216206}
   _instancedRenderer: {fileID: 8981667473303216208}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6CF0\u56FD-001"
     longitude: 102.19813787792873
@@ -204749,6 +204953,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 6062618971312882636}
   _instancedRenderer: {fileID: 9041851086840221408}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5229\u6BD4\u91CC\u4E9A-001"
     longitude: -10.10061127233331
@@ -205104,6 +205309,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 9049563347041043407}
   _instancedRenderer: {fileID: 9049563347041043409}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5384\u7ACB\u7279\u91CC\u4E9A-001"
     longitude: 41.16526726058191
@@ -205360,6 +205566,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 7446800163008817992}
   _instancedRenderer: {fileID: 796617146612532563}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u6D59\u6C5F-001"
     longitude: 119.65537547996641
@@ -205976,6 +206183,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 723559459283965814}
   _instancedRenderer: {fileID: 9140749760543917009}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u97E9\u56FD-001"
     longitude: 127.33961821525986
@@ -206389,6 +206597,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 9173034352644410014}
   _instancedRenderer: {fileID: 9173034352644410016}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u8001\u631D-001"
     longitude: 101.22285602556428
@@ -206727,6 +206936,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 9202349199531945675}
   _instancedRenderer: {fileID: 9202349199531945677}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u53E4\u5DF4-001"
     longitude: -84.27190729483874
@@ -206871,6 +207081,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 781496735223344570}
   _instancedRenderer: {fileID: 9203986903650867601}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u5B89\u63D0\u74DC\u548C\u5DF4\u5E03\u8FBE-001"
     longitude: -61.876509334892035
@@ -207100,6 +207311,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 9209692697322412401}
   _instancedRenderer: {fileID: 9209692697322412403}
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u58A8\u897F\u54E5-001"
     longitude: -88.20702727819025

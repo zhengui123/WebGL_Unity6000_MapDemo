@@ -303,6 +303,12 @@ public static class ControlStateTransitionNotifyBuilder
 
     private static string ResolveCurrentVin()
     {
+        ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
+        if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActiveEncryptVin))
+        {
+            return threatRunner.ActiveEncryptVin;
+        }
+
         CarVehicleDataStore store = CarVehicleDataStore.Instance;
         if (store == null || string.IsNullOrWhiteSpace(store.LastEncryptVin))
         {

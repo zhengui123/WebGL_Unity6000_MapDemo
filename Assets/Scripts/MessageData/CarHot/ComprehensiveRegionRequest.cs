@@ -6,25 +6,30 @@ using System;
 [Serializable]
 public class ComprehensiveRegionRequest
 {
-    public string startTime = HttpProjectConfig.DefaultQueryStartTime;
-    public string endTime = HttpProjectConfig.DefaultQueryEndTime;
+    public string startTime;
+    public string endTime;
     public string province = string.Empty;
     public string region = string.Empty;
     public string country = string.Empty;
     public bool isReplay;
 
-    /// <summary>全国默认请求参数 JSON（格式化，便于 UI 展示）。</summary>
+    public ComprehensiveRegionRequest()
+    {
+        BackendDateTimeTool.GetTodayQueryWindow(out startTime, out endTime);
+    }
+
+    /// <summary>全国默认请求参数 JSON（文档示意；运行时默认窗为当日 0 点～当前）。</summary>
     public const string DefaultJson =
         "{\n" +
         "  \"startTime\": \"\",\n" +
-        "  \"endTime\": \"2026-06-30 23:00:00\",\n" +
+        "  \"endTime\": \"\",\n" +
         "  \"province\": \"\",\n" +
         "  \"region\": \"\",\n" +
         "  \"country\": \"\",\n" +
         "  \"isReplay\": false\n" +
         "}";
 
-    /// <summary>创建请求体；起止时间与 province/region/country 均可为 null（使用项目默认或空字符串）。</summary>
+    /// <summary>创建请求体；起止时间为 null/空时用当日 0 点～当前。</summary>
     public static ComprehensiveRegionRequest Create(
         string province = null,
         string region = null,
@@ -35,8 +40,8 @@ public class ComprehensiveRegionRequest
     {
         return new ComprehensiveRegionRequest
         {
-            startTime = startTime ?? HttpProjectConfig.DefaultQueryStartTime,
-            endTime = endTime ?? HttpProjectConfig.DefaultQueryEndTime,
+            startTime = BackendDateTimeTool.ResolveStartTimeOrToday(startTime),
+            endTime = BackendDateTimeTool.ResolveEndTimeOrNow(endTime),
             province = province ?? string.Empty,
             region = region ?? string.Empty,
             country = country ?? string.Empty,

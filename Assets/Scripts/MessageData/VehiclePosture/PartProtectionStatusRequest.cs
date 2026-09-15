@@ -10,25 +10,22 @@ public class PartProtectionStatusRequest
     public string startTime = string.Empty;
     public string endTime = string.Empty;
 
-    /// <summary>示例请求 JSON（与 Apifox 文档一致，便于联调）。</summary>
+    /// <summary>示例请求 JSON（文档示意；运行时默认窗为当日 0 点～当前）。</summary>
     public const string DefaultJson =
         "{\n" +
         "  \"encryptVin\": \"ed49f47afa23e45b18d342767495643c\",\n" +
         "  \"startTime\": \"\",\n" +
-        "  \"endTime\": \"2026-06-30 23:00:00\"\n" +
+        "  \"endTime\": \"\"\n" +
         "}";
 
     public const string DefaultEncryptVin = "ed49f47afa23e45b18d342767495643c";
 
     public static PartProtectionStatusRequest CreateDefaultTest()
     {
-        return Create(
-            DefaultEncryptVin,
-            startTime: string.Empty,
-            endTime: HttpProjectConfig.DefaultQueryEndTime);
+        return Create(DefaultEncryptVin, startTime: null, endTime: null);
     }
 
-    /// <summary>创建请求体；时间为 null 时用项目默认 endTime，startTime 默认可为空串。</summary>
+    /// <summary>创建请求体；时间为 null/空时：start=当日 0 点，end=当前时间。</summary>
     public static PartProtectionStatusRequest Create(
         string encryptVin,
         string startTime = null,
@@ -37,8 +34,8 @@ public class PartProtectionStatusRequest
         return new PartProtectionStatusRequest
         {
             encryptVin = encryptVin != null ? encryptVin.Trim() : string.Empty,
-            startTime = startTime ?? string.Empty,
-            endTime = endTime ?? HttpProjectConfig.DefaultQueryEndTime,
+            startTime = BackendDateTimeTool.ResolveStartTimeOrToday(startTime),
+            endTime = BackendDateTimeTool.ResolveEndTimeOrNow(endTime),
         };
     }
 

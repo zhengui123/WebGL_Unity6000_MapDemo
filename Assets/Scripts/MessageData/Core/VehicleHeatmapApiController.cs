@@ -3,7 +3,7 @@ using UnityEngine;
 
 /// <summary>
 /// 车辆热力图 HTTP 接口定时调用控制器：仅在国家级/省级由 <see cref="CarHotManager"/> 驱动启停。
-/// <para>默认轮询：startTime 空、endTime 当前时间、isReplay=false。</para>
+    /// <para>默认轮询：startTime 当日 0 点、endTime 当前时间、isReplay=false。</para>
 /// <para>指定时段轮询：固定起止时间、isReplay=true；关闭后回到默认轮询。</para>
 /// </summary>
 [DisallowMultipleComponent]
@@ -177,14 +177,12 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
 
     /// <summary>
     /// 主动请求一次热力图（不启停、不改轮询模式）。
-    /// 起止时间为空时：start 空、end 当前时间；isReplay 由调用方指定。
+    /// 起止时间为空时：start=当日 0 点、end=当前时间；isReplay 由调用方指定。
     /// </summary>
     public bool RequestOnceWithParams(string startTime, string endTime, bool isReplay)
     {
-        string resolvedStart = string.IsNullOrWhiteSpace(startTime) ? string.Empty : startTime.Trim();
-        string resolvedEnd = string.IsNullOrWhiteSpace(endTime)
-            ? BackendDateTimeTool.GetCurrentTimeString()
-            : endTime.Trim();
+        string resolvedStart = BackendDateTimeTool.ResolveStartTimeOrToday(startTime);
+        string resolvedEnd = BackendDateTimeTool.ResolveEndTimeOrNow(endTime);
 
         if (!BeginRequest(resolvedStart, resolvedEnd, isReplay))
         {
@@ -241,9 +239,8 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
             return;
         }
 
-        // 默认轮询：起始不传，结束为当前时间，isReplay=false
-        startTime = string.Empty;
-        endTime = BackendDateTimeTool.GetCurrentTimeString();
+        // 默认轮询：start=当日 0 点，end=当前时间，isReplay=false
+        BackendDateTimeTool.GetTodayQueryWindow(out startTime, out endTime);
         isReplay = false;
     }
 

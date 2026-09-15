@@ -10,23 +10,22 @@ public class AttackChainRequest
     public string startTime = string.Empty;
     public string endTime = string.Empty;
 
-    /// <summary>示例请求 JSON（与 Apifox 文档一致，便于联调）。</summary>
+    /// <summary>示例请求 JSON（文档示意；运行时默认窗为当日 0 点～当前）。</summary>
     public const string DefaultJson =
         "{\n" +
         "  \"encryptVin\": \"ed49f47afa23e45b18d342767495643c\",\n" +
         "  \"startTime\": \"\",\n" +
-        "  \"endTime\": \"2026-06-30 00:00:00\"\n" +
+        "  \"endTime\": \"\"\n" +
         "}";
 
     public const string DefaultEncryptVin = "ed49f47afa23e45b18d342767495643c";
-    public const string DefaultEndTime = "2026-06-30 00:00:00";
 
     public static AttackChainRequest CreateDefaultTest()
     {
-        return Create(DefaultEncryptVin, startTime: string.Empty, endTime: DefaultEndTime);
+        return Create(DefaultEncryptVin, startTime: null, endTime: null);
     }
 
-    /// <summary>创建请求体；时间为 null 时 startTime 为空串，endTime 用文档默认。</summary>
+    /// <summary>创建请求体；时间为 null/空时：start=当日 0 点，end=当前时间。</summary>
     public static AttackChainRequest Create(
         string encryptVin,
         string startTime = null,
@@ -35,8 +34,8 @@ public class AttackChainRequest
         return new AttackChainRequest
         {
             encryptVin = encryptVin != null ? encryptVin.Trim() : string.Empty,
-            startTime = startTime ?? string.Empty,
-            endTime = endTime ?? DefaultEndTime,
+            startTime = BackendDateTimeTool.ResolveStartTimeOrToday(startTime),
+            endTime = BackendDateTimeTool.ResolveEndTimeOrNow(endTime),
         };
     }
 

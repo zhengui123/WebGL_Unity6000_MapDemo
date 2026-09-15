@@ -61,8 +61,8 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         }
 
         string vin = ReadInput(_encryptVinInput, PartProtectionStatusRequest.DefaultEncryptVin);
-        string start = ReadInput(_startTimeInput, string.Empty);
-        string end = ReadInput(_endTimeInput, "2026-06-30 23:00:00");
+        string start = ReadInput(_startTimeInput, BackendDateTimeTool.GetTodayStartTimeString());
+        string end = ReadInput(_endTimeInput, BackendDateTimeTool.GetCurrentTimeString());
         SetResult("请求中…");
         _controller.Request(vin, start, end, (ok, error) =>
         {

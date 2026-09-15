@@ -1,23 +1,23 @@
 /// <summary>
-/// 威胁态势接口默认查询时间（测试用，可按需修改）。
+/// 威胁态势接口默认查询时间：空参时为当日 0 点～当前时间。
 /// </summary>
 public static class ThreatQueryDefaults
 {
-    /// <summary>默认开始时间。</summary>
-    public const string StartTime = "2026-06-20 23:00:00";
+    /// <summary>默认开始时间（当日 00:00:00）。</summary>
+    public static string StartTime => BackendDateTimeTool.GetTodayStartTimeString();
 
-    /// <summary>默认结束时间。</summary>
-    public const string EndTime = "2026-06-30 23:00:00";
+    /// <summary>默认结束时间（当前时间）。</summary>
+    public static string EndTime => BackendDateTimeTool.GetCurrentTimeString();
 
-    /// <summary>解析开始时间：空/null 时回退到 <see cref="StartTime"/>。</summary>
+    /// <summary>解析开始时间：空/null 时回退到当日 0 点。</summary>
     public static string ResolveStartTime(string value)
     {
-        return string.IsNullOrWhiteSpace(value) ? StartTime : value.Trim();
+        return BackendDateTimeTool.ResolveStartTimeOrToday(value);
     }
 
-    /// <summary>解析结束时间：空/null 时回退到 <see cref="EndTime"/>。</summary>
+    /// <summary>解析结束时间：空/null 时回退到当前时间。</summary>
     public static string ResolveEndTime(string value)
     {
-        return string.IsNullOrWhiteSpace(value) ? EndTime : value.Trim();
+        return BackendDateTimeTool.ResolveEndTimeOrNow(value);
     }
 }

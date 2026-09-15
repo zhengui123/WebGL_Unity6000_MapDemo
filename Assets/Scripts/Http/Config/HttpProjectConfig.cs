@@ -82,15 +82,11 @@ public static class HttpProjectConfig
 
 
 
-    /// <summary>综合态势查询默认开始时间（空表示不限）。</summary>
+    /// <summary>综合态势查询默认开始时间（当日 00:00:00）。</summary>
+    public static string DefaultQueryStartTime => BackendDateTimeTool.GetTodayStartTimeString();
 
-    public const string DefaultQueryStartTime = "";
-
-
-
-    /// <summary>综合态势查询默认结束时间。</summary>
-
-    public const string DefaultQueryEndTime = "2026-06-30 23:00:00";
+    /// <summary>综合态势查询默认结束时间（当前时间）。</summary>
+    public static string DefaultQueryEndTime => BackendDateTimeTool.GetCurrentTimeString();
 
 
 

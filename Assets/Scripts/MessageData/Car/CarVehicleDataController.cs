@@ -30,8 +30,10 @@ public class CarVehicleDataController : MonoBehaviour
 
     [Header("请求默认参数")]
     [SerializeField] private string _defaultEncryptVin = PartProtectionStatusRequest.DefaultEncryptVin;
+    [Tooltip("空则使用当日 00:00:00")]
     [SerializeField] private string _defaultStartTime = "";
-    [SerializeField] private string _defaultEndTime = "2026-06-30 23:00:00";
+    [Tooltip("空则使用当前时间")]
+    [SerializeField] private string _defaultEndTime = "";
 
     private bool _isRequesting;
     private int _pendingCount;
@@ -90,8 +92,10 @@ public class CarVehicleDataController : MonoBehaviour
         _isRequesting = true;
         _onBatchCompleted = onCompleted;
         _activeEncryptVin = string.IsNullOrWhiteSpace(encryptVin) ? _defaultEncryptVin : encryptVin.Trim();
-        _activeStartTime = startTime ?? string.Empty;
-        _activeEndTime = string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime.Trim();
+        _activeStartTime = BackendDateTimeTool.ResolveStartTimeOrToday(
+            string.IsNullOrWhiteSpace(startTime) ? _defaultStartTime : startTime);
+        _activeEndTime = BackendDateTimeTool.ResolveEndTimeOrNow(
+            string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime);
         _pendingCount = 2;
         _partOk = false;
         _attackOk = false;
@@ -138,8 +142,10 @@ public class CarVehicleDataController : MonoBehaviour
         }
 
         string vin = string.IsNullOrWhiteSpace(encryptVin) ? _defaultEncryptVin : encryptVin.Trim();
-        string start = startTime ?? string.Empty;
-        string end = string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime.Trim();
+        string start = BackendDateTimeTool.ResolveStartTimeOrToday(
+            string.IsNullOrWhiteSpace(startTime) ? _defaultStartTime : startTime);
+        string end = BackendDateTimeTool.ResolveEndTimeOrNow(
+            string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime);
 
         CarVehicleDataStore.Instance.Replace(vin, start, end, partProtection, attackChain);
         OnCacheApplied();

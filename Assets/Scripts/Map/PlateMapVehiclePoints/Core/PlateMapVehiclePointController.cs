@@ -15,6 +15,8 @@ public class PlateMapVehiclePointController : MonoBehaviour
     [SerializeField] private PlateMapVehiclePointInstancedRenderer _instancedRenderer;
 
     [Header("车辆点位数据")]
+    [Tooltip("开启：使用 Inspector 序列化的测试点；关闭：Play 开局清空，仅用运行时接口数据")]
+    [SerializeField] private bool _useDefaultVehiclePointsTestData;
     [SerializeField] private VehicleMapPointData[] _vehiclePoints =
     {
         new VehicleMapPointData { vehicleId = "SD-001", longitude = 117.12, latitude = 36.65, alertValue = 0.1f },
@@ -87,6 +89,11 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void OnEnable()
     {
+        if (Application.isPlaying)
+        {
+            ClearDefaultVehiclePointsTestDataIfDisabled();
+        }
+
         RegisterToEventHub();
 
         if (!Application.isPlaying)
@@ -101,6 +108,20 @@ public class PlateMapVehiclePointController : MonoBehaviour
         {
             RefreshDisplayFromVehiclePoints();
         }
+    }
+
+    /// <summary>
+    /// 未开启测试数据时，Play 开局清空序列化的 _vehiclePoints，避免种入 Hub / 开局绘制。
+    /// </summary>
+    private void ClearDefaultVehiclePointsTestDataIfDisabled()
+    {
+        if (_useDefaultVehiclePointsTestData)
+        {
+            return;
+        }
+
+        _vehiclePoints = Array.Empty<VehicleMapPointData>();
+        InvalidateMergeCache();
     }
 
     private void OnDisable()
