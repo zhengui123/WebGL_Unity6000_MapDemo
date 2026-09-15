@@ -76,7 +76,7 @@ public struct ControlStateTransitionNotify
 
     /// <summary>
     /// 威胁播放状态（status=2）下按当前层级整理的 eventId 数组；非威胁时为空数组。
-    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前零部件防护待办。
+    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前停留绑定的单个 eventId。
     /// </summary>
     public string[] eventIds;
 }

@@ -54,6 +54,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activeProvinceCode;
     private string _activePlateModuleName;
     private string _activeEncryptVin;
+    private string _activePartEventId;
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
@@ -67,6 +68,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     /// <summary>当前威胁下钻车辆 encryptVin；未进入 Vin 阶段时为空。</summary>
     public string ActiveEncryptVin => _activeEncryptVin;
+
+    /// <summary>当前零部件停留对应的 pending eventId；非零件停留时为空。</summary>
+    public string ActivePartEventId => _activePartEventId;
 
     /// <summary>是否处于主动打断后的冷却期。</summary>
     public bool IsInInterruptCooldown => _interruptCooldownRoutine != null;
@@ -408,6 +412,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        _activePartEventId = null;
         ClearHoldCountdown();
     }
 
@@ -489,6 +494,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             _activeProvinceCode = null;
             _activePlateModuleName = null;
             _activeEncryptVin = null;
+            _activePartEventId = null;
             _flowRoutine = null;
             ThreatProvinceAlertController.NotifyFlowStopped();
         }
@@ -651,6 +657,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        _activePartEventId = null;
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
     }
@@ -694,17 +701,20 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         yield return WaitHoldSeconds(attackHold, $"攻击链路级停留 vin={encryptVin}");
         _visualStage = ThreatVisualStage.None;
 
-        List<string> partIds = ResolvePartIdsForDrill();
-        if (partIds.Count == 0)
+        List<ThreatPartDrillStep> partSteps = ResolvePartDrillSteps();
+        if (partSteps.Count == 0)
         {
             LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
             yield return ReturnToVehicleLevelFromDrill();
             yield break;
         }
 
-        for (int i = 0; i < partIds.Count; i++)
+        for (int i = 0; i < partSteps.Count; i++)
         {
-            string partId = partIds[i];
+            ThreatPartDrillStep step = partSteps[i];
+            string partId = step.PartId;
+            _activePartEventId = string.IsNullOrWhiteSpace(step.EventId) ? null : step.EventId.Trim();
+
             bool fromAttackPath = i == 0 &&
                                   GameManager.Instance != null &&
                                   GameManager.Instance.CurrentState == GameManager.ControlState.AttackPathLevel;
@@ -727,13 +737,15 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             _visualStage = ThreatVisualStage.PartHold;
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
             LogManager.LogFeature(
-                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partIds.Count}) | part={partId} | {partHold:F1}s");
+                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partSteps.Count}) | part={partId} | " +
+                $"eventId={_activePartEventId ?? "(空)"} | {partHold:F1}s");
             yield return WaitHoldSeconds(
                 partHold,
-                $"零件级停留 ({i + 1}/{partIds.Count}) part={partId}");
+                $"零件级停留 ({i + 1}/{partSteps.Count}) part={partId}");
             _visualStage = ThreatVisualStage.None;
         }
 
+        _activePartEventId = null;
         yield return ReturnToVehicleLevelFromDrill();
 
         if (hasNextVin)
@@ -790,6 +802,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private IEnumerator ReturnToVehicleLevelFromDrill()
     {
+        _activePartEventId = null;
+
         GameManager gm = GameManager.Instance;
         if (gm == null)
         {
@@ -1203,79 +1217,191 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return DateTime.TryParse(trimmed, CultureInfo.InvariantCulture, DateTimeStyles.None, out result);
     }
 
+    private readonly struct ThreatPartDrillStep
+    {
+        public readonly string PartId;
+        public readonly string EventId;
+
+        public ThreatPartDrillStep(string partId, string eventId)
+        {
+            PartId = partId;
+            EventId = eventId ?? string.Empty;
+        }
+    }
+
     /// <summary>
-    /// 收集零件下钻列表。
-    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按零件名去重（优先攻击链路节点，否则防护状态 slide）。
-    /// 为 false：按防护状态 pendingEvents 展开，同一零件 N 条威胁 → 列表出现 N 次。
+    /// 收集零件下钻步骤（partId + 对应 pending eventId）。
+    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按零件名去重（优先攻击链路节点，否则防护状态；eventId 取首条 pending）。
+    /// 为 false：按防护状态 pendingEvents 展开，同一零件 N 条威胁 → N 步，每步绑定对应 eventId。
     /// </summary>
-    private List<string> ResolvePartIdsForDrill()
+    private List<ThreatPartDrillStep> ResolvePartDrillSteps()
     {
         if (!_dedupePartIdsForDrill)
         {
-            return BuildPartIdsExpandedByPendingEvents();
+            return BuildPartDrillStepsExpandedByPendingEvents();
         }
 
-        return BuildPartIdsDeduped();
+        return BuildPartDrillStepsDeduped();
     }
 
-    /// <summary>去重：攻击链路节点零件名优先，否则防护状态零件名（各出现一次）。</summary>
-    private static List<string> BuildPartIdsDeduped()
+    /// <summary>去重：攻击链路节点零件名优先，否则防护状态零件名（各一次，eventId 取该零件首条 pending）。</summary>
+    private static List<ThreatPartDrillStep> BuildPartDrillStepsDeduped()
     {
         List<string> partIds = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
-        if (partIds.Count > 0)
+        if (partIds.Count == 0)
         {
-            return partIds;
-        }
-
-        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
-        List<string> fallback = new List<string>(slides.Count);
-        HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        for (int i = 0; i < slides.Count; i++)
-        {
-            string name = slides[i].PartTypeName;
-            if (string.IsNullOrWhiteSpace(name) || !unique.Add(name.Trim()))
+            List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
+            HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            partIds = new List<string>(slides.Count);
+            for (int i = 0; i < slides.Count; i++)
             {
-                continue;
-            }
+                string name = slides[i].PartTypeName;
+                if (string.IsNullOrWhiteSpace(name) || !unique.Add(name.Trim()))
+                {
+                    continue;
+                }
 
-            fallback.Add(name.Trim());
+                partIds.Add(name.Trim());
+            }
         }
 
-        return fallback;
+        List<ThreatPartDrillStep> steps = new List<ThreatPartDrillStep>(partIds.Count);
+        for (int i = 0; i < partIds.Count; i++)
+        {
+            string partId = partIds[i];
+            steps.Add(new ThreatPartDrillStep(partId, GetFirstPendingEventIdForPart(partId)));
+        }
+
+        return steps;
     }
 
     /// <summary>
-    /// 不去重：按防护状态 slide 的 pending 事件数展开；无事件的零件仍保留 1 次。
-    /// 若无防护状态数据，回退为攻击链路节点（各 1 次）。
+    /// 不去重：按防护状态 pendingEvents 展开；无事件的零件仍保留 1 次（eventId 空）。
+    /// 若无防护状态数据，回退为攻击链路节点（各 1 次，eventId 空或首条 pending）。
     /// </summary>
-    private static List<string> BuildPartIdsExpandedByPendingEvents()
+    private static List<ThreatPartDrillStep> BuildPartDrillStepsExpandedByPendingEvents()
     {
-        List<string> result = new List<string>();
-        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
-        for (int i = 0; i < slides.Count; i++)
-        {
-            CarVehiclePartSlide slide = slides[i];
-            string name = slide.PartTypeName;
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                continue;
-            }
-
-            string partId = name.Trim();
-            int eventCount = slide.EventNames != null ? slide.EventNames.Count : 0;
-            int times = eventCount > 0 ? eventCount : 1;
-            for (int t = 0; t < times; t++)
-            {
-                result.Add(partId);
-            }
-        }
+        List<ThreatPartDrillStep> result = new List<ThreatPartDrillStep>();
+        PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
+        AppendPartDrillStepsFromParts(result, data?.unprotectedParts);
+        AppendPartDrillStepsFromParts(result, data?.protectedParts);
 
         if (result.Count > 0)
         {
             return result;
         }
 
-        return CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
+        List<string> fallbackNames = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
+        for (int i = 0; i < fallbackNames.Count; i++)
+        {
+            string partId = fallbackNames[i];
+            result.Add(new ThreatPartDrillStep(partId, GetFirstPendingEventIdForPart(partId)));
+        }
+
+        return result;
+    }
+
+    private static void AppendPartDrillStepsFromParts(
+        List<ThreatPartDrillStep> steps,
+        PartProtectionStatusPart[] parts)
+    {
+        if (parts == null || parts.Length == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            PartProtectionStatusPart part = parts[i];
+            if (part == null || string.IsNullOrWhiteSpace(part.partTypeName))
+            {
+                continue;
+            }
+
+            string partId = part.partTypeName.Trim();
+            PartProtectionPendingEvent[] pending = part.pendingEvents;
+            if (pending == null || pending.Length == 0)
+            {
+                steps.Add(new ThreatPartDrillStep(partId, string.Empty));
+                continue;
+            }
+
+            int count = Mathf.Min(pending.Length, MessageListPanel.MaxMessageCount);
+            bool added = false;
+            for (int j = 0; j < count; j++)
+            {
+                PartProtectionPendingEvent evt = pending[j];
+                if (evt == null)
+                {
+                    continue;
+                }
+
+                string eventId = string.IsNullOrWhiteSpace(evt.eventId) ? string.Empty : evt.eventId.Trim();
+                steps.Add(new ThreatPartDrillStep(partId, eventId));
+                added = true;
+            }
+
+            if (!added)
+            {
+                steps.Add(new ThreatPartDrillStep(partId, string.Empty));
+            }
+        }
+    }
+
+    private static string GetFirstPendingEventIdForPart(string partId)
+    {
+        if (string.IsNullOrWhiteSpace(partId))
+        {
+            return string.Empty;
+        }
+
+        PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
+        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partId);
+        if (!string.IsNullOrEmpty(fromUnprotected))
+        {
+            return fromUnprotected;
+        }
+
+        return FindFirstPendingEventId(data?.protectedParts, partId);
+    }
+
+    private static string FindFirstPendingEventId(PartProtectionStatusPart[] parts, string partId)
+    {
+        if (parts == null || parts.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        string partKey = partId.Trim();
+        for (int i = 0; i < parts.Length; i++)
+        {
+            PartProtectionStatusPart part = parts[i];
+            if (part == null
+                || string.IsNullOrWhiteSpace(part.partTypeName)
+                || !string.Equals(part.partTypeName.Trim(), partKey, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            PartProtectionPendingEvent[] pending = part.pendingEvents;
+            if (pending == null)
+            {
+                return string.Empty;
+            }
+
+            for (int j = 0; j < pending.Length; j++)
+            {
+                PartProtectionPendingEvent evt = pending[j];
+                if (evt != null && !string.IsNullOrWhiteSpace(evt.eventId))
+                {
+                    return evt.eventId.Trim();
+                }
+            }
+
+            return string.Empty;
+        }
+
+        return string.Empty;
     }
 
     private void RefreshProvinceStageVisuals(HighRiskSecurityEventDataStore store)

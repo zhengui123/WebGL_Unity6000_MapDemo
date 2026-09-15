@@ -51,7 +51,7 @@ public static class ControlStateTransitionNotifyBuilder
 
     /// <summary>
     /// status=2 时按目标级别取威胁 eventId；否则空数组。
-    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=车辆态势当前零件 pendingEvents。
+    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前停留绑定的单个 eventId。
     /// </summary>
     private static string[] ResolveThreatEventIds(
         int status,
@@ -75,7 +75,7 @@ public static class ControlStateTransitionNotifyBuilder
             case GameManager.ControlState.AttackPathLevel:
                 return CollectHighRiskEventIdsByVin(vin);
             case GameManager.ControlState.PartLevel:
-                return CollectPartProtectionEventIds(partId);
+                return CollectActivePartEventId(partId);
             default:
                 return EmptyEventIds;
         }
@@ -203,35 +203,44 @@ public static class ControlStateTransitionNotifyBuilder
         return ids.Count == 0 ? EmptyEventIds : ids.ToArray();
     }
 
-    /// <summary>当前零件在防护状态中的 pendingEvents.eventId（先未防护再已防护，与轮播顺序一致）。</summary>
-    private static string[] CollectPartProtectionEventIds(string partId)
+    /// <summary>
+    /// 零件级：仅当前威胁停留绑定的单个 eventId。
+    /// 优先 ActivePartEventId；无则回退该零件 pending 首条（兼容非威胁流程进零件）。
+    /// </summary>
+    private static string[] CollectActivePartEventId(string partId)
     {
+        ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
+        if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActivePartEventId))
+        {
+            return new[] { threatRunner.ActivePartEventId.Trim() };
+        }
+
         if (string.IsNullOrWhiteSpace(partId))
         {
             return EmptyEventIds;
         }
 
-        PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
-        if (data == null)
-        {
-            return EmptyEventIds;
-        }
-
-        string partKey = partId.Trim();
-        List<string> ids = new List<string>();
-        AppendPartPendingEventIds(ids, data.unprotectedParts, partKey);
-        AppendPartPendingEventIds(ids, data.protectedParts, partKey);
-        return ids.Count == 0 ? EmptyEventIds : ids.ToArray();
+        string firstId = FindFirstPendingEventIdForPart(partId.Trim());
+        return string.IsNullOrEmpty(firstId) ? EmptyEventIds : new[] { firstId };
     }
 
-    private static void AppendPartPendingEventIds(
-        List<string> ids,
-        PartProtectionStatusPart[] parts,
-        string partKey)
+    private static string FindFirstPendingEventIdForPart(string partKey)
+    {
+        PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
+        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partKey);
+        if (!string.IsNullOrEmpty(fromUnprotected))
+        {
+            return fromUnprotected;
+        }
+
+        return FindFirstPendingEventId(data?.protectedParts, partKey);
+    }
+
+    private static string FindFirstPendingEventId(PartProtectionStatusPart[] parts, string partKey)
     {
         if (parts == null || parts.Length == 0)
         {
-            return;
+            return string.Empty;
         }
 
         for (int i = 0; i < parts.Length; i++)
@@ -247,20 +256,22 @@ public static class ControlStateTransitionNotifyBuilder
             PartProtectionPendingEvent[] pending = part.pendingEvents;
             if (pending == null)
             {
-                continue;
+                return string.Empty;
             }
 
             for (int j = 0; j < pending.Length; j++)
             {
                 PartProtectionPendingEvent evt = pending[j];
-                if (evt == null || string.IsNullOrWhiteSpace(evt.eventId))
+                if (evt != null && !string.IsNullOrWhiteSpace(evt.eventId))
                 {
-                    continue;
+                    return evt.eventId.Trim();
                 }
-
-                ids.Add(evt.eventId.Trim());
             }
+
+            return string.Empty;
         }
+
+        return string.Empty;
     }
 
     private static string ResolveCurrentProvinceCode()
