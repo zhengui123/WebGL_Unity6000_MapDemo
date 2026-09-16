@@ -38691,9 +38691,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd670fdb1ffe0449b4e3493f0683a52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
-  _enableFeatureTestLog: 1
+  _enableFeatureTestLog: 0
   _enableBackendHttpLog: 1
-  _enableHostBridgeLog: 1
+  _enableHostBridgeLog: 0
   _enableFailureLog: 1
 --- !u!1 &1379197796
 GameObject:
