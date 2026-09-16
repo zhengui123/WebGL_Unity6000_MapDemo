@@ -796,7 +796,7 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication("← Host", nameof(CloseCarUI), "已关闭");
     }
 
-    /// <summary>宿主调用：关闭告警面板 GJ_Panel。arg 传 ""。</summary>
+    /// <summary>宿主调用：关闭告警面板 GJ_Panel，并清除事件溯源 POI。arg 传 ""。</summary>
     public void CloseGJPanel()
     {
         NotifyHostCommunicationReceived(nameof(CloseGJPanel), string.Empty);
@@ -808,7 +808,7 @@ public class WebGLAPI : MonoBehaviour
             return;
         }
 
-        LogCommunication("← Host", nameof(CloseGJPanel), "已关闭");
+        LogCommunication("← Host", nameof(CloseGJPanel), "已关闭面板并清除溯源 POI");
     }
 
     /// <summary>

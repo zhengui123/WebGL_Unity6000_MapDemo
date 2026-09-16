@@ -18,6 +18,7 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
     [SerializeField] private Button _loadLocalJsonButton;
     [SerializeField] private Button _requestApiButton;
     [SerializeField] private Button _applyToGjPanelButton;
+    [SerializeField] private Button _closeGjPanelButton;
     [SerializeField] private Button _refreshButton;
     [SerializeField] private Button _backButton;
 
@@ -62,6 +63,7 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
         Bind(_loadLocalJsonButton, OnLoadLocalJsonClicked, bind);
         Bind(_requestApiButton, OnRequestApiClicked, bind);
         Bind(_applyToGjPanelButton, OnApplyToGjPanelClicked, bind);
+        Bind(_closeGjPanelButton, OnCloseGjPanelClicked, bind);
         Bind(_refreshButton, RefreshResultList, bind);
         Bind(_backButton, OnBackClicked, bind);
     }
@@ -150,6 +152,17 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
         _lastResponse = SecurityEventDetailApi.LastResponse;
         RefreshStatus($"已重新应用到 GJ_Panel / POI：{cached.data.event_name} / {cached.data.vin}");
         RefreshResultList();
+    }
+
+    private void OnCloseGjPanelClicked()
+    {
+        if (!MapApi.Instance.CloseGJPanel())
+        {
+            RefreshStatus("关闭失败：未找到 GJPanel。");
+            return;
+        }
+
+        RefreshStatus("已调用 CloseGJPanel：关闭告警面板，并清除溯源 POI。");
     }
 
     private void HandleRequestCompleted(HttpRequestResult result, SecurityEventDetailResponse response)
@@ -299,6 +312,11 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
         if (_applyToGjPanelButton == null)
         {
             _applyToGjPanelButton = transform.Find("ApplyToGjPanelButton")?.GetComponent<Button>();
+        }
+
+        if (_closeGjPanelButton == null)
+        {
+            _closeGjPanelButton = transform.Find("CloseGjPanelButton")?.GetComponent<Button>();
         }
 
         if (_refreshButton == null)

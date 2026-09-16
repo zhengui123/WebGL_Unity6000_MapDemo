@@ -218,13 +218,13 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "CloseCarUI", "");
 
 ### 2.12 `CloseGJPanel` — 关闭告警面板 GJ_Panel
 
-关闭场景中的 `GJ_Panel`（告警事件展示面板）。
+关闭场景中的 `GJ_Panel`，并清除事件溯源在地图上的 POI（`POIType.yellow`）。不影响威胁省级红点等其它类型 POI。
 
 ```java
 UnityPlayer.UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
 ```
 
-对应 Unity：`MapApi.CloseGJPanel` → `GJPanel.HidePanel()`。
+对应 Unity：`MapApi.CloseGJPanel` → `GJPanel.HidePanel()` + `POI_Manager.RemoveAllPoiByType(yellow)`。
 
 ---
 
@@ -675,7 +675,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | `StopThreatHighRiskPolling` | `""` | 停止威胁高危事件定时轮询 |
 | `SetWorldMapRegionDefaults` | JSON | 设置国内外默认并立刻切换 |
 | `CloseCarUI` | `""` | 关闭车辆 UI / 停止零部件轮播 |
-| `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel |
+| `CloseGJPanel` | `""` | 关闭告警面板 GJ_Panel，并清除溯源 POI |
 | `RequestVehicleHeatmapOnce` | JSON / `""` | 主动请求一次热力图（可任意时段；不轮询） |
 | `StartVehicleHeatmapSpecifiedTimePolling` | JSON | 开启热力图指定时段轮询（isReplay=true） |
 | `StopVehicleHeatmapSpecifiedTimePolling` | `""` | 关闭指定时段，恢复默认轮询参数（轮询不停） |

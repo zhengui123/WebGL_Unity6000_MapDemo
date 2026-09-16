@@ -111,13 +111,13 @@ window.addEventListener('message', (e) => {
 `partId` 为场景中 `VehicleToPartTransitionController` 已配置的零件 ID（`partId` 为空时取 GameObject 名），**当前项目支持以下取值**（区分大小写）：
 
 
-| partId  | 说明   |
-| ------- | ---- |
-| `IDC`   | 智驾域控 |
-| `CCU`   | 中央计算 |
-| `TBOX`  | 车联网终端 |
-| `ADC`   | ADC  |
-| `WG`    | WG   |
+| partId | 说明    |
+| ------ | ----- |
+| `IDC`  | 智驾域控  |
+| `CCU`  | 中央计算  |
+| `TBOX` | 车联网终端 |
+| `ADC`  | ADC   |
+| `WG`   | WG    |
 
 
 文档示例 **仅使用上述取值**。传入其它值时 Unity 可能无法匹配零件或切换失败。
@@ -159,7 +159,7 @@ window.addEventListener('message', (e) => {
 | ---------------------- | ------ | --- | ----------------------------- | ------------------------------------------------------------------ |
 | `targetState`          | int    | ✅   | —                             | 目标级别 `0~5`；非法值忽略请求                                                 |
 | `provinceCode`         | string |     | 可省略 / `""` / 空白 → Unity 用默认单元 | 省/国家 code：国内 adcode（如 `"370000"`）/ 国外 SOC（如 `"392"`）；内部解析显示名与板块模块名 |
-| `partId`               | string |     | 可省略 / `""` / 空白 → 控制器默认或列表首项  | 零件 ID，有效值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                           |
+| `partId`               | string |     | 可省略 / `""` / 空白 → 控制器默认或列表首项  | 零件 ID，有效值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                            |
 | `useInstantTransition` | bool   |     | 省略 → `false`                  | `true` 时跳过过渡动画（临时置 0 时长）                                           |
 
 
@@ -448,9 +448,9 @@ callUnity('StopThreatHighRiskPolling', '');
 
 
 
-| 字段                 | 类型     | 必填  | 说明                                 |
-| ------------------ | ------ | --- | ---------------------------------- |
-| `provinceCode`    | string | 是   | 国内省 adcode / 国外国家 SOC         |
+| 字段             | 类型     | 必填  | 说明                    |
+| -------------- | ------ | --- | --------------------- |
+| `provinceCode` | string | 是   | 国内省 adcode / 国外国家 SOC |
 
 
 ```javascript
@@ -488,7 +488,7 @@ callUnity('CloseCarUI', '');
 
 ### 4.12 CloseGJPanel
 
-关闭告警面板 `GJ_Panel`。
+关闭告警面板 `GJ_Panel`，并清除事件溯源在地图上的 POI（`POIType.yellow`）。不影响威胁省级红点等其它类型 POI。
 
 
 | 项目       | 值                         |
@@ -520,10 +520,10 @@ callUnity('CloseGJPanel', '');
 
 
 
-| 字段          | 类型     | 必填  | 说明                                      |
-| ----------- | ------ | --- | --------------------------------------- |
-| `startTime` | string | 否   | 非空可任意时刻；空则当日 00:00:00                   |
-| `endTime`   | string | 否   | 非空可任意时刻；空则当前时间                          |
+| 字段          | 类型     | 必填  | 说明                             |
+| ----------- | ------ | --- | ------------------------------ |
+| `startTime` | string | 否   | 非空可任意时刻；空则当日 00:00:00          |
+| `endTime`   | string | 否   | 非空可任意时刻；空则当前时间                 |
 | `isReplay`  | bool   | 否   | 后端历史数据开关；默认 false；任意历史窗建议 true |
 
 
@@ -593,12 +593,12 @@ callUnity('StopVehicleHeatmapSpecifiedTimePolling', '');
 说明：之后若 Unity 再次进入国家/省级，`CarHotManager` 仍可能自动重新开启轮询。
 
 
-| 项目       | 值                                              |
-| -------- | ---------------------------------------------- |
-| `method` | `StopVehicleHeatmapDefaultPolling`             |
-| `arg`    | `""`                                           |
-| Unity 方法 | `WebGLAPI.StopVehicleHeatmapDefaultPolling()`  |
-| MapApi   | `StopVehicleHeatmapDefaultPolling()`           |
+| 项目       | 值                                             |
+| -------- | --------------------------------------------- |
+| `method` | `StopVehicleHeatmapDefaultPolling`            |
+| `arg`    | `""`                                          |
+| Unity 方法 | `WebGLAPI.StopVehicleHeatmapDefaultPolling()` |
+| MapApi   | `StopVehicleHeatmapDefaultPolling()`          |
 
 
 ```javascript
@@ -612,12 +612,12 @@ callUnity('StopVehicleHeatmapDefaultPolling', '');
 恢复默认热力图轮询：当日 0 点～当前、`isReplay=false`，并启动定时请求。
 
 
-| 项目       | 值                                                |
-| -------- | ------------------------------------------------ |
-| `method` | `ResumeVehicleHeatmapDefaultPolling`             |
-| `arg`    | `""`                                             |
-| Unity 方法 | `WebGLAPI.ResumeVehicleHeatmapDefaultPolling()`  |
-| MapApi   | `ResumeVehicleHeatmapDefaultPolling()`           |
+| 项目       | 值                                               |
+| -------- | ----------------------------------------------- |
+| `method` | `ResumeVehicleHeatmapDefaultPolling`            |
+| `arg`    | `""`                                            |
+| Unity 方法 | `WebGLAPI.ResumeVehicleHeatmapDefaultPolling()` |
+| MapApi   | `ResumeVehicleHeatmapDefaultPolling()`          |
 
 
 ```javascript
@@ -752,24 +752,25 @@ callUnity('TransitionToEarth', '');
 运行时覆盖 HTTP 业务主机、签名密钥与默认请求头（叠在 `HttpBackendConfig.json` / 程序默认之上）。后续业务请求自动使用。
 
 
-| 项目       | 值                                             |
-| -------- | --------------------------------------------- |
-| `method` | `SetHttpRequestHeaders`                       |
-| `arg`    | JSON                                          |
-| Unity 方法 | `WebGLAPI.SetHttpRequestHeaders(string json)` |
+| 项目       | 值                                                    |
+| -------- | ---------------------------------------------------- |
+| `method` | `SetHttpRequestHeaders`                              |
+| `arg`    | JSON                                                 |
+| Unity 方法 | `WebGLAPI.SetHttpRequestHeaders(string json)`        |
 | MapApi   | `SetHttpRequestHeaders(headers, apiHost, appSecret)` |
 
 
 
-| 字段                | 类型     | 必填  | 说明                                          |
-| ----------------- | ------ | --- | ------------------------------------------- |
-| `apiHost`         | string | 否   | 业务主机（`域名或IP:端口`，**不含协议**）；空/不传不改            |
-| `appSecret`       | string | 否   | 签名密钥；空/不传不改                                 |
-| `headers`         | array  | 否   | 请求头列表（可与上两项组合；至少一项有效）                       |
+| 字段                | 类型     | 必填  | 说明                                       |
+| ----------------- | ------ | --- | ---------------------------------------- |
+| `apiHost`         | string | 否   | 业务主机（`域名或IP:端口`，**不含协议**）；空/不传不改         |
+| `appSecret`       | string | 否   | 签名密钥；空/不传不改                              |
+| `headers`         | array  | 否   | 请求头列表（可与上两项组合；至少一项有效）                    |
 | `headers[].key`   | string | 是*  | 如 `Satoken` / `X-Tenant-Id` / `Sys-Lang` |
-| `headers[].value` | string | 是*  | 非空才写入；空/空白不改变该 key                          |
+| `headers[].value` | string | 是*  | 非空才写入；空/空白不改变该 key                       |
 
-\* 仅当传入对应 header 项时要求非空。
+
+ 仅当传入对应 header 项时要求非空。
 
 **规则：** `apiHost` / `appSecret` / `headers` 至少成功写入一项；空字段保持现有配置；`apiHost` 若误带 `http://` 会自动去掉协议前缀。
 
@@ -791,11 +792,13 @@ callUnity('SetHttpRequestHeaders', JSON.stringify({
 
 切换场景 UI 语言（仅 GJ / MessageList 等固定标签；后端数据与 Demo 菜单不翻译）。
 
-| 项 | 值 |
-|----|-----|
-| `method` | `SetUiLanguage` |
+
+| 项        | 值                                    |
+| -------- | ------------------------------------ |
+| `method` | `SetUiLanguage`                      |
 | Unity 方法 | `WebGLAPI.SetUiLanguage(string arg)` |
-| MapApi | `SetUiLanguage(languageCode)` |
+| MapApi   | `SetUiLanguage(languageCode)`        |
+
 
 **arg 二选一：**
 
@@ -813,35 +816,35 @@ callUnity('SetUiLanguage', 'zh-CN');
 ### 4.24 接口汇总表（父 → Unity）
 
 
-| method                                    | arg         | JSON | 说明                         |
-| ----------------------------------------- | ----------- | ---- | -------------------------- |
-| `TransitionToControlState`                | JSON        | ✅    | 跳转到指定操控级别                  |
-| `TransitionToNextControlState`            | `""`        |      | 下一级                        |
-| `TransitionToPreviousControlState`        | `""`        |      | 上一级                        |
-| `SetBigScreenAutoCarouselEnabled`         | JSON        | ✅    | 大屏轮播开关                     |
-| `PauseGame`                               | `""`        |      | 暂停游戏                       |
-| `ResumeGame`                              | `""`        |      | 恢复游戏                       |
-| `ExitThreatDrill`                         | `""`        |      | 退出威胁下钻并进入冷却                |
-| `RefreshThreatCooldown`                   | `""`        |      | 刷新威胁冷却（仅冷却中）               |
-| `StartThreatHighRiskPolling`              | `""`        |      | 开启威胁高危事件定时轮询（默认 60s）       |
-| `StopThreatHighRiskPolling`               | `""`        |      | 停止威胁高危事件定时轮询               |
-| `SetWorldMapRegionDefaults`               | JSON        | ✅    | 设置国内外默认并立刻切换               |
-| `CloseCarUI`                              | `""`        |      | 关闭车辆 UI / 停止轮播             |
-| `CloseGJPanel`                            | `""`        |      | 关闭告警面板 GJ_Panel            |
-| `RequestVehicleHeatmapOnce`               | JSON / `""` | ✅    | 主动请求一次热力图（可任意时段；不轮询）      |
-| `StartVehicleHeatmapSpecifiedTimePolling` | JSON        | ✅    | 开启热力图指定时段轮询                |
-| `StopVehicleHeatmapSpecifiedTimePolling`  | `""`        |      | 关闭指定时段，恢复默认轮询参数（轮询不停）     |
-| `StopVehicleHeatmapDefaultPolling`        | `""`        |      | 关闭热力图定时轮询                  |
-| `ResumeVehicleHeatmapDefaultPolling`      | `""`        |      | 恢复默认热力图轮询                  |
-| `RequestCarVehicleData`                   | `""` / JSON | ✅    | 请求车辆态势双接口                  |
-| `RequestSecurityEventDetail`              | `""` / JSON | ✅    | 请求事件溯源详情并刷新 GJ_Panel / POI |
-| `SetCarYawRotation`                       | JSON        | ✅    | 设置车辆 Yaw（联调；生产一般监听回调）      |
-| `TransitionToPlateMap`                    | `""`        |      | 地球 → 板块（可选联调）              |
-| `TransitionToEarth`                       | `""`        |      | 板块 → 地球（可选联调）              |
-| `FocusPlateMapModule`                     | 模块名         |      | 聚焦板块模块（可选联调）               |
-| `RestorePlateMapCamera`                   | `""`        |      | 还原板块相机（可选联调）               |
+| method                                    | arg         | JSON | 说明                                   |
+| ----------------------------------------- | ----------- | ---- | ------------------------------------ |
+| `TransitionToControlState`                | JSON        | ✅    | 跳转到指定操控级别                            |
+| `TransitionToNextControlState`            | `""`        |      | 下一级                                  |
+| `TransitionToPreviousControlState`        | `""`        |      | 上一级                                  |
+| `SetBigScreenAutoCarouselEnabled`         | JSON        | ✅    | 大屏轮播开关                               |
+| `PauseGame`                               | `""`        |      | 暂停游戏                                 |
+| `ResumeGame`                              | `""`        |      | 恢复游戏                                 |
+| `ExitThreatDrill`                         | `""`        |      | 退出威胁下钻并进入冷却                          |
+| `RefreshThreatCooldown`                   | `""`        |      | 刷新威胁冷却（仅冷却中）                         |
+| `StartThreatHighRiskPolling`              | `""`        |      | 开启威胁高危事件定时轮询（默认 60s）                 |
+| `StopThreatHighRiskPolling`               | `""`        |      | 停止威胁高危事件定时轮询                         |
+| `SetWorldMapRegionDefaults`               | JSON        | ✅    | 设置国内外默认并立刻切换                         |
+| `CloseCarUI`                              | `""`        |      | 关闭车辆 UI / 停止轮播                       |
+| `CloseGJPanel`                            | `""`        |      | 关闭告警面板 GJ_Panel，并清除溯源 POI            |
+| `RequestVehicleHeatmapOnce`               | JSON / `""` | ✅    | 主动请求一次热力图（可任意时段；不轮询）                 |
+| `StartVehicleHeatmapSpecifiedTimePolling` | JSON        | ✅    | 开启热力图指定时段轮询                          |
+| `StopVehicleHeatmapSpecifiedTimePolling`  | `""`        |      | 关闭指定时段，恢复默认轮询参数（轮询不停）                |
+| `StopVehicleHeatmapDefaultPolling`        | `""`        |      | 关闭热力图定时轮询                            |
+| `ResumeVehicleHeatmapDefaultPolling`      | `""`        |      | 恢复默认热力图轮询                            |
+| `RequestCarVehicleData`                   | `""` / JSON | ✅    | 请求车辆态势双接口                            |
+| `RequestSecurityEventDetail`              | `""` / JSON | ✅    | 请求事件溯源详情并刷新 GJ_Panel / POI           |
+| `SetCarYawRotation`                       | JSON        | ✅    | 设置车辆 Yaw（联调；生产一般监听回调）                |
+| `TransitionToPlateMap`                    | `""`        |      | 地球 → 板块（可选联调）                        |
+| `TransitionToEarth`                       | `""`        |      | 板块 → 地球（可选联调）                        |
+| `FocusPlateMapModule`                     | 模块名         |      | 聚焦板块模块（可选联调）                         |
+| `RestorePlateMapCamera`                   | `""`        |      | 还原板块相机（可选联调）                         |
 | `SetHttpRequestHeaders`                   | JSON        | ✅    | 运行时覆盖 apiHost / appSecret / HTTP 请求头 |
-| `SetUiLanguage`                           | JSON / 语言码   | ✅    | 切换场景 UI 语言（仅固定标签） |
+| `SetUiLanguage`                           | JSON / 语言码  | ✅    | 切换场景 UI 语言（仅固定标签）                    |
 
 
 > 已移除历史测试接口：`OnAndroidNotifyA/B`、`OnDataSyncResult`、`ShowMessage` 等不再由 `WebGLAPI` 暴露。  
@@ -905,27 +908,29 @@ if (data.method === 'onUnityWebGLReady') {
 #### 回调 JSON 字段
 
 
-| 字段             | 类型     | 必填  | 可空/默认        | 说明                                                         |
-| -------------- | ------ | --- | ------------ | ---------------------------------------------------------- |
-| `from`         | int    | ✅   | —            | 过渡**开始**：起始级别 `0~5`；**完成**：固定 `-1`                         |
-| `to`           | int    | ✅   | —            | 目标级别 `0~5`                                                 |
-| `status`       | int    |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
-| `provinceCode` | string |     | 取不到时为 `""`   | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
-| `vin`          | string |     | 无车辆上下文为 `""` | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN                                                   |
-| `partId`       | string |     | 无零件场景为 `""`  | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`                  |
-| `eventIds`     | string[] |     | `[]`           | 见下方「eventIds 取值规则」 |
+| 字段             | 类型       | 必填  | 可空/默认                | 说明                                                         |
+| -------------- | -------- | --- | -------------------- | ---------------------------------------------------------- |
+| `from`         | int      | ✅   | —                    | 过渡**开始**：起始级别 `0~5`；**完成**：固定 `-1`                         |
+| `to`           | int      | ✅   | —                    | 目标级别 `0~5`                                                 |
+| `status`       | int      |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁                          |
+| `provinceCode` | string   |     | 取不到时为 `""`           | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
+| `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN                                  |
+| `partId`       | string   |     | 无零件场景为 `""`          | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`              |
+| `eventIds`     | string[] |     | `[]`                 | 见下方「eventIds 取值规则」                                         |
 
 
 #### eventIds 取值规则（`status=2` 威胁时；非威胁恒为 `[]`）
 
-| `to` 级别 | eventIds |
-|-----------|----------|
-| `1` 国家 | 高危缓存全部 eventId |
-| `2` 省 | 当前省威胁事件 |
-| `3` 车辆 | 当前 VIN 在高危缓存中的事件列表 |
-| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表 |
-| `4` 零部件 | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
-| `0` 地球等 | `[]` |
+
+| `to` 级别  | eventIds                                                           |
+| -------- | ------------------------------------------------------------------ |
+| `1` 国家   | 高危缓存全部 eventId                                                     |
+| `2` 省    | 当前省威胁事件                                                            |
+| `3` 车辆   | 当前 VIN 在高危缓存中的事件列表                                                 |
+| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表                                               |
+| `4` 零部件  | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
+| `0` 地球等  | `[]`                                                               |
+
 
 **过渡开始示例（非威胁）：**
 
@@ -1112,23 +1117,23 @@ function onUnityCarYawRotationChanged(json) {
 ### 6.2 典型业务流程 JSON 对照
 
 
-| 业务意图         | 调用                                                                          |
-| ------------ | --------------------------------------------------------------------------- |
-| 回到地球         | `{"targetState":0}`                                                         |
-| 进入国家地图       | `{"targetState":1}`                                                         |
-| 聚焦山东省        | `{"targetState":2,"provinceCode":"370000"}`                                 |
-| 进入车辆视图       | `{"targetState":3,"provinceCode":"370000"}`                                 |
-| 查看零件 IDC     | `{"targetState":4,"partId":"IDC"}`                                          |
-| 切换零件 CCU     | `{"targetState":4,"partId":"CCU"}`                                          |
-| 切换零件 TBOX    | `{"targetState":4,"partId":"TBOX"}`                                         |
-| 查看攻击路径       | `{"targetState":5}`                                                         |
-| 攻击路径下看零件     | `{"targetState":4,"partId":"IDC"}`                                          |
-| 关闭大屏轮播       | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`                     |
-| 设置国内默认省浙江    | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000"}` |
-| 退出威胁下钻       | `ExitThreatDrill` → `""`                                                    |
-| 刷新威胁冷却       | `RefreshThreatCooldown` → `""`（仅冷却中）                                        |
-| 开启威胁轮询       | `StartThreatHighRiskPolling` → `""`                                         |
-| 停止威胁轮询       | `StopThreatHighRiskPolling` → `""`                                          |
+| 业务意图      | 调用                                                        |
+| --------- | --------------------------------------------------------- |
+| 回到地球      | `{"targetState":0}`                                       |
+| 进入国家地图    | `{"targetState":1}`                                       |
+| 聚焦山东省     | `{"targetState":2,"provinceCode":"370000"}`               |
+| 进入车辆视图    | `{"targetState":3,"provinceCode":"370000"}`               |
+| 查看零件 IDC  | `{"targetState":4,"partId":"IDC"}`                        |
+| 切换零件 CCU  | `{"targetState":4,"partId":"CCU"}`                        |
+| 切换零件 TBOX | `{"targetState":4,"partId":"TBOX"}`                       |
+| 查看攻击路径    | `{"targetState":5}`                                       |
+| 攻击路径下看零件  | `{"targetState":4,"partId":"IDC"}`                        |
+| 关闭大屏轮播    | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`   |
+| 设置国内默认省浙江 | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000"}` |
+| 退出威胁下钻    | `ExitThreatDrill` → `""`                                  |
+| 刷新威胁冷却    | `RefreshThreatCooldown` → `""`（仅冷却中）                      |
+| 开启威胁轮询    | `StartThreatHighRiskPolling` → `""`                       |
+| 停止威胁轮询    | `StopThreatHighRiskPolling` → `""`                        |
 
 
 ---
@@ -1189,17 +1194,17 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 ## 10. 版本记录
 
 
-| 日期         | 说明                                                                                     |
-| ---------- | -------------------------------------------------------------------------------------- |
+| 日期         | 说明                                                                                                                |
+| ---------- | ----------------------------------------------------------------------------------------------------------------- |
 | 2026-09    | 新增 `StopVehicleHeatmapDefaultPolling` / `ResumeVehicleHeatmapDefaultPolling`；明确 `RequestVehicleHeatmapOnce` 可任意时段 |
-| 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例 |
-| 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估 |
-| 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁 |
-| 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode` |
-| 2026-07    | `ControlStateTransitionNotify` 增加字段 `status`（大屏播放状态）                                   |
-| 2026-08    | `partId` 示例统一为场景实际值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                                           |
-| 2026-07    | 父页面 `source` 由 `parent-app` 改为 `webgl-unity-parent`                                    |
-| 2026-07    | 统一 `partId`，移除 `partName`                                                              |
-| 2026-07    | `onUnityControlStateTransition` 支持 `from=-1` 完成通知                                      |
+| 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例                                                      |
+| 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估                                          |
+| 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁                                                                                  |
+| 2026-07-24 | 对齐 `WebGLAPI.cs`：新增 `ExitThreatDrill`、`RefreshThreatCooldown`、`SetDefaultProvinceCode`                            |
+| 2026-07    | `ControlStateTransitionNotify` 增加字段 `status`（大屏播放状态）                                                              |
+| 2026-08    | `partId` 示例统一为场景实际值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                                                                 |
+| 2026-07    | 父页面 `source` 由 `parent-app` 改为 `webgl-unity-parent`                                                               |
+| 2026-07    | 统一 `partId`，移除 `partName`                                                                                         |
+| 2026-07    | `onUnityControlStateTransition` 支持 `from=-1` 完成通知                                                                 |
 
 

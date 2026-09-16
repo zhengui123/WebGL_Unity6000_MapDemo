@@ -168,7 +168,7 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>
-    /// 关闭告警面板 GJ_Panel（不影响其它地图/POI 逻辑）。
+    /// 关闭告警面板 GJ_Panel，并清除事件溯源在地图上的 POI（POIType.yellow）。
     /// </summary>
     public bool CloseGJPanel()
     {
@@ -180,6 +180,17 @@ public class MapApi : UnitySingle<MapApi>
         }
 
         panel.HidePanel();
+
+        POI_Manager poiManager = POI_Manager.Instance;
+        if (poiManager != null)
+        {
+            poiManager.RemoveAllPoiByType(POIType.yellow);
+        }
+        else
+        {
+            LogManager.LogFeatureWarning("[MapApi] 未找到 POI_Manager，已关面板但未清除溯源 POI。");
+        }
+
         return true;
     }
 

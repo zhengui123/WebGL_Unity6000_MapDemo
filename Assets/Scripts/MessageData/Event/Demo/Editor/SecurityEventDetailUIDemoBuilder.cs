@@ -68,6 +68,9 @@ public static class SecurityEventDetailUIDemoBuilder
         GameObject applyGo = CreateFullWidthButton(
             resources, panel.transform, "ApplyToGjPanelButton", "重新应用 GJ/POI", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject closeGo = CreateFullWidthButton(
+            resources, panel.transform, "CloseGjPanelButton", "关闭 GJ/POI (CloseGJPanel)", 12f, y, buttonWidth);
+        y -= 40f;
         GameObject refreshGo = CreateFullWidthButton(
             resources, panel.transform, "RefreshButton", "刷新状态", 12f, y, buttonWidth);
         y -= 48f;
@@ -89,6 +92,7 @@ public static class SecurityEventDetailUIDemoBuilder
         so.FindProperty("_loadLocalJsonButton").objectReferenceValue = loadLocalGo.GetComponent<Button>();
         so.FindProperty("_requestApiButton").objectReferenceValue = requestGo.GetComponent<Button>();
         so.FindProperty("_applyToGjPanelButton").objectReferenceValue = applyGo.GetComponent<Button>();
+        so.FindProperty("_closeGjPanelButton").objectReferenceValue = closeGo.GetComponent<Button>();
         so.FindProperty("_refreshButton").objectReferenceValue = refreshGo.GetComponent<Button>();
         so.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         so.FindProperty("_statusLabel").objectReferenceValue = statusGo.GetComponent<Text>();

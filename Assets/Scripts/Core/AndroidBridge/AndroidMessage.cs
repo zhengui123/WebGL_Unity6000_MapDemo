@@ -834,7 +834,7 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>
-    /// Android 调用：关闭告警面板 GJ_Panel。
+    /// Android 调用：关闭告警面板 GJ_Panel，并清除事件溯源 POI。
     /// UnitySendMessage("AndroidBridge", "CloseGJPanel", "");
     /// </summary>
     public void CloseGJPanel()
