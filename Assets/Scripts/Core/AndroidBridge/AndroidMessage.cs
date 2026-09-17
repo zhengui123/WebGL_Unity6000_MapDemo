@@ -792,6 +792,8 @@ public class AndroidMessage : MonoBehaviour
     /// </summary>
     public void SetHttpRequestHeaders(string json)
     {
+        LogManager.LogHost($"[AndroidMessage] SetHttpRequestHeaders 收到: {json}");
+
         if (string.IsNullOrWhiteSpace(json))
         {
             LogManager.LogHostWarning("[AndroidMessage] SetHttpRequestHeaders: JSON 为空。");
@@ -802,7 +804,14 @@ public class AndroidMessage : MonoBehaviour
         if (!MapApi.Instance.SetHttpRequestHeaders(request.headers, request.apiHost, request.appSecret))
         {
             LogManager.LogHostWarning($"[AndroidMessage] SetHttpRequestHeaders 失败: {json}");
+            return;
         }
+
+        string host = string.IsNullOrWhiteSpace(request.apiHost) ? "(未改)" : request.apiHost.Trim();
+        string secret = string.IsNullOrWhiteSpace(request.appSecret) ? "(未改)" : "(已设置)";
+        string headersSummary = FormatHttpHeadersForLog(request.headers);
+        LogManager.LogHost(
+            $"[AndroidMessage] SetHttpRequestHeaders 已应用 | apiHost={host} | appSecret={secret} | headers={headersSummary}");
     }
 
     /// <summary>
@@ -1091,6 +1100,65 @@ public class AndroidMessage : MonoBehaviour
     {
         return string.IsNullOrWhiteSpace(value) ? null : value;
     }
- 
+
+    /// <summary>日志用：列出 headers；Satoken 等敏感值脱敏。</summary>
+    private static string FormatHttpHeadersForLog(HttpBackendHeaderEntry[] headers)
+    {
+        if (headers == null || headers.Length == 0)
+        {
+            return "[]";
+        }
+
+        System.Text.StringBuilder builder = new System.Text.StringBuilder(64);
+        builder.Append('[');
+        int written = 0;
+        for (int i = 0; i < headers.Length; i++)
+        {
+            HttpBackendHeaderEntry entry = headers[i];
+            if (entry == null
+                || string.IsNullOrWhiteSpace(entry.key)
+                || string.IsNullOrWhiteSpace(entry.value))
+            {
+                continue;
+            }
+
+            if (written > 0)
+            {
+                builder.Append(", ");
+            }
+
+            string key = entry.key.Trim();
+            string value = MaskSensitiveHeaderValue(key, entry.value.Trim());
+            builder.Append(key).Append('=').Append(value);
+            written++;
+        }
+
+        builder.Append(']');
+        return written == 0 ? "[]" : builder.ToString();
+    }
+
+    private static string MaskSensitiveHeaderValue(string key, string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return "(空)";
+        }
+
+        bool sensitive = string.Equals(key, "Satoken", System.StringComparison.OrdinalIgnoreCase)
+                         || string.Equals(key, "Authorization", System.StringComparison.OrdinalIgnoreCase)
+                         || key.IndexOf("token", System.StringComparison.OrdinalIgnoreCase) >= 0;
+        if (!sensitive)
+        {
+            return value;
+        }
+
+        if (value.Length <= 12)
+        {
+            return $"{value[0]}***{value[value.Length - 1]}(len={value.Length})";
+        }
+
+        return $"{value.Substring(0, 8)}…{value.Substring(value.Length - 4)}(len={value.Length})";
+    }
+
     #endregion
 }

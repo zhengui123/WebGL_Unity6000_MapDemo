@@ -2337,7 +2337,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 3744, y: 1326}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &64267357
 MonoBehaviour:
@@ -8733,7 +8733,7 @@ MonoBehaviour:
   mainCameraTransform: {fileID: 0}
   firstTargetLocalPos: {x: 0, y: 1200, z: 0}
   secondTargetLocalPos: {x: 0, y: 1000, z: 0}
-  plateViewLocalPos: {x: 0, y: 900, z: 0}
+  plateViewLocalPos: {x: 0, y: 650, z: 0}
   plateMapCenterDistance: 1200
   _useManualPlateMapPosition: 1
   _manualPlateMapLocalPosition: {x: -413, y: -1566, z: -100}
@@ -15498,7 +15498,7 @@ Transform:
   m_GameObject: {fileID: 480921138}
   serializedVersion: 2
   m_LocalRotation: {x: -0.20067339, y: 0.15127094, z: -0.031301, w: 0.9674025}
-  m_LocalPosition: {x: -16.2, y: 17.57, z: 58.2}
+  m_LocalPosition: {x: -17.1, y: 17.4, z: 55.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -25374,7 +25374,7 @@ Transform:
   m_GameObject: {fileID: 852462888}
   serializedVersion: 2
   m_LocalRotation: {x: -0.20067339, y: 0.15127094, z: -0.031301, w: 0.9674025}
-  m_LocalPosition: {x: -16.2, y: 17.57, z: 58.2}
+  m_LocalPosition: {x: -17.1, y: 17.4, z: 55.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -26092,7 +26092,7 @@ Transform:
   m_GameObject: {fileID: 870145172}
   serializedVersion: 2
   m_LocalRotation: {x: -0.20067339, y: 0.15127094, z: -0.031301, w: 0.9674025}
-  m_LocalPosition: {x: -16.2, y: 17.57, z: 58.2}
+  m_LocalPosition: {x: -17.1, y: 17.4, z: 55.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -38325,7 +38325,7 @@ Transform:
   m_GameObject: {fileID: 1348764691}
   serializedVersion: 2
   m_LocalRotation: {x: -0.20067339, y: 0.15127094, z: -0.031301, w: 0.9674025}
-  m_LocalPosition: {x: -16.2, y: 17.57, z: 58.2}
+  m_LocalPosition: {x: -17.1, y: 17.4, z: 55.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -39095,7 +39095,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
   _enableFeatureTestLog: 0
   _enableBackendHttpLog: 1
-  _enableHostBridgeLog: 1
+  _enableHostBridgeLog: 0
   _enableFailureLog: 1
 --- !u!1 &1376937265
 GameObject:
@@ -85320,14 +85320,14 @@ RectTransform:
   m_GameObject: {fileID: 1589988923}
   m_LocalRotation: {x: -0, y: -0, z: -3.3881318e-21, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -131}
-  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_LocalScale: {x: 2.7, y: 2.7, z: 2.7}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 64267356}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -57, y: 19}
+  m_AnchoredPosition: {x: 0, y: 19}
   m_SizeDelta: {x: 1024, y: 1024}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1589988925
@@ -87284,7 +87284,7 @@ RectTransform:
   m_GameObject: {fileID: 1671738071}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.812, y: 0.812, z: 0.812}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 64267356}
@@ -87292,7 +87292,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1920, y: 1080}
+  m_SizeDelta: {x: 3744, y: 1326}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1671738074
 MonoBehaviour:
@@ -87314,7 +87314,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 8400000, guid: b6992809162225d49944a7b40baeac90, type: 2}
+  m_Texture: {fileID: 8400000, guid: 18056d43ae715144c88b442c99aef7df, type: 2}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -98570,7 +98570,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 1536
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: b6992809162225d49944a7b40baeac90, type: 2}
+  m_TargetTexture: {fileID: 8400000, guid: 18056d43ae715144c88b442c99aef7df, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -158208,7 +158208,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2600883033832437180, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 324.04
+      value: 269
       objectReference: {fileID: 0}
     - target: {fileID: 2600883033832437180, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
