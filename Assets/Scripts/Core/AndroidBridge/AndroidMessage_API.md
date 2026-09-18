@@ -485,7 +485,8 @@ public void onUnityControlStateTransition(String json) { }
 | `to` | int | 目标级别 `0~5` |
 | `status` | int | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
-| `vin` | string | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN；无车辆上下文时为空字符串 |
+| `vin` | string | 当前车辆**明文** VIN（后端威胁事件 `vin` 如实回填）；无车辆上下文时为空字符串 |
+| `encryptVin` | string | 当前车辆**加密** VIN（威胁下钻缓存优先，否则回落最近车辆请求的 encryptVin）；无则空字符串 |
 | `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
 | `eventIds` | string[] | 见下方「eventIds 取值规则」 |
 
@@ -495,45 +496,45 @@ public void onUnityControlStateTransition(String json) { }
 |-----------|----------|
 | `1` 国家 | 高危缓存全部 eventId |
 | `2` 省 | 当前省威胁事件 |
-| `3` 车辆 | 当前 VIN 在高危缓存中的事件列表 |
-| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表 |
+| `3` 车辆 | 当前车辆（优先 `encryptVin`，回退 `vin`）在高危缓存中的事件列表 |
+| `5` 攻击链路 | **同车辆**：当前车辆的事件列表 |
 | `4` 零部件 | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
 | `0` 地球等 | `[]` |
 
 **过渡开始示例：**
 
 ```json
-{"from":1,"to":2,"status":0,"provinceCode":"330000","vin":"","partId":"","eventIds":[]}
+{"from":1,"to":2,"status":0,"provinceCode":"330000","vin":"","encryptVin":"","partId":"","eventIds":[]}
 ```
 
 **威胁-省级示例：**
 
 ```json
-{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
+{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","encryptVin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
 ```
 
 **威胁-攻击链路完成（车辆事件列表）：**
 
 ```json
-{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
+{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
 ```
 
 **威胁-零部件开始（仅当前这条 eventId）：**
 
 ```json
-{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
+{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
 ```
 
 **威胁-零部件完成（同零件下一条 pending，仍为单元素）：**
 
 ```json
-{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
+{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
 ```
 
 **过渡完成示例（非威胁-零件）：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
 ```
 
 **接收示例：**
@@ -547,12 +548,14 @@ public void onUnityControlStateTransition(String json) {
         int status = obj.optInt("status", 0); // 0 默认 | 1 告警定位 | 2 威胁
         String provinceCode = obj.optString("provinceCode", "");
         String vin = obj.optString("vin", "");
+        String encryptVin = obj.optString("encryptVin", "");
         String partId = obj.optString("partId", "");
         JSONArray eventIds = obj.optJSONArray("eventIds");
         if (from == -1) {
             Log.d("UnityBridge", "过渡完成, level=" + to
                     + ", partId=" + partId
                     + ", vin=" + vin
+                    + ", encryptVin=" + encryptVin
                     + ", status=" + status
                     + ", eventIds=" + eventIds);
             // 隐藏 Loading、刷新原生界面；威胁零件级时 eventIds 通常仅 1 个

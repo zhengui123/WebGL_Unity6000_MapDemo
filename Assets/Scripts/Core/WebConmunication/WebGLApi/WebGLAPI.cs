@@ -149,7 +149,7 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"开始 {fromState}→{toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
+            $"开始 {fromState}→{toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -168,7 +168,7 @@ public class WebGLAPI : MonoBehaviour
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"完成 to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
+            $"完成 to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 

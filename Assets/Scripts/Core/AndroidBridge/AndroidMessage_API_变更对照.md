@@ -36,7 +36,7 @@
 | `TransitionToControlState` | 请求侧：`provinceName` / `provinceModuleName` → **`provinceCode`**（国内 adcode / 国外 SOC） |
 | `ExitThreatDrill` | 冷却期间会**暂停**高危轮询；冷却结束后若曾 `StartThreatHighRiskPolling`，会先请求再恢复 |
 | `RefreshThreatCooldown` | 文档与冷却 / 轮询联动说明同步更新（方法名未改） |
-| `onUnityControlStateTransition`（Unity → 宿主回调） | `status`：真实播放状态 `0/1/2`；含 `provinceCode`、`vin`、`eventIds`。威胁时：`eventIds` 国家=全部、省=当前省、车辆/攻击链路=当前 VIN 列表、**零件=仅当前停留的单个 eventId**；非威胁为 `[]` |
+| `onUnityControlStateTransition`（Unity → 宿主回调） | `status`：真实播放状态 `0/1/2`；含 `provinceCode`、`vin`（明文）、**`encryptVin`（加密）**、`eventIds`。威胁时：`eventIds` 国家=全部、省=当前省、车辆/攻击链路=当前车辆列表、**零件=仅当前停留的单个 eventId**；非威胁为 `[]` |
 | 零件示例 `partId` | 示例由 `Group01/02/03` 等改为业务码如 `IDC` / `CCU` / `TBOX` / `ADC` / `WG` |
 
 ---
@@ -80,5 +80,5 @@ Unity → 宿主：
 
 1. 原调用 `SetDefaultProvinceCode` 的代码，改为 `SetWorldMapRegionDefaults`（国内传省 `provinceCode`，国外传国家 SOC 等，见现行 API 文档示例）。
 2. `TransitionToControlState` 不要再传 `provinceName` / `provinceModuleName`，改传 `provinceCode`。
-3. 解析 `onUnityControlStateTransition` 时请读取 `status`、`provinceCode`、`vin`、`eventIds`。非威胁时 `eventIds` 为 `[]`；威胁零件级通常为 **单元素** 数组（当前停留的 eventId），攻击链路为当前 VIN 的事件列表。
+3. 解析 `onUnityControlStateTransition` 时请读取 `status`、`provinceCode`、`vin`、`encryptVin`、`eventIds`。`vin`/`encryptVin` 分别如实回填；非威胁时 `eventIds` 为 `[]`；威胁零件级通常为 **单元素** 数组（当前停留的 eventId），攻击链路为当前车辆的事件列表。
 4. 需要运行时切后端主机或 Token 时用 `SetHttpRequestHeaders`；切 UI 语言用 `SetUiLanguage`。

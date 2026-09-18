@@ -914,7 +914,8 @@ if (data.method === 'onUnityWebGLReady') {
 | `to`           | int      | ✅   | —                    | 目标级别 `0~5`                                                 |
 | `status`       | int      |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁                          |
 | `provinceCode` | string   |     | 取不到时为 `""`           | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
-| `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆 VIN；威胁下钻时优先为当前威胁 VIN                                  |
+| `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆**明文** VIN（威胁事件 `vin` 如实回填）                              |
+| `encryptVin`   | string   |     | 无则 `""`                | 当前车辆**加密** VIN（威胁下钻缓存优先，否则回落最近车辆请求）                        |
 | `partId`       | string   |     | 无零件场景为 `""`          | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`              |
 | `eventIds`     | string[] |     | `[]`                 | 见下方「eventIds 取值规则」                                         |
 
@@ -926,8 +927,8 @@ if (data.method === 'onUnityWebGLReady') {
 | -------- | ------------------------------------------------------------------ |
 | `1` 国家   | 高危缓存全部 eventId                                                     |
 | `2` 省    | 当前省威胁事件                                                            |
-| `3` 车辆   | 当前 VIN 在高危缓存中的事件列表                                                 |
-| `5` 攻击链路 | **同车辆**：当前 VIN 的事件列表                                               |
+| `3` 车辆   | 当前车辆（优先 `encryptVin`，回退 `vin`）在高危缓存中的事件列表                            |
+| `5` 攻击链路 | **同车辆**：当前车辆的事件列表                                                  |
 | `4` 零部件  | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
 | `0` 地球等  | `[]`                                                               |
 
@@ -935,18 +936,18 @@ if (data.method === 'onUnityWebGLReady') {
 **过渡开始示例（非威胁）：**
 
 ```json
-{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":[]}
+{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":[]}
 ```
 
 ```javascript
 function onUnityControlStateTransition(json) {
-  const { from, to, status, provinceCode, vin, partId, eventIds } = JSON.parse(json);
+  const { from, to, status, provinceCode, vin, encryptVin, partId, eventIds } = JSON.parse(json);
   // status: 0 默认 | 1 告警定位 | 2 威胁
   if (from === -1) {
-    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, '车辆', vin, '大屏播放状态', status, 'eventIds', eventIds);
+    console.log('过渡完成，就绪级别', to, '零件', partId, '区域', provinceCode, 'vin', vin, 'encryptVin', encryptVin, '大屏播放状态', status, 'eventIds', eventIds);
     // 隐藏 Loading、刷新 UI
   } else {
-    console.log('过渡开始', from, '→', to, '区域', provinceCode, '车辆', vin, '大屏播放状态', status, 'eventIds', eventIds);
+    console.log('过渡开始', from, '→', to, '区域', provinceCode, 'vin', vin, 'encryptVin', encryptVin, '大屏播放状态', status, 'eventIds', eventIds);
     // 显示 Loading
   }
 }
@@ -955,43 +956,43 @@ function onUnityControlStateTransition(json) {
 **过渡完成示例（非威胁-零件）：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":[]}
 ```
 
 **威胁-省级（开始）：**
 
 ```json
-{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
+{"from":1,"to":2,"status":2,"provinceCode":"370000","vin":"","encryptVin":"","partId":"","eventIds":["evt-sd-01","evt-sd-02"]}
 ```
 
 **威胁-攻击链路完成（车辆事件列表）：**
 
 ```json
-{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
+{"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
 ```
 
 **威胁-零部件开始（仅当前这条 eventId）：**
 
 ```json
-{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
+{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
 ```
 
 **威胁-零部件完成（切到同零件下一条 / 或另一零件时仍为单元素）：**
 
 ```json
-{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
+{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
 ```
 
 **零件切换开始（4→4，非威胁）：**
 
 ```json
-{"from":4,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"CCU","eventIds":[]}
+{"from":4,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"CCU","eventIds":[]}
 ```
 
 **零件切换完成（切到 TBOX，非威胁）：**
 
 ```json
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"ed49f47afa23e45b18d342767495643c","partId":"TBOX","eventIds":[]}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"TBOX","eventIds":[]}
 ```
 
 #### 会触发的 from → to 场景
@@ -1197,6 +1198,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 | 日期         | 说明                                                                                                                |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
 | 2026-09    | 新增 `StopVehicleHeatmapDefaultPolling` / `ResumeVehicleHeatmapDefaultPolling`；明确 `RequestVehicleHeatmapOnce` 可任意时段 |
+| 2026-09    | `ControlStateTransitionNotify` 增加 `encryptVin`；`vin` 改为明文如实回填；威胁下钻本地缓存两者并回传前端 |
 | 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例                                                      |
 | 2026-08    | 新增 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`；冷却结束先请求再评估                                          |
 | 2026-08    | `status` 改为：0 默认 / 1 告警定位 / 2 威胁                                                                                  |

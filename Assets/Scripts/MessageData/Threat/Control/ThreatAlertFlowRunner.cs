@@ -54,6 +54,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activeProvinceCode;
     private string _activePlateModuleName;
     private string _activeEncryptVin;
+    private string _activeVin;
     private string _activePartEventId;
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
@@ -68,6 +69,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     /// <summary>当前威胁下钻车辆 encryptVin；未进入 Vin 阶段时为空。</summary>
     public string ActiveEncryptVin => _activeEncryptVin;
+
+    /// <summary>当前威胁下钻车辆明文 vin；未进入 Vin 阶段时为空。</summary>
+    public string ActiveVin => _activeVin;
 
     /// <summary>当前零部件停留对应的 pending eventId；非零件停留时为空。</summary>
     public string ActivePartEventId => _activePartEventId;
@@ -279,7 +283,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!string.IsNullOrWhiteSpace(_activeEncryptVin))
         {
-            detail += $" | vin={_activeEncryptVin}";
+            detail += $" | encryptVin={_activeEncryptVin}";
+        }
+
+        if (!string.IsNullOrWhiteSpace(_activeVin))
+        {
+            detail += $" | vin={_activeVin}";
         }
 
         if (IsInHoldStage && _holdCountdownTotal > 0f)
@@ -412,6 +421,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        _activeVin = null;
         _activePartEventId = null;
         ClearHoldCountdown();
     }
@@ -494,6 +504,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             _activeProvinceCode = null;
             _activePlateModuleName = null;
             _activeEncryptVin = null;
+            _activeVin = null;
             _activePartEventId = null;
             _flowRoutine = null;
             ThreatProvinceAlertController.NotifyFlowStopped();
@@ -657,6 +668,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeProvinceCode = null;
         _activePlateModuleName = null;
         _activeEncryptVin = null;
+        _activeVin = null;
         _activePartEventId = null;
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
@@ -670,9 +682,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         string encryptVin,
         bool hasNextVin)
     {
-        _activeEncryptVin = encryptVin;
         _activeProvinceCode = provinceCode;
         _activePlateModuleName = plateModuleName;
+        CacheActiveVehicleIdentity(encryptVin);
 
         yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceCode, encryptVin));
         yield return RunTimedStep("车辆数据请求(非阻塞)", RequestVehicleDataAndWait(encryptVin));
@@ -762,10 +774,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private IEnumerator EnsureAtVehicleLevel(string provinceCode, string encryptVin)
     {
-        if (!string.IsNullOrWhiteSpace(encryptVin))
-        {
-            _activeEncryptVin = encryptVin.Trim();
-        }
+        CacheActiveVehicleIdentity(encryptVin);
 
         GameManager gm = GameManager.Instance;
         if (gm == null)
@@ -1007,7 +1016,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!string.IsNullOrWhiteSpace(encryptVin))
         {
-            _activeEncryptVin = encryptVin.Trim();
+            CacheActiveVehicleIdentity(encryptVin);
         }
 
         ResolveVehicleQueryWindowFromThreatEvents(
@@ -1137,9 +1146,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         for (int i = 0; i < source.Count; i++)
         {
             HighRiskSecurityEventItem item = source[i];
-            if (item == null
-                || string.IsNullOrWhiteSpace(item.vin)
-                || !string.Equals(item.vin.Trim(), vinKey, StringComparison.Ordinal))
+            if (item == null)
+            {
+                continue;
+            }
+
+            string itemKey = item.PreferEncryptVin();
+            if (string.IsNullOrWhiteSpace(itemKey)
+                || !string.Equals(itemKey, vinKey, StringComparison.Ordinal))
             {
                 continue;
             }
@@ -1744,7 +1758,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
     }
 
-    /// <summary>收集省内 Vin 出现次数 &gt; 阈值的全部车辆（按次数降序、Vin 升序）。</summary>
+    /// <summary>收集省内 Vin 出现次数 &gt; 阈值的全部车辆（按次数降序、键升序；键优先 encryptVin）。</summary>
     private static List<string> CollectVinsMeetingThreshold(IReadOnlyList<HighRiskSecurityEventItem> events)
     {
         List<string> result = new List<string>();
@@ -1757,12 +1771,17 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         for (int i = 0; i < events.Count; i++)
         {
             HighRiskSecurityEventItem item = events[i];
-            if (item == null || string.IsNullOrWhiteSpace(item.vin))
+            if (item == null)
             {
                 continue;
             }
 
-            string key = item.vin.Trim();
+            string key = item.PreferEncryptVin();
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                continue;
+            }
+
             counts.TryGetValue(key, out int count);
             counts[key] = count + 1;
         }
@@ -1783,6 +1802,62 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         return result;
+    }
+
+    /// <summary>缓存当前下钻车辆：encryptVin 为请求键；vin 从事件如实取明文。</summary>
+    private void CacheActiveVehicleIdentity(string encryptVinKey)
+    {
+        if (string.IsNullOrWhiteSpace(encryptVinKey))
+        {
+            return;
+        }
+
+        string key = encryptVinKey.Trim();
+        _activeEncryptVin = key;
+        _activeVin = ResolvePlainVinForEncryptKey(key);
+    }
+
+    private string ResolvePlainVinForEncryptKey(string encryptVinKey)
+    {
+        if (string.IsNullOrWhiteSpace(encryptVinKey))
+        {
+            return string.Empty;
+        }
+
+        string key = encryptVinKey.Trim();
+        IReadOnlyList<HighRiskSecurityEventItem> source = null;
+        if (!string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            source = HighRiskSecurityEventDataStore.Instance?.GetEventsByProvince(_activeProvinceCode);
+        }
+
+        if (source == null || source.Count == 0)
+        {
+            source = HighRiskSecurityEventDataStore.Instance?.GetAllEvents();
+        }
+
+        if (source == null)
+        {
+            return string.Empty;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            HighRiskSecurityEventItem item = source[i];
+            if (item == null)
+            {
+                continue;
+            }
+
+            if (!string.Equals(item.PreferEncryptVin(), key, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            return string.IsNullOrWhiteSpace(item.vin) ? string.Empty : item.vin.Trim();
+        }
+
+        return string.Empty;
     }
 
     private static int CompareVinCountDescending(KeyValuePair<string, int> a, KeyValuePair<string, int> b)

@@ -353,7 +353,7 @@ public static class ThreatLocalAlertTestMockJson
         cityCursor++;
 
         string eventId = $"LOCAL_{provinceCode}_{eventSerial:D3}_{city}_{vin}";
-        target.Add(BuildItemJson(eventId, vin, provinceCode, provinceName, lon, lat, countryName));
+        target.Add(BuildItemJson(eventId, vin, $"ENC_{vin}", provinceCode, provinceName, lon, lat, countryName));
     }
 
     private static void AppendProvinceEventsFromCities(
@@ -386,6 +386,7 @@ public static class ThreatLocalAlertTestMockJson
             target.Add(BuildItemJson(
                 eventId,
                 vin,
+                $"ENC_{vin}",
                 provinceCode,
                 provinceName,
                 lon,
@@ -397,6 +398,7 @@ public static class ThreatLocalAlertTestMockJson
     private static string BuildItemJson(
         string eventId,
         string vin,
+        string encryptVin,
         string provinceCode,
         string provinceName,
         double longitude,
@@ -410,6 +412,7 @@ public static class ThreatLocalAlertTestMockJson
             "{" +
             $"\"eventId\":\"{eventId}\"," +
             $"\"vin\":\"{vin}\"," +
+            $"\"encryptVin\":\"{encryptVin}\"," +
             "\"eventLevel\":1," +
             $"\"province\":\"{provinceCode}\"," +
             "\"city\":\"\"," +

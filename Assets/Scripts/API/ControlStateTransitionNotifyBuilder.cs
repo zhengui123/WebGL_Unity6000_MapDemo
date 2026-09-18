@@ -35,6 +35,7 @@ public static class ControlStateTransitionNotifyBuilder
     {
         string provinceCode = ResolveCurrentProvinceCode();
         string vin = ResolveCurrentVin();
+        string encryptVin = ResolveCurrentEncryptVin();
         string resolvedPartId = partId ?? string.Empty;
         int status = ResolveNotifyBigScreenStatus();
         return new ControlStateTransitionNotify
@@ -44,19 +45,27 @@ public static class ControlStateTransitionNotifyBuilder
             status = status,
             provinceCode = provinceCode,
             vin = vin,
+            encryptVin = encryptVin,
             partId = resolvedPartId,
-            eventIds = ResolveThreatEventIds(status, toState, provinceCode, vin, resolvedPartId),
+            eventIds = ResolveThreatEventIds(
+                status,
+                toState,
+                provinceCode,
+                encryptVin,
+                vin,
+                resolvedPartId),
         };
     }
 
     /// <summary>
     /// status=2 时按目标级别取威胁 eventId；否则空数组。
-    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN；零件=当前停留绑定的单个 eventId。
+    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN（优先 encryptVin）；零件=当前停留绑定的单个 eventId。
     /// </summary>
     private static string[] ResolveThreatEventIds(
         int status,
         int toState,
         string provinceCode,
+        string encryptVin,
         string vin,
         string partId)
     {
@@ -73,7 +82,7 @@ public static class ControlStateTransitionNotifyBuilder
                 return CollectHighRiskEventIdsByProvince(provinceCode);
             case GameManager.ControlState.VehicleLevel:
             case GameManager.ControlState.AttackPathLevel:
-                return CollectHighRiskEventIdsByVin(vin);
+                return CollectHighRiskEventIdsByVin(encryptVin, vin);
             case GameManager.ControlState.PartLevel:
                 return CollectActivePartEventId(partId);
             default:
@@ -171,9 +180,11 @@ public static class ControlStateTransitionNotifyBuilder
         return string.Equals(normalizedItem, normalizedQuery, System.StringComparison.Ordinal);
     }
 
-    private static string[] CollectHighRiskEventIdsByVin(string vin)
+    private static string[] CollectHighRiskEventIdsByVin(string encryptVin, string vin)
     {
-        if (string.IsNullOrWhiteSpace(vin))
+        string encryptKey = string.IsNullOrWhiteSpace(encryptVin) ? string.Empty : encryptVin.Trim();
+        string vinKey = string.IsNullOrWhiteSpace(vin) ? string.Empty : vin.Trim();
+        if (encryptKey.Length == 0 && vinKey.Length == 0)
         {
             return EmptyEventIds;
         }
@@ -184,15 +195,28 @@ public static class ControlStateTransitionNotifyBuilder
             return EmptyEventIds;
         }
 
-        string vinKey = vin.Trim();
         List<string> ids = new List<string>();
         for (int i = 0; i < events.Count; i++)
         {
             HighRiskSecurityEventItem item = events[i];
-            if (item == null
-                || string.IsNullOrWhiteSpace(item.eventId)
-                || string.IsNullOrWhiteSpace(item.vin)
-                || !string.Equals(item.vin.Trim(), vinKey, System.StringComparison.Ordinal))
+            if (item == null || string.IsNullOrWhiteSpace(item.eventId))
+            {
+                continue;
+            }
+
+            string itemKey = item.PreferEncryptVin();
+            bool matched = encryptKey.Length > 0
+                && itemKey.Length > 0
+                && string.Equals(itemKey, encryptKey, System.StringComparison.Ordinal);
+            if (!matched
+                && vinKey.Length > 0
+                && !string.IsNullOrWhiteSpace(item.vin)
+                && string.Equals(item.vin.Trim(), vinKey, System.StringComparison.Ordinal))
+            {
+                matched = true;
+            }
+
+            if (!matched)
             {
                 continue;
             }
@@ -312,7 +336,20 @@ public static class ControlStateTransitionNotifyBuilder
         return string.Empty;
     }
 
+    /// <summary>明文 VIN：威胁下钻缓存优先；无则空（不把 encryptVin 冒充 vin）。</summary>
     private static string ResolveCurrentVin()
+    {
+        ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
+        if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActiveVin))
+        {
+            return threatRunner.ActiveVin;
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>加密 VIN：威胁下钻缓存优先，否则回落车辆请求缓存 LastEncryptVin。</summary>
+    private static string ResolveCurrentEncryptVin()
     {
         ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
         if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActiveEncryptVin))

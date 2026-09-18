@@ -68,8 +68,11 @@ public struct ControlStateTransitionNotify
     /// <summary>当前省份/国家 code；国内为省 adcode，国外为国家/区域 code。</summary>
     public string provinceCode;
 
-    /// <summary>当前车辆 VIN；无当前车辆上下文时为空字符串。</summary>
+    /// <summary>当前车辆明文 VIN；无当前车辆上下文时为空字符串。</summary>
     public string vin;
+
+    /// <summary>当前车辆加密 VIN；威胁下钻缓存或车辆请求上下文；无则空字符串。</summary>
+    public string encryptVin;
 
     /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
     public string partId;
@@ -227,7 +230,7 @@ public class AndroidMessage : MonoBehaviour
             partId);
         string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
+            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -244,7 +247,7 @@ public class AndroidMessage : MonoBehaviour
             partId);
         string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
+            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 

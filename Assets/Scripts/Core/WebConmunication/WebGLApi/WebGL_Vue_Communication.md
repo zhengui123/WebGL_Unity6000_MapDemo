@@ -112,7 +112,7 @@ public void TransitionToControlState(string json)
 ```javascript
 // CallHTMLHandler → parent.postMessage
 { source: 'unity-webgl', method: 'onUnityControlStateTransition',
-  message: '{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":""}' }
+  message: '{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"","partId":""}' }
 ```
 
 
@@ -250,15 +250,16 @@ callUnity('TransitionToControlState', JSON.stringify({
 | `to`           | 目标级别 0~5                                               |
 | `status`       | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁 |
 | `provinceCode` | 当前区域 code（国内 adcode / 国外 SOC）                          |
-| `vin`          | 当前车辆 VIN；无上下文时为 `""`                                   |
+| `vin`          | 当前车辆明文 VIN；无上下文时为 `""`                                 |
+| `encryptVin`   | 当前车辆加密 VIN；威胁下钻缓存优先；无则 `""`                            |
 | `partId`       | 零件 ID：`IDC` / `CCU` / `TBOX` / `ADC` / `WG`，无零件时为 `""` |
 
 
 示例：
 
 ```json
-{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":""}
-{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","partId":"IDC"}
+{"from":3,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"","partId":""}
+{"from":-1,"to":4,"status":0,"provinceCode":"330000","vin":"","encryptVin":"","partId":"IDC"}
 ```
 
 
