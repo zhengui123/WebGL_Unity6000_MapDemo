@@ -31,7 +31,25 @@ public static class WorldMapRegionContext
     /// <summary>是否已由控制器初始化过。</summary>
     public static bool IsInitialized { get; private set; }
 
+    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的板块 code（国内或国外某一板块）。未下发时默认国内 CHINA。</summary>
+    public static string HostFirstClassCode { get; private set; } =
+        WorldMapRegionCodeTable.DomesticFirstClassCode;
+
+    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的省/国家 code。</summary>
+    public static string HostProvinceCode { get; private set; } = string.Empty;
+
     public static event Action OnRegionChanged;
+
+    /// <summary>缓存宿主下发的板块 code 与省/国家 code，供后端热力图请求读取。</summary>
+    public static void CacheHostRegionCodes(string firstClassCode, string provinceCode)
+    {
+        HostFirstClassCode = string.IsNullOrWhiteSpace(firstClassCode)
+            ? string.Empty
+            : firstClassCode.Trim();
+        HostProvinceCode = string.IsNullOrWhiteSpace(provinceCode)
+            ? string.Empty
+            : provinceCode.Trim();
+    }
 
     public static void ApplyDomestic()
     {

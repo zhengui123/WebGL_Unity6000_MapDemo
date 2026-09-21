@@ -436,7 +436,7 @@ callUnity('StopThreatHighRiskPolling', '');
 
 ### 4.10 SetWorldMapRegionDefaults
 
-设置国内/国外默认并立刻切换世界地图区域（同 `WorldMapRegionController` 面板）。
+设置国内/国外默认并立刻切换世界地图区域（同 `WorldMapRegionController` 面板）。同时缓存 `firstClassCode` 与 `provinceCode`，供 `VehicleHeatmapApi` 使用。
 
 
 | 项目       | 值                                                 |
@@ -448,20 +448,23 @@ callUnity('StopThreatHighRiskPolling', '');
 
 
 
-| 字段             | 类型     | 必填  | 说明                    |
-| -------------- | ------ | --- | --------------------- |
-| `provinceCode` | string | 是   | 国内省 adcode / 国外国家 SOC |
+| 字段             | 类型     | 必填  | 说明                                                         |
+| -------------- | ------ | --- | ---------------------------------------------------------- |
+| `provinceCode` | string | 是   | 国内省 adcode / 国外国家 SOC（用于切地图）                               |
+| `firstClassCode` | string | 否   | 板块 code：国内或国外某一板块（如 `CHINA` / `EAST_ASIA`）；缓存后供热力图后端请求 |
 
 
 ```javascript
-// 国内：省浙江（adcode=330000）
+// 国内：板块 CHINA，省浙江（adcode=330000）
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  provinceCode: '330000'
+  provinceCode: '330000',
+  firstClassCode: 'CHINA'
 }));
 
-// 国外：日本（SOC=392）
+// 国外：板块 EAST_ASIA，日本（SOC=392）
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  provinceCode: '392'
+  provinceCode: '392',
+  firstClassCode: 'EAST_ASIA'
 }));
 ```
 
@@ -1130,7 +1133,7 @@ function onUnityCarYawRotationChanged(json) {
 | 查看攻击路径    | `{"targetState":5}`                                       |
 | 攻击路径下看零件  | `{"targetState":4,"partId":"IDC"}`                        |
 | 关闭大屏轮播    | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`   |
-| 设置国内默认省浙江 | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000"}` |
+| 设置国内默认省浙江 | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000","firstClassCode":"CHINA"}` |
 | 退出威胁下钻    | `ExitThreatDrill` → `""`                                  |
 | 刷新威胁冷却    | `RefreshThreatCooldown` → `""`（仅冷却中）                      |
 | 开启威胁轮询    | `StartThreatHighRiskPolling` → `""`                       |

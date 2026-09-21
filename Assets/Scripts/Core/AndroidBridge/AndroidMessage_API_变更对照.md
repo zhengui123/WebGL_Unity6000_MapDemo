@@ -33,6 +33,7 @@
 
 | 方法 | 变动要点 |
 |------|----------|
+| `SetWorldMapRegionDefaults` | 请求侧新增可选 `firstClassCode`（板块 code）；与 `provinceCode` 一并缓存，热力图请求带 `firstClassCode`、不传 `province` |
 | `TransitionToControlState` | 请求侧：`provinceName` / `provinceModuleName` → **`provinceCode`**（国内 adcode / 国外 SOC） |
 | `ExitThreatDrill` | 冷却期间会**暂停**高危轮询；冷却结束后若曾 `StartThreatHighRiskPolling`，会先请求再恢复 |
 | `RefreshThreatCooldown` | 文档与冷却 / 轮询联动说明同步更新（方法名未改） |

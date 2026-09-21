@@ -8733,10 +8733,10 @@ MonoBehaviour:
   mainCameraTransform: {fileID: 0}
   firstTargetLocalPos: {x: 0, y: 1200, z: 0}
   secondTargetLocalPos: {x: 0, y: 1000, z: 0}
-  plateViewLocalPos: {x: 0, y: 650, z: 0}
+  plateViewLocalPos: {x: 0, y: 850, z: 0}
   plateMapCenterDistance: 1200
   _useManualPlateMapPosition: 1
-  _manualPlateMapLocalPosition: {x: -413, y: -1566, z: -100}
+  _manualPlateMapLocalPosition: {x: -413, y: -1300, z: -60}
   _useForeignPlateMapPositionConfig: 1
   _foreignPlateMapPositionConfig: {fileID: 11400000, guid: 30ad2253e4488374b973e05b9433c461, type: 2}
   goEarthAnimTime: 1

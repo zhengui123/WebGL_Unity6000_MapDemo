@@ -31,6 +31,11 @@ public struct SetWorldMapRegionDefaultsRequest
     /// 省/国家 code：国内为省 adcode；国外为国家 SOC（secondClassCode）。
     /// </summary>
     public string provinceCode;
+
+    /// <summary>
+    /// 板块 code：国内或国外某一板块（如 CHINA / EAST_ASIA）；缓存后供热力图后端请求使用。
+    /// </summary>
+    public string firstClassCode;
 }
 
 /// <summary>运行时合并覆盖 HTTP 后端连接信息与默认请求头。</summary>
@@ -767,7 +772,8 @@ public class AndroidMessage : MonoBehaviour
     /// <summary>
     /// Android 调用：设置世界地图国内外默认并立刻切换。
     /// UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults", json);
-    /// JSON：{"provinceCode":"330000"}（国内省 adcode）/ {"provinceCode":"392"}（国外国家 SOC）
+    /// JSON：{"provinceCode":"330000","firstClassCode":"CHINA"} /
+    /// {"provinceCode":"392","firstClassCode":"EAST_ASIA"}
     /// </summary>
     public void SetWorldMapRegionDefaults(string json)
     {
@@ -780,7 +786,8 @@ public class AndroidMessage : MonoBehaviour
         SetWorldMapRegionDefaultsRequest request =
             JsonUtility.FromJson<SetWorldMapRegionDefaultsRequest>(json);
         string provinceCode = NormalizeOptionalString(request.provinceCode);
-        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode);
+        string firstClassCode = NormalizeOptionalString(request.firstClassCode);
+        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode, firstClassCode);
         if (!ok)
         {
             LogManager.LogHostWarning($"[AndroidMessage] SetWorldMapRegionDefaults 失败: {json}");

@@ -184,23 +184,24 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "StopThreatHighRiskPolling", "");
 
 ### 2.10 `SetWorldMapRegionDefaults` — 设置国内外默认并立刻切换
 
-设置国内/国外默认并立刻切换（同 Inspector 面板按钮）。
+设置国内/国外默认并立刻切换（同 Inspector 面板按钮）。同时缓存 `firstClassCode` 与 `provinceCode`，热力图 `VehicleHeatmapApi` 请求时带上缓存的板块 code。
 
 ```java
-// 国内：省浙江（adcode=330000）
+// 国内：板块 CHINA，省浙江（adcode=330000）
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
-    "{\"provinceCode\":\"330000\"}");
+    "{\"provinceCode\":\"330000\",\"firstClassCode\":\"CHINA\"}");
 
-// 国外：日本（SOC=392）
+// 国外：板块 EAST_ASIA，日本（SOC=392）
 UnityPlayer.UnitySendMessage("AndroidBridge", "SetWorldMapRegionDefaults",
-    "{\"provinceCode\":\"392\"}");
+    "{\"provinceCode\":\"392\",\"firstClassCode\":\"EAST_ASIA\"}");
 ```
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `provinceCode` | string | 是 | 国内省 adcode 或 国外国家 SOC |
+| `provinceCode` | string | 是 | 国内省 adcode 或 国外国家 SOC（用于切地图） |
+| `firstClassCode` | string | 否 | 板块 code：国内或国外某一板块（如 `CHINA` / `EAST_ASIA`）；缓存后供热力图后端请求 |
 
-对应 Unity：`MapApi.SetWorldMapRegionDefaults` → `WorldMapRegionController.ApplyRegionDefaults`。
+对应 Unity：`MapApi.SetWorldMapRegionDefaults` → 缓存区域 code → `WorldMapRegionController.ApplyRegionDefaults`。
 
 ---
 

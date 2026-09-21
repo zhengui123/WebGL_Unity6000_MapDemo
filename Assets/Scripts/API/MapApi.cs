@@ -632,11 +632,17 @@ public class MapApi : UnitySingle<MapApi>
 
     /// <summary>
     /// 设置世界地图国内外默认并立刻切换（同 WorldMapRegionController 面板切换）。
-    /// 入参仅接收一个单元 code：国内=省级 adcode，国外=国家 SOC。
+    /// 同时缓存 firstClassCode（板块 code）与 provinceCode，供 VehicleHeatmapApi 请求使用。
     /// </summary>
     /// <param name="provinceCode">国内省 adcode 或国外国家 SOC。</param>
-    public bool SetWorldMapRegionDefaults(string provinceCode)
+    /// <param name="firstClassCode">板块 code：国内或国外某一板块（如 CHINA / EAST_ASIA）。</param>
+    public bool SetWorldMapRegionDefaults(string provinceCode, string firstClassCode = null)
     {
+        WorldMapRegionContext.CacheHostRegionCodes(firstClassCode, provinceCode);
+        LogManager.LogFeature(
+            $"[MapApi] SetWorldMapRegionDefaults 已缓存 | firstClassCode={WorldMapRegionContext.HostFirstClassCode} | " +
+            $"provinceCode={WorldMapRegionContext.HostProvinceCode}");
+
         WorldMapRegionController region = WorldMapRegionController.Instance;
         if (region == null)
         {

@@ -449,7 +449,8 @@ callUnity('RefreshThreatCooldown', '');
 callUnity('StartThreatHighRiskPolling', '');
 callUnity('StopThreatHighRiskPolling', '');
 callUnity('SetWorldMapRegionDefaults', JSON.stringify({
-  provinceCode: '330000'
+  provinceCode: '330000',
+  firstClassCode: 'CHINA'
 }));
 callUnity('RequestCarVehicleData', '');
 callUnity('RequestCarVehicleData', JSON.stringify({

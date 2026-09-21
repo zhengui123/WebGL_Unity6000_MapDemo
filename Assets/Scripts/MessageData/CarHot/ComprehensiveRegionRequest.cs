@@ -1,7 +1,8 @@
 using System;
 
 /// <summary>
-/// 综合区域态势通用请求体（province 为省级 adcode 字符串，空表示全国默认请求）。
+/// 综合区域态势通用请求体。
+/// firstClassCode 为板块 code（国内或国外某一板块）；热力图请求不填 province。
 /// </summary>
 [Serializable]
 public class ComprehensiveRegionRequest
@@ -11,6 +12,7 @@ public class ComprehensiveRegionRequest
     public string province = string.Empty;
     public string region = string.Empty;
     public string country = string.Empty;
+    public string firstClassCode = string.Empty;
     public bool isReplay;
 
     public ComprehensiveRegionRequest()
@@ -26,6 +28,7 @@ public class ComprehensiveRegionRequest
         "  \"province\": \"\",\n" +
         "  \"region\": \"\",\n" +
         "  \"country\": \"\",\n" +
+        "  \"firstClassCode\": \"\",\n" +
         "  \"isReplay\": false\n" +
         "}";
 
@@ -36,7 +39,8 @@ public class ComprehensiveRegionRequest
         string country = null,
         string startTime = null,
         string endTime = null,
-        bool isReplay = false)
+        bool isReplay = false,
+        string firstClassCode = null)
     {
         return new ComprehensiveRegionRequest
         {
@@ -45,6 +49,7 @@ public class ComprehensiveRegionRequest
             province = province ?? string.Empty,
             region = region ?? string.Empty,
             country = country ?? string.Empty,
+            firstClassCode = firstClassCode ?? string.Empty,
             isReplay = isReplay,
         };
     }

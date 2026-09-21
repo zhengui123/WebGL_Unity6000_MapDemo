@@ -10,6 +10,7 @@ public static class VehicleHeatmapApi
 {
     /// <summary>
     /// 请求热力点；成功且 code=10000 时全量覆盖缓存，并按 data[].c 分省刷新地图点位。
+    /// firstClassCode 取宿主 SetWorldMapRegionDefaults 缓存；不向后端传 province。
     /// </summary>
     public static void Request(
         string provinceCode,
@@ -21,14 +22,20 @@ public static class VehicleHeatmapApi
         Dictionary<string, string> additionalHeaders = null,
         bool isReplay = false)
     {
+        _ = provinceCode;
         ComprehensiveRegionRequest requestBody = ComprehensiveRegionRequest.Create(
-            provinceCode,
+            province: string.Empty,
             region,
             country,
             startTime,
             endTime,
-            isReplay);
+            isReplay,
+            firstClassCode: WorldMapRegionContext.HostFirstClassCode);
         string url = HttpProjectConfig.BuildApiUrl(HttpProjectConfig.LatestVinLocationPath);
+        LogManager.LogBackend(
+            $"[VehicleHeatmapApi] POST {url} | firstClassCode={requestBody.firstClassCode} | region={requestBody.region} | " +
+            $"country={requestBody.country} | startTime={requestBody.startTime} | endTime={requestBody.endTime} | " +
+            $"isReplay={requestBody.isReplay}");
 
         HttpService.Instance.PostJson<ComprehensiveRegionRequest, LatestVinLocationResponse>(
             url,

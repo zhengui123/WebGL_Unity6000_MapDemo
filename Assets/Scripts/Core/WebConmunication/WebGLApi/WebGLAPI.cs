@@ -705,7 +705,8 @@ public class WebGLAPI : MonoBehaviour
 
     /// <summary>
     /// 宿主调用：设置世界地图国内外默认并立刻切换。
-    /// JSON：{"provinceCode":"330000"}（国内省 adcode）/ {"provinceCode":"392"}（国外国家 SOC）
+    /// JSON：{"provinceCode":"330000","firstClassCode":"CHINA"} /
+    /// {"provinceCode":"392","firstClassCode":"EAST_ASIA"}
     /// </summary>
     public void SetWorldMapRegionDefaults(string json)
     {
@@ -721,7 +722,8 @@ public class WebGLAPI : MonoBehaviour
         SetWorldMapRegionDefaultsRequest request =
             JsonUtility.FromJson<SetWorldMapRegionDefaultsRequest>(json);
         string provinceCode = NormalizeOptionalString(request.provinceCode);
-        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode);
+        string firstClassCode = NormalizeOptionalString(request.firstClassCode);
+        bool ok = MapApi.Instance.SetWorldMapRegionDefaults(provinceCode, firstClassCode);
         if (!ok)
         {
             LogManager.LogHostWarning($"[WebGLAPI] SetWorldMapRegionDefaults 失败: {json}");
