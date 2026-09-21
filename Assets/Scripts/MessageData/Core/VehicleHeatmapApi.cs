@@ -10,7 +10,7 @@ public static class VehicleHeatmapApi
 {
     /// <summary>
     /// 请求热力点；成功且 code=10000 时全量覆盖缓存，并按 data[].c 分省刷新地图点位。
-    /// firstClassCode 取宿主 SetWorldMapRegionDefaults 缓存；不向后端传 province。
+    /// firstClassCode：国家级用缓存 HostProvinceCode；省级用当前省 code。不向后端传 province。
     /// </summary>
     public static void Request(
         string provinceCode,
@@ -22,7 +22,7 @@ public static class VehicleHeatmapApi
         Dictionary<string, string> additionalHeaders = null,
         bool isReplay = false)
     {
-        _ = provinceCode;
+        string firstClassCode = ResolveFirstClassCode(provinceCode);
         ComprehensiveRegionRequest requestBody = ComprehensiveRegionRequest.Create(
             province: string.Empty,
             region,
@@ -30,7 +30,7 @@ public static class VehicleHeatmapApi
             startTime,
             endTime,
             isReplay,
-            firstClassCode: WorldMapRegionContext.HostFirstClassCode);
+            firstClassCode: firstClassCode);
         string url = HttpProjectConfig.BuildApiUrl(HttpProjectConfig.LatestVinLocationPath);
         LogManager.LogBackend(
             $"[VehicleHeatmapApi] POST {url} | firstClassCode={requestBody.firstClassCode} | region={requestBody.region} | " +
@@ -68,6 +68,20 @@ public static class VehicleHeatmapApi
             onCompleted,
             additionalHeaders,
             isReplay: false);
+    }
+
+    /// <summary>
+    /// 国家级（空或 "0"）用宿主缓存 HostProvinceCode；省级用当前省 code。
+    /// </summary>
+    private static string ResolveFirstClassCode(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode) ||
+            provinceCode == PlateMapBoundaryDatabase.NationalProvinceCode)
+        {
+            return WorldMapRegionContext.HostProvinceCode ?? string.Empty;
+        }
+
+        return provinceCode.Trim();
     }
 
     /// <summary>

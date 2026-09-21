@@ -31,12 +31,11 @@ public static class WorldMapRegionContext
     /// <summary>是否已由控制器初始化过。</summary>
     public static bool IsInitialized { get; private set; }
 
-    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的板块 code（国内或国外某一板块）。未下发时默认国内 CHINA。</summary>
-    public static string HostFirstClassCode { get; private set; } =
-        WorldMapRegionCodeTable.DomesticFirstClassCode;
+    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的板块 code（国内或国外某一板块）。未下发时默认 110000。</summary>
+    public static string HostFirstClassCode { get; private set; } = "120000";
 
-    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的省/国家 code。</summary>
-    public static string HostProvinceCode { get; private set; } = string.Empty;
+    /// <summary>宿主 SetWorldMapRegionDefaults 缓存的省/国家 code。未下发时默认 110000。</summary>
+    public static string HostProvinceCode { get; private set; } = "110000";
 
     public static event Action OnRegionChanged;
 
