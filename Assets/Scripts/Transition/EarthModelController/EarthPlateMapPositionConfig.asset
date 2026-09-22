@@ -15,28 +15,28 @@ MonoBehaviour:
   _entries:
   - plateCode: EAST_ASIA
     plateName: "\u4E1C\u4E9A"
-    localPosition: {x: -451, y: -605, z: 40}
+    localPosition: {x: -451, y: -580, z: 40}
   - plateCode: SOUTHEAST_ASIA
     plateName: "\u4E1C\u5357\u4E9A"
-    localPosition: {x: -453, y: -513, z: 290}
-  - plateCode: CENTRAL_ASIA
-    plateName: "\u4E2D\u4E9A"
-    localPosition: {x: -162, y: -436, z: -10}
-  - plateCode: WA
-    plateName: "\u897F\u4E9A"
-    localPosition: {x: -33, y: -567, z: 120}
-  - plateCode: WESTERN_EUROPE
-    plateName: "\u897F\u6B27"
-    localPosition: {x: 272, y: -429, z: -67}
+    localPosition: {x: -483, y: -480, z: 290}
   - plateCode: SOUTH_ASIA
     plateName: "\u5357\u4E9A"
-    localPosition: {x: -237, y: -493, z: 163}
+    localPosition: {x: -237, y: -413, z: 183}
+  - plateCode: CENTRAL_ASIA
+    plateName: "\u4E2D\u4E9A"
+    localPosition: {x: -162, y: -426, z: -10}
+  - plateCode: WA
+    plateName: "\u897F\u4E9A"
+    localPosition: {x: -55, y: -460, z: 130}
+  - plateCode: WESTERN_EUROPE
+    plateName: "\u897F\u6B27"
+    localPosition: {x: 272, y: -385, z: -65}
   - plateCode: NORTHERN_EUROPE
     plateName: "\u5317\u6B27"
-    localPosition: {x: 237, y: -565, z: -230}
+    localPosition: {x: 258, y: -485, z: -230}
   - plateCode: CENTRAL_EUROPE
     plateName: "\u4E2D\u6B27"
-    localPosition: {x: 169, y: -332, z: -60}
+    localPosition: {x: 180, y: -305, z: -55}
   - plateCode: SOUTHERN_EUROPE
     plateName: "\u5357\u6B27"
     localPosition: {x: 237, y: -399, z: 26}
