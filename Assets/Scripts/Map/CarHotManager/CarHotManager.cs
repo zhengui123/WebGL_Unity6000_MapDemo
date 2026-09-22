@@ -114,6 +114,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
     {
         PlateProvinceFocusResolver.ClearCache();
         _activeProvinceCode = PlateMapBoundaryDatabase.NationalProvinceCode;
+        PlateMapVehiclePointController.NotifyCountryHeatmapActive();
         ApplyControllerEnableState(_activeProvinceCode);
         BeginPollingForProvince(string.Empty);
         LogState("国家热力图（显示全部省级）");
@@ -133,6 +134,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
 
         _activeProvinceCode = normalized;
         PlateProvinceFocusResolver.TryCacheProvince(normalized);
+        PlateMapVehiclePointController.NotifyProvinceHeatmapActive();
         ApplyControllerEnableState(_activeProvinceCode);
         BeginPollingForProvince(_activeProvinceCode);
         LogState($"省级热力图（code={_activeProvinceCode}）");
@@ -141,6 +143,7 @@ public class CarHotManager : UnitySingle<CarHotManager>
     /// <summary>离开国家/省级：停止轮询。</summary>
     public void LeaveHeatmapLevels()
     {
+        PlateMapVehiclePointController.NotifyHeatmapInactive();
         StopHeatmapPolling();
         LogState("离开国家/省级，已停止热力图轮询");
     }

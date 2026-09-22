@@ -757,6 +757,28 @@ public class CountryMapZoomController : MonoBehaviour
         return has;
     }
 
+    /// <summary>
+    /// 相机到当前缩放锚点（屏幕中心落在地图 XZ / 板块中心）的距离。
+    /// 国家级与省级都可用，用于热力点按视距保持屏幕大小。
+    /// </summary>
+    public bool TryGetViewDistance(out float distance)
+    {
+        distance = 0f;
+        ResolveReferences();
+        if (_cameraTransform == null)
+        {
+            return false;
+        }
+
+        if (!TryGetZoomAnchor(out Vector3 zoomAnchor))
+        {
+            return false;
+        }
+
+        distance = Vector3.Distance(_cameraTransform.position, zoomAnchor);
+        return distance > 0.01f;
+    }
+
     private static bool IsCountryLevel()
     {
         GameManager gm = GameManager.Instance;

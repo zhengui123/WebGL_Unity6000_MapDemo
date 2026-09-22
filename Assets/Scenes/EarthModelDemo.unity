@@ -103308,7 +103308,7 @@ MonoBehaviour:
   _material: {fileID: 2100000, guid: 7c5d3e3bcd2e862429a795ec2f5bd091, type: 2}
   _mesh: {fileID: 0}
   _localRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
-  _baseLocalScale: {x: 1, y: 1, z: 1}
+  _baseLocalScale: {x: 1, y: 2, z: 1}
   _pointHeightOffset: 0.002
   _centerBrightness: 1
 --- !u!114 &359460479682460881
@@ -200624,7 +200624,7 @@ MonoBehaviour:
   _mergeScalePerExtraVehicle: 0.35
   _mergeScaleMaxMultiplier: 3
   _pointHeightOffset: 0.002
-  _pointLocalScale: {x: 20, y: 40, z: 20}
+  _pointLocalScale: {x: 10, y: 20, z: 10}
   _colorAtDataMin: {r: 1, g: 0.9843137, b: 0.627451, a: 1}
   _colorAtDataMax: {r: 0.9607843, g: 1, b: 0, a: 1}
   _dataValueMin: 0

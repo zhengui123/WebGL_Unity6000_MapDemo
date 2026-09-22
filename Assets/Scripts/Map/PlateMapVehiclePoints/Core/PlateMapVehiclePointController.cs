@@ -68,6 +68,16 @@ public class PlateMapVehiclePointController : MonoBehaviour
     private float _lastAppliedCenterBrightness = float.NaN;
     private bool _mappedPointCubesSpawned;
 
+    /// <summary>国家级 Home 视距。热力点默认缩放对应此距离下的屏幕大小。</summary>
+    private static float _countryHomeViewDistance;
+    /// <summary>相对 Home 视距的缩放（越近越小，屏幕大小保持不变）。</summary>
+    private static float _screenScaleMul = 1f;
+    private static int _scaleVersion;
+    private static bool _followCountryZoom;
+    private static float _lastSampledViewDistance = -1f;
+
+    private int _appliedScaleVersion = -1;
+
     public VehicleMapPointData[] VehiclePoints => _vehiclePoints;
     public bool IsDisplayReady => _initialized;
     public string EventPlateMapKey => gameObject.name;
@@ -189,10 +199,127 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     private void LateUpdate()
     {
-        if (_initialized)
+        if (!_initialized)
         {
-            ApplyCenterBrightnessIfDirty();
+            return;
         }
+
+        ApplyCenterBrightnessIfDirty();
+        if (!IsVehiclePointsDisplayActive())
+        {
+            return;
+        }
+
+        if (_followCountryZoom)
+        {
+            TryFollowCountryZoomScale();
+        }
+
+        if (_appliedScaleVersion != _scaleVersion)
+        {
+            RebuildGpuScaleOnly();
+        }
+    }
+
+    /// <summary>进入国家级热力图：记录 Home 视距（仅首次），并跟随滚轮/捏合缩放。</summary>
+    public static void NotifyCountryHeatmapActive()
+    {
+        _followCountryZoom = true;
+        if (TrySampleViewDistance(out float distance))
+        {
+            CaptureCountryHomeDistanceIfNeeded(distance);
+            ApplyScreenScaleForDistance(distance);
+        }
+    }
+
+    /// <summary>进入省级热力图：按当前视距算一次缩放，之后不再跟随相机。</summary>
+    public static void NotifyProvinceHeatmapActive()
+    {
+        _followCountryZoom = false;
+        if (TrySampleViewDistance(out float distance))
+        {
+            ApplyScreenScaleForDistance(distance);
+        }
+    }
+
+    /// <summary>离开国家/省级热力图。</summary>
+    public static void NotifyHeatmapInactive()
+    {
+        _followCountryZoom = false;
+    }
+
+    private static void CaptureCountryHomeDistanceIfNeeded(float distance)
+    {
+        if (_countryHomeViewDistance < 1f && distance > 1f)
+        {
+            _countryHomeViewDistance = distance;
+        }
+    }
+
+    private static bool TrySampleViewDistance(out float distance)
+    {
+        CountryMapZoomController zoom = CountryMapZoomController.Instance;
+        if (zoom != null && zoom.TryGetViewDistance(out distance) && distance > 1f)
+        {
+            return true;
+        }
+
+        distance = 0f;
+        return false;
+    }
+
+    private static void ApplyScreenScaleForDistance(float distance)
+    {
+        float mul = 1f;
+        if (_countryHomeViewDistance >= 1f && distance > 0.01f)
+        {
+            mul = Mathf.Clamp(distance / _countryHomeViewDistance, 0.02f, 20f);
+        }
+
+        _lastSampledViewDistance = distance;
+        if (Mathf.Abs(mul - _screenScaleMul) <= 0.001f)
+        {
+            return;
+        }
+
+        _screenScaleMul = mul;
+        _scaleVersion++;
+    }
+
+    private static void TryFollowCountryZoomScale()
+    {
+        if (!TrySampleViewDistance(out float distance))
+        {
+            return;
+        }
+
+        float threshold = _countryHomeViewDistance >= 1f
+            ? Mathf.Max(0.5f, _countryHomeViewDistance * 0.005f)
+            : 0.5f;
+        if (_lastSampledViewDistance > 0f &&
+            Mathf.Abs(distance - _lastSampledViewDistance) < threshold)
+        {
+            return;
+        }
+
+        CaptureCountryHomeDistanceIfNeeded(distance);
+        ApplyScreenScaleForDistance(distance);
+    }
+
+    private Vector3 GetScaledPointLocalScale()
+    {
+        return _pointLocalScale * Mathf.Max(0.01f, _screenScaleMul);
+    }
+
+    private void RebuildGpuScaleOnly()
+    {
+        if (_mergeCacheValid && _mergedPoints.Count > 0 && _instancedRenderer != null)
+        {
+            ApplyMergedPointsToGpu();
+            return;
+        }
+
+        RebuildGpuInstances();
     }
 
     private void ApplySetVehiclePoints(VehicleMapPointData[] points, bool syncNow)
@@ -305,13 +432,33 @@ public class PlateMapVehiclePointController : MonoBehaviour
             return;
         }
 
-        _instancedRenderer.SyncTransformSettings(_pointHeightOffset, _pointLocalScale);
+        _instancedRenderer.SyncTransformSettings(_pointHeightOffset, GetScaledPointLocalScale());
 
         if (!TryGetMergedPointsForDisplay(vehicleSource, out IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedDisplay))
         {
             _instancedRenderer.ClearInstances();
             return;
         }
+
+        ApplyMergedPointsToGpu(mergedDisplay);
+    }
+
+    private void ApplyMergedPointsToGpu()
+    {
+        ApplyMergedPointsToGpu(_mergedPoints);
+    }
+
+    private void ApplyMergedPointsToGpu(IReadOnlyList<PlateMapVehiclePointMerger.MergedPoint> mergedDisplay)
+    {
+        _matrices.Clear();
+        _gpuInstanceData.Clear();
+        if (mergedDisplay == null || mergedDisplay.Count == 0 || _instancedRenderer == null)
+        {
+            _appliedScaleVersion = _scaleVersion;
+            return;
+        }
+
+        _instancedRenderer.SyncTransformSettings(_pointHeightOffset, GetScaledPointLocalScale());
 
         for (int i = 0; i < mergedDisplay.Count; i++)
         {
@@ -322,6 +469,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         }
 
         _instancedRenderer.SetInstances(_matrices, _gpuInstanceData);
+        _appliedScaleVersion = _scaleVersion;
     }
 
     private bool TryGetMergedPointsForDisplay(
@@ -608,7 +756,7 @@ public class PlateMapVehiclePointController : MonoBehaviour
         }
 
         _instancedRenderer.BindMapRoot(_mapRoot);
-        _instancedRenderer.SyncTransformSettings(_pointHeightOffset, _pointLocalScale);
+        _instancedRenderer.SyncTransformSettings(_pointHeightOffset, GetScaledPointLocalScale());
         ApplyCenterBrightness();
     }
 
