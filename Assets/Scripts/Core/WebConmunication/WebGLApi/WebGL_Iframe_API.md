@@ -917,8 +917,8 @@ if (data.method === 'onUnityWebGLReady') {
 | `to`           | int      | ✅   | —                    | 目标级别 `0~5`                                                 |
 | `status`       | int      |     | `0`（无 GameManager 时） | 当前大屏业务播放状态：`0` 默认、`1` 告警定位、`2` 威胁                          |
 | `provinceCode` | string   |     | 取不到时为 `""`           | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
-| `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆**明文** VIN（威胁事件 `vin` 如实回填）                              |
-| `encryptVin`   | string   |     | 无则 `""`                | 当前车辆**加密** VIN（威胁下钻缓存优先，否则回落最近车辆请求）                        |
+| `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆**加密** VIN（威胁事件 `vin` 如实回填）                              |
+| `encryptVin`   | string   |     | 无则 `""`                | 当前车辆**明文** VIN（威胁下钻缓存优先，否则回落最近车辆请求）                        |
 | `partId`       | string   |     | 无零件场景为 `""`          | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`              |
 | `eventIds`     | string[] |     | `[]`                 | 见下方「eventIds 取值规则」                                         |
 

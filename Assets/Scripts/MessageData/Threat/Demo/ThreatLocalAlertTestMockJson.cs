@@ -398,7 +398,7 @@ public static class ThreatLocalAlertTestMockJson
     private static string BuildItemJson(
         string eventId,
         string vin,
-        string encryptVin,
+        string vinEncrypt,
         string provinceCode,
         string provinceName,
         double longitude,
@@ -412,7 +412,7 @@ public static class ThreatLocalAlertTestMockJson
             "{" +
             $"\"eventId\":\"{eventId}\"," +
             $"\"vin\":\"{vin}\"," +
-            $"\"encryptVin\":\"{encryptVin}\"," +
+            $"\"vinEncrypt\":\"{vinEncrypt}\"," +
             "\"eventLevel\":1," +
             $"\"province\":\"{provinceCode}\"," +
             "\"city\":\"\"," +

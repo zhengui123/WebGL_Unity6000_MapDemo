@@ -20,8 +20,8 @@ public class HighRiskSecurityEventItem
 {
     public string eventId;
     public string vin;
-    /// <summary>加密 VIN（后端 string，如实回填；可与 vin 不同）。</summary>
-    public string encryptVin;
+    /// <summary>加密 VIN（后端字段 vinEncrypt，如实回填；可与 vin 不同）。</summary>
+    public string vinEncrypt;
     public int eventLevel;
     public string province;
     public string city;
@@ -32,12 +32,12 @@ public class HighRiskSecurityEventItem
     public string longitude;
     public string latitude;
 
-    /// <summary>下钻 / 车辆态势请求键：优先 encryptVin，空则回退 vin。</summary>
+    /// <summary>下钻 / 车辆态势请求键：优先 vinEncrypt，空则回退 vin。</summary>
     public string PreferEncryptVin()
     {
-        if (!string.IsNullOrWhiteSpace(encryptVin))
+        if (!string.IsNullOrWhiteSpace(vinEncrypt))
         {
-            return encryptVin.Trim();
+            return vinEncrypt.Trim();
         }
 
         if (!string.IsNullOrWhiteSpace(vin))
