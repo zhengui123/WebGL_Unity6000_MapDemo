@@ -106,6 +106,14 @@ public static class HttpProjectConfig
     public const string HighRiskSecurityEventPath =
         "/api/business/bigScreen/comprehensivePosture/highRiskSecurityEvent";
 
+    /// <summary>高危安全事件消费标记上传接口路径。</summary>
+    public const string HighRiskEventConsumedMarkPath =
+        "/api/business/bigScreen/comprehensivePosture/highRiskEventConsumedMark";
+
+    /// <summary>高危安全事件消费标记清除（测试）接口路径。</summary>
+    public const string HighRiskEventConsumedClearPath =
+        "/api/business/bigScreen/comprehensivePosture/highRiskEventConsumedClear";
+
     /// <summary>车辆态势：目标车辆各零部件防护状态。</summary>
     public const string PartProtectionStatusPath =
         "/api/business/bigScreen/vehiclePosture/partProtectionStatus";

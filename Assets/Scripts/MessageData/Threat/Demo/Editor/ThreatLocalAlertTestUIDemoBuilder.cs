@@ -98,6 +98,9 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         GameObject clearExcludedGo = CreateFullWidthButton(
             resources, panel.transform, "ClearExcludedButton", "清空排除 eventId", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject clearConsumedMarkGo = CreateFullWidthButton(
+            resources, panel.transform, "ClearConsumedMarkButton", "清除消费标记(测试)", 12f, y, buttonWidth);
+        y -= 40f;
         GameObject refreshGo = CreateFullWidthButton(
             resources, panel.transform, "RefreshListButton", "刷新状态", 12f, y, buttonWidth);
         y -= 40f;
@@ -133,6 +136,8 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             refreshCooldownGo.GetComponent<Button>();
         serializedDemo.FindProperty("_clearExcludedButton").objectReferenceValue =
             clearExcludedGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_clearConsumedMarkButton").objectReferenceValue =
+            clearConsumedMarkGo.GetComponent<Button>();
         serializedDemo.FindProperty("_refreshButton").objectReferenceValue =
             refreshGo.GetComponent<Button>();
         serializedDemo.FindProperty("_resetFlowButton").objectReferenceValue =

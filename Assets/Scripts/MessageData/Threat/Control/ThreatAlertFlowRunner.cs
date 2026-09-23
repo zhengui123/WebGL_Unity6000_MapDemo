@@ -183,6 +183,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 $"[ThreatAlertFlowRunner] 当前为 {startState}，将先瞬时回国家级再从头下钻。");
         }
 
+        // 下钻启动时上报一次：达标省（≥阈值）缓存事件的消费标记；无达标则内部跳过。
+        HighRiskEventConsumedMarkApi.RequestFromCacheMeetingThreshold();
+
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
         return true;
     }

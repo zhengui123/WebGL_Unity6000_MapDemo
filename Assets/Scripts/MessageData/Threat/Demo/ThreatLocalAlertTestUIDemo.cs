@@ -19,6 +19,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _exitThreatButton;
     [SerializeField] private Button _refreshCooldownButton;
     [SerializeField] private Button _clearExcludedButton;
+    [SerializeField] private Button _clearConsumedMarkButton;
     [SerializeField] private Button _refreshButton;
     [SerializeField] private Button _resetFlowButton;
     [SerializeField] private Button _backButton;
@@ -91,6 +92,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         Bind(_exitThreatButton, OnExitThreatClicked, bind);
         Bind(_refreshCooldownButton, OnRefreshCooldownClicked, bind);
         Bind(_clearExcludedButton, OnClearExcludedClicked, bind);
+        Bind(_clearConsumedMarkButton, OnClearConsumedMarkClicked, bind);
         Bind(_refreshButton, RefreshResultList, bind);
         Bind(_resetFlowButton, OnResetFlowClicked, bind);
         Bind(_backButton, OnBackClicked, bind);
@@ -271,6 +273,24 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         ThreatExcludedEventIdStore.Clear();
         RefreshStatus($"已清空排除表。当前排除数={ThreatExcludedEventIdStore.Count}");
         RefreshResultList();
+    }
+
+    private void OnClearConsumedMarkClicked()
+    {
+        RefreshStatus("正在清除服务端高危事件消费标记…");
+        HighRiskEventConsumedClearApi.Request((result, response) =>
+        {
+            if (result != null && result.IsSuccess && response != null && response.IsSuccess)
+            {
+                RefreshStatus($"清除消费标记成功：data={response.data}");
+                return;
+            }
+
+            string error = result != null && !string.IsNullOrWhiteSpace(result.Error)
+                ? result.Error
+                : (response != null ? $"code={response.code}，msg={response.msg}" : "请求失败");
+            RefreshStatus($"清除消费标记失败：{error}");
+        });
     }
 
     private void OnResetFlowClicked()
@@ -568,6 +588,11 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (_clearExcludedButton == null)
         {
             _clearExcludedButton = transform.Find("ClearExcludedButton")?.GetComponent<Button>();
+        }
+
+        if (_clearConsumedMarkButton == null)
+        {
+            _clearConsumedMarkButton = transform.Find("ClearConsumedMarkButton")?.GetComponent<Button>();
         }
 
         if (_refreshButton == null)

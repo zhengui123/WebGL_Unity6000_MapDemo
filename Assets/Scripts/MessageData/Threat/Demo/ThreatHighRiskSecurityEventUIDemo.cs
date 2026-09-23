@@ -17,6 +17,7 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
     [SerializeField] private Button _requestNationalButton;
     [SerializeField] private Button _refreshListButton;
     [SerializeField] private Button _completeAlertButton;
+    [SerializeField] private Button _clearConsumedMarkButton;
     [SerializeField] private Button _backButton;
 
     [Header("展示")]
@@ -45,6 +46,11 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         if (_completeAlertButton != null)
         {
             _completeAlertButton.onClick.AddListener(OnCompleteAlertClicked);
+        }
+
+        if (_clearConsumedMarkButton != null)
+        {
+            _clearConsumedMarkButton.onClick.AddListener(OnClearConsumedMarkClicked);
         }
 
         if (_backButton != null)
@@ -109,6 +115,11 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         if (_completeAlertButton != null)
         {
             _completeAlertButton.onClick.RemoveListener(OnCompleteAlertClicked);
+        }
+
+        if (_clearConsumedMarkButton != null)
+        {
+            _clearConsumedMarkButton.onClick.RemoveListener(OnClearConsumedMarkClicked);
         }
 
         if (_backButton != null)
@@ -224,6 +235,24 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
     private void OnCompleteAlertClicked()
     {
         ThreatProvinceAlertController.CompleteCurrentProvinceAlert();
+    }
+
+    private void OnClearConsumedMarkClicked()
+    {
+        RefreshStatusLabel("正在清除服务端高危事件消费标记…");
+        HighRiskEventConsumedClearApi.Request((result, response) =>
+        {
+            if (result != null && result.IsSuccess && response != null && response.IsSuccess)
+            {
+                RefreshStatusLabel($"清除消费标记成功：data={response.data}");
+                return;
+            }
+
+            string error = result != null && !string.IsNullOrWhiteSpace(result.Error)
+                ? result.Error
+                : (response != null ? $"code={response.code}，msg={response.msg}" : "请求失败");
+            RefreshStatusLabel($"清除消费标记失败：{error}");
+        });
     }
 
     private void OnBackButtonClicked()
@@ -382,6 +411,11 @@ public class ThreatHighRiskSecurityEventUIDemo : MonoBehaviour
         if (_completeAlertButton == null)
         {
             _completeAlertButton = transform.Find("CompleteAlertButton")?.GetComponent<Button>();
+        }
+
+        if (_clearConsumedMarkButton == null)
+        {
+            _clearConsumedMarkButton = transform.Find("ClearConsumedMarkButton")?.GetComponent<Button>();
         }
 
         if (_backButton == null)
