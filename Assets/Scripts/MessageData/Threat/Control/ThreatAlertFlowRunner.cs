@@ -183,8 +183,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 $"[ThreatAlertFlowRunner] 当前为 {startState}，将先瞬时回国家级再从头下钻。");
         }
 
-        // 下钻启动时上报一次：达标省（≥阈值）缓存事件的消费标记；无达标则内部跳过。
-        HighRiskEventConsumedMarkApi.RequestFromCacheMeetingThreshold();
+        // 原：下钻启动时上报一次达标省消费标记。现改为每省播放结束后用该省最新缓存上传。
+        // HighRiskEventConsumedMarkApi.RequestFromCacheMeetingThreshold();
 
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
         return true;
@@ -656,12 +656,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                     hasNextVin);
             }
 
+            HighRiskEventConsumedMarkApi.RequestFromProvinceCache(provinceCode);
             store.RemoveProvinceEventsAndExclude(provinceCode);
             LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 该省全部 Vin 下钻完成，将回国家级处理下一达标省 | province={provinceCode}");
         }
         else
         {
+            HighRiskEventConsumedMarkApi.RequestFromProvinceCache(provinceCode);
             store.RemoveProvinceEventsAndExclude(provinceCode);
             LogManager.LogFeature($"[ThreatAlertFlowRunner] 无 Vin 达阈值，已删除并排除该省告警：{provinceCode}");
         }

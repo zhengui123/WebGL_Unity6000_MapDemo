@@ -86,9 +86,6 @@ public static class ThreatHighRiskSecurityEventUIDemoBuilder
         GameObject refreshButtonGo = CreateFullWidthButton(resources, panel.transform, "RefreshListButton", "刷新列表", 12f, y, buttonWidth);
         y -= 40f;
         GameObject completeAlertButtonGo = CreateFullWidthButton(resources, panel.transform, "CompleteAlertButton", "完成当前告警", 12f, y, buttonWidth);
-        y -= 40f;
-        GameObject clearConsumedMarkButtonGo = CreateFullWidthButton(
-            resources, panel.transform, "ClearConsumedMarkButton", "清除消费标记(测试)", 12f, y, buttonWidth);
         y -= 48f;
 
         ScrollRect resultScroll = CreateResultScrollView(
@@ -108,8 +105,6 @@ public static class ThreatHighRiskSecurityEventUIDemoBuilder
         serializedDemo.FindProperty("_refreshListButton").objectReferenceValue = refreshButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_completeAlertButton").objectReferenceValue =
             completeAlertButtonGo.GetComponent<Button>();
-        serializedDemo.FindProperty("_clearConsumedMarkButton").objectReferenceValue =
-            clearConsumedMarkButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
         serializedDemo.FindProperty("_resultListText").objectReferenceValue = resultListText;

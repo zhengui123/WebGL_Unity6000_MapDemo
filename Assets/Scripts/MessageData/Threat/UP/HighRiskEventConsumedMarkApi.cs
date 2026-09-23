@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 高危安全事件消费标记上传接口（highRiskEventConsumedMark）。
-/// 威胁下钻开始时调用：将缓存中达标省（条数≥阈值）的 eventId 上报。
+/// 每省威胁下钻播放结束后调用：上报该省当前缓存中的全部 eventId。
 /// </summary>
 public static class HighRiskEventConsumedMarkApi
 {
@@ -13,6 +13,28 @@ public static class HighRiskEventConsumedMarkApi
     public static string BuildRequestUrl()
     {
         return HttpProjectConfig.BuildApiUrl(HttpProjectConfig.HighRiskEventConsumedMarkPath);
+    }
+
+    /// <summary>
+    /// 上传指定省当前缓存中的全部 eventId（取最新数据）；无有效 id 时跳过。
+    /// endTime 固定为调用时当前时间。须在移除/排除该省缓存之前调用。
+    /// </summary>
+    public static void RequestFromProvinceCache(
+        string provinceCode,
+        Action<HttpRequestResult, HighRiskEventConsumedMarkResponse> onCompleted = null,
+        Dictionary<string, string> additionalHeaders = null)
+    {
+        string[] eventIds = CollectEventIdsByProvince(provinceCode);
+        if (eventIds == null || eventIds.Length == 0)
+        {
+            LogManager.LogBackend(
+                $"[HighRiskEventConsumedMarkApi] 省 {provinceCode} 无有效 eventId，跳过上传。");
+            return;
+        }
+
+        LogManager.LogBackend(
+            $"[HighRiskEventConsumedMarkApi] 省播放结束上传 | province={provinceCode} | eventIds={eventIds.Length}");
+        Request(eventIds, endTime: null, onCompleted, additionalHeaders);
     }
 
     /// <summary>
@@ -90,6 +112,46 @@ public static class HighRiskEventConsumedMarkApi
                 RaiseRequestCompleted(result, response, onCompleted);
             },
             HttpProjectConfig.MergeDefaultHeaders(additionalHeaders));
+    }
+
+    /// <summary>收集指定省当前缓存中的全部非空 eventId（去重保序）。</summary>
+    public static string[] CollectEventIdsByProvince(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return Array.Empty<string>();
+        }
+
+        HighRiskSecurityEventDataStore store = HighRiskSecurityEventDataStore.Instance;
+        if (store == null)
+        {
+            return Array.Empty<string>();
+        }
+
+        IReadOnlyList<HighRiskSecurityEventItem> events = store.GetEventsByProvince(provinceCode);
+        if (events == null || events.Count == 0)
+        {
+            return Array.Empty<string>();
+        }
+
+        List<string> ids = new List<string>(events.Count);
+        HashSet<string> seen = new HashSet<string>();
+        for (int i = 0; i < events.Count; i++)
+        {
+            HighRiskSecurityEventItem item = events[i];
+            if (item == null || string.IsNullOrWhiteSpace(item.eventId))
+            {
+                continue;
+            }
+
+            string id = item.eventId.Trim();
+            if (seen.Add(id))
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids.ToArray();
     }
 
     /// <summary>收集缓存中达标省的全部非空 eventId（去重保序）。</summary>

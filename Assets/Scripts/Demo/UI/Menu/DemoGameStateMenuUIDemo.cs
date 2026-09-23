@@ -14,6 +14,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private RectTransform _menuPanelRect;
     [SerializeField] private float _expandedPanelHeight = 640f;
     [SerializeField] private float _collapsedPanelHeight = 96f;
+    [SerializeField] private Button _clearConsumedMarkEntryButton;
     [SerializeField] private Button _controlStateJumpEntryButton;
     [SerializeField] private Button _plateMapHighlightEntryButton;
     [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
@@ -36,6 +37,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         {
             _menuVisibleToggle.onValueChanged.AddListener(OnMenuVisibleToggleChanged);
             RefreshMenuContentVisible();
+        }
+
+        if (_clearConsumedMarkEntryButton != null)
+        {
+            _clearConsumedMarkEntryButton.onClick.AddListener(OnClearConsumedMarkEntryClicked);
         }
 
         if (_controlStateJumpEntryButton != null)
@@ -104,6 +110,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         if (_menuVisibleToggle != null)
         {
             _menuVisibleToggle.onValueChanged.RemoveListener(OnMenuVisibleToggleChanged);
+        }
+
+        if (_clearConsumedMarkEntryButton != null)
+        {
+            _clearConsumedMarkEntryButton.onClick.RemoveListener(OnClearConsumedMarkEntryClicked);
         }
 
         if (_controlStateJumpEntryButton != null)
@@ -222,6 +233,25 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         Vector2 size = _menuPanelRect.sizeDelta;
         size.y = visible ? _expandedPanelHeight : _collapsedPanelHeight;
         _menuPanelRect.sizeDelta = size;
+    }
+
+    private void OnClearConsumedMarkEntryClicked()
+    {
+        LogManager.LogFeature("[DemoGameStateMenuUIDemo] 清除服务端高危事件消费标记…");
+        HighRiskEventConsumedClearApi.Request((result, response) =>
+        {
+            if (result != null && result.IsSuccess && response != null && response.IsSuccess)
+            {
+                LogManager.LogFeature(
+                    $"[DemoGameStateMenuUIDemo] 清除消费标记成功：data={response.data}");
+                return;
+            }
+
+            string error = result != null && !string.IsNullOrWhiteSpace(result.Error)
+                ? result.Error
+                : (response != null ? $"code={response.code}，msg={response.msg}" : "请求失败");
+            LogManager.LogFeatureWarning($"[DemoGameStateMenuUIDemo] 清除消费标记失败：{error}");
+        });
     }
 
     private void OnControlStateJumpEntryClicked()
