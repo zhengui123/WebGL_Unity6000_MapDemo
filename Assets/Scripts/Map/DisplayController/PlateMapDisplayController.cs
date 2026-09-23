@@ -44,17 +44,23 @@ public class PlateMapDisplayController : MonoBehaviour
 
     [Header("聚焦动画")]
     [SerializeField] private float _defaultFocusCameraLocalY = 650f;
-    [Tooltip("勾选后按省份包围盒自动计算拉近高度，使省份占 Game 视图约 Viewport Fill Ratio")]
+    [Tooltip("勾选后按水平面绿框反算视距：红框最长边与 Fill 对应边重合")]
     [SerializeField] private bool _autoFitProvinceToViewport = true;
-    [Tooltip("省级聚焦时目标占视口比例（越小越远；>1 更近，省可能超出视口；0.55≈留边约 45%）")]
+    [Tooltip("省级聚焦 Fill 占视口比例（绿框；红最长边应对齐绿框对应边）")]
     [Range(0.1f, 3f)]
     [SerializeField] private float _provinceViewportFillRatio = 0.55f;
     [Tooltip("视距缩放（装框距离×此系数；俯视场景一般 1）")]
     [SerializeField] private float _provinceFitDistanceToLocalYScale = 1f;
-    [Tooltip("省自适应允许的最小视距（沿视线，作用于 CameraPivot 远近）")]
+    [Tooltip("省自适应最小视距（已废弃：装框不再钳制，仅保留序列化）")]
     [SerializeField] private float _provinceFitMinLocalY = 80f;
-    [Tooltip("省自适应允许的最大视距")]
+    [Tooltip("省自适应最大视距（已废弃：装框不再钳制，仅保留序列化）")]
     [SerializeField] private float _provinceFitMaxLocalY = 5000f;
+#if UNITY_EDITOR
+    [Tooltip("Scene 中绘制装框调试：红=板块外包围，绿=Fill 视口框（仅聚焦中/聚焦完成后；Game 需开 Gizmos）")]
+    [SerializeField] private bool _drawProvinceFitGizmos = true;
+    [Tooltip("装框调试线宽（Handles；Game 视图也需开启 Gizmos）")]
+    [SerializeField] private float _provinceFitGizmoLineWidth = 5f;
+#endif
 
     [Header("省级聚焦")]
      [Tooltip("勾选后开局用默认偏移强制覆盖全部子级 PlateMapGeoConverter；不勾选则开局不改各板块已有偏移。")]
@@ -447,17 +453,7 @@ public class PlateMapDisplayController : MonoBehaviour
         }
 
         float viewDistance = ResolveProvinceFocusViewDistance(module);
-        bool fromAutoFit = _autoFitProvinceToViewport && _pickCamera != null;
-
-        // 自动适配不要再用 CameraController.MinZoomY(常为 500) 钳死，否则大小省会同一高度
-        if (!fromAutoFit && _cameraZoomController != null)
-        {
-            viewDistance = Mathf.Clamp(viewDistance, _cameraZoomController.MinZoomY, _cameraZoomController.MaxZoomY);
-        }
-        else
-        {
-            viewDistance = Mathf.Clamp(viewDistance, _provinceFitMinLocalY, _provinceFitMaxLocalY);
-        }
+        // 装框视距不做 CameraController / ProvinceFit Min-Max 钳制，避免红框被抬远压小
 
         // FogCamera 保持当前本地坐标；远近完全由 CameraPivot 承担
         Vector3 fogLocalKeep = _cameraTransform.localPosition;
@@ -489,7 +485,7 @@ public class PlateMapDisplayController : MonoBehaviour
             fogLocalKeep.y,
             _focusDuration,
             _focusEase,
-            clampSyncZoom: true,
+            clampSyncZoom: false,
             tweenCameraLocal: false,
             onComplete: () =>
             {
@@ -566,15 +562,7 @@ public class PlateMapDisplayController : MonoBehaviour
         }
 
         float viewDistance = ResolveProvinceFocusViewDistance(module);
-        bool fromAutoFit = _autoFitProvinceToViewport && _pickCamera != null;
-        if (!fromAutoFit && _cameraZoomController != null)
-        {
-            viewDistance = Mathf.Clamp(viewDistance, _cameraZoomController.MinZoomY, _cameraZoomController.MaxZoomY);
-        }
-        else
-        {
-            viewDistance = Mathf.Clamp(viewDistance, _provinceFitMinLocalY, _provinceFitMaxLocalY);
-        }
+        // 瞬时刷新同样不按相机/装框 Min-Max 钳制视距
 
         Vector3 fogLocalKeep = _cameraTransform.localPosition;
         if (!TryComputeRigPositionForModuleAtViewCenter(module, fogLocalKeep, viewDistance, out Vector3 rigTargetPos))
@@ -588,7 +576,7 @@ public class PlateMapDisplayController : MonoBehaviour
 
         if (_cameraZoomController != null)
         {
-            _cameraZoomController.SetTargetZoomY(fogLocalKeep.y, immediate: true, clampToLimits: true);
+            _cameraZoomController.SetTargetZoomY(fogLocalKeep.y, immediate: true, clampToLimits: false);
             _cameraZoomController.ZoomControlEnabled = true;
         }
 
@@ -631,7 +619,7 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 省级装框视距（沿视线）：按子物体外包围盒 XZ 最长边匹配通用屏幕占比。
+    /// 省级装框视距（沿视线）：XZ 矩形最长边对齐 <see cref="_provinceViewportFillRatio"/>（与绿框对应边重合）。
     /// 该距离用于摆 CameraPivot，不写入 FogCamera。
     /// </summary>
     private float ResolveProvinceFocusViewDistance(PlateMapDisplayModule module)
@@ -639,22 +627,26 @@ public class PlateMapDisplayController : MonoBehaviour
         if (_autoFitProvinceToViewport && _pickCamera != null)
         {
             Bounds bounds = module.GetWorldBounds();
-            float depth = PlateMapCameraFitUtility.ComputeViewDistanceToFitBounds(
+            Vector3 lookAt = bounds.center + ResolveFocusCenterWorldOffset(module);
+            Quaternion camRot = _cameraRig != null && _cameraTransform != null
+                ? _cameraRig.rotation * _cameraTransform.localRotation
+                : _pickCamera.transform.rotation;
+
+            float depth = PlateMapCameraFitUtility.ComputeViewDistanceToFitBoundsOnMapPlane(
                 _pickCamera,
                 bounds,
+                lookAt,
+                camRot,
                 _provinceViewportFillRatio);
             depth *= Mathf.Max(0.01f, _provinceFitDistanceToLocalYScale);
-            depth = Mathf.Clamp(depth, _provinceFitMinLocalY, _provinceFitMaxLocalY);
+            depth = Mathf.Max(depth, 1f);
 
-            if (depth > 1f)
-            {
-                float longestXZ = Mathf.Max(bounds.size.x, bounds.size.z);
-                LogManager.LogFeature(
-                    $"[PlateMapDisplayController] 省聚焦严格装框 | module={module.ModuleKey} | " +
-                    $"fill={_provinceViewportFillRatio:P0} | viewDistance={depth:F1} | " +
-                    $"longestXZ={longestXZ:F1} | boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1})");
-                return depth;
-            }
+            float longestXZ = Mathf.Max(bounds.size.x, bounds.size.z);
+            LogManager.LogFeature(
+                $"[PlateMapDisplayController] 省聚焦水平面装框 | module={module.ModuleKey} | " +
+                $"fill={_provinceViewportFillRatio:P0} | viewDistance={depth:F1} | " +
+                $"longestXZ={longestXZ:F1} | boundsXZ=({bounds.size.x:F1},{bounds.size.z:F1})");
+            return depth;
         }
 
         if (module.FocusCameraLocalY > 0f)
@@ -664,6 +656,25 @@ public class PlateMapDisplayController : MonoBehaviour
 
         return _defaultFocusCameraLocalY;
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos()
+    {
+        if (!_drawProvinceFitGizmos || _focusedModule == null || _pickCamera == null)
+        {
+            return;
+        }
+
+        Bounds bounds = _focusedModule.GetWorldBounds();
+        Vector3 lookAt = bounds.center + ResolveFocusCenterWorldOffset(_focusedModule);
+        PlateMapCameraFitUtility.DrawProvinceFitGizmos(
+            _pickCamera,
+            bounds,
+            lookAt,
+            _provinceViewportFillRatio,
+            _provinceFitGizmoLineWidth);
+    }
+#endif
 
     /// <summary>
     /// 计算 CameraPivot 世界坐标：在 FogCamera 本地位姿不变的前提下，

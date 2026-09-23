@@ -104319,10 +104319,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 0.8
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 1
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -130263,10 +130265,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -132848,10 +132852,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -134013,10 +134019,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -135910,10 +135918,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -155381,10 +155391,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -156549,10 +156561,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -157095,10 +157109,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -159778,10 +159794,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -160249,10 +160267,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -162651,10 +162671,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -166694,10 +166716,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -171704,10 +171728,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -174228,10 +174254,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -180734,10 +180762,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -181688,10 +181718,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -183495,10 +183527,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -190974,10 +191008,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -195616,10 +195652,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -198541,10 +198579,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -205963,10 +206003,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
@@ -206659,10 +206701,12 @@ MonoBehaviour:
     m_Bits: 128
   _defaultFocusCameraLocalY: 650
   _autoFitProvinceToViewport: 1
-  _provinceViewportFillRatio: 1
+  _provinceViewportFillRatio: 0.7
   _provinceFitDistanceToLocalYScale: 1
   _provinceFitMinLocalY: 80
   _provinceFitMaxLocalY: 5000
+  _drawProvinceFitGizmos: 1
+  _provinceFitGizmoLineWidth: 5
   _overwriteAllChildFocusOffsetsOnStart: 0
   _defaultFocusCenterWorldOffset: {x: 0, y: 0, z: 0}
   _focusDuration: 0.45
