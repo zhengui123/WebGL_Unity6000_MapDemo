@@ -49,15 +49,6 @@ public class ControlStatePreviousLevelUIDemo : MonoBehaviour
     private void Update()
     {
         RefreshCurrentStateLabel();
-
-        if (_previousLevelButton == null)
-        {
-            return;
-        }
-
-        ControlStateHierarchyTransitionController controller =
-            ControlStateHierarchyTransitionController.Instance;
-        _previousLevelButton.interactable = controller == null || !controller.IsBootstrapping;
     }
 
     private void OnPreviousLevelButtonClicked()

@@ -100,7 +100,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <param name="provinceCode">省/国家 code；空/null 时使用当前默认单元。</param>
     /// <param name="partId">业务零部件 ID；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
-    /// <returns>已启动跳转返回 true；正在跳转中返回 false。</returns>
+    /// <returns>已启动跳转返回 true；打断并改派最新目标时也返回 true。</returns>
     public bool TransitionToState(
         bool useInstantTransition,
         GameManager.ControlState targetState,
@@ -117,22 +117,19 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             ? null
             : partId;
 
-        if (_isBootstrapping)
+        // 跳转中或动画未结束：终止当前动画，强制瞬时改派到新目标
+        if (_isBootstrapping || IsAnyTransitionBusy())
         {
-            if (manager != null && manager.AcceleratePendingHierarchyTransition)
-            {
-                QueuePendingTransition(
-                    useInstantTransition,
-                    targetState,
-                    provinceCode,
-                    partIdForTransition,
-                    ensureEarthBaseline);
-                RequestRestartAfterCurrentTransition();
-                return true;
-            }
-
-            LogManager.LogFeatureWarning("[ControlStateHierarchyTransitionController] 正在跳转中，请稍候。");
-            return false;
+            QueuePendingTransition(
+                useInstantTransition: true,
+                targetState,
+                provinceCode,
+                partIdForTransition,
+                ensureEarthBaseline);
+            RequestRestartAfterCurrentTransition();
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 打断当前层级过渡，强制瞬时跳转 → {targetState}");
+            return true;
         }
 
         _useInstantTransition = useInstantTransition;
@@ -709,13 +706,13 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private IEnumerator WaitUntil(Func<bool> predicate, string stepName)
     {
         float elapsed = 0f;
-        while (!predicate() && elapsed < _stepTimeoutSeconds)
+        while (!predicate() && !_restartRequested && elapsed < _stepTimeoutSeconds)
         {
             elapsed += Time.unscaledDeltaTime;
             yield return null;
         }
 
-        if (!predicate() && stepName != "等待其它过渡结束")
+        if (!predicate() && !_restartRequested && stepName != "等待其它过渡结束")
         {
             LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 超时（{_stepTimeoutSeconds}s）。");
         }
@@ -772,13 +769,12 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     /// <summary>
     /// 外部调用：终止当前层级流程并优先执行新的目标跳转。
-    /// 实现策略不是粗暴 Kill，而是尽量 Complete 当前动画并保留回调。
+    /// 立即 Complete 进行中的过渡动画，并标记重启以改派最新请求。
     /// </summary>
     public void AbortRunningTransition()
     {
-        if (!_isBootstrapping)
+        if (!_isBootstrapping && !IsAnyTransitionBusy())
         {
-            CompleteBusyTransitionsImmediately();
             return;
         }
 
@@ -806,6 +802,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private void RequestRestartAfterCurrentTransition()
     {
         _restartRequested = true;
+        // 让正在 WaitUntil(_stepDone) 的步骤立刻结束，避免空等超时
+        _stepDone = true;
         CompleteBusyTransitionsImmediately();
     }
 

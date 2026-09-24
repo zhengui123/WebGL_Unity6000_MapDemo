@@ -61,18 +61,6 @@ public class ControlStateStartUIDemo : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        if (_jumpButton == null)
-        {
-            return;
-        }
-
-        ControlStateHierarchyTransitionController controller =
-            ControlStateHierarchyTransitionController.Instance;
-        _jumpButton.interactable = controller == null || !controller.IsBootstrapping;
-    }
-
     /// <summary>刷新下拉选项（省份名、板块模块名、零件名）。</summary>
     public void RefreshAllDropdownOptions()
     {
@@ -138,14 +126,6 @@ public class ControlStateStartUIDemo : MonoBehaviour
         if (MapApi.Instance == null)
         {
             LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 未找到 MapApi。");
-            return;
-        }
-
-        ControlStateHierarchyTransitionController controller =
-            ControlStateHierarchyTransitionController.Instance;
-        if (controller != null && controller.IsBootstrapping)
-        {
-            LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 正在跳转中，请稍候。");
             return;
         }
 

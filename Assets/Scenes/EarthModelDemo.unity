@@ -30585,7 +30585,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThreatAlertFlowRunner
   _countryLevelHoldSeconds: 10
-  _provinceLevelHoldSeconds: 10
+  _provinceLevelHoldSeconds: 60
   _vehicleLevelHoldSeconds: 10
   _attackPathLevelHoldSeconds: 10
   _partLevelHoldSeconds: 10
@@ -32317,7 +32317,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1169458188
 RectTransform:
   m_ObjectHideFlags: 0
