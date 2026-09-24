@@ -32317,7 +32317,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1169458188
 RectTransform:
   m_ObjectHideFlags: 0
@@ -110240,6 +110240,9 @@ MonoBehaviour:
   _stateIcon: {fileID: 920555875795555610}
   _protectedIcon: {fileID: 0}
   _unprotectedIcon: {fileID: 0}
+  _protectedColor: {r: 0.2, g: 0.85, b: 0.35, a: 1}
+  _protectedWithEventsColor: {r: 1, g: 0.85, b: 0.2, a: 1}
+  _unprotectedColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &928746387064666368
 GameObject:
   m_ObjectHideFlags: 0

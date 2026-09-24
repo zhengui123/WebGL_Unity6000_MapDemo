@@ -261,9 +261,17 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     {
         _pendingCloseCallback = onComplete;
 
+        // 非车辆级（含省/国家/地球/零件/攻击路径）：若仍开启则强制隐藏，不走反向动画
         if (!IsVehicleLevel())
         {
-            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法关闭车辆 UI。");
+            if (IsCarUiOpen())
+            {
+                LogManager.LogFeature(
+                    "[CarPanelManager] 已离开 VehicleLevel，强制关闭并隐藏车辆 UI。");
+                SetPanelInactive();
+            }
+
+            _currentStart3DObjectName = null;
             InvokePendingCloseCallback();
             return;
         }
@@ -287,6 +295,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         gridLine.PlayReverseAnimation(targetName, OnGridLineReverseCompleted);
+    }
+
+    /// <summary>车辆面板或连线是否仍处于开启状态。</summary>
+    private bool IsCarUiOpen()
+    {
+        bool panelOn = CarPanel != null && CarPanel.activeSelf;
+        bool lineOn = gridLine != null && gridLine.enabled;
+        return panelOn || lineOn;
     }
 
     private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
