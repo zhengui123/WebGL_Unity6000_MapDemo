@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 高危安全事件（威胁）HTTP 定时轮询：默认间隔 60s；默认开局自动轮询（Inspector `_autoStart` 可关）。
 /// 威胁打断冷却期内暂停请求；冷却结束后若仍处于「期望轮询」则先拉一次接口再恢复间隔循环。
+/// Android（含 Editor 切 Android）不创建实例、不查询威胁数据。
 /// </summary>
 [DisallowMultipleComponent]
 public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEventApiController>
@@ -36,8 +37,28 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
         set => _intervalSeconds = Mathf.Max(1f, value);
     }
 
+    /// <summary>Android 平台不查询威胁数据。</summary>
+    private static bool ShouldSkipThreatQuery
+    {
+        get
+        {
+#if UNITY_ANDROID
+            return true;
+#else
+            return false;
+#endif
+        }
+    }
+
     private void Start()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            LogManager.LogBackend(
+                "[HighRiskSecurityEventApiController] Android 平台跳过威胁轮询，不自动 StartPolling。");
+            return;
+        }
+
         if (_autoStart)
         {
             StartPolling();
@@ -48,6 +69,11 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void EnsureInstanceAfterSceneLoad()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            return;
+        }
+
         _ = Instance;
     }
 
@@ -61,6 +87,13 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     /// </summary>
     public bool StartPolling()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            LogManager.LogBackend(
+                "[HighRiskSecurityEventApiController] Android 平台不开启威胁轮询。");
+            return false;
+        }
+
         _wantPolling = true;
 
         if (_pausedByCooldown || IsThreatInterruptCooldownActive())
@@ -90,6 +123,11 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     /// <summary>威胁打断冷却开始：暂停请求，保留轮询意图。</summary>
     public void OnThreatInterruptCooldownStarted()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            return;
+        }
+
         _pausedByCooldown = true;
         StopPollCoroutineOnly();
         LogManager.LogBackend(
@@ -102,6 +140,11 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     /// </summary>
     public void OnThreatInterruptCooldownEnded()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            return;
+        }
+
         _pausedByCooldown = false;
 
         if (!_wantPolling)
@@ -119,6 +162,13 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     /// <summary>立即请求一次（不影响启停意图；冷却中跳过）。</summary>
     public void RequestOnce()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            LogManager.LogBackend(
+                "[HighRiskSecurityEventApiController] Android 平台跳过单次威胁请求。");
+            return;
+        }
+
         if (_pausedByCooldown || IsThreatInterruptCooldownActive())
         {
             LogManager.LogBackend("[HighRiskSecurityEventApiController] 冷却中，跳过单次请求。");
@@ -167,6 +217,11 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
 
     private bool BeginRequest()
     {
+        if (ShouldSkipThreatQuery)
+        {
+            return false;
+        }
+
         if (_isRequesting || HighRiskSecurityEventApi.IsBatchRequesting)
         {
             HttpService http = HttpService.Instance;

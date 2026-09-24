@@ -23,8 +23,18 @@ public class MessageListPanel : MonoBehaviour
     [SerializeField] private Sprite _protectedIcon;
     [SerializeField] private Sprite _unprotectedIcon;
 
+    [Header("防护状态文字颜色")]
+    [Tooltip("已防护且无零部件事态时")]
+    [SerializeField] private Color _protectedColor = new Color(0.2f, 0.85f, 0.35f, 1f);
+    [Tooltip("已防护且有零部件事态列表内容时")]
+    [SerializeField] private Color _protectedWithEventsColor = new Color(1f, 0.85f, 0.2f, 1f);
+    [Tooltip("未防护")]
+    [SerializeField] private Color _unprotectedColor = new Color(1f, 0.25f, 0.25f, 1f);
+
     private ProtectionStateType _lastProtectionState;
     private bool _hasProtectionState;
+    /// <summary>最近一次入参问题列表是否非空（与 UI MessageText 显示无关）。</summary>
+    private bool _lastHasProblemList;
 
     private void Awake()
     {
@@ -48,11 +58,11 @@ public class MessageListPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// 设置面板内容。
+    /// 设置面板内容：先写齐文案/图标/问题列表，最后再上色，防止漏设残留白色。
     /// </summary>
     /// <param name="title">标题，写入 TitleText。</param>
     /// <param name="protectionState">防护状态，写入 StateText 并刷新 Icon。</param>
-    /// <param name="abnormalEvents">异常事件列表，超过 5 条仅显示前 5 条。</param>
+    /// <param name="abnormalEvents">异常事件（问题）列表，超过 5 条仅显示前 5 条；列表非空则已防护态用黄色。</param>
     public void SetMessageList(string title, ProtectionStateType protectionState, IList<string> abnormalEvents)
     {
         EnsureReferences();
@@ -64,6 +74,9 @@ public class MessageListPanel : MonoBehaviour
 
         _lastProtectionState = protectionState;
         _hasProtectionState = true;
+        // 直接按数据源问题列表判定，不依赖 MessageText 是否已显示
+        _lastHasProblemList = abnormalEvents != null && abnormalEvents.Count > 0;
+
         if (_stateText != null)
         {
             _stateText.text = ProtectionStateTypeExtensions.ToDisplayText(protectionState);
@@ -71,6 +84,8 @@ public class MessageListPanel : MonoBehaviour
 
         ApplyStateIcon(protectionState);
         ApplyMessageTexts(abnormalEvents);
+        // 内容写完后再上色，避免漏设导致默认白字
+        ApplyStateTextColor(protectionState, _lastHasProblemList);
     }
 
     private void HandleLanguageChanged(UiLanguage _)
@@ -86,6 +101,52 @@ public class MessageListPanel : MonoBehaviour
         }
 
         _stateText.text = ProtectionStateTypeExtensions.ToDisplayText(_lastProtectionState);
+        ApplyStateTextColor(_lastProtectionState, _lastHasProblemList);
+    }
+
+    /// <summary>
+    /// 已防护且问题列表空→绿；已防护且问题列表非空→黄；未防护→红。
+    /// 若目标色接近白色则回退到内置非白色，防止漏设/配成白。
+    /// </summary>
+    private void ApplyStateTextColor(ProtectionStateType protectionState, bool hasProblemList)
+    {
+        if (_stateText == null)
+        {
+            return;
+        }
+
+        Color target;
+        if (protectionState == ProtectionStateType.Unprotected)
+        {
+            target = ResolveNonWhiteColor(_unprotectedColor, new Color(1f, 0.25f, 0.25f, 1f));
+        }
+        else if (hasProblemList)
+        {
+            target = ResolveNonWhiteColor(_protectedWithEventsColor, new Color(1f, 0.85f, 0.2f, 1f));
+        }
+        else
+        {
+            target = ResolveNonWhiteColor(_protectedColor, new Color(0.2f, 0.85f, 0.35f, 1f));
+        }
+
+        _stateText.color = target;
+    }
+
+    /// <summary>接近白色时用 fallback，保证最终一定不是白色。</summary>
+    private static Color ResolveNonWhiteColor(Color configured, Color fallback)
+    {
+        if (IsNearWhite(configured))
+        {
+            return IsNearWhite(fallback) ? new Color(1f, 0.25f, 0.25f, 1f) : fallback;
+        }
+
+        return configured;
+    }
+
+    private static bool IsNearWhite(Color color)
+    {
+        const float threshold = 0.96f;
+        return color.r >= threshold && color.g >= threshold && color.b >= threshold;
     }
 
     /// <summary>运行时替换防护状态图例（贴图资源就绪后调用）。</summary>
