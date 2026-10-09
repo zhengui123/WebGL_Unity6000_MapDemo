@@ -62,6 +62,9 @@ public static class SecurityEventDetailUIDemoBuilder
         GameObject loadLocalGo = CreateFullWidthButton(
             resources, panel.transform, "LoadLocalJsonButton", "加载本地测试 JSON", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject loadTongjiGo = CreateFullWidthButton(
+            resources, panel.transform, "LoadLocalTongjiJsonButton", "加载本地 JSON（法国/tongji）", 12f, y, buttonWidth);
+        y -= 40f;
         GameObject requestGo = CreateFullWidthButton(
             resources, panel.transform, "RequestApiButton", "按图中参数请求接口", 12f, y, buttonWidth);
         y -= 40f;
@@ -90,6 +93,7 @@ public static class SecurityEventDetailUIDemoBuilder
         so.FindProperty("_processEndTimeInput").objectReferenceValue = endInput.GetComponent<InputField>();
         so.FindProperty("_tenantIdInput").objectReferenceValue = tenantInput.GetComponent<InputField>();
         so.FindProperty("_loadLocalJsonButton").objectReferenceValue = loadLocalGo.GetComponent<Button>();
+        so.FindProperty("_loadLocalTongjiJsonButton").objectReferenceValue = loadTongjiGo.GetComponent<Button>();
         so.FindProperty("_requestApiButton").objectReferenceValue = requestGo.GetComponent<Button>();
         so.FindProperty("_applyToGjPanelButton").objectReferenceValue = applyGo.GetComponent<Button>();
         so.FindProperty("_closeGjPanelButton").objectReferenceValue = closeGo.GetComponent<Button>();

@@ -16,6 +16,7 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
 
     [Header("操作")]
     [SerializeField] private Button _loadLocalJsonButton;
+    [SerializeField] private Button _loadLocalTongjiJsonButton;
     [SerializeField] private Button _requestApiButton;
     [SerializeField] private Button _applyToGjPanelButton;
     [SerializeField] private Button _closeGjPanelButton;
@@ -61,6 +62,7 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
     private void BindButtons(bool bind)
     {
         Bind(_loadLocalJsonButton, OnLoadLocalJsonClicked, bind);
+        Bind(_loadLocalTongjiJsonButton, OnLoadLocalTongjiJsonClicked, bind);
         Bind(_requestApiButton, OnRequestApiClicked, bind);
         Bind(_applyToGjPanelButton, OnApplyToGjPanelClicked, bind);
         Bind(_closeGjPanelButton, OnCloseGjPanelClicked, bind);
@@ -95,16 +97,28 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
 
     private void OnLoadLocalJsonClicked()
     {
-        if (!SecurityEventDetailApi.TryApplySuccessfulResponseFromJson(
-                SecurityEventDetailMockJson.SuccessResponseJson,
-                out string error))
+        ApplyLocalMockJson(
+            SecurityEventDetailMockJson.SuccessResponseJson,
+            "已加载本地 JSON（国内样例），并应用到 GJ_Panel / POI。");
+    }
+
+    private void OnLoadLocalTongjiJsonClicked()
+    {
+        ApplyLocalMockJson(
+            SecurityEventDetailMockJson.SuccessResponseTongjiJson,
+            "已加载本地 JSON（法国/tongji），并应用到 GJ_Panel / POI。");
+    }
+
+    private void ApplyLocalMockJson(string json, string successMessage)
+    {
+        if (!SecurityEventDetailApi.TryApplySuccessfulResponseFromJson(json, out string error))
         {
             RefreshStatus($"本地 JSON 应用失败：{error}");
             return;
         }
 
         _lastResponse = SecurityEventDetailApi.LastResponse;
-        RefreshStatus("已加载本地 JSON，并应用到 GJ_Panel / POI。");
+        RefreshStatus(successMessage);
         RefreshResultList();
     }
 
@@ -302,6 +316,11 @@ public class SecurityEventDetailUIDemo : MonoBehaviour
         if (_loadLocalJsonButton == null)
         {
             _loadLocalJsonButton = transform.Find("LoadLocalJsonButton")?.GetComponent<Button>();
+        }
+
+        if (_loadLocalTongjiJsonButton == null)
+        {
+            _loadLocalTongjiJsonButton = transform.Find("LoadLocalTongjiJsonButton")?.GetComponent<Button>();
         }
 
         if (_requestApiButton == null)
