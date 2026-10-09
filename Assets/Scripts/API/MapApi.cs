@@ -331,7 +331,7 @@ public class MapApi : UnitySingle<MapApi>
         return controller.PlayTransitionReverse(partId);
     }
 
-    /// <summary>正播：车辆 → 攻击路径过渡。</summary>
+    /// <summary>正播：车辆 → 攻击路径过渡；启动时关闭 GJ 告警面板并清除溯源 POI。</summary>
     public bool TransitionVehicleToAttackPath()
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
@@ -340,6 +340,9 @@ public class MapApi : UnitySingle<MapApi>
             LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放车辆 → 攻击路径过渡。");
             return false;
         }
+
+        // 进入攻击链路前关闭溯源告警面板，避免与攻击路径层叠显示
+        CloseGJPanel();
 
         return controller.PlayVehicleToAttackPathTransition();
     }

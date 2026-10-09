@@ -26,6 +26,8 @@ public class AttackPathController : MonoBehaviour
     [Header("线条样式")]
     [Tooltip("LineRenderer 线宽（widthMultiplier）；Play Mode 下修改会实时生效")]
     [SerializeField] private float _lineWidth = 0.26f;
+    [Tooltip("单个图案沿路径的世界长度（米）；Tile 下 textureScale.x = 1/该值，与线长无关，保证各线图案大小一致")]
+    [SerializeField] private float _patternLength = 1f;
     [Tooltip("首尾是否圆头；关闭=平头（numCapVertices=0），开启=圆头")]
     [SerializeField] private bool _useRoundedCaps;
     [Tooltip("圆头细分顶点数量（仅勾选圆头时生效）")]
@@ -88,6 +90,7 @@ public class AttackPathController : MonoBehaviour
         }
 
         _lineWidth = Mathf.Max(0.001f, _lineWidth);
+        _patternLength = Mathf.Max(0.001f, _patternLength);
         _roundedCapVertices = Mathf.Max(1, _roundedCapVertices);
         ApplyLineStyleToAllInstances();
 
@@ -99,6 +102,22 @@ public class AttackPathController : MonoBehaviour
         RefreshMaterialScrollAnimations();
     }
 #endif
+
+    /// <summary>贴图图案世界长度；改后会刷新正在显示的线条 Tiling。</summary>
+    public float PatternLength
+    {
+        get => _patternLength;
+        set
+        {
+            _patternLength = Mathf.Max(0.001f, value);
+            if (!Application.isPlaying)
+            {
+                return;
+            }
+
+            RefreshMaterialScrollAnimations();
+        }
+    }
 
     /// <summary>当前滚动速度（Inspector / 代码均可改，改后会刷新正在播放的线条）。</summary>
     public float ScrollSpeed
@@ -355,9 +374,6 @@ public class AttackPathController : MonoBehaviour
 
         instance.LineTransform.localPosition = Vector3.zero;
         instance.LineTransform.localRotation = Quaternion.identity;
-        ConfigureLineRenderer(instance, path);
-        ApplyStretchFillAndAlignStart(instance);
-        SetLineVisible(instance, true);
 
         float pathLength = CalculatePathWorldLength(path, pathLocalSpace);
         if (pathLength <= 0f)
@@ -365,6 +381,10 @@ public class AttackPathController : MonoBehaviour
             SetLineVisible(instance, false);
             return;
         }
+
+        ConfigureLineRenderer(instance, path);
+        ApplyConsistentPatternTiling(instance);
+        SetLineVisible(instance, true);
 
         StartMaterialScrollAnimation(instance, settings);
         instance.LocalPath = new List<Vector3>(path);
@@ -384,12 +404,12 @@ public class AttackPathController : MonoBehaviour
         }
 
         PlayPathSettings settings = ResolvePlayPathSettings(null, null, null);
-        ApplyStretchFillAndAlignStart(instance);
+        ApplyConsistentPatternTiling(instance);
         StartMaterialScrollAnimation(instance, settings);
     }
 
     /// <summary>
-    /// Stretch 模式下一张贴图铺满整线（TilingX=1），Offset=0 使贴图边缘对齐起点，
+    /// Tile 模式下按线长设好 Tiling 后，Offset=0 对齐起点，
     /// 再沿负 Offset X 滚动（起点→终点）。滚动速率与线长无关，各线速度一致。
     /// </summary>
     private void StartMaterialScrollAnimation(LineInstance instance, PlayPathSettings settings)
@@ -413,7 +433,7 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        // Stretch + UV 从起点→终点增大时，负向 Offset 使图案向终点流动。
+        // Tile + UV 从起点→终点增大时，负向 Offset 使图案向终点流动。
         Vector2 startOffset = material.mainTextureOffset;
         Vector2 targetOffset = new Vector2(startOffset.x - _endTextureOffsetX, startOffset.y);
 
@@ -432,10 +452,9 @@ public class AttackPathController : MonoBehaviour
 
     private void ConfigureLineRenderer(LineInstance instance, IReadOnlyList<Vector3> localPath)
     {
-        LogManager.LogFeature("-----------!!!!!!!!!!!!");
         LineRenderer lineRenderer = instance.LineRenderer;
         lineRenderer.useWorldSpace = false;
-        lineRenderer.textureMode = LineTextureMode.Stretch;
+        lineRenderer.textureMode = LineTextureMode.Tile;
         ApplyCapStyle(lineRenderer);
         lineRenderer.positionCount = localPath.Count;
         for (int i = 0; i < localPath.Count; i++)
@@ -444,8 +463,11 @@ public class AttackPathController : MonoBehaviour
         }
     }
 
-    /// <summary>Stretch + TilingX=1 铺满整线，Offset X=0 对齐起点贴图边缘。</summary>
-    private void ApplyStretchFillAndAlignStart(LineInstance instance)
+    /// <summary>
+    /// Tile 已按世界长度铺 UV；textureScale.x = 1/PatternLength 控制图案世界尺寸，与线长无关。
+    /// 材质 mainTextureScale.x 固定为 1，避免与 textureScale 叠乘；Offset X=0 对齐起点。
+    /// </summary>
+    private void ApplyConsistentPatternTiling(LineInstance instance)
     {
         Material material = GetOrCreateRuntimeMaterial(instance);
         if (material == null)
@@ -453,8 +475,19 @@ public class AttackPathController : MonoBehaviour
             return;
         }
 
-        Vector2 scale = material.mainTextureScale;
-        material.mainTextureScale = new Vector2(1f, scale.y);
+        float patternLength = Mathf.Max(0.001f, _patternLength);
+        float textureScaleX = 1f / patternLength;
+
+        if (instance.LineRenderer != null)
+        {
+            instance.LineRenderer.textureMode = LineTextureMode.Tile;
+            Vector2 lineScale = instance.LineRenderer.textureScale;
+            instance.LineRenderer.textureScale = new Vector2(textureScaleX, lineScale.y);
+        }
+
+        // 材质侧不再按线长改 Tiling，避免与 LineRenderer.textureScale 双重放大
+        Vector2 matScale = material.mainTextureScale;
+        material.mainTextureScale = new Vector2(1f, matScale.y);
 
         Vector2 offset = material.mainTextureOffset;
         material.mainTextureOffset = new Vector2(0f, offset.y);
@@ -526,7 +559,7 @@ public class AttackPathController : MonoBehaviour
     private void ConfigureLineRendererDefaults(LineRenderer lineRenderer)
     {
         lineRenderer.useWorldSpace = false;
-        lineRenderer.textureMode = LineTextureMode.Stretch;
+        lineRenderer.textureMode = LineTextureMode.Tile;
         lineRenderer.numCornerVertices = 4;
         ApplyCapStyle(lineRenderer);
         lineRenderer.alignment = LineAlignment.View;
@@ -551,7 +584,7 @@ public class AttackPathController : MonoBehaviour
 
         lineRenderer.widthMultiplier = _lineWidth;
         ApplyCapStyle(lineRenderer);
-        lineRenderer.textureMode = LineTextureMode.Stretch;
+        lineRenderer.textureMode = LineTextureMode.Tile;
     }
 
     private void ApplyLineStyleToAllInstances()
@@ -696,7 +729,7 @@ public class AttackPathController : MonoBehaviour
             return null;
         }
 
-        // 清除材质资产上残留的 Tiling/Offset，保证 Stretch 下整线一张贴图且边缘在起点。
+        // 清除材质资产上残留的 Tiling/Offset；图案密度由 LineRenderer.textureScale 控制。
         Vector2 scale = instance.RuntimeMaterial.mainTextureScale;
         instance.RuntimeMaterial.mainTextureScale = new Vector2(1f, scale.y);
         Vector2 offset = instance.RuntimeMaterial.mainTextureOffset;
@@ -705,7 +738,7 @@ public class AttackPathController : MonoBehaviour
         if (instance.LineRenderer != null)
         {
             instance.LineRenderer.material = instance.RuntimeMaterial;
-            instance.LineRenderer.textureMode = LineTextureMode.Stretch;
+            instance.LineRenderer.textureMode = LineTextureMode.Tile;
         }
 
         return instance.RuntimeMaterial;

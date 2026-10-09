@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: AttackMaterial
+  m_Name: AttackMaterial 1
   m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -33,7 +33,7 @@ Material:
     - _DetailAlbedoMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 5.61, y: 0}
+        m_Offset: {x: 0, y: 0}
     - _DetailMask:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -47,7 +47,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 5e4e7cda15168af4b94343ea97024931, type: 3}
+        m_Texture: {fileID: 2800000, guid: 29fd9482012a7c0458433e9fcd15055c, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
