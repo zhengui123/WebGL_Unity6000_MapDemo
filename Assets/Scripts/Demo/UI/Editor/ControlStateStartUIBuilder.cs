@@ -1473,6 +1473,20 @@ public static class ControlStateStartUIBuilder
         {
             vinCountryPlaceholder.text = "可空";
         }
+        vinContentY -= RowHeight + 4f;
+
+        Toggle vinIsReplayToggle = CreateInlineLabeledToggle(
+            vinRoot,
+            resources,
+            "VinIsReplayToggle",
+            "isReplay",
+            0f,
+            vinContentY,
+            PanelWidth - 48f,
+            RowHeight,
+            22f,
+            false);
+        ApplyToggleCheckmarkSprite(vinIsReplayToggle, resources.checkmark);
         vinContentY -= RowHeight + 8f;
 
         GameObject vinRequestButtonGo = DefaultControls.CreateButton(resources);
@@ -1539,6 +1553,7 @@ public static class ControlStateStartUIBuilder
         serializedDemo.FindProperty("_vinProvinceInput").objectReferenceValue = vinProvinceInput;
         serializedDemo.FindProperty("_vinRegionInput").objectReferenceValue = vinRegionInput;
         serializedDemo.FindProperty("_vinCountryInput").objectReferenceValue = vinCountryInput;
+        serializedDemo.FindProperty("_vinIsReplayToggle").objectReferenceValue = vinIsReplayToggle;
         serializedDemo.FindProperty("_vinLocationRequestButton").objectReferenceValue =
             vinRequestButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_vinLocationStopButton").objectReferenceValue =

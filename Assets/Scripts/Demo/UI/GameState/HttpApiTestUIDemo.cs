@@ -63,6 +63,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
     [SerializeField] private InputField _vinProvinceInput;
     [SerializeField] private InputField _vinRegionInput;
     [SerializeField] private InputField _vinCountryInput;
+    [SerializeField] private Toggle _vinIsReplayToggle;
     [SerializeField] private Button _vinLocationRequestButton;
     [SerializeField] private Button _vinLocationStopButton;
 
@@ -514,6 +515,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
         string province = NormalizeOptionalParam(_vinProvinceInput?.text);
         string region = NormalizeOptionalParam(_vinRegionInput?.text);
         string country = NormalizeOptionalParam(_vinCountryInput?.text);
+        bool isReplay = _vinIsReplayToggle != null && _vinIsReplayToggle.isOn;
 
         Dictionary<string, string> headers = HttpProjectConfig.MergeDefaultHeaders();
 
@@ -527,7 +529,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             $"province={province}\n" +
             $"region={region}\n" +
             $"country={country}\n" +
-            $"isReplay=false\n" +
+            $"isReplay={isReplay}\n" +
             BuildHeadersPreviewText(headers));
 
         VehicleHeatmapApi.Request(
@@ -538,7 +540,7 @@ public class HttpApiTestUIDemo : MonoBehaviour
             endTime,
             OnVinLocationRequestCompleted,
             headers,
-            isReplay: false);
+            isReplay);
     }
 
     private void OnVinLocationRequestCompleted(HttpRequestResult result, LatestVinLocationResponse response)
@@ -1127,6 +1129,15 @@ public class HttpApiTestUIDemo : MonoBehaviour
             if (button != null)
             {
                 _vinLocationListBackButton = button.GetComponent<Button>();
+            }
+        }
+
+        if (_vinIsReplayToggle == null && _vinLocationScrollViewRoot != null)
+        {
+            Transform toggleRoot = _vinLocationScrollViewRoot.transform.Find("Viewport/Content/VinIsReplayToggle");
+            if (toggleRoot != null)
+            {
+                _vinIsReplayToggle = toggleRoot.GetComponentInChildren<Toggle>(true);
             }
         }
 
