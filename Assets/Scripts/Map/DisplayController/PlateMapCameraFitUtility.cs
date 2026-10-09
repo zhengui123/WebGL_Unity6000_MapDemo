@@ -7,7 +7,7 @@ using UnityEngine;
 public static class PlateMapCameraFitUtility
 {
     /// <summary>
-    /// 计算观察距离：使 XZ 外包围最长边与 fill 视口框在<strong>水平地图面</strong>上的对应边重合。
+    /// 计算观察距离：使 XZ 外包围完整落在 fill 视口框内（Contain，水平地图面）。
     /// （绿框是视锥与水平面交线，不能用「垂直于视线截面」的 tan 公式。）
     /// </summary>
     public static float ComputeViewDistanceToFitBounds(
@@ -29,8 +29,9 @@ public static class PlateMapCameraFitUtility
     }
 
     /// <summary>
-    /// 在指定瞄准点与相机朝向下，按水平面绿框反算视距：
-    /// 红框 AABB 在绿框坐标系下投影更长的一边，与绿框对应边重合。
+    /// 在指定瞄准点与相机朝向下，按水平面绿框反算视距（Contain）：
+    /// 红框 AABB 在绿框宽/高向上的投影均不超过绿框，取更紧的一边（max 比例）。
+    /// 绿框（视口 Fill）计算不变，仅改红框如何装入绿框。
     /// </summary>
     public static float ComputeViewDistanceToFitBoundsOnMapPlane(
         Camera camera,
@@ -62,7 +63,7 @@ public static class PlateMapCameraFitUtility
         float tanV = Mathf.Tan(halfFovV);
         float tanH = tanV * Mathf.Max(0.01f, camera.aspect);
 
-        // 种子距离（用 XZ 较长边）；再在水平面按「绿框坐标系下红框最长投影」迭代
+        // 种子距离（用 XZ 较长边）；再在水平面按 Contain 迭代
         float seedLongest = Mathf.Max(sizeX, sizeZ);
         float distance = Mathf.Max(
             0.5f * seedLongest / Mathf.Max(Mathf.Min(tanH, tanV) * fill, 1e-4f),
@@ -87,7 +88,7 @@ public static class PlateMapCameraFitUtility
                 break;
             }
 
-            // 梯形绿框：对边中点距
+            // 梯形绿框：对边中点距（视口 Fill，算法不变）
             float greenW = Vector3.Distance((bl + tl) * 0.5f, (br + tr) * 0.5f);
             float greenH = Vector3.Distance((bl + br) * 0.5f, (tl + tr) * 0.5f);
             if (greenW < 1e-3f || greenH < 1e-3f)
@@ -108,22 +109,16 @@ public static class PlateMapCameraFitUtility
             greenRight.Normalize();
             greenUp.Normalize();
 
-            // 红框 AABB 在绿框宽/高向上的投影跨度（外包围在视口坐标系下的边长）
+            // 红框 AABB 在绿框宽/高向上的投影跨度
             float redAlongW = 2f * (Mathf.Abs(greenRight.x) * halfX + Mathf.Abs(greenRight.z) * halfZ);
             float redAlongH = 2f * (Mathf.Abs(greenUp.x) * halfX + Mathf.Abs(greenUp.z) * halfZ);
             redAlongW = Mathf.Max(redAlongW, 0.01f);
             redAlongH = Mathf.Max(redAlongH, 0.01f);
 
-            // 取红框在视口系下更长的那条，对齐绿框对应边
-            float scale;
-            if (redAlongW >= redAlongH)
-            {
-                scale = redAlongW / Mathf.Max(greenW, 1e-4f);
-            }
-            else
-            {
-                scale = redAlongH / Mathf.Max(greenH, 1e-4f);
-            }
+            // Contain：绿框为外包围，取宽/高更紧的一边，保证红框完整落在绿框内
+            float scaleW = redAlongW / Mathf.Max(greenW, 1e-4f);
+            float scaleH = redAlongH / Mathf.Max(greenH, 1e-4f);
+            float scale = Mathf.Max(scaleW, scaleH);
 
             distance *= scale;
             if (Mathf.Abs(scale - 1f) < 0.005f)

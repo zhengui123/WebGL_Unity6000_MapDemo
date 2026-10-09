@@ -619,7 +619,7 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 省级装框视距（沿视线）：XZ 矩形最长边对齐 <see cref="_provinceViewportFillRatio"/>（与绿框对应边重合）。
+    /// 省级装框视距（沿视线）：XZ 外包围完整落入 <see cref="_provinceViewportFillRatio"/> 视口绿框（Contain）。
     /// 该距离用于摆 CameraPivot，不写入 FogCamera。
     /// </summary>
     private float ResolveProvinceFocusViewDistance(PlateMapDisplayModule module)
