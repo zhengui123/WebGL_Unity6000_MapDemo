@@ -2273,6 +2273,21 @@ public static class ControlStateStartUIBuilder
             preserved.InstantToggleCheckmarkSprite ?? resources.checkmark);
         y -= RowHeight + 4f;
 
+        Toggle useDefaultProvinceToggle = CreateLabeledToggle(
+            panel.transform,
+            resources,
+            "UseDefaultProvinceToggle",
+            "使用默认省级",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            ControlStateStartUIDemo.DefaultUseDefaultProvince);
+        ApplyToggleCheckmarkSprite(
+            useDefaultProvinceToggle,
+            preserved.InstantToggleCheckmarkSprite ?? resources.checkmark);
+        y -= RowHeight + 4f;
+
         int provinceDefaultIndex = FindOptionIndex(provinceNames, ControlStateStartUIDemo.DefaultProvinceName);
         Dropdown provinceNameDropdown = CreateLabeledDropdown(
             panel.transform,
@@ -2327,6 +2342,7 @@ public static class ControlStateStartUIBuilder
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
         serializedDemo.FindProperty("_targetStateDropdown").objectReferenceValue = targetStateDropdown;
         serializedDemo.FindProperty("_instantTransitionToggle").objectReferenceValue = instantToggle;
+        serializedDemo.FindProperty("_useDefaultProvinceToggle").objectReferenceValue = useDefaultProvinceToggle;
         serializedDemo.FindProperty("_provinceNameDropdown").objectReferenceValue = provinceNameDropdown;
         serializedDemo.FindProperty("_provinceModuleNameDropdown").objectReferenceValue = provinceModuleDropdown;
         serializedDemo.FindProperty("_partNameDropdown").objectReferenceValue = partNameDropdown;

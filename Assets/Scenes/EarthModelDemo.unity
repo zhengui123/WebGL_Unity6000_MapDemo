@@ -94660,7 +94660,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1929249453
 RectTransform:
   m_ObjectHideFlags: 0
@@ -99794,6 +99794,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartUIDemo
   _targetStateDropdown: {fileID: 254826543}
   _instantTransitionToggle: {fileID: 2045717103}
+  _useDefaultProvinceToggle: {fileID: 0}
   _provinceNameDropdown: {fileID: 1753491193}
   _provinceModuleNameDropdown: {fileID: 1596089621}
   _partNameDropdown: {fileID: 564358376}

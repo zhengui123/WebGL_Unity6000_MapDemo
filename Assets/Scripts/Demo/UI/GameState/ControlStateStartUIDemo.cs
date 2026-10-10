@@ -11,6 +11,8 @@ public class ControlStateStartUIDemo : MonoBehaviour
     public const string DefaultProvinceName = "山东";
     public const string DefaultProvinceModuleName = "polySurface3";
     public const bool DefaultUseInstantTransition = true;
+    /// <summary>默认开启：不填省 code/名，走 ResolveUnitCode(null)（国内默认省 / 国外 DefaultForeignCountryCode）。</summary>
+    public const bool DefaultUseDefaultProvince = true;
     public const int DefaultTargetStateIndex = (int)GameManager.ControlState.EarthLevel;
 
     private static readonly string[] TargetStateLabels =
@@ -25,6 +27,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
     [SerializeField] private Dropdown _targetStateDropdown;
     [SerializeField] private Toggle _instantTransitionToggle;
+    [SerializeField] private Toggle _useDefaultProvinceToggle;
     [SerializeField] private Dropdown _provinceNameDropdown;
     [SerializeField] private Dropdown _provinceModuleNameDropdown;
     [SerializeField] private Dropdown _partNameDropdown;
@@ -46,6 +49,13 @@ public class ControlStateStartUIDemo : MonoBehaviour
         {
             _backButton.onClick.AddListener(OnBackButtonClicked);
         }
+
+        if (_useDefaultProvinceToggle != null)
+        {
+            _useDefaultProvinceToggle.onValueChanged.AddListener(OnUseDefaultProvinceChanged);
+        }
+
+        RefreshProvinceInputsInteractable();
     }
 
     private void OnDestroy()
@@ -58,6 +68,11 @@ public class ControlStateStartUIDemo : MonoBehaviour
         if (_backButton != null)
         {
             _backButton.onClick.RemoveListener(OnBackButtonClicked);
+        }
+
+        if (_useDefaultProvinceToggle != null)
+        {
+            _useDefaultProvinceToggle.onValueChanged.RemoveListener(OnUseDefaultProvinceChanged);
         }
     }
 
@@ -77,6 +92,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
             _partNameDropdown,
             ControlStateStartUIOptionProvider.CollectPartNames(),
             null);
+        RefreshProvinceInputsInteractable();
     }
 
     /// <summary>将 UI 控件恢复为与层级跳转控制器一致的默认值。</summary>
@@ -93,6 +109,11 @@ public class ControlStateStartUIDemo : MonoBehaviour
             _instantTransitionToggle.isOn = DefaultUseInstantTransition;
         }
 
+        if (_useDefaultProvinceToggle != null)
+        {
+            _useDefaultProvinceToggle.isOn = DefaultUseDefaultProvince;
+        }
+
         ControlStateStartUIOptionProvider.ApplyOptions(
             _provinceNameDropdown,
             ControlStateStartUIOptionProvider.CollectProvinceNames(),
@@ -107,6 +128,8 @@ public class ControlStateStartUIDemo : MonoBehaviour
             _partNameDropdown,
             ControlStateStartUIOptionProvider.CollectPartNames(),
             null);
+
+        RefreshProvinceInputsInteractable();
     }
 
     private void OnBackButtonClicked()
@@ -136,16 +159,25 @@ public class ControlStateStartUIDemo : MonoBehaviour
         }
 
         bool useInstant = _instantTransitionToggle != null && _instantTransitionToggle.isOn;
+        bool useDefaultProvince = _useDefaultProvinceToggle == null || _useDefaultProvinceToggle.isOn;
         GameManager.ControlState targetState = (GameManager.ControlState)_targetStateDropdown.value;
-        string provinceName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
         string selectedPartId = ControlStateStartUIOptionProvider.GetSelectedPartId(_partNameDropdown);
 
-        // Demo 下拉仍是省显示名；桥接 API 已改为 provinceCode，此处做一次名称→adcode。
+        // 开启默认省级：不填 code/名，走 WorldMapPlateResolver（国内默认省 / 国外 DefaultForeignCountryCode）
         string provinceCode = null;
-        if (!string.IsNullOrWhiteSpace(provinceName) &&
-            GaodeProvinceAdcodeConverter.TryProvinceNameToAdcode(provinceName, out string adcode))
+        if (!useDefaultProvince)
         {
-            provinceCode = adcode;
+            string provinceName = ControlStateStartUIOptionProvider.GetSelectedText(_provinceNameDropdown);
+            if (!string.IsNullOrWhiteSpace(provinceName) &&
+                GaodeProvinceAdcodeConverter.TryProvinceNameToAdcode(provinceName, out string adcode))
+            {
+                provinceCode = adcode;
+            }
+            else if (!string.IsNullOrWhiteSpace(provinceName))
+            {
+                LogManager.LogFeatureWarning(
+                    $"[ControlStateStartUIDemo] 无法将「{provinceName}」解析为省级 code，将按空 code 走默认逻辑。");
+            }
         }
 
         bool started = MapApi.Instance.TransitionToControlState(
@@ -157,6 +189,32 @@ public class ControlStateStartUIDemo : MonoBehaviour
         if (!started)
         {
             LogManager.LogFeatureWarning("[ControlStateStartUIDemo] 跳转未能启动。");
+            return;
+        }
+
+        LogManager.LogFeature(
+            $"[ControlStateStartUIDemo] 已请求跳转 → {targetState} | useDefaultProvince={useDefaultProvince} | " +
+            $"provinceCode={(provinceCode ?? "(null/默认)")} | instant={useInstant}");
+    }
+
+    private void OnUseDefaultProvinceChanged(bool _)
+    {
+        RefreshProvinceInputsInteractable();
+    }
+
+    private void RefreshProvinceInputsInteractable()
+    {
+        bool useDefault = _useDefaultProvinceToggle == null || _useDefaultProvinceToggle.isOn;
+        bool enableManual = !useDefault;
+
+        if (_provinceNameDropdown != null)
+        {
+            _provinceNameDropdown.interactable = enableManual;
+        }
+
+        if (_provinceModuleNameDropdown != null)
+        {
+            _provinceModuleNameDropdown.interactable = enableManual;
         }
     }
 
