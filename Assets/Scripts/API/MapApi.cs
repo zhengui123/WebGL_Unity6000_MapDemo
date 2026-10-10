@@ -412,6 +412,9 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
+        // 宿主主动跳转：先退出威胁下钻并刷新冷却，避免自动威胁流程与指令互相抢层级
+        SuppressThreatDrillForHostTransition();
+
         GameManager manager = GameManager.Instance;
         if (manager != null
             && manager.CurrentState == GameManager.ControlState.PartLevel
@@ -433,6 +436,18 @@ public class MapApi : UnitySingle<MapApi>
             provinceCode,
             partId,
             false);
+    }
+
+    /// <summary>
+    /// 宿主 <c>TransitionToControlState</c> 前：退出威胁下钻并刷新冷却。
+    /// Runner 缺失时仅打日志，不阻断后续跳转。
+    /// </summary>
+    private static void SuppressThreatDrillForHostTransition()
+    {
+        bool exited = ThreatProvinceAlertController.ExitThreatDrill();
+        bool refreshed = ThreatProvinceAlertController.RefreshThreatCooldown();
+        LogManager.LogFeature(
+            $"[MapApi] TransitionToControlState 已抑制威胁下钻 | ExitThreatDrill={exited} | RefreshThreatCooldown={refreshed}");
     }
 
     /// <summary>进入层级下一级（与双击操作一致）。</summary>
