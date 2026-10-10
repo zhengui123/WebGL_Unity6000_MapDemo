@@ -195,6 +195,26 @@ public class GridLine : MonoBehaviour
         return true;
     }
 
+    /// <summary>
+    /// 立即停动画并隐藏全部连线视觉（startUI / endUI / 进度），供非车辆级强制收起。
+    /// </summary>
+    public void ForceHideAllLineVisuals()
+    {
+        StopAnimation();
+
+        if (_bindingCache.Count == 0)
+        {
+            BuildBindingCache();
+        }
+
+        foreach (KeyValuePair<string, GridLineBinding> pair in _bindingCache)
+        {
+            HideBinding(pair.Value);
+        }
+
+        _activeStart3DName = null;
+    }
+
     /// <summary>按三维物体名称收起当前连线。</summary>
     public bool PlayReverseAnimation(string start3DObjectName, Action onComplete = null)
     {

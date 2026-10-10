@@ -39,6 +39,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (gridLine != null)
         {
+            gridLine.ForceHideAllLineVisuals();
             gridLine.enabled = false;
         }
     }
@@ -532,7 +533,8 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (gridLine != null)
         {
-            // disabled 会停掉 GridLine 协程，避免 endUI 缩放结束后再显示 MessageListPanel
+            // 先藏 startUI(StartPos)/endUI/线进度，再 disabled 停协程，避免非车辆级残留连线
+            gridLine.ForceHideAllLineVisuals();
             gridLine.enabled = false;
         }
     }

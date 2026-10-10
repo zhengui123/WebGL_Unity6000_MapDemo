@@ -679,7 +679,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         PlateMapHighlightController.Instance?.ClearHighlight();
     }
 
-    /// <summary>单 Vin：车辆级 → 攻击链路级 → 轮流零件级；结束后回车辆级（有下一 Vin）或交由省阶段回国家。</summary>
+    /// <summary>单 Vin：车辆级 → 攻击链路级 → 轮流零件级；有下一 Vin 则回车辆级，否则留给省阶段瞬时回国家。</summary>
     private IEnumerator PlayVinDrillChain(
         string provinceCode,
         string provinceDisplayName,
@@ -722,7 +722,16 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         if (partSteps.Count == 0)
         {
             LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
-            yield return ReturnToVehicleLevelFromDrill();
+            if (hasNextVin)
+            {
+                yield return ReturnToVehicleLevelFromDrill();
+            }
+            else
+            {
+                LogManager.LogFeature(
+                    $"[ThreatAlertFlowRunner] 省内最后一 Vin 无零件，跳过回车辆，随后瞬时回国家级 | vin={encryptVin}");
+            }
+
             yield break;
         }
 
@@ -763,17 +772,20 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
 
         _activePartEventId = null;
-        yield return ReturnToVehicleLevelFromDrill();
 
         if (hasNextVin)
         {
+            // 还有下一 Vin：需先回到车辆级再请求下一辆
+            yield return ReturnToVehicleLevelFromDrill();
             LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 本 Vin 全部零件展示完毕，已回车辆级，即将用下一 Vin 重新请求车辆数据 | vin={encryptVin}");
         }
         else
         {
+            // 本省最后一 Vin：跳过零件→车辆动画，由后续 EnsureCountryLevel 瞬时跳回国家
             LogManager.LogFeature(
-                $"[ThreatAlertFlowRunner] 省内最后一辆 Vin 展示完毕，已回车辆级，随后回国家级 | vin={encryptVin}");
+                $"[ThreatAlertFlowRunner] 省内最后一辆 Vin 展示完毕，跳过零件→车辆，随后瞬时回国家级 | " +
+                $"vin={encryptVin} | control={GameManager.Instance?.CurrentState}");
         }
     }
 
