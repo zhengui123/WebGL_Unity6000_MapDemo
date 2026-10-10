@@ -20,6 +20,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     private string _currentStart3DObjectName;
     private Coroutine _partCarouselCoroutine;
     private Coroutine _restartCarouselCoroutine;
+    private Coroutine _openPanelDeferredCoroutine;
     private List<CarVehiclePartSlide> _activeSlides;
     private int _carouselIndex;
     private System.Action _pendingCloseCallback;
@@ -74,6 +75,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         em.OnVehicleToAttackPathTransitionStarted -= HandleVehicleToAttackPathTransitionStarted;
 
         CancelRestartCarouselCoroutine();
+        CancelOpenPanelDeferredCoroutine();
     }
 
     public void Update()
@@ -89,8 +91,15 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
     }
 
+    /// <summary>仅显示 CarPanel 根节点；非 VehicleLevel 不显示（MessageListPanel 随父节点）。</summary>
     public void OpenCarPanel()
     {
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，跳过打开 CarPanel。");
+            return;
+        }
+
         if (CarPanel == null)
         {
             LogManager.LogFeatureError("[CarPanelManager] CarPanel 未赋值。");
@@ -165,6 +174,12 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     /// </summary>
     public bool StartPartMessageCarousel(IList<CarVehiclePartSlide> slides)
     {
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法开始零部件轮播。");
+            return false;
+        }
+
         if (slides == null || slides.Count == 0)
         {
             LogManager.LogFeatureWarning("[CarPanelManager] 轮播数据为空。");
@@ -221,12 +236,18 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         return true;
     }
 
-    /// <summary>仅刷新消息面板文字，不改动连线。</summary>
+    /// <summary>仅刷新消息面板文字，不改动连线；非车辆级不刷新（避免离层后内容驱动显示）。</summary>
     public void RefreshMessageList(
         string title,
         ProtectionStateType protectionState,
         System.Collections.Generic.IList<string> abnormalEvents)
     {
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，跳过 MessageListPanel 刷新。");
+            return;
+        }
+
         MessageListPanel panel = ResolveMessageListPanel();
         if (panel == null)
         {
@@ -252,6 +273,8 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     public void CloseCarUI()
     {
+        CancelOpenPanelDeferredCoroutine();
+        CancelRestartCarouselCoroutine();
         StopPartMessageCarousel();
         CloseCarUIPanel(null);
     }
@@ -268,9 +291,10 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
             {
                 LogManager.LogFeature(
                     "[CarPanelManager] 已离开 VehicleLevel，强制关闭并隐藏车辆 UI。");
-                SetPanelInactive();
             }
 
+            // 始终停连线动画并隐藏，避免延时回调再亮起 MessageListPanel
+            SetPanelInactive();
             _currentStart3DObjectName = null;
             InvokePendingCloseCallback();
             return;
@@ -307,7 +331,8 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
     {
-        OpenCarPanel();
+        // 等一帧：与 GameManager.SetState(VehicleLevel) 订阅顺序竞态对齐
+        TryOpenCarPanelDeferred();
         TryRestartCarouselFromCacheDeferred("省→车辆");
     }
 
@@ -319,6 +344,34 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     private void HandleEnteredVehicleLevelFromAttackPathForCarousel()
     {
         TryRestartCarouselFromCacheDeferred("攻击路径→车辆");
+    }
+
+    /// <summary>延迟打开空 CarPanel（等待 GameManager 状态同步）。</summary>
+    private void TryOpenCarPanelDeferred()
+    {
+        CancelOpenPanelDeferredCoroutine();
+        _openPanelDeferredCoroutine = StartCoroutine(OpenCarPanelWhenVehicleLevel());
+    }
+
+    private IEnumerator OpenCarPanelWhenVehicleLevel()
+    {
+        yield return null;
+        _openPanelDeferredCoroutine = null;
+
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeatureWarning(
+                "[CarPanelManager] 延迟打开 CarPanel 时已非 VehicleLevel，跳过。");
+            yield break;
+        }
+
+        // 有轮播缓存时由 RestartCarouselWhenReady 负责打开 UI，避免空面板闪一下
+        if (HasCarouselCache())
+        {
+            yield break;
+        }
+
+        OpenCarPanel();
     }
 
     /// <summary>进入车辆级且有缓存时，延迟重启轮播（等待 GameManager 状态同步）。</summary>
@@ -338,7 +391,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         yield return null;
         _restartCarouselCoroutine = null;
 
-        if (!HasCarouselCache() || !IsVehicleLevel())
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeatureWarning(
+                $"[CarPanelManager] 延迟重启轮播时已非 VehicleLevel，跳过 | source={source}");
+            yield break;
+        }
+
+        if (!HasCarouselCache())
         {
             yield break;
         }
@@ -355,6 +415,15 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         {
             StopCoroutine(_restartCarouselCoroutine);
             _restartCarouselCoroutine = null;
+        }
+    }
+
+    private void CancelOpenPanelDeferredCoroutine()
+    {
+        if (_openPanelDeferredCoroutine != null)
+        {
+            StopCoroutine(_openPanelDeferredCoroutine);
+            _openPanelDeferredCoroutine = null;
         }
     }
 
@@ -410,6 +479,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
                 break;
             }
 
+            if (!IsVehicleLevel())
+            {
+                LogManager.LogFeature("[CarPanelManager] 轮播等待后已非 VehicleLevel，停止并隐藏。");
+                _activeSlides = null;
+                SetPanelInactive();
+                break;
+            }
+
             _carouselIndex = (_carouselIndex + 1) % _activeSlides.Count;
             CarVehiclePartSlide slide = _activeSlides[_carouselIndex];
             yield return SwitchCarouselSlide(slide);
@@ -430,6 +507,15 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
             yield break;
         }
 
+        // 关线动画有延时：结束后必须再确认仍在车辆级
+        if (!IsVehicleLevel())
+        {
+            LogManager.LogFeature("[CarPanelManager] 轮播切换完成时已非 VehicleLevel，不再打开面板。");
+            _activeSlides = null;
+            SetPanelInactive();
+            yield break;
+        }
+
         OpenCarUIWithMessageList(
             slide.PartTypeName,
             slide.PartTypeName,
@@ -446,6 +532,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
         if (gridLine != null)
         {
+            // disabled 会停掉 GridLine 协程，避免 endUI 缩放结束后再显示 MessageListPanel
             gridLine.enabled = false;
         }
     }
