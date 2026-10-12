@@ -29462,11 +29462,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32678280182227b4bb6a50cfa9fe003e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThreatAlertFlowRunner
-  _countryLevelHoldSeconds: 10
-  _provinceLevelHoldSeconds: 60
-  _vehicleLevelHoldSeconds: 10
-  _attackPathLevelHoldSeconds: 10
-  _partLevelHoldSeconds: 10
+  _countryLevelHoldSeconds: 1
+  _provinceLevelHoldSeconds: 1
+  _vehicleLevelHoldSeconds: 1
+  _attackPathLevelHoldSeconds: 1
+  _partLevelHoldSeconds: 1
   _interruptCooldownSeconds: 30
   _logStageTiming: 1
   _dedupePartIdsForDrill: 0
@@ -31110,7 +31110,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1164650038
 RectTransform:
   m_ObjectHideFlags: 0
