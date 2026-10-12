@@ -18,7 +18,16 @@ public class PlateMapDisplayModule : MonoBehaviour
     [SerializeField] private float _focusCameraLocalY = 650f;
     [SerializeField] private bool _autoAddMeshColliderIfMissing = true;
 
+    [Header("边界线")]
+    [Tooltip("边界线 Renderer 运行时固定 _EmissionIntensity，与板块高亮基准分离")]
+    [SerializeField] private float _lineEmissionIntensity = 3f;
+
+    /// <summary>全部 Tech Renderer（板块填充 + 边界线），用于 Alpha / Bounds。</summary>
     private Renderer[] _renderers;
+    /// <summary>板块填充（不含边界线），用于高亮发光基准。</summary>
+    private Renderer[] _fillRenderers;
+    /// <summary>边界线（*_边界线 / 材质名含 Line）。</summary>
+    private Renderer[] _lineRenderers;
     private Collider[] _managedColliders;
     private MaterialPropertyBlock _propertyBlock;
     private float _currentAlpha = 1f;
@@ -131,7 +140,8 @@ public class PlateMapDisplayModule : MonoBehaviour
     public void ApplyAlphaImmediate(float alpha)
     {
         _currentAlpha = Mathf.Clamp01(alpha);
-        ApplyRendererProperty(AlphaId, _currentAlpha);
+        ApplyToRenderers(_renderers, AlphaId, _currentAlpha);
+        ChangeColliderState();
     }
 
     public void KillAlphaTween()
@@ -163,7 +173,9 @@ public class PlateMapDisplayModule : MonoBehaviour
     public void ApplyEmissionIntensityImmediate(float intensity)
     {
         _currentEmissionIntensity = Mathf.Max(0f, intensity);
-        ApplyRendererProperty(EmissionIntensityId, _currentEmissionIntensity);
+        // 高亮/还原只改板块填充，边界线保持独立亮度
+        ApplyToRenderers(_fillRenderers, EmissionIntensityId, _currentEmissionIntensity);
+        ApplyLineEmissionIntensity();
     }
 
     public void RestoreEmissionIntensity(float duration, Ease ease = Ease.InOutQuad)
@@ -184,14 +196,16 @@ public class PlateMapDisplayModule : MonoBehaviour
     private void CacheBaseEmissionIntensity()
     {
         CacheRenderers();
-        if (_renderers == null || _renderers.Length == 0)
+        // 必须从板块材质读基准，禁止用边界线（层级常排在前面）污染高亮基准
+        Renderer fill = FindFirstRenderer(_fillRenderers);
+        if (fill == null)
         {
             _baseEmissionIntensity = 2.2f;
             _currentEmissionIntensity = _baseEmissionIntensity;
             return;
         }
 
-        Material mat = _renderers[0].sharedMaterial;
+        Material mat = fill.sharedMaterial;
         if (mat != null && mat.HasProperty(EmissionIntensityId))
         {
             _baseEmissionIntensity = mat.GetFloat(EmissionIntensityId);
@@ -204,18 +218,23 @@ public class PlateMapDisplayModule : MonoBehaviour
         _currentEmissionIntensity = _baseEmissionIntensity;
     }
 
-    private void ApplyRendererProperty(int propertyId, float value)
+    private void ApplyLineEmissionIntensity()
+    {
+        ApplyToRenderers(_lineRenderers, EmissionIntensityId, Mathf.Max(0f, _lineEmissionIntensity));
+    }
+
+    private void ApplyToRenderers(Renderer[] renderers, int propertyId, float value)
     {
         CacheRenderers();
-        if (_renderers == null || _renderers.Length == 0)
+        if (renderers == null || renderers.Length == 0)
         {
             return;
         }
 
         _propertyBlock ??= new MaterialPropertyBlock();
-        for (int i = 0; i < _renderers.Length; i++)
+        for (int i = 0; i < renderers.Length; i++)
         {
-            Renderer r = _renderers[i];
+            Renderer r = renderers[i];
             if (r == null)
             {
                 continue;
@@ -224,11 +243,6 @@ public class PlateMapDisplayModule : MonoBehaviour
             r.GetPropertyBlock(_propertyBlock);
             _propertyBlock.SetFloat(propertyId, value);
             r.SetPropertyBlock(_propertyBlock);
-        }
-
-        if (propertyId == AlphaId)
-        {
-            ChangeColliderState();
         }
     }
 
@@ -239,21 +253,53 @@ public class PlateMapDisplayModule : MonoBehaviour
             return;
         }
 
-        var candidates = new System.Collections.Generic.List<Renderer>();
+        var candidates = new List<Renderer>();
         // 自身 + 全部子层级（含未激活子物体）
         GetComponentsInChildren(true, candidates);
 
-        var list = new System.Collections.Generic.List<Renderer>(candidates.Count);
+        var all = new List<Renderer>(candidates.Count);
+        var fill = new List<Renderer>(candidates.Count);
+        var line = new List<Renderer>(candidates.Count);
         for (int i = 0; i < candidates.Count; i++)
         {
             Renderer renderer = candidates[i];
-            if (IsPlateMapProvinceTechRenderer(renderer))
+            if (!IsPlateMapProvinceTechRenderer(renderer))
             {
-                list.Add(renderer);
+                continue;
+            }
+
+            all.Add(renderer);
+            if (IsBoundaryLineRenderer(renderer))
+            {
+                line.Add(renderer);
+            }
+            else
+            {
+                fill.Add(renderer);
             }
         }
 
-        _renderers = list.ToArray();
+        _renderers = all.ToArray();
+        _fillRenderers = fill.ToArray();
+        _lineRenderers = line.ToArray();
+    }
+
+    private static Renderer FindFirstRenderer(Renderer[] renderers)
+    {
+        if (renderers == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null)
+            {
+                return renderers[i];
+            }
+        }
+
+        return null;
     }
 
     private static bool IsPlateMapProvinceTechRenderer(Renderer renderer)
@@ -267,6 +313,31 @@ public class PlateMapDisplayModule : MonoBehaviour
         return mat != null &&
                mat.shader != null &&
                mat.shader.name == "Custom/PlateMapProvinceTech";
+    }
+
+    /// <summary>边界线：物体名含「边界线」，或材质名含 Line（如 M_SdMapProvinceTech Line）。</summary>
+    private static bool IsBoundaryLineRenderer(Renderer renderer)
+    {
+        if (renderer == null)
+        {
+            return false;
+        }
+
+        string goName = renderer.gameObject.name;
+        if (!string.IsNullOrEmpty(goName) && goName.IndexOf("边界线", System.StringComparison.Ordinal) >= 0)
+        {
+            return true;
+        }
+
+        Material mat = renderer.sharedMaterial;
+        if (mat == null || string.IsNullOrEmpty(mat.name))
+        {
+            return false;
+        }
+
+        // Unity 实例材质名可能带 " (Instance)"
+        string matName = mat.name;
+        return matName.IndexOf("Line", System.StringComparison.OrdinalIgnoreCase) >= 0;
     }
 
     private void EnsurePickColliders()

@@ -28,7 +28,15 @@ Material:
     m_Floats:
     - _Alpha: 1
     - _CircuitIntensity: 0.4238
-    - _CircuitScale: 1
+    - _CircuitScale: 1.5
+    - _EdgeBandPower: 1.4
+    - _EdgeBandWidth: 0.18
+    - _EdgeGradientAlbedoMix: 0.4
+    - _EdgeGradientIntensity: 0.69
+    - _EdgeGradientPower: 1.8
+    - _EdgeGradientSoftness: 0.05
+    - _EdgeOutlineIntensity: 1.6
+    - _EdgeOutlineWidth: 0.04
     - _EmissionIntensity: 1
     - _GridIntensity: 1.38
     - _GridLineWidth: 0.5
@@ -36,11 +44,14 @@ Material:
     - _NoiseIntensity: 0.08
     - _NoiseScale: 18
     - _PulseAmount: 0
-    - _PulseSpeed: 0
+    - _PulseSpeed: 1
     - _RimIntensity: 4
     - _RimPower: 4.4
     m_Colors:
     - _BaseColor: {r: 0.02, g: 0.06, b: 0.18, a: 0.75}
+    - _EdgeGradientCenter: {r: 0.5, g: 0.61, b: 0, a: 0}
+    - _EdgeInnerColor: {r: 0.01, g: 0.04, b: 0.12, a: 1}
+    - _EdgeOuterColor: {r: 0, g: 0.85, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0.7058821, b: 1, a: 1}
     - _GridColor: {r: 1, g: 0.5502859, b: 0.10196078, a: 1}
     - _RimColor: {r: 0.3, g: 0.95, b: 1, a: 1}
