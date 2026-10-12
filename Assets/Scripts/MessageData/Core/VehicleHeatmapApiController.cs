@@ -51,8 +51,28 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         set => _intervalSeconds = Mathf.Max(1f, value);
     }
 
+    /// <summary>Android 平台不自动查询车辆热力图。</summary>
+    private static bool ShouldSkipHeatmapQuery
+    {
+        get
+        {
+#if UNITY_ANDROID
+            return true;
+#else
+            return false;
+#endif
+        }
+    }
+
     private void Start()
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台跳过热力图轮询，不自动 StartPolling。");
+            return;
+        }
+
         if (_autoStart)
         {
             StartPolling();
@@ -92,6 +112,13 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// </summary>
     public bool StartSpecifiedTimePolling(string startTime, string endTime)
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台不开启指定时段热力图轮询。");
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(startTime) || string.IsNullOrWhiteSpace(endTime))
         {
             LogManager.LogBackendWarning(
@@ -140,6 +167,13 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// </summary>
     public bool ResumeDefaultPolling()
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台不恢复热力图轮询。");
+            return false;
+        }
+
         ApplyDefaultPollingParameters();
 
         if (!_isPolling)
@@ -158,6 +192,13 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// <summary>开始定时轮询车辆热力图接口（沿用当前模式参数）。</summary>
     public void StartPolling()
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台不开启热力图轮询。");
+            return;
+        }
+
         if (_isPolling)
         {
             return;
@@ -192,6 +233,13 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// <summary>立即请求一次（不影响轮询状态；参数由当前模式决定）。</summary>
     public void RequestOnce()
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台跳过单次热力图请求。");
+            return;
+        }
+
         ResolveRequestTimes(out string startTime, out string endTime, out bool isReplay);
         BeginRequest(startTime, endTime, isReplay);
     }
@@ -202,6 +250,13 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// </summary>
     public bool RequestOnceWithParams(string startTime, string endTime, bool isReplay)
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            LogManager.LogBackend(
+                "[VehicleHeatmapApiController] Android 平台跳过单次热力图请求。");
+            return false;
+        }
+
         string resolvedStart = BackendDateTimeTool.ResolveStartTimeOrToday(startTime);
         string resolvedEnd = BackendDateTimeTool.ResolveEndTimeOrNow(endTime);
 
@@ -218,6 +273,11 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
     /// <summary>发起一次 HTTP 请求；自身上一次未完成时跳过（不入 HttpService 队）。</summary>
     private bool BeginRequest(string startTime, string endTime, bool isReplay)
     {
+        if (ShouldSkipHeatmapQuery)
+        {
+            return false;
+        }
+
         if (_isRequesting)
         {
             HttpService http = HttpService.Instance;
