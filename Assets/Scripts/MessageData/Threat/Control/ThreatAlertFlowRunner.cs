@@ -39,6 +39,14 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     [Tooltip("主动退出/打断威胁下钻后，暂停威胁检测的冷却时长")]
     [SerializeField] private float _interruptCooldownSeconds = ThreatAlertSettings.InterruptCooldownSeconds;
 
+    [Header("消费标记")]
+    [Tooltip("开启时：威胁下钻自然结束或主动退出时，对本轮已播省再补传一遍 HighRiskEventConsumedMark。每省播完即时上传不受影响。")]
+    [SerializeField] private bool _flushConsumedMarkOnFlowEnd = true;
+
+    [Header("威胁轮询")]
+    [Tooltip("开启时：威胁下钻进行中暂停高危事件自动轮询；自然结束立刻恢复；主动退出则等冷却结束后再恢复（原逻辑）。")]
+    [SerializeField] private bool _pauseThreatPollingDuringDrill = true;
+
     [Header("调试")]
     [Tooltip("Console 输出 [计时] 日志，区分过渡耗时与停留耗时")]
     [SerializeField] private bool _logStageTiming = true;
@@ -60,6 +68,19 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
     private float _interruptCooldownRemaining;
+
+    /// <summary>本轮已播完省及其 eventId（删缓存前记录，供结束/退出时补传消费标记）。</summary>
+    private readonly List<SessionConsumedProvince> _sessionConsumedProvinces =
+        new List<SessionConsumedProvince>(8);
+
+    /// <summary>本轮是否因下钻暂停了威胁自动轮询（自然结束时恢复；主动退出交给冷却）。</summary>
+    private bool _threatFlowPausedPolling;
+
+    private struct SessionConsumedProvince
+    {
+        public string ProvinceCode;
+        public string[] EventIds;
+    }
 
     /// <summary>是否正在跑威胁流程。</summary>
     public bool IsRunning => _flowRoutine != null;
@@ -183,8 +204,11 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 $"[ThreatAlertFlowRunner] 当前为 {startState}，将先瞬时回国家级再从头下钻。");
         }
 
-        // 原：下钻启动时上报一次达标省消费标记。现改为每省播放结束后用该省最新缓存上传。
+        // 原：下钻启动时上报一次达标省消费标记。现改为每省播放结束后用该省最新缓存上传；
+        // 整轮结束/主动退出再按本轮已播省补传一遍。
         // HighRiskEventConsumedMarkApi.RequestFromCacheMeetingThreshold();
+        ClearSessionConsumedProvinces();
+        PauseThreatPollingForDrillIfEnabled();
 
         _flowRoutine = StartCoroutine(ThreatFlowRoutine());
         return true;
@@ -312,6 +336,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         StopFlowInternal();
         ThreatProvinceAlertController.NotifyFlowStopped();
 
+        // 主动退出：对本轮已播完的省补传消费标记（与每省即时上传并存，作兜底）。
+        FlushSessionConsumedMarks("ExitThreatDrill");
+
+        // 主动退出不立刻恢复轮询：交给冷却结束后再开启（与下钻中已暂停兼容）。
+        _threatFlowPausedPolling = false;
+
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
@@ -404,6 +434,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         StopFlowInternal();
         CancelInterruptCooldown();
+        _threatFlowPausedPolling = false;
         // 调试取消冷却：若宿主仍开启轮询，恢复请求。
         HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
         ThreatProvinceAlertController.NotifyFlowStopped();
@@ -656,6 +687,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                     hasNextVin);
             }
 
+            RecordProvinceConsumedForSession(provinceCode);
             HighRiskEventConsumedMarkApi.RequestFromProvinceCache(provinceCode);
             store.RemoveProvinceEventsAndExclude(provinceCode);
             LogManager.LogFeature(
@@ -663,6 +695,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         }
         else
         {
+            RecordProvinceConsumedForSession(provinceCode);
             HighRiskEventConsumedMarkApi.RequestFromProvinceCache(provinceCode);
             store.RemoveProvinceEventsAndExclude(provinceCode);
             LogManager.LogFeature($"[ThreatAlertFlowRunner] 无 Vin 达阈值，已删除并排除该省告警：{provinceCode}");
@@ -1986,6 +2019,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private void ApplyNoThreatIdleState()
     {
+        // 自然结束：对本轮已播完的省补传消费标记（与每省即时上传并存，作兜底）。
+        FlushSessionConsumedMarks("ApplyNoThreatIdleState");
+
+        // 自然结束：立刻恢复威胁自动轮询（主动退出走冷却，不在此恢复）。
+        ResumeThreatPollingAfterNaturalEndIfNeeded();
+
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
@@ -1999,6 +2038,130 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         // }
 
         LogManager.LogFeature("[ThreatAlertFlowRunner] 无达标省，GameManager → Default（不开自动轮播）。");
+    }
+
+    /// <summary>下钻开始：按开关暂停高危事件自动轮询（保留 wantPolling 意图）。</summary>
+    private void PauseThreatPollingForDrillIfEnabled()
+    {
+        _threatFlowPausedPolling = false;
+        if (!_pauseThreatPollingDuringDrill)
+        {
+            LogManager.LogBackend(
+                "[ThreatAlertFlowRunner] 已关闭「下钻中暂停威胁轮询」，本轮不暂停自动获取。");
+            return;
+        }
+
+        HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownStarted();
+        _threatFlowPausedPolling = true;
+        LogManager.LogBackend("[ThreatAlertFlowRunner] 威胁下钻开始，已暂停高危事件自动轮询。");
+    }
+
+    /// <summary>自然结束：若本轮暂停过轮询且当前不在打断冷却，则立即恢复。</summary>
+    private void ResumeThreatPollingAfterNaturalEndIfNeeded()
+    {
+        if (!_pauseThreatPollingDuringDrill || !_threatFlowPausedPolling)
+        {
+            _threatFlowPausedPolling = false;
+            return;
+        }
+
+        _threatFlowPausedPolling = false;
+        if (IsInInterruptCooldown)
+        {
+            LogManager.LogBackend(
+                "[ThreatAlertFlowRunner] 自然结束但处于打断冷却，轮询恢复交给冷却结束逻辑。");
+            return;
+        }
+
+        HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
+        LogManager.LogBackend("[ThreatAlertFlowRunner] 威胁下钻自然结束，已恢复高危事件自动轮询。");
+    }
+
+    private void ClearSessionConsumedProvinces()
+    {
+        _sessionConsumedProvinces.Clear();
+    }
+
+    /// <summary>删省缓存前记录本轮已播省的 eventId，供结束/退出补传。</summary>
+    private void RecordProvinceConsumedForSession(string provinceCode)
+    {
+        if (string.IsNullOrWhiteSpace(provinceCode))
+        {
+            return;
+        }
+
+        string code = provinceCode.Trim();
+        string[] eventIds = HighRiskEventConsumedMarkApi.CollectEventIdsByProvince(code);
+        if (eventIds == null || eventIds.Length == 0)
+        {
+            LogManager.LogBackend(
+                $"[ThreatAlertFlowRunner] 省 {code} 无有效 eventId，不记入本轮补传列表。");
+            return;
+        }
+
+        for (int i = 0; i < _sessionConsumedProvinces.Count; i++)
+        {
+            if (string.Equals(_sessionConsumedProvinces[i].ProvinceCode, code, StringComparison.Ordinal))
+            {
+                _sessionConsumedProvinces[i] = new SessionConsumedProvince
+                {
+                    ProvinceCode = code,
+                    EventIds = eventIds,
+                };
+                LogManager.LogBackend(
+                    $"[ThreatAlertFlowRunner] 已更新本轮补传省 | province={code} | eventIds={eventIds.Length}");
+                return;
+            }
+        }
+
+        _sessionConsumedProvinces.Add(new SessionConsumedProvince
+        {
+            ProvinceCode = code,
+            EventIds = eventIds,
+        });
+        LogManager.LogBackend(
+            $"[ThreatAlertFlowRunner] 已记录本轮补传省 | province={code} | eventIds={eventIds.Length} | " +
+            $"sessionCount={_sessionConsumedProvinces.Count}");
+    }
+
+    /// <summary>威胁下钻结束/退出时，按本轮已播省逐省补传消费标记。</summary>
+    private void FlushSessionConsumedMarks(string reason)
+    {
+        if (!_flushConsumedMarkOnFlowEnd)
+        {
+            LogManager.LogBackend(
+                $"[ThreatAlertFlowRunner] 已关闭结束补传消费标记，跳过 | reason={reason} | " +
+                $"recordedProvinces={_sessionConsumedProvinces.Count}");
+            ClearSessionConsumedProvinces();
+            return;
+        }
+
+        if (_sessionConsumedProvinces.Count == 0)
+        {
+            LogManager.LogBackend(
+                $"[ThreatAlertFlowRunner] 本轮无已播省，跳过结束补传消费标记 | reason={reason}");
+            return;
+        }
+
+        int provinceCount = _sessionConsumedProvinces.Count;
+        LogManager.LogBackend(
+            $"[ThreatAlertFlowRunner] 威胁下钻结束，开始补传消费标记 | provinces={provinceCount} | reason={reason}");
+
+        for (int i = 0; i < provinceCount; i++)
+        {
+            SessionConsumedProvince entry = _sessionConsumedProvinces[i];
+            if (entry.EventIds == null || entry.EventIds.Length == 0)
+            {
+                continue;
+            }
+
+            LogManager.LogBackend(
+                $"[ThreatAlertFlowRunner] 补传消费标记 ({i + 1}/{provinceCount}) | " +
+                $"province={entry.ProvinceCode} | eventIds={entry.EventIds.Length}");
+            HighRiskEventConsumedMarkApi.Request(entry.EventIds, endTime: null);
+        }
+
+        ClearSessionConsumedProvinces();
     }
 
     private void HandleProvinceFocusCompleted(string _)
