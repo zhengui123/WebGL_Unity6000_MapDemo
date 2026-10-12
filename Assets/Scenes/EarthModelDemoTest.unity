@@ -36057,7 +36057,7 @@ MonoBehaviour:
   _attackPathController: {fileID: 0}
   _defaultEncryptVin: ed49f47afa23e45b18d342767495643c
   _defaultStartTime: 
-  _defaultEndTime: 2026-06-30 23:00:00
+  _defaultEndTime: 
 --- !u!1 &1171367825
 GameObject:
   m_ObjectHideFlags: 0

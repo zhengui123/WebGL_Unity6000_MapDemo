@@ -32,7 +32,7 @@ public class CarVehicleDataController : MonoBehaviour
     [SerializeField] private string _defaultEncryptVin = PartProtectionStatusRequest.DefaultEncryptVin;
     [Tooltip("空则使用当日 00:00:00")]
     [SerializeField] private string _defaultStartTime = "";
-    [Tooltip("空则使用当前时间")]
+    [Tooltip("已废弃：不填/空 endTime 一律当前时间，不再使用本字段。")]
     [SerializeField] private string _defaultEndTime = "";
 
     private bool _isRequesting;
@@ -69,10 +69,10 @@ public class CarVehicleDataController : MonoBehaviour
         }
     }
 
-    /// <summary>用默认参数请求双接口。</summary>
+    /// <summary>用默认参数请求双接口（endTime 固定为当前时间）。</summary>
     public void RequestDefault(Action<bool, string> onCompleted = null)
     {
-        Request(_defaultEncryptVin, _defaultStartTime, _defaultEndTime, onCompleted);
+        Request(_defaultEncryptVin, _defaultStartTime, null, onCompleted);
     }
 
     /// <summary>同参并发请求防护状态与攻击链路；均成功才覆盖缓存并尝试刷车辆 UI。</summary>
@@ -94,8 +94,8 @@ public class CarVehicleDataController : MonoBehaviour
         _activeEncryptVin = string.IsNullOrWhiteSpace(encryptVin) ? _defaultEncryptVin : encryptVin.Trim();
         _activeStartTime = BackendDateTimeTool.ResolveStartTimeOrToday(
             string.IsNullOrWhiteSpace(startTime) ? _defaultStartTime : startTime);
-        _activeEndTime = BackendDateTimeTool.ResolveEndTimeOrNow(
-            string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime);
+        // 不填/空串一律当前时间，不再回落 Inspector _defaultEndTime（场景曾写死 06-30）。
+        _activeEndTime = BackendDateTimeTool.ResolveEndTimeOrNow(endTime);
         _pendingCount = 2;
         _partOk = false;
         _attackOk = false;
@@ -144,8 +144,7 @@ public class CarVehicleDataController : MonoBehaviour
         string vin = string.IsNullOrWhiteSpace(encryptVin) ? _defaultEncryptVin : encryptVin.Trim();
         string start = BackendDateTimeTool.ResolveStartTimeOrToday(
             string.IsNullOrWhiteSpace(startTime) ? _defaultStartTime : startTime);
-        string end = BackendDateTimeTool.ResolveEndTimeOrNow(
-            string.IsNullOrWhiteSpace(endTime) ? _defaultEndTime : endTime);
+        string end = BackendDateTimeTool.ResolveEndTimeOrNow(endTime);
 
         CarVehicleDataStore.Instance.Replace(vin, start, end, partProtection, attackChain);
         OnCacheApplied();

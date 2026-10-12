@@ -984,7 +984,7 @@ public class WebGLAPI : MonoBehaviour
     /// <summary>
     /// 宿主调用：请求车辆态势双接口（防护状态 + 攻击链路）。
     /// arg 可传 "" 使用默认参数，或 JSON：
-    /// {"encryptVin":"...","startTime":"","endTime":"2026-06-30 23:00:00"}
+    /// {"encryptVin":"...","startTime":"","endTime":""}；endTime 空则当前时间
     /// </summary>
     public void RequestCarVehicleData(string json)
     {

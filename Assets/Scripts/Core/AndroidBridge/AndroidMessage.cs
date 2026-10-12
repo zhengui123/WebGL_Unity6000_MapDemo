@@ -1027,7 +1027,8 @@ public class AndroidMessage : MonoBehaviour
     /// Android 调用：请求车辆态势双接口（防护状态 + 攻击链路）。
     /// UnitySendMessage("AndroidBridge", "RequestCarVehicleData", json);
     /// json 可传 "" 使用默认参数；示例：
-    /// {"encryptVin":"ed49f47afa23e45b18d342767495643c","startTime":"","endTime":"2026-06-30 23:00:00"}
+    /// {"encryptVin":"ed49f47afa23e45b18d342767495643c","startTime":"","endTime":""}
+    /// endTime 不填或空串时使用当前时间。
     /// </summary>
     public void RequestCarVehicleData(string json)
     {

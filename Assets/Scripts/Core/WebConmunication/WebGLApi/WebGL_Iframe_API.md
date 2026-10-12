@@ -646,19 +646,19 @@ callUnity('ResumeVehicleHeatmapDefaultPolling', '');
 | 字段           | 类型     | 必填  | 说明                  |
 | ------------ | ------ | --- | ------------------- |
 | `encryptVin` | string | 否   | 加密 VIN；空则用 Unity 默认 |
-| `startTime`  | string | 否   | 查询开始时间；可空串          |
-| `endTime`    | string | 否   | 查询结束时间；空则用 Unity 默认 |
+| `startTime`  | string | 否   | 查询开始时间；空则当日 00:00:00 |
+| `endTime`    | string | 否   | 查询结束时间；不填或空串一律当前时间 |
 
 
 ```javascript
 // 使用默认参数
 callUnity('RequestCarVehicleData', '');
 
-// 指定参数
+// 指定参数（endTime 空 = 当前时间）
 callUnity('RequestCarVehicleData', JSON.stringify({
   encryptVin: 'ed49f47afa23e45b18d342767495643c',
   startTime: '',
-  endTime: '2026-06-30 23:00:00'
+  endTime: ''
 }));
 ```
 
