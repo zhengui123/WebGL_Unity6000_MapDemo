@@ -123,10 +123,16 @@ public static class VehicleHeatmapApi
     {
         HttpVehicleLocationDataStore.Instance.ReplaceFromResponse(response);
 
+        // 全量覆盖：先清全部板块旧点，再只用本次 data 重绘，避免空/变少时残留。
+        int clearedPlates = PlateMapAPI.Instance != null
+            ? PlateMapAPI.Instance.ClearAllVehiclePoints(syncNow: true)
+            : 0;
+
         Dictionary<string, List<LatestVinLocationItem>> groups = GroupByProvinceCode(response?.data);
         if (groups.Count == 0)
         {
-            LogManager.LogBackendWarning("[VehicleHeatmapApi] 响应无有效省级分组（data[].c），未刷新地图点位。");
+            LogManager.LogBackend(
+                $"[VehicleHeatmapApi] 响应无有效点位，已清空全部热力图（clearedPlates={clearedPlates}）。");
             return;
         }
 
@@ -151,7 +157,8 @@ public static class VehicleHeatmapApi
         }
 
         LogManager.LogBackend(
-            $"[VehicleHeatmapApi] 已按 c 同步 {pointCount} 个热力点到 {provinceCount} 个省级板块。");
+            $"[VehicleHeatmapApi] 已全量刷新：先清 {clearedPlates} 个板块，" +
+            $"再按 c 同步 {pointCount} 个热力点到 {provinceCount} 个省级板块。");
     }
 
     /// <summary>按 data[].c 做省级分组（c 必须有值）。</summary>

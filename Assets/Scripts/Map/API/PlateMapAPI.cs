@@ -32,6 +32,19 @@ public class PlateMapAPI : UnitySingle<PlateMapAPI>
         return hub.PublishSetVehiclePointsByProvinceCode(provinceCode, points, syncNow);
     }
 
+    /// <summary>清空全部板块车辆热力点（Hub 缓存 + 已注册 Controller）。</summary>
+    public int ClearAllVehiclePoints(bool syncNow = true)
+    {
+        PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
+        if (hub == null)
+        {
+            LogManager.LogFeatureError("[PlateMapAPI] PlateMapVehiclePointEvents 未初始化。");
+            return 0;
+        }
+
+        return hub.ClearAllVehiclePoints(syncNow);
+    }
+
     /// <summary>请求指定板块按当前数据重建 GPU 车辆热力图显示。</summary>
     public bool RefreshVehicleHeatmap(string provinceCode)
     {

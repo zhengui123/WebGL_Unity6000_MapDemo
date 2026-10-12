@@ -357,6 +357,63 @@ public class PlateMapVehiclePointEvents : UnitySingle<PlateMapVehiclePointEvents
     }
 
     /// <summary>
+    /// 清空全部板块车辆热力点（缓存 + 已注册 Controller），不经名称回退解析，避免误写到其他板块。
+    /// </summary>
+    /// <returns>已处理的板块数量。</returns>
+    public int ClearAllVehiclePoints(bool syncNow = true)
+    {
+        HashSet<string> plateNames = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string key in _vehiclePointsCache.Keys)
+        {
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                plateNames.Add(key);
+            }
+        }
+
+        foreach (string key in _plates.Keys)
+        {
+            if (!string.IsNullOrWhiteSpace(key))
+            {
+                plateNames.Add(key);
+            }
+        }
+
+        foreach (string name in _provinceCodeToPlateMapName.Values)
+        {
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                plateNames.Add(name);
+            }
+        }
+
+        VehicleMapPointData[] empty = Array.Empty<VehicleMapPointData>();
+        int cleared = 0;
+        foreach (string plateMapName in plateNames)
+        {
+            SetCachedVehiclePoints(plateMapName, empty);
+            RaiseVehiclePointsWillChange(plateMapName, empty);
+
+            if (TryGetHandlers(plateMapName, out PlateHandlers handlers) && handlers.SetVehiclePoints != null)
+            {
+                handlers.SetVehiclePoints.Invoke(empty, syncNow);
+            }
+            else
+            {
+                RaiseVehiclePointsChanged(plateMapName, empty);
+                if (syncNow)
+                {
+                    MarkPendingDisplayRefresh(plateMapName);
+                }
+            }
+
+            cleared++;
+        }
+
+        return cleared;
+    }
+
+    /// <summary>
     /// 解析可写入车辆点位的板块名：优先 preferred → Hub.plateMapName → 已注册列表 → 常见别名 → 任意已注册 Controller。
     /// </summary>
     public string ResolvePlateMapNameForVehiclePoints(string preferredName)
