@@ -386,7 +386,8 @@ public class CountryMapZoomController : MonoBehaviour
             _pointerDownScreen = screen;
         }
 
-        if (up || !held)
+        // 触屏 Began 当帧 held 可能为 false（与鼠标 Down 同帧 GetMouseButton=true 不同），勿清掉刚按下的状态
+        if (up || (!held && !down))
         {
             ClearPanState();
             return;
@@ -453,7 +454,10 @@ public class CountryMapZoomController : MonoBehaviour
             Touch touch = Input.GetTouch(0);
             screen = touch.position;
             down = touch.phase == TouchPhase.Began;
-            held = touch.phase == TouchPhase.Moved || touch.phase == TouchPhase.Stationary;
+            // Began 也算按住，对齐鼠标 Down 当帧 held=true，避免安卓单指首帧被清空
+            held = touch.phase == TouchPhase.Began
+                || touch.phase == TouchPhase.Moved
+                || touch.phase == TouchPhase.Stationary;
             up = touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled;
             return true;
         }
