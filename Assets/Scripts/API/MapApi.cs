@@ -400,7 +400,8 @@ public class MapApi : UnitySingle<MapApi>
     {
         if (!Enum.IsDefined(typeof(GameManager.ControlState), targetState))
         {
-            LogManager.LogFeatureWarning($"[MapApi] 无效的 targetState：{targetState}，有效范围为 0~5。");
+            LogManager.LogFeatureWarning(
+                $"[ToStateError] reason=无效 targetState | target={targetState} | 有效范围=0~5");
             return false;
         }
 
@@ -408,7 +409,8 @@ public class MapApi : UnitySingle<MapApi>
             ControlStateHierarchyTransitionController.Instance;
         if (controller == null)
         {
-            LogManager.LogFeatureWarning("[MapApi] 未找到 ControlStateHierarchyTransitionController，无法执行层级跳转。");
+            LogManager.LogFeatureWarning(
+                $"[ToStateError] reason=未找到 ControlStateHierarchyTransitionController | target={targetState}");
             return false;
         }
 
@@ -416,18 +418,36 @@ public class MapApi : UnitySingle<MapApi>
         SuppressThreatDrillForHostTransition();
 
         GameManager manager = GameManager.Instance;
+        GameManager.ControlState from = manager != null
+            ? manager.CurrentState
+            : GameManager.ControlState.EarthLevel;
+
         if (manager != null
             && manager.CurrentState == GameManager.ControlState.PartLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            return TransitionVehicleToPart(partId);
+            bool partOk = TransitionVehicleToPart(partId);
+            if (!partOk)
+            {
+                LogManager.LogFeatureWarning(
+                    $"[ToStateError] reason=零件级切换失败 | from={from} | target=PartLevel | partId={partId ?? "(空)"}");
+            }
+
+            return partOk;
         }
 
         if (manager != null
             && manager.CurrentState == GameManager.ControlState.AttackPathLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            return TransitionAttackPathToPart(partId);
+            bool attackToPartOk = TransitionAttackPathToPart(partId);
+            if (!attackToPartOk)
+            {
+                LogManager.LogFeatureWarning(
+                    $"[ToStateError] reason=攻击路径→零件失败 | from={from} | target=PartLevel | partId={partId ?? "(空)"}");
+            }
+
+            return attackToPartOk;
         }
 
         return controller.TransitionToState(

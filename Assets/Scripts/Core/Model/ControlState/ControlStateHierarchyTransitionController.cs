@@ -213,7 +213,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager manager = GameManager.Instance;
             if (manager == null)
             {
-                LogManager.LogFeatureWarning("[ControlStateHierarchyTransitionController] 未找到 GameManager。");
+                LogManager.LogFeatureWarning(
+                    $"[ToStateError] reason=未找到 GameManager | target={targetState}");
                 yield break;
             }
 
@@ -276,7 +277,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             if (expectedNext == currentState)
             {
                 LogManager.LogFeatureWarning(
-                    $"[ControlStateHierarchyTransitionController] 无法从 {currentState} 向目标 {targetState} 规划下一步，中止。");
+                    $"[ToStateError] reason=无法规划下一步 | from={currentState} | target={targetState}");
                 yield break;
             }
 
@@ -292,20 +293,22 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             if (nextState == currentState)
             {
                 LogManager.LogFeatureWarning(
-                    $"[ControlStateHierarchyTransitionController] 过渡后状态未变化：{currentState}，目标 {targetState}，中止。");
+                    $"[ToStateError] reason=过渡后状态未变化 | from={currentState} | target={targetState}");
                 yield break;
             }
 
             if (nextState != expectedNext)
             {
                 LogManager.LogFeatureWarning(
-                    $"[ControlStateHierarchyTransitionController] 状态跳变异常：{currentState} → {nextState}，期望 {expectedNext}，中止。");
+                    $"[ToStateError] reason=状态跳变异常 | from={currentState} | actual={nextState} | " +
+                    $"expected={expectedNext} | target={targetState}");
                 yield break;
             }
         }
 
         LogManager.LogFeatureWarning(
-            $"[ControlStateHierarchyTransitionController] 超过最大步数 {MaxTransitionSteps}，当前 {GameManagerDemoAccess.GetCurrentState(manager)}，目标 {targetState}。");
+            $"[ToStateError] reason=超过最大步数 | max={MaxTransitionSteps} | " +
+            $"from={GameManagerDemoAccess.GetCurrentState(manager)} | target={targetState}");
     }
 
     /// <summary>
@@ -491,7 +494,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             yield break;
         }
 
-        LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未定义的过渡边：{from} → {to}");
+        LogManager.LogFeatureWarning($"[ToStateError] reason=未定义的过渡边 | from={from} | to={to}");
     }
 
     private IEnumerator GoToProvinceLevel(string moduleName)
@@ -503,7 +506,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (string.IsNullOrWhiteSpace(key))
         {
             LogManager.LogFeatureWarning(
-                "[ControlStateHierarchyTransitionController] 默认省未解析到板块模块名，无法进入省级。");
+                $"[ToStateError] reason=未解析到板块模块名，无法进入省级 | moduleName={moduleName} | " +
+                $"activeModule={_activeProvinceModuleName} | activeProvince={_activeProvinceName}");
             yield break;
         }
 
@@ -600,7 +604,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=未找到 EventManager | step={stepName}");
             yield break;
         }
 
@@ -610,7 +614,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=步骤启动失败 | step={stepName}");
             unsubscribe(OnStepDone);
             yield break;
         }
@@ -628,7 +632,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=未找到 EventManager | step={stepName}");
             yield break;
         }
 
@@ -638,7 +642,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=步骤启动失败 | step={stepName}");
             unsubscribe(OnStepDoneWithName);
             yield break;
         }
@@ -656,7 +660,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         EventManager em = EventManager.Instance;
         if (em == null)
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] 未找到 EventManager，跳过 {stepName}。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=未找到 EventManager | step={stepName}");
             yield break;
         }
 
@@ -666,7 +670,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!tryStart())
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 启动失败。");
+            LogManager.LogFeatureWarning($"[ToStateError] reason=步骤启动失败 | step={stepName}");
             unsubscribe(OnStepDoneWithNameAndId);
             yield break;
         }
@@ -714,7 +718,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (!predicate() && !_restartRequested && stepName != "等待其它过渡结束")
         {
-            LogManager.LogFeatureWarning($"[ControlStateHierarchyTransitionController] {stepName} 超时（{_stepTimeoutSeconds}s）。");
+            LogManager.LogFeatureWarning(
+                $"[ToStateError] reason=步骤超时 | step={stepName} | timeout={_stepTimeoutSeconds}s");
         }
     }
 

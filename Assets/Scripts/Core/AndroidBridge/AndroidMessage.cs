@@ -646,7 +646,7 @@ public class AndroidMessage : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(json))
         {
-            LogManager.LogHostWarning("[AndroidMessage] TransitionToControlState: JSON 为空。");
+            LogManager.LogHostWarning("[ToStateError] reason=JSON 为空 | method=TransitionToControlState");
             return;
         }
 
@@ -659,7 +659,9 @@ public class AndroidMessage : MonoBehaviour
 
         if (!ok)
         {
-            LogManager.LogHostWarning($"[AndroidMessage] TransitionToControlState 启动失败: {json}");
+            LogManager.LogHostWarning(
+                $"[ToStateError] reason=MapApi 启动失败 | target={request.targetState} | " +
+                $"provinceCode={request.provinceCode} | partId={request.partId} | json={json}");
         }
     }
 

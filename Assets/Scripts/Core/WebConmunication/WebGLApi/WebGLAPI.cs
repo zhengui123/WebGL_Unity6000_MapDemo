@@ -539,7 +539,7 @@ public class WebGLAPI : MonoBehaviour
 
         if (string.IsNullOrWhiteSpace(json))
         {
-            LogManager.LogHostWarning("[WebGLAPI] TransitionToControlState: JSON 为空。");
+            LogManager.LogHostWarning("[ToStateError] reason=JSON 为空 | method=TransitionToControlState");
             return;
         }
 
@@ -552,7 +552,9 @@ public class WebGLAPI : MonoBehaviour
 
         if (!ok)
         {
-            LogManager.LogHostWarning($"[WebGLAPI] TransitionToControlState 启动失败: {json}");
+            LogManager.LogHostWarning(
+                $"[ToStateError] reason=MapApi 启动失败 | target={request.targetState} | " +
+                $"provinceCode={request.provinceCode} | partId={request.partId} | json={json}");
             return;
         }
 
