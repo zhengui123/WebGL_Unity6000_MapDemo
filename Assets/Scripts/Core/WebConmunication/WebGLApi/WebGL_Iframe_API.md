@@ -863,6 +863,7 @@ callUnity('SetUiLanguage', 'zh-CN');
 const handlers = {
   onUnityWebGLReady(message) { /* 桥接就绪 */ },
   onUnityControlStateTransition(message) { /* JSON，含 partId：IDC/CCU/TBOX/ADC/WG */ },
+  onUnityBigScreenPlaybackStateChanged(message) { /* JSON：fromStatus / status，威胁开启/结束 */ },
   onUnityCarYawRotationChanged(message) { /* JSON：yawAngle / isDragging */ },
 };
 
@@ -873,7 +874,7 @@ window.addEventListener('message', (event) => {
 });
 ```
 
-> 当前 `WebGLAPI` 向父页面推送：`onUnityWebGLReady`、`onUnityControlStateTransition`、`onUnityCarYawRotationChanged`。
+> 当前 `WebGLAPI` 向父页面推送：`onUnityWebGLReady`、`onUnityControlStateTransition`、`onUnityBigScreenPlaybackStateChanged`、`onUnityCarYawRotationChanged`。
 
 ---
 
@@ -1016,7 +1017,46 @@ function onUnityControlStateTransition(json) {
 
 ---
 
-### 5.3 onUnityCarYawRotationChanged
+### 5.3 onUnityBigScreenPlaybackStateChanged
+
+大屏业务播放状态变更（`GameManager.BigScreenPlaybackState`）。威胁下钻**开启**（→`2`）与**结束**（→`0`，含自然跑完 / `ExitThreatDrill`）均会触发；告警定位进出也会推送。
+
+
+| 项目        | 值                                |
+| --------- | -------------------------------- |
+| `message` | JSON 字符串                         |
+| 结构体       | `BigScreenPlaybackStateNotify` |
+
+
+| 字段           | 类型  | 说明                                      |
+| ------------ | --- | --------------------------------------- |
+| `fromStatus` | int | 变更前：`0` 默认、`1` 告警定位、`2` 威胁              |
+| `status`     | int | 变更后：同上                                  |
+
+**威胁开启示例：**
+
+```json
+{"fromStatus":0,"status":2}
+```
+
+**威胁结束示例：**
+
+```json
+{"fromStatus":2,"status":0}
+```
+
+```javascript
+function onUnityBigScreenPlaybackStateChanged(json) {
+  const { fromStatus, status } = JSON.parse(json);
+  // status: 0 默认 | 1 告警定位 | 2 威胁
+  if (status === 2) console.log('威胁下钻开始');
+  if (fromStatus === 2 && status === 0) console.log('威胁下钻结束');
+}
+```
+
+---
+
+### 5.4 onUnityCarYawRotationChanged
 
 车辆 Yaw 变化回调（拖拽中连续推送；松手或 API 设角也会推送）。
 
@@ -1047,14 +1087,15 @@ function onUnityCarYawRotationChanged(json) {
 
 ---
 
-### 5.4 回调汇总表（Unity → 父）
+### 5.5 回调汇总表（Unity → 父）
 
 
-| method                          | message 类型 | 说明             |
-| ------------------------------- | ---------- | -------------- |
-| `onUnityWebGLReady`             | 空          | 桥接就绪（WebGL 独有） |
-| `onUnityControlStateTransition` | JSON       | 级别过渡开始/完成      |
-| `onUnityCarYawRotationChanged`  | JSON       | 车辆 Yaw 变化      |
+| method                                   | message 类型 | 说明                |
+| ---------------------------------------- | ---------- | ----------------- |
+| `onUnityWebGLReady`                      | 空          | 桥接就绪（WebGL 独有）    |
+| `onUnityControlStateTransition`          | JSON       | 级别过渡开始/完成         |
+| `onUnityBigScreenPlaybackStateChanged`   | JSON       | 大屏播放状态变更（含威胁开/关） |
+| `onUnityCarYawRotationChanged`           | JSON       | 车辆 Yaw 变化         |
 
 
 ---
@@ -1092,6 +1133,12 @@ function onUnityCarYawRotationChanged(json) {
         } else {
           console.log('开始', t.from, '→', t.to);
         }
+        break;
+      }
+
+      case 'onUnityBigScreenPlaybackStateChanged': {
+        const p = JSON.parse(d.message);
+        console.log('播放状态', p.fromStatus, '→', p.status); // 2=威胁
         break;
       }
 
@@ -1200,6 +1247,7 @@ Unity 使用 `JsonUtility.FromJson`，请遵守：
 
 | 日期         | 说明                                                                                                                |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| 2026-10    | 新增 `onUnityBigScreenPlaybackStateChanged`（威胁开启/结束等播放状态变更）                                                          |
 | 2026-09    | 新增 `StopVehicleHeatmapDefaultPolling` / `ResumeVehicleHeatmapDefaultPolling`；明确 `RequestVehicleHeatmapOnce` 可任意时段 |
 | 2026-09    | `ControlStateTransitionNotify` 增加 `encryptVin`；`vin` 改为明文如实回填；威胁下钻本地缓存两者并回传前端 |
 | 2026-09    | `eventIds`：威胁零件级仅当前停留单个 eventId；攻击链路/车辆为当前 VIN 事件列表；补充威胁下钻示例                                                      |

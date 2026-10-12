@@ -358,7 +358,7 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "RequestSecurityEventDetail",
 
 > **特殊说明（重要）**  
 > **Android / WebGL 正式业务中通常无需调用本接口。**  
-> 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；宿主只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.2 节），用于同步展示当前朝向。  
+> 车辆旋转由 Unity 大屏侧用户拖拽（`MouseDragYawRotate`）驱动；宿主只需实现并监听 **`onUnityCarYawRotationChanged`**（见 3.3 节），用于同步展示当前朝向。  
 > 本接口仅供 Unity Editor / Demo 联调、自动化测试等场景使用，**不作为生产集成必选项**。  
 > WebGL 同名方法见 `WebGLApi/WebGL_Iframe_API.md` §4.16。
 
@@ -606,7 +606,47 @@ public void onUnityControlStateTransition(String json) {
 
 ---
 
-### 3.2 `onUnityCarYawRotationChanged` — 车辆旋转变化通知
+### 3.2 `onUnityBigScreenPlaybackStateChanged` — 大屏播放状态变更
+
+威胁下钻**开启**（`status=2`）与**结束**（`status=0`，含自然跑完 / `ExitThreatDrill`）时推送；告警定位进出也会推送。
+
+```java
+public void onUnityBigScreenPlaybackStateChanged(String json) { }
+```
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| `fromStatus` | int | 变更前：`0` 默认、`1` 告警定位、`2` 威胁 |
+| `status` | int | 变更后：同上 |
+
+**威胁开启：**
+
+```json
+{"fromStatus":0,"status":2}
+```
+
+**威胁结束：**
+
+```json
+{"fromStatus":2,"status":0}
+```
+
+```java
+public void onUnityBigScreenPlaybackStateChanged(String json) {
+    try {
+        JSONObject obj = new JSONObject(json);
+        int fromStatus = obj.optInt("fromStatus", 0);
+        int status = obj.optInt("status", 0);
+        Log.d("UnityBridge", "playback " + fromStatus + " → " + status);
+    } catch (JSONException e) {
+        Log.e("UnityBridge", "invalid playback json: " + json, e);
+    }
+}
+```
+
+---
+
+### 3.3 `onUnityCarYawRotationChanged` — 车辆旋转变化通知
 
 大屏用户拖拽车辆或 Unity 内部设角后，Unity 将当前 Yaw 通知 Android。**Android 通过本回调同步平板展示即可，无需反向调用 `SetCarYawRotation`。**
 
@@ -661,6 +701,7 @@ public void onUnityCarYawRotationChanged(String json) {
 | 方法 | 参数 | 说明 |
 |------|------|------|
 | `onUnityControlStateTransition` | JSON | 操控级别过渡开始 / 完成 |
+| `onUnityBigScreenPlaybackStateChanged` | JSON | 大屏播放状态变更（含威胁开/关） |
 | `onUnityCarYawRotationChanged` | JSON | 车辆 Yaw 旋转变化 |
 
 ### Android 可调用（Android → Unity）

@@ -89,6 +89,19 @@ public struct ControlStateTransitionNotify
     public string[] eventIds;
 }
 
+/// <summary>
+/// Unity → 宿主：大屏业务播放状态变更（威胁开启/结束等）。
+/// </summary>
+[System.Serializable]
+public struct BigScreenPlaybackStateNotify
+{
+    /// <summary>变更前状态：0 默认、1 告警定位、2 威胁。</summary>
+    public int fromStatus;
+
+    /// <summary>变更后状态：0 默认、1 告警定位、2 威胁。</summary>
+    public int status;
+}
+
 /// <summary>Android → Unity 大屏自动轮播开关。</summary>
 [System.Serializable]
 public struct BigScreenAutoCarouselRequest
@@ -176,16 +189,20 @@ public class AndroidMessage : MonoBehaviour
             gameObject.name = BridgeObjectName;
     }
 
+    private int _lastNotifiedPlaybackStatus = (int)GameManager.BigScreenPlaybackState.Default;
+
     private void OnEnable()
     {
         // 订阅各级别跳转开始事件，通知 Android from → to
         SubscribeControlStateEvents();
+        SubscribePlaybackStateEvents();
         TrySubscribeCarYawRotation();
     }
 
     private void OnDisable()
     {
         UnsubscribeControlStateEvents();
+        UnsubscribePlaybackStateEvents();
         UnsubscribeCarYawRotation();
     }
 
@@ -256,6 +273,20 @@ public class AndroidMessage : MonoBehaviour
         CallActivity("onUnityControlStateTransition", json);
     }
 
+    /// <summary>通知宿主大屏播放状态变更（威胁开启 status=2 / 结束 status=0 等）。</summary>
+    public void CallAndroidBigScreenPlaybackStateChanged(int fromStatus, int status)
+    {
+        var notify = new BigScreenPlaybackStateNotify
+        {
+            fromStatus = fromStatus,
+            status = status,
+        };
+        string json = JsonUtility.ToJson(notify);
+        LogManager.LogHost(
+            $"[AndroidMessage] → onUnityBigScreenPlaybackStateChanged {fromStatus}→{status} | {json}");
+        CallActivity("onUnityBigScreenPlaybackStateChanged", json);
+    }
+
     private void CallActivity(string method, string arg)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -279,6 +310,43 @@ public class AndroidMessage : MonoBehaviour
     #region Unity → Android 操控级别事件
     // 级别：0 地球、1 国家、2 省级、3 车辆、4 零件、5 攻击路径
     // 均在对应过渡「开始」时通知 Android：{"from":x,"to":y}
+
+    private void SubscribePlaybackStateEvents()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            return;
+        }
+
+        gm.OnPlaybackStateChanged -= HandlePlaybackStateChanged;
+        gm.OnPlaybackStateChanged += HandlePlaybackStateChanged;
+        _lastNotifiedPlaybackStatus = (int)gm.CurrentPlaybackState;
+    }
+
+    private void UnsubscribePlaybackStateEvents()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            return;
+        }
+
+        gm.OnPlaybackStateChanged -= HandlePlaybackStateChanged;
+    }
+
+    private void HandlePlaybackStateChanged(GameManager.BigScreenPlaybackState newState)
+    {
+        int fromStatus = _lastNotifiedPlaybackStatus;
+        int status = (int)newState;
+        if (fromStatus == status)
+        {
+            return;
+        }
+
+        _lastNotifiedPlaybackStatus = status;
+        CallAndroidBigScreenPlaybackStateChanged(fromStatus, status);
+    }
 
     private void SubscribeControlStateEvents()
     {

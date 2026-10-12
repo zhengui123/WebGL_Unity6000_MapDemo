@@ -103,15 +103,19 @@ public class WebGLAPI : MonoBehaviour
         LogManager.LogHost($"[WebGLAPI] {direction} | {method} | {payload}");
     }
 
+    private int _lastNotifiedPlaybackStatus = (int)GameManager.BigScreenPlaybackState.Default;
+
     private void OnEnable()
     {
         SubscribeControlStateEvents();
+        SubscribePlaybackStateEvents();
         TrySubscribeCarYawRotation();
     }
 
     private void OnDisable()
     {
         UnsubscribeControlStateEvents();
+        UnsubscribePlaybackStateEvents();
         UnsubscribeCarYawRotation();
     }
 
@@ -186,11 +190,28 @@ public class WebGLAPI : MonoBehaviour
         CallHost("onUnityCarYawRotationChanged", json);
     }
 
+    /// <summary>通知宿主大屏播放状态变更（威胁开启 status=2 / 结束 status=0 等）。</summary>
+    public void CallHostBigScreenPlaybackStateChanged(int fromStatus, int status)
+    {
+        var notify = new BigScreenPlaybackStateNotify
+        {
+            fromStatus = fromStatus,
+            status = status,
+        };
+        string json = JsonUtility.ToJson(notify);
+        LogCommunication(
+            "→ Host",
+            "onUnityBigScreenPlaybackStateChanged",
+            $"{fromStatus}→{status} | {json}");
+        CallHost("onUnityBigScreenPlaybackStateChanged", json);
+    }
+
     private void CallHost(string method, string arg)
     {
         if (method != HostReadyMethodName
             && method != "onUnityControlStateTransition"
-            && method != "onUnityCarYawRotationChanged")
+            && method != "onUnityCarYawRotationChanged"
+            && method != "onUnityBigScreenPlaybackStateChanged")
         {
             LogCommunication("→ Host", method, arg);
         }
@@ -210,6 +231,43 @@ public class WebGLAPI : MonoBehaviour
     #endregion
 
     #region Unity → HTML 操控级别事件
+
+    private void SubscribePlaybackStateEvents()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            return;
+        }
+
+        gm.OnPlaybackStateChanged -= HandlePlaybackStateChanged;
+        gm.OnPlaybackStateChanged += HandlePlaybackStateChanged;
+        _lastNotifiedPlaybackStatus = (int)gm.CurrentPlaybackState;
+    }
+
+    private void UnsubscribePlaybackStateEvents()
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null)
+        {
+            return;
+        }
+
+        gm.OnPlaybackStateChanged -= HandlePlaybackStateChanged;
+    }
+
+    private void HandlePlaybackStateChanged(GameManager.BigScreenPlaybackState newState)
+    {
+        int fromStatus = _lastNotifiedPlaybackStatus;
+        int status = (int)newState;
+        if (fromStatus == status)
+        {
+            return;
+        }
+
+        _lastNotifiedPlaybackStatus = status;
+        CallHostBigScreenPlaybackStateChanged(fromStatus, status);
+    }
 
     private void SubscribeControlStateEvents()
     {
