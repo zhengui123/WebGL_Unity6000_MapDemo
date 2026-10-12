@@ -162,8 +162,12 @@ public class VehicleToPartTransitionController : MonoBehaviour
         string normalizedPartId = NormalizePartId(partId, part);
         if (IsPartLevel() && _activePart == part)
         {
+            // 同零件：不播过渡动画，但仍走切换完成回调（威胁同零件多 eventId 需宿主收到完成通知）。
             _lastPartName = part.name;
             _lastPartId = normalizedPartId;
+            EventManager.Instance?.TriggerPartToPartTransitionCompleted(
+                _lastPartName,
+                _lastPartId);
             return true;
         }
 
