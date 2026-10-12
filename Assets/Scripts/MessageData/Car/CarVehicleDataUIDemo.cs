@@ -14,6 +14,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
     [SerializeField] private Text _resultText;
     [SerializeField] private Button _requestHttpButton;
     [SerializeField] private Button _applyLocalJsonButton;
+    [SerializeField] private Button _applyLocalJson1012Button;
     [SerializeField] private Button _showUiFromCacheButton;
     [SerializeField] private Button _closeCarUiButton;
     [SerializeField] private Button _backButton;
@@ -31,12 +32,18 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         {
             _backButton = transform.Find("BackButton")?.GetComponent<Button>();
         }
+
+        if (_applyLocalJson1012Button == null)
+        {
+            _applyLocalJson1012Button = transform.Find("ApplyLocalJson1012Button")?.GetComponent<Button>();
+        }
     }
 
     private void OnEnable()
     {
         Bind(_requestHttpButton, OnClickRequestHttp, true);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, true);
+        Bind(_applyLocalJson1012Button, OnClickApplyLocalJson1012, true);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, true);
         Bind(_closeCarUiButton, OnClickCloseCarUi, true);
         Bind(_backButton, OnBackClicked, true);
@@ -46,6 +53,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
     {
         Bind(_requestHttpButton, OnClickRequestHttp, false);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, false);
+        Bind(_applyLocalJson1012Button, OnClickApplyLocalJson1012, false);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, false);
         Bind(_closeCarUiButton, OnClickCloseCarUi, false);
         Bind(_backButton, OnBackClicked, false);
@@ -82,6 +90,22 @@ public class CarVehicleDataUIDemo : MonoBehaviour
 
     private void OnClickApplyLocalJson()
     {
+        ApplyLocalJsonPair(
+            CarVehicleDataMockJson.PartProtectionStatusSuccessJson,
+            CarVehicleDataMockJson.AttackChainSuccessJson,
+            "本地 JSON");
+    }
+
+    private void OnClickApplyLocalJson1012()
+    {
+        ApplyLocalJsonPair(
+            CarVehicleDataMockJson.PartProtectionStatusSuccessJson1012,
+            CarVehicleDataMockJson.AttackChainSuccessJson1012,
+            "10.12新本地json");
+    }
+
+    private void ApplyLocalJsonPair(string partProtectionJson, string attackChainJson, string label)
+    {
         EnsureController();
         if (_controller == null)
         {
@@ -89,12 +113,9 @@ public class CarVehicleDataUIDemo : MonoBehaviour
             return;
         }
 
-        if (!_controller.ApplyLocalJson(
-                CarVehicleDataMockJson.PartProtectionStatusSuccessJson,
-                CarVehicleDataMockJson.AttackChainSuccessJson,
-                out string error))
+        if (!_controller.ApplyLocalJson(partProtectionJson, attackChainJson, out string error))
         {
-            SetResult($"本地 JSON 失败：{error}");
+            SetResult($"{label} 失败：{error}");
             return;
         }
 
@@ -103,7 +124,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         int slideCount = CarVehicleDataStore.Instance.BuildPartSlides().Count;
         int attackPaths = CarVehicleDataStore.Instance.BuildAttackPathEntries().Count;
         SetResult(
-            $"本地 JSON 已应用 | first={name} | slides={slideCount} | attackPaths={attackPaths} | " +
+            $"{label} 已应用 | first={name} | slides={slideCount} | attackPaths={attackPaths} | " +
             "车辆级轮播/攻击路径级展示");
     }
 
