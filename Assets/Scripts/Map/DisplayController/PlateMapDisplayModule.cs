@@ -22,13 +22,16 @@ public class PlateMapDisplayModule : MonoBehaviour
     [Tooltip("边界线 Renderer 运行时固定 _EmissionIntensity，与板块高亮基准分离")]
     [SerializeField] private float _lineEmissionIntensity = 3f;
 
-    /// <summary>全部 Tech Renderer（板块填充 + 边界线），用于 Alpha / Bounds。</summary>
+    /// <summary>全部 Tech Renderer（板块填充 + 边界线），用于 Alpha / 发光。</summary>
     private Renderer[] _renderers;
+    /// <summary>参与包围盒/拾取的 Renderer（排除仅显示子物体，如台湾 default）。</summary>
+    private Renderer[] _rangeBoundsRenderers;
     /// <summary>板块填充（不含边界线），用于高亮发光基准。</summary>
     private Renderer[] _fillRenderers;
     /// <summary>边界线（*_边界线 / 材质名含 Line）。</summary>
     private Renderer[] _lineRenderers;
     private Collider[] _managedColliders;
+    private PlateMapDisplayRangeExclude _rangeExclude;
     private MaterialPropertyBlock _propertyBlock;
     private float _currentAlpha = 1f;
     private float _currentEmissionIntensity;
@@ -100,21 +103,24 @@ public class PlateMapDisplayModule : MonoBehaviour
         KillEmissionTween();
     }
 
-    /// <summary>模块在世界空间下的包围盒（用于屏幕居中）。</summary>
+    /// <summary>模块在世界空间下的包围盒（用于屏幕居中；已排除仅显示子物体）。</summary>
     public Bounds GetWorldBounds()
     {
         CacheRenderers();
-        if (_renderers == null || _renderers.Length == 0)
+        Renderer[] source = _rangeBoundsRenderers != null && _rangeBoundsRenderers.Length > 0
+            ? _rangeBoundsRenderers
+            : _renderers;
+        if (source == null || source.Length == 0)
         {
             return new Bounds(transform.position, Vector3.one * 0.1f);
         }
 
-        Bounds bounds = _renderers[0].bounds;
-        for (int i = 1; i < _renderers.Length; i++)
+        Bounds bounds = source[0].bounds;
+        for (int i = 1; i < source.Length; i++)
         {
-            if (_renderers[i] != null)
+            if (source[i] != null)
             {
-                bounds.Encapsulate(_renderers[i].bounds);
+                bounds.Encapsulate(source[i].bounds);
             }
         }
 
@@ -253,11 +259,14 @@ public class PlateMapDisplayModule : MonoBehaviour
             return;
         }
 
+        ResolveRangeExclude();
+
         var candidates = new List<Renderer>();
         // 自身 + 全部子层级（含未激活子物体）
         GetComponentsInChildren(true, candidates);
 
         var all = new List<Renderer>(candidates.Count);
+        var rangeBounds = new List<Renderer>(candidates.Count);
         var fill = new List<Renderer>(candidates.Count);
         var line = new List<Renderer>(candidates.Count);
         for (int i = 0; i < candidates.Count; i++)
@@ -269,6 +278,11 @@ public class PlateMapDisplayModule : MonoBehaviour
             }
 
             all.Add(renderer);
+            if (!IsExcludedFromRange(renderer))
+            {
+                rangeBounds.Add(renderer);
+            }
+
             if (IsBoundaryLineRenderer(renderer))
             {
                 line.Add(renderer);
@@ -280,8 +294,30 @@ public class PlateMapDisplayModule : MonoBehaviour
         }
 
         _renderers = all.ToArray();
+        _rangeBoundsRenderers = rangeBounds.ToArray();
         _fillRenderers = fill.ToArray();
         _lineRenderers = line.ToArray();
+    }
+
+    private void ResolveRangeExclude()
+    {
+        if (_rangeExclude == null)
+        {
+            _rangeExclude = GetComponent<PlateMapDisplayRangeExclude>();
+        }
+
+        _rangeExclude?.EnsureReady();
+    }
+
+    private bool IsExcludedFromRange(Renderer renderer)
+    {
+        if (renderer == null)
+        {
+            return false;
+        }
+
+        ResolveRangeExclude();
+        return _rangeExclude != null && _rangeExclude.IsExcluded(renderer.transform);
     }
 
     private static Renderer FindFirstRenderer(Renderer[] renderers)
@@ -345,13 +381,19 @@ public class PlateMapDisplayModule : MonoBehaviour
         CacheRenderers();
 
         var colliderSet = new HashSet<Collider>();
-        TryRegisterOrCreateCollider(gameObject, colliderSet);
-
-        if (_renderers != null)
+        if (!IsExcludedFromRange(GetComponent<Renderer>()))
         {
-            for (int i = 0; i < _renderers.Length; i++)
+            TryRegisterOrCreateCollider(gameObject, colliderSet);
+        }
+
+        Renderer[] source = _rangeBoundsRenderers != null && _rangeBoundsRenderers.Length > 0
+            ? _rangeBoundsRenderers
+            : _renderers;
+        if (source != null)
+        {
+            for (int i = 0; i < source.Length; i++)
             {
-                Renderer renderer = _renderers[i];
+                Renderer renderer = source[i];
                 if (renderer != null)
                 {
                     TryRegisterOrCreateCollider(renderer.gameObject, colliderSet);
@@ -368,13 +410,19 @@ public class PlateMapDisplayModule : MonoBehaviour
         CacheRenderers();
 
         var colliderSet = new HashSet<Collider>();
-        CollectExistingColliders(gameObject, colliderSet);
-
-        if (_renderers != null)
+        if (!IsExcludedFromRange(GetComponent<Renderer>()))
         {
-            for (int i = 0; i < _renderers.Length; i++)
+            CollectExistingColliders(gameObject, colliderSet);
+        }
+
+        Renderer[] source = _rangeBoundsRenderers != null && _rangeBoundsRenderers.Length > 0
+            ? _rangeBoundsRenderers
+            : _renderers;
+        if (source != null)
+        {
+            for (int i = 0; i < source.Length; i++)
             {
-                Renderer renderer = _renderers[i];
+                Renderer renderer = source[i];
                 if (renderer != null)
                 {
                     CollectExistingColliders(renderer.gameObject, colliderSet);
