@@ -5470,7 +5470,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-06-30 17:41:23
@@ -6186,6 +6186,30 @@ PrefabInstance:
     - target: {fileID: 4298851984301039899, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
       propertyPath: m_Name
       value: UserTarget
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112551766752695943, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112551766752695943, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -2.6645344e-15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -5.329069e-15
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13485,7 +13509,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &410450095
 RectTransform:
   m_ObjectHideFlags: 0
@@ -18748,7 +18772,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 123dfdsafffff
@@ -20420,7 +20444,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-06-30 17:41:23
@@ -86967,7 +86991,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 1
@@ -89171,7 +89195,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-10-13 17:03:43
@@ -102204,7 +102228,7 @@ MonoBehaviour:
     m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
   m_Text: 2026-10-13 00:00:00

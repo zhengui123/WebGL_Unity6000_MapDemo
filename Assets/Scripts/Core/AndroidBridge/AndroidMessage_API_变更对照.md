@@ -59,7 +59,8 @@
 Unity → 宿主：
 
 - `onUnityCarYawRotationChanged`
-- WebGL 另有：`onUnityWebGLReady`
+- Android：`onUnityAndroidReady`（与 WebGL `onUnityWebGLReady` 对称）
+- WebGL：`onUnityWebGLReady`
 
 ---
 

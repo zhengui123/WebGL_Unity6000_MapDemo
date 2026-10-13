@@ -169,6 +169,9 @@ public class AndroidMessage : MonoBehaviour
 {
     public const string BridgeObjectName = "AndroidBridge";
 
+    /// <summary>Unity 桥接就绪回调（对称 WebGL 的 onUnityWebGLReady）。</summary>
+    public const string HostReadyMethodName = "onUnityAndroidReady";
+
     /// <summary>操控级别过渡完成通知时 <see cref="ControlStateTransitionNotify.from"/> 的约定值。</summary>
     public const int ControlStateTransitionCompletedFrom = -1;
 
@@ -213,6 +216,18 @@ public class AndroidMessage : MonoBehaviour
         UnsubscribeControlStateEvents();
         UnsubscribePlaybackStateEvents();
         UnsubscribeCarYawRotation();
+    }
+
+    private void Start()
+    {
+        NotifyHostReady();
+    }
+
+    /// <summary>通知 Android：Unity 桥接已就绪，可开始下发业务指令。</summary>
+    public void NotifyHostReady()
+    {
+        LogManager.LogHost($"[AndroidMessage] → {HostReadyMethodName}");
+        CallActivity(HostReadyMethodName, string.Empty);
     }
 
     #region Unity → Android（对应 MainActivity 三个测试方法）

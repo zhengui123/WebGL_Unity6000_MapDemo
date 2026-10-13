@@ -467,6 +467,28 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "SetUiLanguage", "zh-CN");
 
 在 `MainActivity` 中实现下列 **`public`** 方法（方法名区分大小写，须完全一致）：
 
+### 3.0 `onUnityAndroidReady` — 桥接就绪（加载完成）
+
+与前端 WebGL 的 `onUnityWebGLReady` 对称：Unity `AndroidMessage.Start` 时通知宿主，**收到后再调用业务接口**。
+
+```java
+public void onUnityAndroidReady(String message) { }
+```
+
+| 项目 | 说明 |
+|------|------|
+| 触发时机 | Unity `AndroidMessage.Start` → `NotifyHostReady` |
+| 参数 | 空字符串 `""`（预留扩展） |
+
+```java
+public void onUnityAndroidReady(String message) {
+    Log.i("UnityBridge", "Unity Android bridge ready");
+    // 此后再 UnitySendMessage TransitionToControlState 等
+}
+```
+
+---
+
 ### 3.1 `onUnityControlStateTransition` — 操控级别过渡通知
 
 ```java
@@ -703,6 +725,7 @@ public void onUnityCarYawRotationChanged(String json) {
 
 | 方法 | 参数 | 说明 |
 |------|------|------|
+| `onUnityAndroidReady` | `""` | 桥接就绪（与 WebGL `onUnityWebGLReady` 对称） |
 | `onUnityControlStateTransition` | JSON | 操控级别过渡开始 / 完成 |
 | `onUnityBigScreenPlaybackStateChanged` | JSON | 大屏播放状态变更（含威胁开/关） |
 | `onUnityCarYawRotationChanged` | JSON | 车辆 Yaw 旋转变化 |
@@ -744,10 +767,11 @@ public void onUnityCarYawRotationChanged(String json) {
 ## 五、联调建议
 
 1. `UnitySendMessage` 第一个参数固定为 **`AndroidBridge`**。
-2. JSON 使用 UTF-8；中文省名按标准 JSON 字符串传递即可。
-3. 收到 `onUnityControlStateTransition` 且 `from=-1` 时，表示目标级别已可交互。
-4. 车辆旋转：Android **监听** `onUnityCarYawRotationChanged` 即可，**勿调用** `SetCarYawRotation`。
-5. 需要主动跳转时调用 `TransitionToControlState`。
-6. 威胁下钻：用户主动打断用 `ExitThreatDrill`；冷却中续期用 `RefreshThreatCooldown`；威胁数据用 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`（冷却期暂停请求，结束后先拉接口再评估）。
-7. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
-8. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。
+2. **先收到 `onUnityAndroidReady` 再下发业务指令**（对齐 WebGL 的 `onUnityWebGLReady`）。
+3. JSON 使用 UTF-8；中文省名按标准 JSON 字符串传递即可。
+4. 收到 `onUnityControlStateTransition` 且 `from=-1` 时，表示目标级别已可交互。
+5. 车辆旋转：Android **监听** `onUnityCarYawRotationChanged` 即可，**勿调用** `SetCarYawRotation`。
+6. 需要主动跳转时调用 `TransitionToControlState`。
+7. 威胁下钻：用户主动打断用 `ExitThreatDrill`；冷却中续期用 `RefreshThreatCooldown`；威胁数据用 `StartThreatHighRiskPolling` / `StopThreatHighRiskPolling`（冷却期暂停请求，结束后先拉接口再评估）。
+8. 若长时间无回调，检查 MainActivity 方法是否为 `public`、方法名是否与上表完全一致。
+9. Unity Editor 下无真实 Activity 时，回调以 `[AndroidMessage] Editor mock ...` 日志输出；`SetCarYawRotation` 可在 Demo 菜单 **Android 桥接 API** 面板中测试。
