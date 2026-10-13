@@ -4,7 +4,7 @@ using UnityEngine;
 
 /// <summary>
 /// 事件溯源详情接口（getSourceEventDetail）：与其它业务接口共用主机与默认请求头。
-/// 成功解析后缓存数据、刷新 GJ_Panel，并按经纬度生成 POI。
+/// 成功解析后缓存数据、刷新 GJ_Panel，并记录溯源会话；黄点仅在国家/对应省级显示。
 /// </summary>
 public static class SecurityEventDetailApi
 {
@@ -16,6 +16,15 @@ public static class SecurityEventDetailApi
 
     /// <summary>最近一次成功应用的 data。</summary>
     public static SecurityEventDetailData LastData => LastResponse != null ? LastResponse.data : null;
+
+    /// <summary>事件溯源会话是否有效（未 CloseGJPanel；与 GJ 面板是否可见无关）。</summary>
+    public static bool HasActiveTraceSession { get; private set; }
+
+    /// <summary>会话中的溯源省份 adcode。</summary>
+    public static string TraceSessionProvinceCode { get; private set; }
+
+    private static double _traceSessionLongitude;
+    private static double _traceSessionLatitude;
 
     /// <summary>构建事件溯源详情接口完整 URL。</summary>
     public static string BuildRequestUrl()
@@ -129,20 +138,100 @@ public static class SecurityEventDetailApi
         ApplyRecordData(response.data);
         LastResponse = response;
 
+        // Android 仍缓存数据，但不显示 GJ_Panel
+        bool shouldShowPanel = showPanel && GJPanel.IsDisplaySupportedOnCurrentPlatform;
+
         GJPanel panel = GJPanel.Instance;
         if (panel != null)
         {
-            panel.ApplyDetailData(response.data, showPanel);
+            panel.ApplyDetailData(response.data, shouldShowPanel);
             LogManager.LogBackend(
-                $"[SecurityEventDetailApi] 已缓存并刷新 GJ_Panel：{response.data.event_name} / {response.data.vin}");
+                shouldShowPanel
+                    ? $"[SecurityEventDetailApi] 已缓存并刷新 GJ_Panel：{response.data.event_name} / {response.data.vin}"
+                    : $"[SecurityEventDetailApi] 已缓存事件溯源（当前平台不显示 GJ_Panel）：" +
+                      $"{response.data.event_name} / {response.data.vin}");
         }
         else
         {
             LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 GJPanel，已缓存数据但未刷新面板。");
         }
 
-        TrySpawnEventPoi(response.data);
+        // 开启/刷新溯源会话，并按当前操控级别决定是否立刻显示黄点
+        BeginTraceSessionFromData(response.data);
+        RefreshTracePoiForCurrentControlState();
         return true;
+    }
+
+    /// <summary>关闭事件溯源会话（由 CloseGJPanel 调用）：清黄点并丢弃省份记录。</summary>
+    public static void ClearTraceSession()
+    {
+        HasActiveTraceSession = false;
+        TraceSessionProvinceCode = null;
+        _traceSessionLongitude = 0d;
+        _traceSessionLatitude = 0d;
+        POI_Manager.Instance?.RemoveAllPoiByType(POIType.yellow);
+        LogManager.LogBackend("[SecurityEventDetailApi] 已清除事件溯源会话与黄点 POI。");
+    }
+
+    /// <summary>
+    /// 按操控级别刷新溯源黄点：仅国家/对应省级显示；其它级或其它省清掉黄点但保留会话。
+    /// </summary>
+    public static void RefreshTracePoiForControlState(
+        GameManager.ControlState state,
+        string currentProvinceCode = null)
+    {
+        POI_Manager poiManager = POI_Manager.Instance;
+        poiManager?.RemoveAllPoiByType(POIType.yellow);
+
+        if (!HasActiveTraceSession ||
+            string.IsNullOrWhiteSpace(TraceSessionProvinceCode) ||
+            !TryGetTraceSessionCoordinates(out double longitude, out double latitude))
+        {
+            return;
+        }
+
+        if (state == GameManager.ControlState.CountryLevel)
+        {
+            SpawnTracePoi(TraceSessionProvinceCode, longitude, latitude);
+            LogManager.LogBackend(
+                $"[SecurityEventDetailApi] 全国级恢复溯源黄点 | province={TraceSessionProvinceCode}");
+            return;
+        }
+
+        if (state == GameManager.ControlState.ProvinceLevel)
+        {
+            string current = ResolveCurrentProvinceCode(currentProvinceCode);
+            if (ProvinceCodesEqual(current, TraceSessionProvinceCode))
+            {
+                SpawnTracePoi(TraceSessionProvinceCode, longitude, latitude);
+                LogManager.LogBackend(
+                    $"[SecurityEventDetailApi] 省级恢复溯源黄点 | province={TraceSessionProvinceCode}");
+            }
+            else
+            {
+                LogManager.LogBackend(
+                    $"[SecurityEventDetailApi] 省级非溯源省，已清黄点保留会话 | " +
+                    $"current={current ?? "-"} | session={TraceSessionProvinceCode}");
+            }
+
+            return;
+        }
+
+        LogManager.LogBackend(
+            $"[SecurityEventDetailApi] {state} 不显示溯源黄点，已清黄点保留会话 | " +
+            $"session={TraceSessionProvinceCode}");
+    }
+
+    /// <summary>使用 GameManager 当前状态刷新溯源黄点。</summary>
+    public static void RefreshTracePoiForCurrentControlState()
+    {
+        GameManager manager = GameManager.Instance;
+        GameManager.ControlState state = manager != null
+            ? manager.CurrentState
+            : GameManager.ControlState.EarthLevel;
+        string currentProvince = null;
+        PlateProvinceFocusResolver.TryGetCachedProvinceCode(out currentProvince);
+        RefreshTracePoiForControlState(state, currentProvince);
     }
 
     /// <summary>解析并附加 data.record_data / originalMap 经纬度。</summary>
@@ -173,16 +262,12 @@ public static class SecurityEventDetailApi
         return hasRecord;
     }
 
-    private static void TrySpawnEventPoi(SecurityEventDetailData data)
+    private static void BeginTraceSessionFromData(SecurityEventDetailData data)
     {
-        if (data == null)
+        if (data == null ||
+            !data.TryGetRecordLongitudeLatitude(out double longitude, out double latitude))
         {
-            return;
-        }
-
-        if (!data.TryGetRecordLongitudeLatitude(out double longitude, out double latitude))
-        {
-            LogManager.LogBackendWarning("[SecurityEventDetailApi] 无有效经纬度，跳过 POI 生成。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 无有效经纬度，未开启溯源会话。");
             return;
         }
 
@@ -190,20 +275,89 @@ public static class SecurityEventDetailApi
         if (string.IsNullOrWhiteSpace(provinceCode) || provinceCode == "0")
         {
             LogManager.LogBackendWarning(
-                "[SecurityEventDetailApi] originalMap.province 无效，无法生成 POI（需要省级 adcode）。");
+                "[SecurityEventDetailApi] originalMap.province 无效，未开启溯源会话（需要省级 adcode）。");
             return;
         }
 
+        HasActiveTraceSession = true;
+        TraceSessionProvinceCode = provinceCode;
+        _traceSessionLongitude = longitude;
+        _traceSessionLatitude = latitude;
+        LogManager.LogBackend(
+            $"[SecurityEventDetailApi] 已记录溯源会话 | province={provinceCode} | " +
+            $"lon={longitude} | lat={latitude}");
+    }
+
+    private static bool TryGetTraceSessionCoordinates(out double longitude, out double latitude)
+    {
+        longitude = _traceSessionLongitude;
+        latitude = _traceSessionLatitude;
+        return HasActiveTraceSession;
+    }
+
+    private static void SpawnTracePoi(string provinceCode, double longitude, double latitude)
+    {
         POI_Manager poiManager = POI_Manager.Instance;
         if (poiManager == null)
         {
-            LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 POI_Manager，跳过 POI 生成。");
+            LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 POI_Manager，跳过溯源黄点。");
             return;
         }
 
         poiManager.SpawnPoiDelayed(provinceCode, POIType.yellow, longitude, latitude);
-        LogManager.LogBackend(
-            $"[SecurityEventDetailApi] 已请求生成 POI：province={provinceCode}, lon={longitude}, lat={latitude}");
+    }
+
+    private static string ResolveCurrentProvinceCode(string preferredProvinceCode)
+    {
+        if (!string.IsNullOrWhiteSpace(preferredProvinceCode))
+        {
+            string preferred = preferredProvinceCode.Trim();
+            if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(preferred, out string normalized) &&
+                !string.IsNullOrWhiteSpace(normalized))
+            {
+                return normalized;
+            }
+
+            return preferred;
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cached) &&
+            !string.IsNullOrWhiteSpace(cached))
+        {
+            if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(cached, out string cachedNormalized) &&
+                !string.IsNullOrWhiteSpace(cachedNormalized))
+            {
+                return cachedNormalized;
+            }
+
+            return cached.Trim();
+        }
+
+        return null;
+    }
+
+    private static bool ProvinceCodesEqual(string left, string right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+        {
+            return false;
+        }
+
+        string a = left.Trim();
+        string b = right.Trim();
+        if (string.Equals(a, b, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        bool hasA = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(a, out string na);
+        bool hasB = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(b, out string nb);
+        if (hasA && hasB)
+        {
+            return string.Equals(na, nb, StringComparison.OrdinalIgnoreCase);
+        }
+
+        return false;
     }
 
     private static string ResolveProvinceCode(SecurityEventDetailData data)

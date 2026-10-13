@@ -176,21 +176,14 @@ public class MapApi : UnitySingle<MapApi>
         if (panel == null)
         {
             LogManager.LogFeatureWarning("[MapApi] 未找到 GJPanel，无法关闭。");
+            // 仍清除溯源会话，避免会话残留
+            SecurityEventDetailApi.ClearTraceSession();
             return false;
         }
 
         panel.HidePanel();
-
-        POI_Manager poiManager = POI_Manager.Instance;
-        if (poiManager != null)
-        {
-            poiManager.RemoveAllPoiByType(POIType.yellow);
-        }
-        else
-        {
-            LogManager.LogFeatureWarning("[MapApi] 未找到 POI_Manager，已关面板但未清除溯源 POI。");
-        }
-
+        // 结束溯源会话并清除黄点（会话不再保留）
+        SecurityEventDetailApi.ClearTraceSession();
         return true;
     }
 

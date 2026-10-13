@@ -47,6 +47,9 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <summary>本次跳转使用的省名（调用参数优先，否则 GameManager 默认）。</summary>
     private string _activeProvinceName;
 
+    /// <summary>本次跳转使用的省/国家 code（解析后的单元 code）。</summary>
+    private string _activeProvinceCode;
+
     /// <summary>本次跳转使用的板块模块名（调用参数优先，否则由默认省 code 解析）。</summary>
     private string _activeProvinceModuleName;
 
@@ -163,6 +166,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             unitCode = WorldMapPlateResolver.ResolveUnitCode(null);
         }
 
+        _activeProvinceCode = unitCode;
         _activeProvinceName = WorldMapPlateResolver.ResolveUnitDisplayName(unitCode);
         if (string.IsNullOrWhiteSpace(_activeProvinceName) &&
             PlateProvinceFocusResolver.HasCachedProvince)
@@ -230,7 +234,9 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                 yield return RunBootstrapCore(manager, targetState, ensureEarthBaseline);
             }
 
-            LogCompleted(targetState);
+            GameManager.ControlState actualState = LogCompleted(targetState);
+            // 层级跳转结束后：按会话恢复/隐藏事件溯源黄点（仅国家/对应省级显示）
+            SecurityEventDetailApi.RefreshTracePoiForControlState(actualState, _activeProvinceCode);
         }
         finally
         {
@@ -861,13 +867,14 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         VehicleToPartTransitionController.Instance?.CompleteCurrentTransitionImmediate();
     }
 
-    private static void LogCompleted(GameManager.ControlState targetState)
+    private static GameManager.ControlState LogCompleted(GameManager.ControlState targetState)
     {
         GameManager manager = GameManager.Instance;
         GameManager.ControlState actual = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : targetState;
         LogManager.LogFeature($"[ControlStateHierarchyTransitionController] 跳转结束，目标 {targetState}，当前 {actual}。");
+        return actual;
     }
 
     private void LateUpdate()
