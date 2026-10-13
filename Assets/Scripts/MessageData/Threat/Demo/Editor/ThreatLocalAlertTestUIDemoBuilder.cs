@@ -80,6 +80,18 @@ public static class ThreatLocalAlertTestUIDemoBuilder
         GameObject injectEastAsiaGo = CreateFullWidthButton(
             resources, panel.transform, "InjectEastAsiaSameVinButton", "注入东亚多国多车 Vin>3 JSON", 12f, y, buttonWidth);
         y -= 40f;
+        GameObject injectChongqingShanghaiGo = CreateFullWidthButton(
+            resources, panel.transform, "InjectChongqingShanghai1013Button", "注入渝沪样例 JSON(10.13)", 12f, y, buttonWidth);
+        y -= 40f;
+        GameObject injectChongqingHeilongjiangShanghaiGo = CreateFullWidthButton(
+            resources,
+            panel.transform,
+            "InjectChongqingHeilongjiangShanghai1013Button",
+            "注入渝黑沪样例 JSON(10.13)",
+            12f,
+            y,
+            buttonWidth);
+        y -= 40f;
         GameObject startPollingGo = CreateFullWidthButton(
             resources, panel.transform, "StartThreatPollingButton", "开启威胁轮询", 12f, y, buttonWidth);
         y -= 40f;
@@ -121,6 +133,10 @@ public static class ThreatLocalAlertTestUIDemoBuilder
             injectVinGo.GetComponent<Button>();
         serializedDemo.FindProperty("_injectEastAsiaSameVinButton").objectReferenceValue =
             injectEastAsiaGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_injectChongqingShanghai1013Button").objectReferenceValue =
+            injectChongqingShanghaiGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_injectChongqingHeilongjiangShanghai1013Button").objectReferenceValue =
+            injectChongqingHeilongjiangShanghaiGo.GetComponent<Button>();
         serializedDemo.FindProperty("_startThreatPollingButton").objectReferenceValue =
             startPollingGo.GetComponent<Button>();
         serializedDemo.FindProperty("_stopThreatPollingButton").objectReferenceValue =

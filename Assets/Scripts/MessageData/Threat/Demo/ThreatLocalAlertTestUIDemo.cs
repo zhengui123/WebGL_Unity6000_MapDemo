@@ -13,6 +13,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _injectMultiProvinceButton;
     [SerializeField] private Button _injectSameVinButton;
     [SerializeField] private Button _injectEastAsiaSameVinButton;
+    [SerializeField] private Button _injectChongqingShanghai1013Button;
+    [SerializeField] private Button _injectChongqingHeilongjiangShanghai1013Button;
     [SerializeField] private Button _startThreatPollingButton;
     [SerializeField] private Button _stopThreatPollingButton;
     [SerializeField] private Button _skipHoldButton;
@@ -85,6 +87,8 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         Bind(_injectMultiProvinceButton, OnInjectMultiProvinceClicked, bind);
         Bind(_injectSameVinButton, OnInjectSameVinClicked, bind);
         Bind(_injectEastAsiaSameVinButton, OnInjectEastAsiaSameVinClicked, bind);
+        Bind(_injectChongqingShanghai1013Button, OnInjectChongqingShanghai1013Clicked, bind);
+        Bind(_injectChongqingHeilongjiangShanghai1013Button, OnInjectChongqingHeilongjiangShanghai1013Clicked, bind);
         Bind(_startThreatPollingButton, OnStartThreatPollingClicked, bind);
         Bind(_stopThreatPollingButton, OnStopThreatPollingClicked, bind);
         Bind(_skipHoldButton, OnSkipHoldClicked, bind);
@@ -134,6 +138,18 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         InjectJson(
             ThreatLocalAlertTestMockJson.BuildEastAsiaSameVinQualifiedJson(),
             "东亚多国多车 Vin>3（日+韩+蒙+朝）");
+    }
+
+    private void OnInjectChongqingShanghai1013Clicked()
+    {
+        InjectJson(ThreatLocalAlertTestMockJson.ChongqingShanghai1013Json, "渝沪样例(10.13)");
+    }
+
+    private void OnInjectChongqingHeilongjiangShanghai1013Clicked()
+    {
+        InjectJson(
+            ThreatLocalAlertTestMockJson.ChongqingHeilongjiangShanghai1013Json,
+            "渝黑沪样例(10.13)");
     }
 
     /// <summary>注入东亚数据前切到国外·东亚大板块。</summary>
@@ -538,6 +554,18 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         if (_injectEastAsiaSameVinButton == null)
         {
             _injectEastAsiaSameVinButton = transform.Find("InjectEastAsiaSameVinButton")?.GetComponent<Button>();
+        }
+
+        if (_injectChongqingShanghai1013Button == null)
+        {
+            _injectChongqingShanghai1013Button =
+                transform.Find("InjectChongqingShanghai1013Button")?.GetComponent<Button>();
+        }
+
+        if (_injectChongqingHeilongjiangShanghai1013Button == null)
+        {
+            _injectChongqingHeilongjiangShanghai1013Button =
+                transform.Find("InjectChongqingHeilongjiangShanghai1013Button")?.GetComponent<Button>();
         }
 
         if (_startThreatPollingButton == null)
