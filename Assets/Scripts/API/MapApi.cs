@@ -374,9 +374,23 @@ public class MapApi : UnitySingle<MapApi>
         return controller.PlayAttackPathToPartTransition(partId);
     }
 
+    /// <summary>正播：零件 → 攻击路径（不经车辆级；链路零件移向各自 attackPathTarget 后加载连线）。</summary>
+    public bool TransitionPartToAttackPath()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        if (controller == null)
+        {
+            LogManager.LogFeatureWarning("[MapApi] 未找到 VehicleToPartTransitionController，无法播放零件 → 攻击路径过渡。");
+            return false;
+        }
+
+        CloseGJPanel();
+        return controller.PlayPartToAttackPathTransition();
+    }
+
     /// <summary>
     /// 从当前 GameManager 逻辑操控级别，按邻接图逐步过渡到目标级别。
-    /// 主干：地球 → 国家 → 省级 → 车辆；车辆下并列分支：零件 / 攻击路径（须经车辆级衔接）。
+    /// 主干：地球 → 国家 → 省级 → 车辆；车辆下并列分支：零件 / 攻击路径；零件 ↔ 攻击路径可直连。
     /// </summary>
     /// <param name="targetState">
     /// 目标操控级别：0 地球级、1 国家级、2 省级、3 车辆级、4 零件级、5 攻击路径级。

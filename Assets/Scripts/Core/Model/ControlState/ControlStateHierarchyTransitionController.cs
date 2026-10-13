@@ -313,7 +313,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     /// <summary>
     /// 根据逻辑当前与目标计算下一步状态（显式邻接图，不依赖枚举加减）。
-    /// 零件与攻击路径仅经车辆级衔接。
+    /// 零件与攻击路径可与车辆级衔接；零件 ↔ 攻击路径可直连。
     /// </summary>
     private static GameManager.ControlState GetNextStateToward(
         GameManager.ControlState current,
@@ -327,9 +327,18 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         switch (current)
         {
             case GameManager.ControlState.PartLevel:
-                return target == GameManager.ControlState.PartLevel
-                    ? current
-                    : GameManager.ControlState.VehicleLevel;
+                if (target == GameManager.ControlState.PartLevel)
+                {
+                    return current;
+                }
+
+                // 零件 ↔ 攻击链路直连，不经车辆级中转。
+                if (target == GameManager.ControlState.AttackPathLevel)
+                {
+                    return GameManager.ControlState.AttackPathLevel;
+                }
+
+                return GameManager.ControlState.VehicleLevel;
 
             case GameManager.ControlState.AttackPathLevel:
                 if (target == GameManager.ControlState.PartLevel)
@@ -447,6 +456,17 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                 string.IsNullOrEmpty(activePartId)
                     ? "零件 → 车辆倒播（当前零件）"
                     : $"零件 → 车辆倒播（当前零件 {activePartId}）");
+            yield break;
+        }
+
+        if (from == GameManager.ControlState.PartLevel
+            && to == GameManager.ControlState.AttackPathLevel)
+        {
+            yield return WaitForVoidEvent(
+                h => EventManager.Instance.OnVehicleToAttackPathTransitionCompleted += h,
+                h => EventManager.Instance.OnVehicleToAttackPathTransitionCompleted -= h,
+                () => MapApi.Instance.TransitionPartToAttackPath(),
+                "零件 → 攻击路径");
             yield break;
         }
 

@@ -1,9 +1,10 @@
+using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
-/// 车辆 ↔ 零件、车辆 ↔ 攻击路径 过渡控制器。
+/// 车辆 ↔ 零件、车辆 ↔ 攻击路径、零件 ↔ 攻击路径 过渡控制器。
 /// 零件过渡：零件移动 + KJ_Car 溶解显隐（KJ_Car 引用统一由 <see cref="CarModelDissolveController"/> 配置）。
 /// </summary>
 [DisallowMultipleComponent]
@@ -17,6 +18,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         [Tooltip("业务零部件ID；留空时运行时自动回填为 partRoot.name")]
         public string partId;
         public Transform partRoot;
+        [Tooltip("攻击链路级该零件的目标位姿（位置/旋转/缩放）；留空则攻击链路过渡中不做该零件位移缩放")]
+        public Transform attackPathTarget;
     }
 
     [Header("零件列表（按 partId 查找；ID 为空时自动使用 GameObject 名称）")]
@@ -37,7 +40,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private Ease _kjDissolveEase = Ease.InOutQuad;
     [SerializeField] private float _dissolveNoiseScale = 12f;
 
-    [Header("攻击路径（车辆 ↔ 攻击路径过渡）")]
+    [Header("攻击路径（车辆/零件 ↔ 攻击路径过渡）")]
     [SerializeField] private AttackPathController _attackPathController;
     [Tooltip("零件显隐数据源（LineBindings.start3D）；留空则运行时查找")]
     [SerializeField] private GridLine _gridLine;
@@ -49,6 +52,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [SerializeField] private Transform _attackPathCameraTarget;
     [SerializeField] private float _attackPathCameraMoveDuration = 1.2f;
     [SerializeField] private Ease _attackPathCameraEase = Ease.InOutQuad;
+    [Tooltip("攻击链路显示零件移动到各自 attackPathTarget（或收回开局位姿）的时长")]
+    [SerializeField] private float _attackPathPartMoveDuration = 1.2f;
     [Tooltip("攻击路径 → 零件：镜头短恢复时长（与第一段零件动画并行）")]
     [SerializeField] private float _attackPathToPartCameraRestoreDuration = 0.6f;
     [Tooltip("攻击路径 → 零件：第二段零件动画时镜头跟随目标位姿；留空则第二段不再移动镜头")]
@@ -825,7 +830,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 车辆 → 攻击路径：KJ_Car 溶解隐藏后加载攻击链路连线，并按 nodes 零件名控制显隐。
+    /// 车辆 → 攻击路径：KJ_Car 溶解隐藏 + 链路显示零件移向各自 attackPathTarget，完成后加载连线。
     /// </summary>
     public bool PlayVehicleToAttackPathTransition()
     {
@@ -855,7 +860,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         KillSequence();
         RestoreAllPartsToInitialState();
         HideAttackPathControllerImmediate();
-        ApplyAttackPathPartsVisibilityFromCache();
+        List<Transform> displayParts = PrepareAttackPathDisplayPartsAtInitial();
         _activePart = null;
         CacheAttackPathCameraPose();
 
@@ -864,12 +869,53 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _sequence = DOTween.Sequence();
         AppendCarHideOnlyTween(_sequence);
         JoinAttackPathCameraToTargetTween(_sequence);
+        JoinPartsMoveToAttackPathTargets(_sequence, displayParts);
         _sequence.OnComplete(() => CompleteVehicleToAttackPathTransition(controller));
         return true;
     }
 
     /// <summary>
-    /// 攻击路径 → 车辆：停止路径动画并隐藏攻击路径，显示全部零部件，KJ_Car 溶解显现。
+    /// 零件 → 攻击路径：隐藏零件级焦点，链路显示零件移向各自 attackPathTarget，完成后加载连线。
+    /// </summary>
+    public bool PlayPartToAttackPathTransition()
+    {
+        if (_isTransitioning)
+        {
+            return false;
+        }
+
+        if (!TryValidateAttackPathTransition(out AttackPathController controller))
+        {
+            return false;
+        }
+
+        KillSequence();
+        HideAttackPathControllerImmediate();
+        SetPartNameLabelsVisible(false);
+
+        ResolveKjCarReference();
+        if (_kjCarRoot != null)
+        {
+            _kjCarRoot.SetActive(false);
+        }
+
+        List<Transform> displayParts = CollectAttackPathDisplayParts();
+        PreparePartsForPartToAttackPath(displayParts);
+
+        _activePart = null;
+        CacheAttackPathCameraPose();
+
+        _isTransitioning = true;
+        EventManager.Instance?.TriggerVehicleToAttackPathTransitionStarted();
+        _sequence = DOTween.Sequence();
+        AppendPartsMoveToAttackPathTargets(_sequence, displayParts);
+        JoinAttackPathCameraToTargetTween(_sequence);
+        _sequence.OnComplete(() => CompleteVehicleToAttackPathTransition(controller));
+        return true;
+    }
+
+    /// <summary>
+    /// 攻击路径 → 车辆：停止路径，链路显示零件收回开局位姿并隐藏，KJ_Car 溶解显现。
     /// </summary>
     public bool PlayAttackPathToVehicleTransition()
     {
@@ -888,8 +934,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         PrepareKjCarDissolve();
         KillSequence();
         StopAndHideAttackPath();
-        ShowAllParts();
-        RestoreAllPartsToInitialState();
+        List<Transform> displayParts = CollectAttackPathDisplayParts();
+        EnsurePartsActiveForRetract(displayParts);
         ResetCarDragRotation();
         _activePart = null;
 
@@ -899,7 +945,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _kjDissolve.SetDissolveAmount(1f);
 
         _sequence = DOTween.Sequence();
-        AppendCarAppearOnlyTween(_sequence);
+        AppendPartsMoveToInitialAndHide(_sequence, displayParts, excludePart: null);
+        JoinCarAppearTween(_sequence);
         JoinAttackPathCameraRestoreTween(_sequence);
         _sequence.OnComplete(CompleteAttackPathToVehicleTransition);
         return true;
@@ -955,6 +1002,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _kjCarRoot.SetActive(false);
         }
 
+        // 动画被跳过/打断时也保证最终是攻击链路镜头
+        SnapAttackPathCameraToTarget();
+
+        // 先落到目标位姿，再按名单显隐，避免 GridLine 另一套引用把「已飞到位」的零件盖回开局态
+        List<Transform> displayParts = CollectAttackPathDisplayParts();
+        for (int i = 0; i < displayParts.Count; i++)
+        {
+            SnapPartToAttackPathTargetIfConfigured(displayParts[i]);
+        }
+
         ApplyAttackPathPartsVisibilityFromCache();
 
         if (controller != null)
@@ -1006,9 +1063,12 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         KillSequence();
         StopAndHideAttackPath();
-        RestoreAllPartsToInitialState();
-        ApplyCachedPoseFromInitialState(targetPart);
+
+        List<Transform> displayParts = CollectAttackPathDisplayParts();
+        EnsurePartsActiveForRetract(displayParts);
+        SnapPartToAttackPathTargetIfConfigured(targetPart);
         targetPart.gameObject.SetActive(true);
+
         _activePart = targetPart;
         _lastPartName = targetPart.name;
         _lastPartId = targetPartId;
@@ -1023,10 +1083,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
         EventManager.Instance?.TriggerAttackPathToPartTransitionStarted(_lastPartName, _lastPartId);
 
         _sequence = DOTween.Sequence();
-        // 第一段零件动画 + 镜头短恢复（并行）
-        AppendMoveToTarget(_sequence, targetPart, _firstTarget, _firstMoveDuration);
+        // 其它链路零件收回开局并隐藏，与目标零件第一段焦点动画并行
+        AppendPartsMoveToInitialAndHide(_sequence, displayParts, excludePart: targetPart);
+        JoinMoveToTarget(_sequence, targetPart, _firstTarget, _firstMoveDuration);
         JoinAttackPathCameraShortRestoreTween(_sequence);
-        // 第二段零件动画 + 镜头跟随（并行）
+        // 第二段：目标零件 → second + 镜头跟随
         AppendMoveToTarget(_sequence, targetPart, _secondTarget, _secondMoveDuration);
         JoinPartCameraFollowTween(_sequence);
         _sequence.OnComplete(CompleteAttackPathToPartTransition);
@@ -1036,7 +1097,490 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void CompleteAttackPathToPartTransition()
     {
         _isTransitioning = false;
-        EventManager.Instance?.TriggerAttackPathToPartTransitionCompleted(_lastPartName ?? string.Empty, _lastPartId ?? string.Empty);
+        // 非目标链路零件应收回隐藏；目标零件保持零件级展示
+        List<Transform> displayParts = CollectAttackPathDisplayParts();
+        for (int i = 0; i < displayParts.Count; i++)
+        {
+            Transform part = displayParts[i];
+            if (part == null || part == _activePart)
+            {
+                continue;
+            }
+
+            if (TryGetPartInitialState(part, out PartInitialState state))
+            {
+                part.localPosition = state.LocalPosition;
+                part.localRotation = state.LocalRotation;
+                part.localScale = state.LocalScale;
+            }
+
+            part.gameObject.SetActive(false);
+        }
+
+        EventManager.Instance?.TriggerAttackPathToPartTransitionCompleted(
+            _lastPartName ?? string.Empty,
+            _lastPartId ?? string.Empty);
+    }
+
+    /// <summary>
+    /// 收集攻击链路应播放位移的零件：优先 nodes 名匹配 _partRoots（带 attackPathTarget）；
+    /// 名单匹配到但无法解析目标时，回退为所有已配置 attackPathTarget 的零件。
+    /// </summary>
+    private List<Transform> CollectAttackPathDisplayParts()
+    {
+        List<Transform> result = new List<Transform>();
+        HashSet<Transform> added = new HashSet<Transform>();
+
+        CarVehicleDataStore store = CarVehicleDataStore.Instance;
+        List<string> names = store != null ? store.BuildAttackChainNodePartNames() : null;
+
+        if (names != null && names.Count > 0)
+        {
+            for (int i = 0; i < names.Count; i++)
+            {
+                string name = names[i];
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                name = name.Trim();
+                // 只取 _partRoots（可挂 attackPathTarget）；避免 GridLine 同名另一套模型导致无目标、不播位移
+                Transform part = ResolveAttackPathPartRootByName(name);
+                if (part == null || !added.Add(part))
+                {
+                    continue;
+                }
+
+                result.Add(part);
+            }
+        }
+
+        int withTarget = CountPartsWithAttackPathTarget(result);
+        if (result.Count == 0 || withTarget == 0)
+        {
+            result.Clear();
+            added.Clear();
+            int fallbackCount = CollectPartsWithAttackPathTarget(result, added);
+            if (fallbackCount > 0)
+            {
+                LogManager.LogFeatureWarning(
+                    "[VehicleToPart] 攻击链路名单未匹配到带 attackPathTarget 的 _partRoots，" +
+                    $"已回退为已配置目标的 {fallbackCount} 个零件。");
+            }
+            else
+            {
+                LogManager.LogFeatureWarning(
+                    "[VehicleToPart] 未收集到可动画零件：请确认 PartBindingData.partId/名称与 " +
+                    "partTypeName 一致，并在同一行拖好 attackPathTarget。");
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>仅从 _partRoots 按 partId / 物体名解析零件根（忽略 GridLine）。</summary>
+    private Transform ResolveAttackPathPartRootByName(string partName)
+    {
+        if (string.IsNullOrWhiteSpace(partName) || _partRoots == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == null)
+            {
+                continue;
+            }
+
+            string id = NormalizePartId(binding.partId, binding.partRoot);
+            if (string.Equals(id, partName, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(binding.partRoot.name, partName, StringComparison.OrdinalIgnoreCase))
+            {
+                return binding.partRoot;
+            }
+        }
+
+        return null;
+    }
+
+    private int CountPartsWithAttackPathTarget(List<Transform> parts)
+    {
+        int count = 0;
+        if (parts == null)
+        {
+            return 0;
+        }
+
+        for (int i = 0; i < parts.Count; i++)
+        {
+            if (parts[i] != null && GetAttackPathTargetForPart(parts[i]) != null)
+            {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    private int CollectPartsWithAttackPathTarget(List<Transform> result, HashSet<Transform> added)
+    {
+        int count = 0;
+        if (_partRoots == null || result == null || added == null)
+        {
+            return 0;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == null || binding.attackPathTarget == null)
+            {
+                continue;
+            }
+
+            if (!added.Add(binding.partRoot))
+            {
+                continue;
+            }
+
+            result.Add(binding.partRoot);
+            count++;
+        }
+
+        return count;
+    }
+
+    /// <summary>链路显示零件放到开局位姿并激活，供车辆→攻击链路出发。</summary>
+    private List<Transform> PrepareAttackPathDisplayPartsAtInitial()
+    {
+        List<Transform> parts = CollectAttackPathDisplayParts();
+        int withTarget = 0;
+        for (int i = 0; i < parts.Count; i++)
+        {
+            Transform part = parts[i];
+            if (part == null)
+            {
+                continue;
+            }
+
+            EnsurePartInitialStateCached(part);
+            if (TryGetPartInitialState(part, out PartInitialState state))
+            {
+                part.localPosition = state.LocalPosition;
+                part.localRotation = state.LocalRotation;
+                part.localScale = state.LocalScale;
+            }
+
+            part.gameObject.SetActive(true);
+            if (GetAttackPathTargetForPart(part) != null)
+            {
+                withTarget++;
+            }
+        }
+
+        LogManager.LogFeature(
+            $"[VehicleToPart] 攻击链路零件动画准备 | parts={parts.Count} | withTarget={withTarget} | " +
+            $"duration={AttackPathPartMoveDuration:F2}s");
+        SetPartNameLabelsVisible(true);
+        return parts;
+    }
+
+    private void EnsurePartInitialStateCached(Transform part)
+    {
+        if (part == null || _partInitialStates.ContainsKey(part.GetInstanceID()))
+        {
+            return;
+        }
+
+        _partInitialStates[part.GetInstanceID()] = new PartInitialState
+        {
+            LocalPosition = part.localPosition,
+            LocalRotation = part.localRotation,
+            LocalScale = part.localScale,
+            IsActive = false,
+        };
+    }
+
+    /// <summary>零件→攻击链路：当前焦点零件保持现位，其它链路零件从开局位姿出发。</summary>
+    private void PreparePartsForPartToAttackPath(List<Transform> displayParts)
+    {
+        Transform focusPart = _activePart;
+        for (int i = 0; i < displayParts.Count; i++)
+        {
+            Transform part = displayParts[i];
+            if (part == null)
+            {
+                continue;
+            }
+
+            if (part == focusPart)
+            {
+                part.gameObject.SetActive(true);
+                continue;
+            }
+
+            if (TryGetPartInitialState(part, out PartInitialState state))
+            {
+                part.localPosition = state.LocalPosition;
+                part.localRotation = state.LocalRotation;
+                part.localScale = state.LocalScale;
+            }
+
+            part.gameObject.SetActive(true);
+        }
+
+        // 非链路零件全部隐藏
+        if (_partRoots != null)
+        {
+            HashSet<Transform> displaySet = new HashSet<Transform>(displayParts);
+            for (int i = 0; i < _partRoots.Count; i++)
+            {
+                Transform part = _partRoots[i].partRoot;
+                if (part != null && !displaySet.Contains(part))
+                {
+                    part.gameObject.SetActive(false);
+                }
+            }
+        }
+
+        SetPartNameLabelsVisible(true);
+    }
+
+    private void EnsurePartsActiveForRetract(List<Transform> parts)
+    {
+        for (int i = 0; i < parts.Count; i++)
+        {
+            Transform part = parts[i];
+            if (part == null)
+            {
+                continue;
+            }
+
+            SnapPartToAttackPathTargetIfConfigured(part);
+            part.gameObject.SetActive(true);
+        }
+    }
+
+    private void SnapPartToAttackPathTargetIfConfigured(Transform part)
+    {
+        Transform target = GetAttackPathTargetForPart(part);
+        if (part == null || target == null)
+        {
+            return;
+        }
+
+        part.DOKill();
+        part.position = target.position;
+        part.rotation = target.rotation;
+        part.localScale = target.localScale;
+    }
+
+    private Transform GetAttackPathTargetForPart(Transform part)
+    {
+        if (part == null || _partRoots == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == part)
+            {
+                return binding.attackPathTarget;
+            }
+        }
+
+        // GridLine 模型与 _partRoots 不是同一引用时：按名称回查 attackPathTarget
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.attackPathTarget == null || binding.partRoot == null)
+            {
+                continue;
+            }
+
+            string id = NormalizePartId(binding.partId, binding.partRoot);
+            if (string.Equals(id, part.name, StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(binding.partRoot.name, part.name, StringComparison.OrdinalIgnoreCase))
+            {
+                return binding.attackPathTarget;
+            }
+        }
+
+        return null;
+    }
+
+    private float AttackPathPartMoveDuration => Mathf.Max(0.01f, _attackPathPartMoveDuration);
+
+    /// <summary>并行：零件移向各自 attackPathTarget（无目标则保持当前姿态）。</summary>
+    private void JoinPartsMoveToAttackPathTargets(Sequence sequence, List<Transform> parts)
+    {
+        AppendOrJoinPartsMoveToAttackPathTargets(sequence, parts, appendFirst: false);
+    }
+
+    /// <summary>先 Append 第一段零件移动，其余 Join。</summary>
+    private void AppendPartsMoveToAttackPathTargets(Sequence sequence, List<Transform> parts)
+    {
+        AppendOrJoinPartsMoveToAttackPathTargets(sequence, parts, appendFirst: true);
+    }
+
+    private void AppendOrJoinPartsMoveToAttackPathTargets(Sequence sequence, List<Transform> parts, bool appendFirst)
+    {
+        if (sequence == null || parts == null || parts.Count == 0)
+        {
+            if (appendFirst && sequence != null)
+            {
+                sequence.AppendInterval(AttackPathPartMoveDuration);
+            }
+
+            return;
+        }
+
+        float duration = AttackPathPartMoveDuration;
+        bool started = false;
+        int tweenCount = 0;
+
+        for (int i = 0; i < parts.Count; i++)
+        {
+            Transform part = parts[i];
+            Transform target = GetAttackPathTargetForPart(part);
+            if (part == null)
+            {
+                continue;
+            }
+
+            part.gameObject.SetActive(true);
+            if (target == null)
+            {
+                LogManager.LogFeatureWarning(
+                    $"[VehicleToPart] 零件「{part.name}」未配置 attackPathTarget，跳过位移。");
+                continue;
+            }
+
+            Tween moveTween = BuildMoveTween(part, target, duration);
+            if (moveTween == null)
+            {
+                SnapPartToAttackPathTargetIfConfigured(part);
+                continue;
+            }
+
+            if (!started)
+            {
+                // appendFirst：本段自己 Append；否则假定序列已有车辆溶解等，直接 Join
+                if (appendFirst)
+                {
+                    sequence.Append(moveTween);
+                }
+                else
+                {
+                    sequence.Join(moveTween);
+                }
+
+                started = true;
+            }
+            else
+            {
+                sequence.Join(moveTween);
+            }
+
+            tweenCount++;
+        }
+
+        if (!started && appendFirst)
+        {
+            sequence.AppendInterval(duration);
+        }
+
+        LogManager.LogFeature(
+            $"[VehicleToPart] 攻击链路零件位移 | tweens={tweenCount} | appendFirst={appendFirst} | " +
+            $"duration={duration:F2}s");
+    }
+
+    /// <summary>Append：零件并行回到开局本地位姿后隐藏（可排除某一零件）。</summary>
+    private void AppendPartsMoveToInitialAndHide(
+        Sequence sequence,
+        List<Transform> parts,
+        Transform excludePart)
+    {
+        if (sequence == null)
+        {
+            return;
+        }
+
+        float duration = AttackPathPartMoveDuration;
+        Sequence group = DOTween.Sequence();
+        bool joined = false;
+        List<Transform> toHide = new List<Transform>();
+
+        if (parts != null)
+        {
+            for (int i = 0; i < parts.Count; i++)
+            {
+                Transform part = parts[i];
+                if (part == null || part == excludePart)
+                {
+                    continue;
+                }
+
+                toHide.Add(part);
+                if (!TryGetPartInitialState(part, out PartInitialState state))
+                {
+                    part.gameObject.SetActive(false);
+                    continue;
+                }
+
+                part.gameObject.SetActive(true);
+                Tween moveTween = BuildMoveTweenToPose(
+                    part,
+                    state.LocalPosition,
+                    state.LocalRotation,
+                    state.LocalScale,
+                    duration);
+                if (moveTween != null)
+                {
+                    group.Join(moveTween);
+                    joined = true;
+                }
+                else
+                {
+                    part.localPosition = state.LocalPosition;
+                    part.localRotation = state.LocalRotation;
+                    part.localScale = state.LocalScale;
+                }
+            }
+        }
+
+        if (!joined)
+        {
+            group.AppendInterval(0.01f);
+        }
+
+        group.OnComplete(() =>
+        {
+            for (int i = 0; i < toHide.Count; i++)
+            {
+                Transform part = toHide[i];
+                if (part != null)
+                {
+                    part.gameObject.SetActive(false);
+                }
+            }
+        });
+
+        sequence.Append(group);
+    }
+
+    private void JoinMoveToTarget(Sequence sequence, Transform part, Transform target, float duration)
+    {
+        Tween moveTween = BuildMoveTween(part, target, duration);
+        if (moveTween != null)
+        {
+            sequence.Join(moveTween);
+        }
     }
 
     private AttackPathController ResolveAttackPathController()
@@ -1145,14 +1689,45 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return _attackPathCamera;
     }
 
-    /// <summary>与溶解隐藏并行：相机移动到攻击路径目标点位。</summary>
+    /// <summary>与当前段并行：相机移动到攻击路径目标点位；无法 Join 时改为 Append。</summary>
     private void JoinAttackPathCameraToTargetTween(Sequence sequence)
     {
+        if (sequence == null)
+        {
+            return;
+        }
+
         Tween cameraTween = BuildAttackPathCameraMoveTween(_attackPathCameraTarget, _attackPathCameraMoveDuration);
-        if (cameraTween != null)
+        if (cameraTween == null)
+        {
+            // 播不了动画时立刻对齐，避免停在零件/车辆镜头
+            SnapAttackPathCameraToTarget();
+            return;
+        }
+
+        // 序列尚无时间轴时 Join 无效，改为 Append
+        if (sequence.Duration(false) <= 0f)
+        {
+            sequence.Append(cameraTween);
+        }
+        else
         {
             sequence.Join(cameraTween);
         }
+    }
+
+    /// <summary>进入攻击链路完成时：镜头强制对齐到 _attackPathCameraTarget。</summary>
+    private void SnapAttackPathCameraToTarget()
+    {
+        Transform camera = ResolveAttackPathCamera();
+        if (camera == null || _attackPathCameraTarget == null)
+        {
+            return;
+        }
+
+        camera.DOKill();
+        camera.position = _attackPathCameraTarget.position;
+        camera.rotation = _attackPathCameraTarget.rotation;
     }
 
     /// <summary>与溶解显现并行：相机还原到过渡前缓存位姿。</summary>
@@ -1188,14 +1763,26 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private Tween BuildAttackPathCameraMoveTween(Transform target, float duration)
     {
         Transform camera = ResolveAttackPathCamera();
-        if (camera == null || target == null)
+        if (camera == null)
         {
+            LogManager.LogFeatureWarning(
+                "[VehicleToAttackPath] 未找到攻击链路镜头（请配置 _attackPathCamera，或保证 Camera.main 可用）。");
             return null;
         }
 
+        if (target == null)
+        {
+            LogManager.LogFeatureWarning(
+                "[VehicleToAttackPath] 未配置 _attackPathCameraTarget，跳过镜头动画。");
+            return null;
+        }
+
+        // 清掉其它系统占用的镜头 Tween，避免新动画不播
+        camera.DOKill();
+        float moveDuration = Mathf.Max(0.01f, duration);
         Sequence moveSequence = DOTween.Sequence();
-        moveSequence.Join(camera.DOMove(target.position, duration).SetEase(_attackPathCameraEase));
-        moveSequence.Join(camera.DORotateQuaternion(target.rotation, duration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DOMove(target.position, moveDuration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DORotateQuaternion(target.rotation, moveDuration).SetEase(_attackPathCameraEase));
         return moveSequence;
     }
 
@@ -1207,9 +1794,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return null;
         }
 
+        camera.DOKill();
+        float moveDuration = Mathf.Max(0.01f, duration);
         Sequence moveSequence = DOTween.Sequence();
-        moveSequence.Join(camera.DOMove(_cachedAttackPathCameraPosition, duration).SetEase(_attackPathCameraEase));
-        moveSequence.Join(camera.DORotateQuaternion(_cachedAttackPathCameraRotation, duration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DOMove(_cachedAttackPathCameraPosition, moveDuration).SetEase(_attackPathCameraEase));
+        moveSequence.Join(camera.DORotateQuaternion(_cachedAttackPathCameraRotation, moveDuration).SetEase(_attackPathCameraEase));
         return moveSequence;
     }
 
