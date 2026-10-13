@@ -772,6 +772,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         {
             ThreatPartDrillStep step = partSteps[i];
             string partId = step.PartId;
+            int partType = step.PartType;
             _activePartEventId = string.IsNullOrWhiteSpace(step.EventId) ? null : step.EventId.Trim();
 
             bool fromAttackPath = i == 0 &&
@@ -781,26 +782,28 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             if (fromAttackPath)
             {
                 yield return RunTimedStep(
-                    $"攻击路径→零件 {partId}",
-                    TransitionAttackPathToPartAndWait(partId));
+                    $"攻击路径→零件 type={partType} {partId}",
+                    TransitionAttackPathToPartAndWait(partId, partType));
             }
             else
             {
                 bool partToPart = GameManager.Instance != null &&
                                  GameManager.Instance.CurrentState == GameManager.ControlState.PartLevel;
-                string stepLabel = partToPart ? $"零件→零件 {partId}" : $"车辆→零件 {partId}";
-                yield return RunTimedStep(stepLabel, TransitionToPartLevelAndWait(partId));
+                string stepLabel = partToPart
+                    ? $"零件→零件 type={partType} {partId}"
+                    : $"车辆→零件 type={partType} {partId}";
+                yield return RunTimedStep(stepLabel, TransitionToPartLevelAndWait(partId, partType));
             }
 
             // 零件加载/切换完成后立刻开始停留计时
             _visualStage = ThreatVisualStage.PartHold;
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
             LogManager.LogFeature(
-                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partSteps.Count}) | part={partId} | " +
+                $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partSteps.Count}) | type={partType} | part={partId} | " +
                 $"eventId={_activePartEventId ?? "(空)"} | {partHold:F1}s");
             yield return WaitHoldSeconds(
                 partHold,
-                $"零件级停留 ({i + 1}/{partSteps.Count}) part={partId}");
+                $"零件级停留 ({i + 1}/{partSteps.Count}) type={partType} part={partId}");
             _visualStage = ThreatVisualStage.None;
         }
 
@@ -960,21 +963,21 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return gm != null && gm.CurrentState == GameManager.ControlState.AttackPathLevel;
     }
 
-    private IEnumerator TransitionAttackPathToPartAndWait(string partId)
+    private IEnumerator TransitionAttackPathToPartAndWait(string partId, int partType = 0)
     {
         yield return WaitForTransitionControllersIdle();
         yield return WaitForBoolStringStringTransition(
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted += h,
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionAttackPathToPart(partId),
-            $"攻击路径 → 零件 {partId}");
+            () => MapApi.Instance.TransitionAttackPathToPart(partId, partType),
+            $"攻击路径 → 零件 type={partType} {partId}");
     }
 
     /// <summary>
     /// 进入/切换零件：已在零件级监听零件→零件完成；否则监听车辆→零件完成。
     /// 启动后若未真正过渡（同零件已激活），立刻视为加载完成并开始停留。
     /// </summary>
-    private IEnumerator TransitionToPartLevelAndWait(string partId)
+    private IEnumerator TransitionToPartLevelAndWait(string partId, int partType = 0)
     {
         yield return WaitForTransitionControllersIdle();
 
@@ -987,7 +990,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         bool partToPart = GameManager.Instance != null &&
                           GameManager.Instance.CurrentState == GameManager.ControlState.PartLevel;
-        string stepName = partToPart ? $"零件 → 零件 {partId}" : $"车辆 → 零件 {partId}";
+        string stepName = partToPart
+            ? $"零件 → 零件 type={partType} {partId}"
+            : $"车辆 → 零件 type={partType} {partId}";
 
         _transitionStepDone = false;
         if (partToPart)
@@ -999,7 +1004,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             em.OnVehicleToPartTransitionCompleted += OnTransitionStepDoneWithName;
         }
 
-        bool started = MapApi.Instance.TransitionVehicleToPart(partId);
+        bool started = MapApi.Instance.TransitionVehicleToPart(partId, partType);
         if (!started)
         {
             LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] {stepName} 启动失败。");
@@ -1283,20 +1288,22 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private readonly struct ThreatPartDrillStep
     {
+        public readonly int PartType;
         public readonly string PartId;
         public readonly string EventId;
 
-        public ThreatPartDrillStep(string partId, string eventId)
+        public ThreatPartDrillStep(int partType, string partId, string eventId)
         {
-            PartId = partId;
+            PartType = partType;
+            PartId = partId ?? string.Empty;
             EventId = eventId ?? string.Empty;
         }
     }
 
     /// <summary>
-    /// 收集零件下钻步骤（partId + 对应 pending eventId）。
-    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按零件名去重（优先攻击链路节点，否则防护状态；eventId 取首条 pending）。
-    /// 为 false：按防护状态 pendingEvents 展开，同一零件 N 条威胁 → N 步，每步绑定对应 eventId。
+    /// 收集零件下钻步骤（partType + 显示名 + pending eventId）。
+    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按 partType 去重（优先攻击链路节点）；
+    /// 为 false：按防护状态 pendingEvents 展开。
     /// </summary>
     private List<ThreatPartDrillStep> ResolvePartDrillSteps()
     {
@@ -1308,32 +1315,56 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return BuildPartDrillStepsDeduped();
     }
 
-    /// <summary>去重：攻击链路节点零件名优先，否则防护状态零件名（各一次，eventId 取该零件首条 pending）。</summary>
+    /// <summary>去重：攻击链路 partType 优先，否则防护状态轮播（各一次）。</summary>
     private static List<ThreatPartDrillStep> BuildPartDrillStepsDeduped()
     {
-        List<string> partIds = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
-        if (partIds.Count == 0)
+        List<ThreatPartDrillStep> steps = new List<ThreatPartDrillStep>();
+        HashSet<int> uniqueTypes = new HashSet<int>();
+
+        List<int> types = CarVehicleDataStore.Instance.BuildAttackChainNodePartTypes();
+        AttackChainNode[] nodes = CarVehicleDataStore.Instance.AttackChain?.data?.nodes;
+        for (int i = 0; i < types.Count; i++)
         {
-            List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
-            HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            partIds = new List<string>(slides.Count);
-            for (int i = 0; i < slides.Count; i++)
+            int partType = types[i];
+            if (!uniqueTypes.Add(partType))
             {
-                string name = slides[i].PartTypeName;
-                if (string.IsNullOrWhiteSpace(name) || !unique.Add(name.Trim()))
+                continue;
+            }
+
+            string displayName = ResolveDisplayNameForPartType(partType, nodes);
+            steps.Add(new ThreatPartDrillStep(
+                partType,
+                displayName,
+                GetFirstPendingEventIdForPart(displayName, partType)));
+        }
+
+        if (steps.Count > 0)
+        {
+            return steps;
+        }
+
+        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
+        for (int i = 0; i < slides.Count; i++)
+        {
+            CarVehiclePartSlide slide = slides[i];
+            int partType = slide.PartType;
+            if (PartTypeMatchUtil.IsValidPartType(partType))
+            {
+                if (!uniqueTypes.Add(partType))
                 {
                     continue;
                 }
-
-                partIds.Add(name.Trim());
             }
-        }
+            else if (string.IsNullOrWhiteSpace(slide.PartTypeName))
+            {
+                continue;
+            }
 
-        List<ThreatPartDrillStep> steps = new List<ThreatPartDrillStep>(partIds.Count);
-        for (int i = 0; i < partIds.Count; i++)
-        {
-            string partId = partIds[i];
-            steps.Add(new ThreatPartDrillStep(partId, GetFirstPendingEventIdForPart(partId)));
+            string name = slide.PartTypeName ?? string.Empty;
+            steps.Add(new ThreatPartDrillStep(
+                partType,
+                name,
+                GetFirstPendingEventIdForPart(name, partType)));
         }
 
         return steps;
@@ -1341,7 +1372,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     /// <summary>
     /// 不去重：按防护状态 pendingEvents 展开；无事件的零件仍保留 1 次（eventId 空）。
-    /// 若无防护状态数据，回退为攻击链路节点（各 1 次，eventId 空或首条 pending）。
+    /// 若无防护状态数据，回退为攻击链路节点。
     /// </summary>
     private static List<ThreatPartDrillStep> BuildPartDrillStepsExpandedByPendingEvents()
     {
@@ -1355,14 +1386,49 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             return result;
         }
 
-        List<string> fallbackNames = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
-        for (int i = 0; i < fallbackNames.Count; i++)
+        List<int> fallbackTypes = CarVehicleDataStore.Instance.BuildAttackChainNodePartTypes();
+        AttackChainNode[] nodes = CarVehicleDataStore.Instance.AttackChain?.data?.nodes;
+        for (int i = 0; i < fallbackTypes.Count; i++)
         {
-            string partId = fallbackNames[i];
-            result.Add(new ThreatPartDrillStep(partId, GetFirstPendingEventIdForPart(partId)));
+            int partType = fallbackTypes[i];
+            string displayName = ResolveDisplayNameForPartType(partType, nodes);
+            result.Add(new ThreatPartDrillStep(
+                partType,
+                displayName,
+                GetFirstPendingEventIdForPart(displayName, partType)));
         }
 
         return result;
+    }
+
+    private static string ResolveDisplayNameForPartType(int partType, AttackChainNode[] nodes)
+    {
+        if (nodes != null)
+        {
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                AttackChainNode node = nodes[i];
+                if (node == null
+                    || !PartTypeMatchUtil.TryParsePartType(node.partType, out int nodeType)
+                    || nodeType != partType
+                    || string.IsNullOrWhiteSpace(node.partTypeName))
+                {
+                    continue;
+                }
+
+                return node.partTypeName.Trim();
+            }
+        }
+
+        VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+        if (transition != null
+            && transition.TryResolvePartByType(partType, out Transform root)
+            && root != null)
+        {
+            return root.name;
+        }
+
+        return partType.ToString();
     }
 
     private static void AppendPartDrillStepsFromParts(
@@ -1377,16 +1443,25 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         for (int i = 0; i < parts.Length; i++)
         {
             PartProtectionStatusPart part = parts[i];
-            if (part == null || string.IsNullOrWhiteSpace(part.partTypeName))
+            if (part == null)
             {
                 continue;
             }
 
-            string partId = part.partTypeName.Trim();
+            int partType = 0;
+            PartTypeMatchUtil.TryNormalizePartType(part.partType, out partType);
+            string partId = !string.IsNullOrWhiteSpace(part.partTypeName)
+                ? part.partTypeName.Trim()
+                : (PartTypeMatchUtil.IsValidPartType(partType) ? partType.ToString() : string.Empty);
+            if (partId.Length == 0 && !PartTypeMatchUtil.IsValidPartType(partType))
+            {
+                continue;
+            }
+
             PartProtectionPendingEvent[] pending = part.pendingEvents;
             if (pending == null || pending.Length == 0)
             {
-                steps.Add(new ThreatPartDrillStep(partId, string.Empty));
+                steps.Add(new ThreatPartDrillStep(partType, partId, string.Empty));
                 continue;
             }
 
@@ -1401,48 +1476,59 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 }
 
                 string eventId = string.IsNullOrWhiteSpace(evt.eventId) ? string.Empty : evt.eventId.Trim();
-                steps.Add(new ThreatPartDrillStep(partId, eventId));
+                steps.Add(new ThreatPartDrillStep(partType, partId, eventId));
                 added = true;
             }
 
             if (!added)
             {
-                steps.Add(new ThreatPartDrillStep(partId, string.Empty));
+                steps.Add(new ThreatPartDrillStep(partType, partId, string.Empty));
             }
         }
     }
 
-    private static string GetFirstPendingEventIdForPart(string partId)
+    private static string GetFirstPendingEventIdForPart(string partId, int partType = 0)
     {
-        if (string.IsNullOrWhiteSpace(partId))
-        {
-            return string.Empty;
-        }
-
         PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
-        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partId);
+        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partId, partType);
         if (!string.IsNullOrEmpty(fromUnprotected))
         {
             return fromUnprotected;
         }
 
-        return FindFirstPendingEventId(data?.protectedParts, partId);
+        return FindFirstPendingEventId(data?.protectedParts, partId, partType);
     }
 
-    private static string FindFirstPendingEventId(PartProtectionStatusPart[] parts, string partId)
+    private static string FindFirstPendingEventId(
+        PartProtectionStatusPart[] parts,
+        string partId,
+        int partType = 0)
     {
         if (parts == null || parts.Length == 0)
         {
             return string.Empty;
         }
 
-        string partKey = partId.Trim();
+        bool hasType = PartTypeMatchUtil.IsValidPartType(partType);
+        string partKey = string.IsNullOrWhiteSpace(partId) ? null : partId.Trim();
         for (int i = 0; i < parts.Length; i++)
         {
             PartProtectionStatusPart part = parts[i];
-            if (part == null
-                || string.IsNullOrWhiteSpace(part.partTypeName)
-                || !string.Equals(part.partTypeName.Trim(), partKey, StringComparison.OrdinalIgnoreCase))
+            if (part == null)
+            {
+                continue;
+            }
+
+            bool matched = hasType && part.partType == partType;
+            if (!matched
+                && partKey != null
+                && !string.IsNullOrWhiteSpace(part.partTypeName)
+                && string.Equals(part.partTypeName.Trim(), partKey, StringComparison.OrdinalIgnoreCase))
+            {
+                matched = true;
+            }
+
+            if (!matched)
             {
                 continue;
             }

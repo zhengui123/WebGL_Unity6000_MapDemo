@@ -15,14 +15,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
     [System.Serializable]
     public struct PartBindingData
     {
-        [Tooltip("业务零部件ID；留空时运行时自动回填为 partRoot.name")]
+        [Tooltip("零部件标号 1~5，与接口 partType 匹配模型")]
+        public int partType;
+        [Tooltip("显示名默认值；宿主 partId / 接口 partTypeName 会覆盖显示，留空则用 partRoot.name")]
         public string partId;
         public Transform partRoot;
         [Tooltip("攻击链路级该零件的目标位姿（位置/旋转/缩放）；留空则攻击链路过渡中不做该零件位移缩放")]
         public Transform attackPathTarget;
     }
 
-    [Header("零件列表（按 partId 查找；ID 为空时自动使用 GameObject 名称）")]
+    [Header("零件列表（按 partType 1~5 匹配模型；partId 为显示名）")]
     [SerializeField] private List<PartBindingData> _partRoots = new List<PartBindingData>();
 
     [Header("目标位姿")]
@@ -69,6 +71,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private Transform _activePart;
     private string _lastPartName;
     private string _lastPartId;
+    private int _lastPartType;
     private Vector3 _cachedPartLocalPosition;
     private Quaternion _cachedPartLocalRotation;
     private Vector3 _cachedPartLocalScale;
@@ -88,6 +91,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     public Transform ActivePart => _activePart;
     public string LastPartName => _lastPartName;
     public string LastPartId => _lastPartId;
+    public int LastPartType => _lastPartType;
     public IReadOnlyList<PartBindingData> ConfiguredPartRoots => _partRoots;
 
     /// <summary>若车辆/零件/攻击路径过渡正在播放，则立即完成并执行完成回调。</summary>
@@ -128,7 +132,30 @@ public class VehicleToPartTransitionController : MonoBehaviour
         ResolveAttackPathController();
         CacheAllPartInitialStates();
         StopAndHideAttackPath();
-        ShowPartsByNames(null);
+        // 开局即隐藏零部件模型（车辆级也不展示）
+        EnsureVehicleLevelVisualsHidden();
+    }
+
+    private void OnEnable()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionCompleted += HandleEnteredVehicleLevelHideParts;
+    }
+
+    private void OnDisable()
+    {
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            return;
+        }
+
+        em.OnPlateToVehicleViewTransitionCompleted -= HandleEnteredVehicleLevelHideParts;
     }
 
     private void OnDestroy()
@@ -140,6 +167,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
     }
 
+    private void HandleEnteredVehicleLevelHideParts(string _)
+    {
+        EnsureVehicleLevelVisualsHidden();
+    }
+
     #endregion
 
     #region 车辆 ↔ 零件过渡
@@ -147,10 +179,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 播放车辆 → 零件过渡。
     /// </summary>
-    /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
-    public bool PlayTransition(string partId = null)
+    /// <param name="partId">显示名（宿主 partId = partTypeName）；非空才覆盖该 partType 显示名。</param>
+    /// <param name="partType">模型标号 1~5；&lt;=0 时回退用 partId/名称匹配（兼容旧调用）。</param>
+    public bool PlayTransition(string partId = null, int partType = 0)
     {
-        if (!TryResolvePart(partId, out Transform part))
+        if (!TryResolvePartForTransition(partType, partId, out Transform part, out int resolvedType))
         {
             return false;
         }
@@ -161,7 +194,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return false;
         }
 
-        string normalizedPartId = NormalizePartId(partId, part);
+        // 前端：partId 非空才改显示名；空/不填则沿用绑定原名
+        string displayName = ResolveAndMaybeApplyDisplayName(resolvedType, part, partId);
 
         // 零件级快速切换：A→B 过渡中再切 C 时打断当前动画，立刻开切 C（跳过 B 收回）。
         if (_isTransitioning && IsPartLevel())
@@ -176,9 +210,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
         if (IsPartLevel() && _activePart == part)
         {
             _skipOldPartRetractOnNextPartSwitch = false;
-            // 同零件：不播过渡动画，但仍走切换完成回调（威胁同零件多 eventId 需宿主收到完成通知）。
             _lastPartName = part.name;
-            _lastPartId = normalizedPartId;
+            _lastPartId = displayName;
+            _lastPartType = resolvedType;
             EventManager.Instance?.TriggerPartToPartTransitionCompleted(
                 _lastPartName,
                 _lastPartId);
@@ -189,14 +223,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
         {
             bool skipOldRetract = _skipOldPartRetractOnNextPartSwitch;
             _skipOldPartRetractOnNextPartSwitch = false;
-            return PlayPartToPartTransition(part, normalizedPartId, skipOldRetract);
+            return PlayPartToPartTransition(part, displayName, skipOldRetract, resolvedType);
         }
 
         _skipOldPartRetractOnNextPartSwitch = false;
 
         if (IsAttackPathLevel())
         {
-            return PlayAttackPathToPartTransition(part, normalizedPartId);
+            return PlayAttackPathToPartTransition(part, displayName, resolvedType);
         }
 
         ResolveKjCarReference();
@@ -221,7 +255,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
-        _lastPartId = normalizedPartId;
+        _lastPartId = displayName;
+        _lastPartType = resolvedType;
         EventManager.Instance?.TriggerVehicleToPartTransitionStarted(_lastPartName);
         part.gameObject.SetActive(true);
 
@@ -249,9 +284,10 @@ public class VehicleToPartTransitionController : MonoBehaviour
             partId = _lastPartId;
         }
 
-        if (string.IsNullOrEmpty(partId) || !TryResolvePart(partId, out Transform part))
+        int reverseType = _lastPartType;
+        if (!TryResolvePartForTransition(reverseType, partId, out Transform part, out int resolvedType))
         {
-            LogManager.LogFeatureError("[VehicleToPart] 倒播失败：未指定零件ID或找不到对应零件。");
+            LogManager.LogFeatureError("[VehicleToPart] 倒播失败：未指定零件或找不到对应零件。");
             return false;
         }
 
@@ -285,7 +321,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         _activePart = part;
         _lastPartName = part.name;
-        _lastPartId = ResolvePartIdByTransform(part);
+        // 倒播：名字非空才覆盖显示名，否则沿用绑定原名
+        _lastPartId = ResolveAndMaybeApplyDisplayName(resolvedType, part, partId);
+        _lastPartType = resolvedType;
         EventManager.Instance?.TriggerVehicleToPartTransitionReverseStarted(part.name);
         part.gameObject.SetActive(true);
         _kjCarRoot.SetActive(true);
@@ -298,7 +336,65 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return true;
     }
 
-    /// <summary>按 partId 在缓存列表中查找零件；partId 为空时返回第一个有效项。</summary>
+    /// <summary>按 partType（1~5）匹配模型；失败返回 false。</summary>
+    public bool TryResolvePartByType(int partType, out Transform part)
+    {
+        part = null;
+        if (!PartTypeMatchUtil.IsValidPartType(partType))
+        {
+            return false;
+        }
+
+        if (_partRoots == null || _partRoots.Count == 0)
+        {
+            LogManager.LogFeatureError("[VehicleToPart] 零件列表为空，请在 Inspector 中挂载。");
+            return false;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == null || binding.partType != partType)
+            {
+                continue;
+            }
+
+            part = binding.partRoot;
+            return true;
+        }
+
+        LogManager.LogFeatureError($"[VehicleToPart] 未在列表中找到 partType={partType} 的零件。");
+        return false;
+    }
+
+    /// <summary>
+    /// 优先 partType 匹配；type 非法时回退 partId/名称（兼容旧宿主仅传显示名）。
+    /// </summary>
+    public bool TryResolvePartForTransition(
+        int partType,
+        string partId,
+        out Transform part,
+        out int resolvedType)
+    {
+        part = null;
+        resolvedType = 0;
+
+        if (PartTypeMatchUtil.IsValidPartType(partType) && TryResolvePartByType(partType, out part))
+        {
+            resolvedType = partType;
+            return true;
+        }
+
+        if (!TryResolvePart(partId, out part))
+        {
+            return false;
+        }
+
+        resolvedType = ResolvePartTypeByTransform(part);
+        return true;
+    }
+
+    /// <summary>按显示名/物体名查找零件；partId 为空时返回第一个有效项（兼容旧调用）。</summary>
     public bool TryResolvePart(string partId, out Transform part)
     {
         part = null;
@@ -319,20 +415,65 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return part != null;
         }
 
+        string key = partId.Trim();
         for (int i = 0; i < _partRoots.Count; i++)
         {
             PartBindingData binding = _partRoots[i];
             Transform candidate = binding.partRoot;
+            if (candidate == null)
+            {
+                continue;
+            }
+
             string candidateId = NormalizePartId(binding.partId, candidate);
-            if (candidate != null && candidateId == partId)
+            if (string.Equals(candidateId, key, StringComparison.OrdinalIgnoreCase)
+                || string.Equals(candidate.name, key, StringComparison.OrdinalIgnoreCase))
             {
                 part = candidate;
                 return true;
             }
         }
 
-        LogManager.LogFeatureError($"[VehicleToPart] 未在列表中找到 id 为「{partId}」的零件。");
+        LogManager.LogFeatureError($"[VehicleToPart] 未在列表中找到 id/名称为「{partId}」的零件。");
         return false;
+    }
+
+    /// <summary>partType → GridLine 键（优先 partRoot.name）。</summary>
+    public bool TryResolveGridLineKeyByPartType(int partType, out string gridLineKey)
+    {
+        gridLineKey = null;
+        if (!TryResolvePartByType(partType, out Transform part) || part == null)
+        {
+            return false;
+        }
+
+        gridLineKey = part.name;
+        return !string.IsNullOrEmpty(gridLineKey);
+    }
+
+    /// <summary>将 partType 列表转为 GridLine 零件名列表。</summary>
+    public List<string> ResolveGridLineKeysByPartTypes(IReadOnlyList<int> partTypes)
+    {
+        List<string> keys = new List<string>();
+        if (partTypes == null || partTypes.Count == 0)
+        {
+            return keys;
+        }
+
+        HashSet<string> unique = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        for (int i = 0; i < partTypes.Count; i++)
+        {
+            if (!TryResolveGridLineKeyByPartType(partTypes[i], out string key)
+                || string.IsNullOrEmpty(key)
+                || !unique.Add(key))
+            {
+                continue;
+            }
+
+            keys.Add(key);
+        }
+
+        return keys;
     }
 
     private void BeginForwardSecondPhase(Transform part)
@@ -395,7 +536,11 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// 执行零件→零件切换。
     /// 默认：旧零件收回 + 新零件出现；<paramref name="skipOldRetract"/> 为 true 时旧零件立即隐藏，只播新零件出现。
     /// </summary>
-    private bool PlayPartToPartTransition(Transform targetPart, string targetPartId, bool skipOldRetract = false)
+    private bool PlayPartToPartTransition(
+        Transform targetPart,
+        string targetPartId,
+        bool skipOldRetract = false,
+        int targetPartType = 0)
     {
         if (_activePart == null)
         {
@@ -418,6 +563,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _activePart = targetPart;
         _lastPartName = targetPart.name;
         _lastPartId = targetPartId;
+        _lastPartType = PartTypeMatchUtil.IsValidPartType(targetPartType)
+            ? targetPartType
+            : ResolvePartTypeByTransform(targetPart);
         EventManager.Instance?.TriggerPartToPartTransitionStarted(_lastPartName, _lastPartId);
 
         _sequence = DOTween.Sequence();
@@ -742,6 +890,107 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return part.name;
     }
 
+    private int ResolvePartTypeByTransform(Transform part)
+    {
+        if (part == null || _partRoots == null)
+        {
+            return 0;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == part && PartTypeMatchUtil.IsValidPartType(binding.partType))
+            {
+                return binding.partType;
+            }
+        }
+
+        return 0;
+    }
+
+    /// <summary>
+    /// 入参名字非空：覆盖该 partType 显示名并返回新名；空：不改绑定，返回当前绑定显示名。
+    /// </summary>
+    private string ResolveAndMaybeApplyDisplayName(int partType, Transform part, string incomingName)
+    {
+        if (!string.IsNullOrWhiteSpace(incomingName))
+        {
+            string trimmed = incomingName.Trim();
+            if (PartTypeMatchUtil.IsValidPartType(partType))
+            {
+                TrySetPartDisplayNameByType(partType, trimmed);
+            }
+            else
+            {
+                ApplyPartDisplayName(part, trimmed);
+            }
+
+            return trimmed;
+        }
+
+        return ResolvePartIdByTransform(part);
+    }
+
+    /// <summary>将显示名写入零件 3D 标签（不改 GameObject.name，避免打断 GridLine 键）。</summary>
+    private void ApplyPartDisplayName(Transform part, string displayName)
+    {
+        if (part == null || string.IsNullOrWhiteSpace(displayName))
+        {
+            return;
+        }
+
+        PartNameLabelBillboard label = part.GetComponent<PartNameLabelBillboard>();
+        if (label == null)
+        {
+            return;
+        }
+
+        label.SetLabelText(displayName.Trim());
+    }
+
+    private void SetBindingDisplayName(int partType, string displayName)
+    {
+        if (_partRoots == null || !PartTypeMatchUtil.IsValidPartType(partType) || string.IsNullOrWhiteSpace(displayName))
+        {
+            return;
+        }
+
+        for (int i = 0; i < _partRoots.Count; i++)
+        {
+            PartBindingData binding = _partRoots[i];
+            if (binding.partRoot == null || binding.partType != partType)
+            {
+                continue;
+            }
+
+            binding.partId = displayName.Trim();
+            _partRoots[i] = binding;
+            return;
+        }
+    }
+
+    private void ApplyDisplayNamesFromProtectionParts(PartProtectionStatusPart[] parts)
+    {
+        if (parts == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < parts.Length; i++)
+        {
+            PartProtectionStatusPart part = parts[i];
+            if (part == null
+                || string.IsNullOrWhiteSpace(part.partTypeName)
+                || !PartTypeMatchUtil.TryNormalizePartType(part.partType, out int partType))
+            {
+                continue;
+            }
+
+            TrySetPartDisplayNameByType(partType, part.partTypeName);
+        }
+    }
+
     private void NormalizePartBindings()
     {
         if (_partRoots == null)
@@ -757,9 +1006,26 @@ public class VehicleToPartTransitionController : MonoBehaviour
                 continue;
             }
 
+            bool changed = false;
             if (string.IsNullOrWhiteSpace(binding.partId))
             {
                 binding.partId = binding.partRoot.name;
+                changed = true;
+            }
+
+            // 未配标号时按列表顺序 1~5 补齐，便于场景迁移
+            if (!PartTypeMatchUtil.IsValidPartType(binding.partType))
+            {
+                int fallback = i + 1;
+                if (PartTypeMatchUtil.IsValidPartType(fallback))
+                {
+                    binding.partType = fallback;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+            {
                 _partRoots[i] = binding;
             }
         }
@@ -797,6 +1063,18 @@ public class VehicleToPartTransitionController : MonoBehaviour
         gridLine.SetPartTransformsVisible(partNames);
     }
 
+    /// <summary>按 partType 列表显示 GridLine 零件（内部转为 partRoot.name）。</summary>
+    public void ShowPartsByPartTypes(IReadOnlyList<int> partTypes)
+    {
+        if (partTypes == null || partTypes.Count == 0)
+        {
+            ShowPartsByNames(null);
+            return;
+        }
+
+        ShowPartsByNames(ResolveGridLineKeysByPartTypes(partTypes));
+    }
+
     /// <summary>显示 GridLine 中全部零部件。</summary>
     public void ShowAllParts()
     {
@@ -806,15 +1084,16 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <summary>
     /// 攻击路径 → 零件：先隐藏攻击路径，再播放“车辆 → 零件”两段零件动画（不经过车辆界面）。
     /// </summary>
-    /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
-    public bool PlayAttackPathToPartTransition(string partId = null)
+    /// <param name="partId">显示名；非空才覆盖该 partType 显示名，空则沿用绑定原名。</param>
+    /// <param name="partType">模型标号 1~5；&lt;=0 时回退显示名匹配。</param>
+    public bool PlayAttackPathToPartTransition(string partId = null, int partType = 0)
     {
         if (_isTransitioning)
         {
             return false;
         }
 
-        if (!TryResolvePart(partId, out Transform part))
+        if (!TryResolvePartForTransition(partType, partId, out Transform part, out int resolvedType))
         {
             return false;
         }
@@ -825,8 +1104,72 @@ public class VehicleToPartTransitionController : MonoBehaviour
             return false;
         }
 
-        string normalizedPartId = NormalizePartId(partId, part);
-        return PlayAttackPathToPartTransition(part, normalizedPartId);
+        string displayName = ResolveAndMaybeApplyDisplayName(resolvedType, part, partId);
+        return PlayAttackPathToPartTransition(part, displayName, resolvedType);
+    }
+
+    /// <summary>
+    /// 按 partType 覆盖显示名（写入绑定 partId + 3D 标签，不改 GameObject.name）。
+    /// 名字为空/空白时不修改，返回 false。
+    /// </summary>
+    public bool TrySetPartDisplayNameByType(int partType, string partTypeName)
+    {
+        if (!PartTypeMatchUtil.IsValidPartType(partType) || string.IsNullOrWhiteSpace(partTypeName))
+        {
+            return false;
+        }
+
+        if (!TryResolvePartByType(partType, out Transform part) || part == null)
+        {
+            return false;
+        }
+
+        string trimmed = partTypeName.Trim();
+        SetBindingDisplayName(partType, trimmed);
+        ApplyPartDisplayName(part, trimmed);
+
+        if (_activePart == part)
+        {
+            _lastPartId = trimmed;
+            _lastPartType = partType;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// 用车辆态势缓存刷显示名：先防护状态，再攻击链路 nodes（后到的覆盖先到的）；空名跳过。
+    /// </summary>
+    public void ApplyDisplayNamesFromVehicleDataStore(CarVehicleDataStore store = null)
+    {
+        store ??= CarVehicleDataStore.Instance;
+        if (store == null)
+        {
+            return;
+        }
+
+        PartProtectionStatusData protection = store.PartProtectionStatus?.data;
+        ApplyDisplayNamesFromProtectionParts(protection?.unprotectedParts);
+        ApplyDisplayNamesFromProtectionParts(protection?.protectedParts);
+
+        AttackChainNode[] nodes = store.AttackChain?.data?.nodes;
+        if (nodes == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            AttackChainNode node = nodes[i];
+            if (node == null
+                || string.IsNullOrWhiteSpace(node.partTypeName)
+                || !PartTypeMatchUtil.TryParsePartType(node.partType, out int partType))
+            {
+                continue;
+            }
+
+            TrySetPartDisplayNameByType(partType, node.partTypeName);
+        }
     }
 
     /// <summary>
@@ -1043,18 +1386,44 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 进入车辆级展示态：停止并隐藏攻击链路对象，零件还原为开局隐藏，关闭零件名标签。
-    /// 供零件→车辆 / 攻击链路→车辆过渡完成时调用。
+    /// 进入车辆级展示态：停止攻击链路，还原零件位姿并强制隐藏全部零部件模型，关闭零件名标签。
+    /// 省→车 / 零件→车 / 攻击链路→车 均调用；车辆级轮播期间也应保持隐藏。
     /// </summary>
     public void EnsureVehicleLevelVisualsHidden()
     {
         StopAndHideAttackPath();
         RestoreAllPartsToInitialState();
+        ForceHideAllPartModels();
         _activePart = null;
         SetPartNameLabelsVisible(false);
     }
 
-    private bool PlayAttackPathToPartTransition(Transform targetPart, string targetPartId)
+    /// <summary>强制隐藏 _partRoots 与 GridLine.start3D 零部件模型（不改位姿）。</summary>
+    public void ForceHideAllPartModels()
+    {
+        if (_partRoots != null)
+        {
+            for (int i = 0; i < _partRoots.Count; i++)
+            {
+                Transform part = _partRoots[i].partRoot;
+                if (part == null || !part.gameObject.activeSelf)
+                {
+                    continue;
+                }
+
+                part.DOKill();
+                part.gameObject.SetActive(false);
+            }
+        }
+
+        GridLine gridLine = ResolveGridLine();
+        gridLine?.HideAllPartTransforms();
+    }
+
+    private bool PlayAttackPathToPartTransition(
+        Transform targetPart,
+        string targetPartId,
+        int targetPartType = 0)
     {
         if (targetPart == null)
         {
@@ -1072,6 +1441,9 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _activePart = targetPart;
         _lastPartName = targetPart.name;
         _lastPartId = targetPartId;
+        _lastPartType = PartTypeMatchUtil.IsValidPartType(targetPartType)
+            ? targetPartType
+            : ResolvePartTypeByTransform(targetPart);
 
         ResolveKjCarReference();
         if (_kjCarRoot != null)
@@ -1123,7 +1495,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 收集攻击链路应播放位移的零件：优先 nodes 名匹配 _partRoots（带 attackPathTarget）；
+    /// 收集攻击链路应播放位移的零件：优先 nodes.partType 匹配 _partRoots；
     /// 名单匹配到但无法解析目标时，回退为所有已配置 attackPathTarget 的零件。
     /// </summary>
     private List<Transform> CollectAttackPathDisplayParts()
@@ -1132,27 +1504,43 @@ public class VehicleToPartTransitionController : MonoBehaviour
         HashSet<Transform> added = new HashSet<Transform>();
 
         CarVehicleDataStore store = CarVehicleDataStore.Instance;
-        List<string> names = store != null ? store.BuildAttackChainNodePartNames() : null;
+        List<int> types = store != null ? store.BuildAttackChainNodePartTypes() : null;
 
-        if (names != null && names.Count > 0)
+        if (types != null && types.Count > 0)
         {
-            for (int i = 0; i < names.Count; i++)
+            for (int i = 0; i < types.Count; i++)
             {
-                string name = names[i];
-                if (string.IsNullOrWhiteSpace(name))
-                {
-                    continue;
-                }
-
-                name = name.Trim();
-                // 只取 _partRoots（可挂 attackPathTarget）；避免 GridLine 同名另一套模型导致无目标、不播位移
-                Transform part = ResolveAttackPathPartRootByName(name);
-                if (part == null || !added.Add(part))
+                if (!TryResolvePartByType(types[i], out Transform part) || part == null || !added.Add(part))
                 {
                     continue;
                 }
 
                 result.Add(part);
+            }
+        }
+
+        // 兼容：无 partType 时仍按 partTypeName / 显示名匹配
+        if (result.Count == 0)
+        {
+            List<string> names = store != null ? store.BuildAttackChainNodePartNames() : null;
+            if (names != null && names.Count > 0)
+            {
+                for (int i = 0; i < names.Count; i++)
+                {
+                    string name = names[i];
+                    if (string.IsNullOrWhiteSpace(name))
+                    {
+                        continue;
+                    }
+
+                    Transform part = ResolveAttackPathPartRootByName(name.Trim());
+                    if (part == null || !added.Add(part))
+                    {
+                        continue;
+                    }
+
+                    result.Add(part);
+                }
             }
         }
 
@@ -1171,8 +1559,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
             else
             {
                 LogManager.LogFeatureWarning(
-                    "[VehicleToPart] 未收集到可动画零件：请确认 PartBindingData.partId/名称与 " +
-                    "partTypeName 一致，并在同一行拖好 attackPathTarget。");
+                    "[VehicleToPart] 未收集到可动画零件：请确认 PartBindingData.partType 与接口 " +
+                    "partType(1~5) 一致，并在同一行拖好 attackPathTarget。");
             }
         }
 
@@ -1604,11 +1992,19 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return _gridLine;
     }
 
-    /// <summary>进入攻击路径级：按 AttackChainData.nodes 零件名显隐；无名单则显示全部。</summary>
+    /// <summary>进入攻击路径级：按 AttackChainData.nodes 的 partType 显隐；无名单则显示全部。</summary>
     private void ApplyAttackPathPartsVisibilityFromCache()
     {
-        List<string> partNames = CarVehicleDataStore.Instance.BuildAttackChainNodePartNames();
-        ShowPartsByNames(partNames);
+        List<int> partTypes = CarVehicleDataStore.Instance.BuildAttackChainNodePartTypes();
+        if (partTypes.Count > 0)
+        {
+            ShowPartsByPartTypes(partTypes);
+        }
+        else
+        {
+            ShowPartsByNames(CarVehicleDataStore.Instance.BuildAttackChainNodePartNames());
+        }
+
         // 仅攻击链路级显示零件名；隐藏零件上文字由零件 SetActive 自然带掉
         SetPartNameLabelsVisible(true);
     }

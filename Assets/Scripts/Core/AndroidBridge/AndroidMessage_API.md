@@ -48,7 +48,8 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
 |------|------|------|------|
 | `targetState` | int | 是 | 目标级别 0~5 |
 | `provinceCode` | string | 否 | 省/国家 code（国内 adcode / 国外 SOC）；省略或 `""` 使用 Unity 默认单元 |
-| `partId` | string | 否 | 业务零部件 ID；进入零件级、零件切换、攻击路径→零件时使用 |
+| `partId` | string | 否 | 显示名（历史字段名不变）；进入零件级时写入零件标签 |
+| `partType` | int | 否 | 零部件标号 **1~5**，与场景 `_partRoots.partType` 匹配模型；未传或 `<=0` 时回退用 `partId`/名称 |
 | `useInstantTransition` | bool | 否 | 是否跳过过渡动画；省略为 `false` |
 
 **示例 — 跳到省级：**
@@ -69,12 +70,13 @@ UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState",
     "{\"targetState\":3}");
 ```
 
-**示例 — 瞬时跳到零件级：**
+**示例 — 瞬时跳到零件级（推荐同时传 partType）：**
 
 ```java
 String json = "{"
     + "\"targetState\":4,"
     + "\"partId\":\"IDC\","
+    + "\"partType\":2,"
     + "\"useInstantTransition\":true"
     + "}";
 UnityPlayer.UnitySendMessage("AndroidBridge", "TransitionToControlState", json);
@@ -488,7 +490,8 @@ public void onUnityControlStateTransition(String json) { }
 | `provinceCode` | string | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先取当前聚焦板块 / 进省缓存，无则回落默认单元；取不到时为空字符串 |
 | `vin` | string | 当前车辆**明文** VIN（后端威胁事件 `vin` 如实回填）；无车辆上下文时为空字符串 |
 | `encryptVin` | string | 当前车辆**加密** VIN（威胁下钻缓存优先，否则回落最近车辆请求的 encryptVin）；无则空字符串 |
-| `partId` | string | 业务零部件 ID；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
+| `partId` | string | 显示名；零件进入/切换/攻击路径→零件完成时可带值，其它为空字符串 |
+| `partType` | int | 零部件标号 1~5；零件相关通知可带值，其它为 `0` |
 | `eventIds` | string[] | 见下方「eventIds 取值规则」 |
 
 **eventIds 取值规则（`status=2` 威胁时；非威胁恒为 `[]`）：**

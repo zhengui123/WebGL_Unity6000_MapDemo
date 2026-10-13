@@ -76,7 +76,7 @@ public class ControlStateStartUIDemo : MonoBehaviour
         }
     }
 
-    /// <summary>刷新下拉选项（省份名、板块模块名、零件名）。</summary>
+    /// <summary>刷新下拉选项（省份名、板块模块名、零件 partType/Name）。</summary>
     public void RefreshAllDropdownOptions()
     {
         EnsureTargetStateDropdownOptions();
@@ -161,7 +161,8 @@ public class ControlStateStartUIDemo : MonoBehaviour
         bool useInstant = _instantTransitionToggle != null && _instantTransitionToggle.isOn;
         bool useDefaultProvince = _useDefaultProvinceToggle == null || _useDefaultProvinceToggle.isOn;
         GameManager.ControlState targetState = (GameManager.ControlState)_targetStateDropdown.value;
-        string selectedPartId = ControlStateStartUIOptionProvider.GetSelectedPartId(_partNameDropdown);
+        string selectedPartTypeName = ControlStateStartUIOptionProvider.GetSelectedPartTypeName(_partNameDropdown);
+        int selectedPartType = ControlStateStartUIOptionProvider.GetSelectedPartType(_partNameDropdown);
 
         // 开启默认省级：不填 code/名，走 WorldMapPlateResolver（国内默认省 / 国外 DefaultForeignCountryCode）
         string provinceCode = null;
@@ -183,8 +184,9 @@ public class ControlStateStartUIDemo : MonoBehaviour
         bool started = MapApi.Instance.TransitionToControlState(
             (int)targetState,
             provinceCode,
-            selectedPartId,
-            useInstant);
+            selectedPartTypeName,
+            useInstant,
+            selectedPartType);
 
         if (!started)
         {
@@ -194,7 +196,8 @@ public class ControlStateStartUIDemo : MonoBehaviour
 
         LogManager.LogFeature(
             $"[ControlStateStartUIDemo] 已请求跳转 → {targetState} | useDefaultProvince={useDefaultProvince} | " +
-            $"provinceCode={(provinceCode ?? "(null/默认)")} | instant={useInstant}");
+            $"provinceCode={(provinceCode ?? "(null/默认)")} | partType={selectedPartType} | " +
+            $"partTypeName={selectedPartTypeName ?? "(空)"} | instant={useInstant}");
     }
 
     private void OnUseDefaultProvinceChanged(bool _)

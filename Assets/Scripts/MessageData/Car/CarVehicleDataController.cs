@@ -227,10 +227,13 @@ public class CarVehicleDataController : MonoBehaviour
     }
 
     /// <summary>
-    /// 缓存写入后：车辆级立即轮播；攻击路径级立即加载链路；否则仅缓存待进入对应级别后展示。
+    /// 缓存写入后：先按 partType 刷显示名（防护→攻击链路，后到覆盖），再刷 UI/链路。
     /// </summary>
     private void OnCacheApplied()
     {
+        VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+        transition?.ApplyDisplayNamesFromVehicleDataStore(Store);
+
         bool vehicleShown = TryShowVehicleUiFromCache();
         bool attackShown = TryShowAttackPathsFromCache();
         CacheAppliedAndUiMaybeShown?.Invoke();
@@ -333,7 +336,16 @@ public class CarVehicleDataController : MonoBehaviour
         VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
         if (transition != null)
         {
-            transition.ShowPartsByNames(Store.BuildAttackChainNodePartNames());
+            List<int> partTypes = Store.BuildAttackChainNodePartTypes();
+            if (partTypes.Count > 0)
+            {
+                transition.ShowPartsByPartTypes(partTypes);
+            }
+            else
+            {
+                transition.ShowPartsByNames(Store.BuildAttackChainNodePartNames());
+            }
+
             transition.SetPartNameLabelsVisible(true);
         }
 

@@ -20,6 +20,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     [Header("过渡参数")]
     [SerializeField] private string _partId;
+    [Tooltip("零部件标号 1~5；0 表示未指定，走 partId/名称回退")]
+    [SerializeField] private int _partType;
 
     [Header("启动时机")]
     [SerializeField] private int _warmupFrames = 2;
@@ -33,6 +35,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         public GameManager.ControlState TargetState;
         public string ProvinceCode;
         public string PartId;
+        public int PartType;
         public bool EnsureEarthBaseline;
     }
 
@@ -101,24 +104,29 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <param name="useInstantTransition">是否启用瞬时过渡（临时将动画时长置 0）。</param>
     /// <param name="targetState">目标操控级别。</param>
     /// <param name="provinceCode">省/国家 code；空/null 时使用当前默认单元。</param>
-    /// <param name="partId">业务零部件 ID；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略，改用当前激活零件）。</param>
+    /// <param name="partId">显示名；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
+    /// <param name="partType">零部件标号 1~5；&lt;=0 时沿用 Inspector / 回退显示名。</param>
     /// <returns>已启动跳转返回 true；打断并改派最新目标时也返回 true。</returns>
     public bool TransitionToState(
         bool useInstantTransition,
         GameManager.ControlState targetState,
         string provinceCode = null,
         string partId = null,
-        bool ensureEarthBaseline = false)
+        bool ensureEarthBaseline = false,
+        int partType = 0)
     {
         GameManager manager = GameManager.Instance;
         GameManager.ControlState currentState = manager != null
             ? GameManagerDemoAccess.GetCurrentState(manager)
             : GameManager.ControlState.EarthLevel;
-        // 零部件 → 车辆倒播：忽略外部 partId，仅按当前场景中的激活零件还原。
+        // 零部件 → 车辆倒播：忽略外部 partId/partType，仅按当前场景中的激活零件还原。
         string partIdForTransition = currentState == GameManager.ControlState.PartLevel
             ? null
             : partId;
+        int partTypeForTransition = currentState == GameManager.ControlState.PartLevel
+            ? 0
+            : partType;
 
         // 跳转中或动画未结束：终止当前动画，强制瞬时改派到新目标
         if (_isBootstrapping || IsAnyTransitionBusy())
@@ -128,7 +136,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                 targetState,
                 provinceCode,
                 partIdForTransition,
-                ensureEarthBaseline);
+                ensureEarthBaseline,
+                partTypeForTransition);
             RequestRestartAfterCurrentTransition();
             LogManager.LogFeature(
                 $"[ControlStateHierarchyTransitionController] 打断当前层级过渡，强制瞬时跳转 → {targetState}");
@@ -139,6 +148,16 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (partIdForTransition != null)
         {
             _partId = partIdForTransition;
+        }
+
+        if (PartTypeMatchUtil.IsValidPartType(partTypeForTransition))
+        {
+            _partType = partTypeForTransition;
+        }
+        else if (partIdForTransition != null)
+        {
+            // 显式只传显示名时清空旧标号，避免误用上次 partType
+            _partType = 0;
         }
 
         ResolveActiveProvinceParameters(provinceCode);
@@ -582,11 +601,15 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private IEnumerator GoToPartLevel()
     {
         string key = string.IsNullOrWhiteSpace(_partId) ? null : _partId.Trim();
+        int type = PartTypeMatchUtil.IsValidPartType(_partType) ? _partType : 0;
+        string stepLabel = type > 0
+            ? $"车辆 → 零件 type={type} name={key ?? "(空)"}"
+            : (string.IsNullOrEmpty(key) ? "车辆 → 零件（默认）" : $"车辆 → 零件 {key}");
         yield return WaitForBoolStringEvent(
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted += h,
             h => EventManager.Instance.OnVehicleToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionVehicleToPart(key),
-            string.IsNullOrEmpty(key) ? "车辆 → 零件（默认）" : $"车辆 → 零件 {key}");
+            () => MapApi.Instance.TransitionVehicleToPart(key, type),
+            stepLabel);
     }
 
     private IEnumerator GoToAttackPathLevel()
@@ -601,11 +624,15 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private IEnumerator GoToPartLevelFromAttackPath()
     {
         string key = string.IsNullOrWhiteSpace(_partId) ? null : _partId.Trim();
+        int type = PartTypeMatchUtil.IsValidPartType(_partType) ? _partType : 0;
+        string stepLabel = type > 0
+            ? $"攻击路径 → 零件 type={type} name={key ?? "(空)"}"
+            : (string.IsNullOrEmpty(key) ? "攻击路径 → 零件（默认）" : $"攻击路径 → 零件 {key}");
         yield return WaitForBoolStringStringEvent(
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted += h,
             h => EventManager.Instance.OnAttackPathToPartTransitionCompleted -= h,
-            () => MapApi.Instance.TransitionAttackPathToPart(key),
-            string.IsNullOrEmpty(key) ? "攻击路径 → 零件（默认）" : $"攻击路径 → 零件 {key}");
+            () => MapApi.Instance.TransitionAttackPathToPart(key, type),
+            stepLabel);
     }
 
     /// <summary>零部件 → 车辆倒播时使用的零件 ID：优先上次正播记录。</summary>
@@ -817,7 +844,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         GameManager.ControlState targetState,
         string provinceCode,
         string partId,
-        bool ensureEarthBaseline)
+        bool ensureEarthBaseline,
+        int partType = 0)
     {
         _pendingTransitionRequest = new PendingTransitionRequest
         {
@@ -825,6 +853,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             TargetState = targetState,
             ProvinceCode = provinceCode,
             PartId = partId,
+            PartType = partType,
             EnsureEarthBaseline = ensureEarthBaseline
         };
         _hasPendingTransitionRequest = true;
@@ -853,7 +882,8 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             request.TargetState,
             request.ProvinceCode,
             request.PartId,
-            request.EnsureEarthBaseline);
+            request.EnsureEarthBaseline,
+            request.PartType);
     }
 
     private static void CompleteBusyTransitionsImmediately()

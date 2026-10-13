@@ -147,6 +147,26 @@ public class GridLine : MonoBehaviour
         }
     }
 
+    /// <summary>隐藏 LineBindings 中全部 start3D 零件模型（车辆级用）。</summary>
+    public void HideAllPartTransforms()
+    {
+        if (_bindingCache.Count == 0)
+        {
+            BuildBindingCache();
+        }
+
+        foreach (KeyValuePair<string, GridLineBinding> pair in _bindingCache)
+        {
+            Transform start3D = pair.Value?.Start3D;
+            if (start3D == null || !start3D.gameObject.activeSelf)
+            {
+                continue;
+            }
+
+            start3D.gameObject.SetActive(false);
+        }
+    }
+
     /// <summary>当前激活连线绑定的消息面板。</summary>
     public MessageListPanel ActiveEndMessageListPanel
     {

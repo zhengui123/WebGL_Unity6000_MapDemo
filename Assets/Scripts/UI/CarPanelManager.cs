@@ -151,12 +151,14 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         gridLine.enabled = true;
         _currentStart3DObjectName = start3DObjectName;
         gridLine.PlayDrawAnimation(start3DObjectName);
+        // 车辆级只画 UI 连线，零部件模型保持隐藏
+        VehicleToPartTransitionController.Instance?.ForceHideAllPartModels();
         return true;
     }
 
     /// <summary>
     /// 从缓存读取零部件列表，打开车辆 UI 并开始轮播。
-    /// 每次切换：先关闭当前 UI/连线，再用新 partTypeName 重新打开。
+    /// 每次切换：先关闭当前 UI/连线，再按 partType 解析 GridLine 键并打开。
     /// </summary>
     public bool StartPartMessageCarouselFromCache()
     {
@@ -188,8 +190,9 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         CarVehiclePartSlide first = slides[0];
+        string gridKey = ResolveGridLineKeyForSlide(first);
         bool opened = OpenCarUIWithMessageList(
-            first.PartTypeName,
+            gridKey,
             first.PartTypeName,
             first.ProtectionState,
             new List<string>(first.EventNames));
@@ -212,7 +215,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     /// <summary>
     /// 打开车辆 UI，并用防护状态数据刷新消息面板。
-    /// start3DObjectName 建议使用首个 unprotectedParts.partTypeName（如 IDC）。
+    /// start3DObjectName 为 GridLine 键（优先 partType→partRoot.name）。
     /// </summary>
     public bool OpenCarUIWithMessageList(
         string start3DObjectName,
@@ -332,6 +335,7 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private void HandlePlateToVehicleViewTransitionCompleted(string provinceName)
     {
+        VehicleToPartTransitionController.Instance?.EnsureVehicleLevelVisualsHidden();
         // 等一帧：与 GameManager.SetState(VehicleLevel) 订阅顺序竞态对齐
         TryOpenCarPanelDeferred();
         TryRestartCarouselFromCacheDeferred("省→车辆");
@@ -339,11 +343,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     private void HandleEnteredVehicleLevelForCarousel(string partName)
     {
+        VehicleToPartTransitionController.Instance?.EnsureVehicleLevelVisualsHidden();
         TryRestartCarouselFromCacheDeferred("零件→车辆");
     }
 
     private void HandleEnteredVehicleLevelFromAttackPathForCarousel()
     {
+        VehicleToPartTransitionController.Instance?.EnsureVehicleLevelVisualsHidden();
         TryRestartCarouselFromCacheDeferred("攻击路径→车辆");
     }
 
@@ -518,10 +524,27 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         OpenCarUIWithMessageList(
-            slide.PartTypeName,
+            ResolveGridLineKeyForSlide(slide),
             slide.PartTypeName,
             slide.ProtectionState,
             new List<string>(slide.EventNames));
+    }
+
+    /// <summary>轮播条目 → GridLine 键：优先 partType 解析 partRoot.name，否则用显示名。</summary>
+    private static string ResolveGridLineKeyForSlide(CarVehiclePartSlide slide)
+    {
+        if (PartTypeMatchUtil.IsValidPartType(slide.PartType))
+        {
+            VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+            if (transition != null
+                && transition.TryResolveGridLineKeyByPartType(slide.PartType, out string key)
+                && !string.IsNullOrEmpty(key))
+            {
+                return key;
+            }
+        }
+
+        return slide.PartTypeName;
     }
 
     private void SetPanelInactive()

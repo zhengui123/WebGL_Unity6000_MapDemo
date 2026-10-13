@@ -16,8 +16,14 @@ public struct TransitionToControlStateRequest
     /// </summary>
     public string provinceCode;
 
-    /// <summary>（可空）业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件。</summary>
+    /// <summary>（可空）显示名（历史字段名不变）；进入零件级时写入零件标签。</summary>
     public string partId;
+
+    /// <summary>
+    /// （可空）零部件标号 1~5，与场景 _partRoots.partType 匹配模型。
+    /// 未传或 &lt;=0 时回退用 partId/名称匹配。
+    /// </summary>
+    public int partType;
 
     /// <summary>（可空）是否瞬时过渡（各过渡动画时长临时置 0）。</summary>
     public bool useInstantTransition;
@@ -79,8 +85,11 @@ public struct ControlStateTransitionNotify
     /// <summary>当前车辆加密 VIN；威胁下钻缓存或车辆请求上下文；无则空字符串。</summary>
     public string encryptVin;
 
-    /// <summary>（可空）业务零部件 ID；零件相关过渡完成/切换通知时可带值。</summary>
+    /// <summary>（可空）显示名；零件相关过渡完成/切换通知时可带值。</summary>
     public string partId;
+
+    /// <summary>（可空）零部件标号 1~5；非零件场景为 0。</summary>
+    public int partType;
 
     /// <summary>
     /// 威胁播放状态（status=2）下按当前层级整理的 eventId 数组；非威胁时为空数组。
@@ -238,7 +247,7 @@ public class AndroidMessage : MonoBehaviour
     }
 
     /// <summary>通知 Android 操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
-    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null)
+    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null, int partType = 0)
     {
         if (!TryValidateControlState(fromState, nameof(CallAndroidControlStateTransition)) ||
             !TryValidateControlState(toState, nameof(CallAndroidControlStateTransition)))
@@ -249,15 +258,16 @@ public class AndroidMessage : MonoBehaviour
         ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildStarted(
             fromState,
             toState,
-            partId);
+            partId,
+            partType);
         string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
+            $"[AndroidMessage] 操控级别过渡开始: {fromState} → {toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, partType={notify.partType}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
     /// <summary>通知 Android 操控级别过渡完成：from=-1，to 为已就绪级别（JSON）。</summary>
-    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null)
+    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null, int partType = 0)
     {
         if (!TryValidateControlState(toState, nameof(CallAndroidControlStateTransitionCompleted)))
         {
@@ -266,10 +276,11 @@ public class AndroidMessage : MonoBehaviour
 
         ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildCompleted(
             toState,
-            partId);
+            partId,
+            partType);
         string json = JsonUtility.ToJson(notify);
         LogManager.LogHost(
-            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
+            $"[AndroidMessage] 操控级别过渡完成: to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, partType={notify.partType}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)}, json={json}");
         CallActivity("onUnityControlStateTransition", json);
     }
 
@@ -462,7 +473,11 @@ public class AndroidMessage : MonoBehaviour
     // 3 → 4
     private void HandleVehicleToPartTransitionStarted(string _)
     {
-        NotifyControlStateTransition(GameManager.ControlState.VehicleLevel, GameManager.ControlState.PartLevel);
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.VehicleLevel,
+            (int)GameManager.ControlState.PartLevel,
+            ResolveCurrentPartId(),
+            ResolveCurrentPartType());
     }
 
     // 4 → 3
@@ -477,7 +492,8 @@ public class AndroidMessage : MonoBehaviour
         CallAndroidControlStateTransition(
             (int)GameManager.ControlState.PartLevel,
             (int)GameManager.ControlState.PartLevel,
-            partId);
+            partId,
+            ResolveCurrentPartType());
     }
 
     // 3 → 5
@@ -498,12 +514,16 @@ public class AndroidMessage : MonoBehaviour
         CallAndroidControlStateTransition(
             (int)GameManager.ControlState.AttackPathLevel,
             (int)GameManager.ControlState.PartLevel,
-            partId);
+            partId,
+            ResolveCurrentPartType());
     }
 
-    private void NotifyControlStateTransitionCompleted(GameManager.ControlState to, string partId = null)
+    private void NotifyControlStateTransitionCompleted(
+        GameManager.ControlState to,
+        string partId = null,
+        int partType = 0)
     {
-        CallAndroidControlStateTransitionCompleted((int)to, partId);
+        CallAndroidControlStateTransitionCompleted((int)to, partId, partType);
     }
 
     private void HandleTransitionToPlateMapCompleted()
@@ -538,7 +558,10 @@ public class AndroidMessage : MonoBehaviour
 
     private void HandleVehicleToPartTransitionCompleted(string _)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, ResolveCurrentPartId());
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            ResolveCurrentPartId(),
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToPartTransitionReverseCompleted(string _)
@@ -548,7 +571,10 @@ public class AndroidMessage : MonoBehaviour
 
     private void HandlePartToPartTransitionCompleted(string _, string partId)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            partId,
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToAttackPathTransitionCompleted()
@@ -563,7 +589,10 @@ public class AndroidMessage : MonoBehaviour
 
     private void HandleAttackPathToPartTransitionCompleted(string _, string partId)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            partId,
+            ResolveCurrentPartType());
     }
 
     private static string ResolveCurrentPartId()
@@ -576,6 +605,12 @@ public class AndroidMessage : MonoBehaviour
 
         string partId = controller.LastPartId;
         return string.IsNullOrEmpty(partId) ? null : partId;
+    }
+
+    private static int ResolveCurrentPartType()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        return controller != null ? controller.LastPartType : 0;
     }
 
     /// <summary>
@@ -723,13 +758,14 @@ public class AndroidMessage : MonoBehaviour
             request.targetState,
             NormalizeOptionalString(request.provinceCode),
             NormalizeOptionalString(request.partId),
-            request.useInstantTransition);
+            request.useInstantTransition,
+            request.partType);
 
         if (!ok)
         {
             LogManager.LogHostWarning(
                 $"[ToStateError] reason=MapApi 启动失败 | target={request.targetState} | " +
-                $"provinceCode={request.provinceCode} | partId={request.partId} | json={json}");
+                $"provinceCode={request.provinceCode} | partId={request.partId} | partType={request.partType} | json={json}");
         }
     }
 

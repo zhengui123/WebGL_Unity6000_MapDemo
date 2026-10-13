@@ -297,8 +297,9 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>正播：车辆 → 零件过渡。</summary>
-    /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
-    public bool TransitionVehicleToPart(string partId = null)
+    /// <param name="partId">显示名（宿主仍传原 partId）；为空时用绑定默认/物体名。</param>
+    /// <param name="partType">模型标号 1~5；&lt;=0 时回退显示名匹配。</param>
+    public bool TransitionVehicleToPart(string partId = null, int partType = 0)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -307,7 +308,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayTransition(partId);
+        return controller.PlayTransition(partId, partType);
     }
 
     /// <summary>倒播：零件 → 车辆过渡。</summary>
@@ -354,8 +355,9 @@ public class MapApi : UnitySingle<MapApi>
     }
 
     /// <summary>正播：攻击路径 → 零件过渡（直接隐藏攻击路径并播放两段零件动画）。</summary>
-    /// <param name="partId">业务零部件 ID；为空时使用过渡控制器列表第一项。</param>
-    public bool TransitionAttackPathToPart(string partId = null)
+    /// <param name="partId">显示名；为空时用绑定默认/物体名。</param>
+    /// <param name="partType">模型标号 1~5；&lt;=0 时回退显示名匹配。</param>
+    public bool TransitionAttackPathToPart(string partId = null, int partType = 0)
     {
         VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
         if (controller == null)
@@ -364,7 +366,7 @@ public class MapApi : UnitySingle<MapApi>
             return false;
         }
 
-        return controller.PlayAttackPathToPartTransition(partId);
+        return controller.PlayAttackPathToPartTransition(partId, partType);
     }
 
     /// <summary>正播：零件 → 攻击路径（不经车辆级；链路零件移向各自 attackPathTarget 后加载连线）。</summary>
@@ -393,17 +395,21 @@ public class MapApi : UnitySingle<MapApi>
     /// 内部解析显示名与板块模块名，无需再传模块名。
     /// </param>
     /// <param name="partId">
-    /// 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；为空或 null 时使用过渡控制器默认/列表首项。
+    /// 显示名（历史字段名不变）；进入零件级时写入零件标签。匹配模型请传 <paramref name="partType"/>。
     /// </param>
     /// <param name="useInstantTransition">
     /// 是否启用瞬时过渡。为 true 时，跳转期间临时将各过渡控制器动画时长置 0，结束后自动恢复，不修改 Inspector 原始配置。
+    /// </param>
+    /// <param name="partType">
+    /// 零部件标号 1~5，与场景 <c>_partRoots.partType</c> 匹配模型；&lt;=0 或不传时回退用 partId/名称。
     /// </param>
     /// <returns>已成功启动跳转协程返回 true；控制器不存在、正在跳转中或 targetState 无效时返回 false。</returns>
     public bool TransitionToControlState(
         int targetState,
         string provinceCode = null,
         string partId = null,
-        bool useInstantTransition = false)
+        bool useInstantTransition = false,
+        int partType = 0)
     {
         if (!Enum.IsDefined(typeof(GameManager.ControlState), targetState))
         {
@@ -433,11 +439,12 @@ public class MapApi : UnitySingle<MapApi>
             && manager.CurrentState == GameManager.ControlState.PartLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            bool partOk = TransitionVehicleToPart(partId);
+            bool partOk = TransitionVehicleToPart(partId, partType);
             if (!partOk)
             {
                 LogManager.LogFeatureWarning(
-                    $"[ToStateError] reason=零件级切换失败 | from={from} | target=PartLevel | partId={partId ?? "(空)"}");
+                    $"[ToStateError] reason=零件级切换失败 | from={from} | target=PartLevel | " +
+                    $"partId={partId ?? "(空)"} | partType={partType}");
             }
 
             return partOk;
@@ -447,11 +454,12 @@ public class MapApi : UnitySingle<MapApi>
             && manager.CurrentState == GameManager.ControlState.AttackPathLevel
             && targetState == (int)GameManager.ControlState.PartLevel)
         {
-            bool attackToPartOk = TransitionAttackPathToPart(partId);
+            bool attackToPartOk = TransitionAttackPathToPart(partId, partType);
             if (!attackToPartOk)
             {
                 LogManager.LogFeatureWarning(
-                    $"[ToStateError] reason=攻击路径→零件失败 | from={from} | target=PartLevel | partId={partId ?? "(空)"}");
+                    $"[ToStateError] reason=攻击路径→零件失败 | from={from} | target=PartLevel | " +
+                    $"partId={partId ?? "(空)"} | partType={partType}");
             }
 
             return attackToPartOk;
@@ -462,7 +470,8 @@ public class MapApi : UnitySingle<MapApi>
             (GameManager.ControlState)targetState,
             provinceCode,
             partId,
-            false);
+            false,
+            partType);
     }
 
     /// <summary>

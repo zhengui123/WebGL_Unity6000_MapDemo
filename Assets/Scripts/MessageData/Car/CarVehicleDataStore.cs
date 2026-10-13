@@ -77,7 +77,32 @@ public sealed class CarVehicleDataStore
         return BuildAttackPathEntries().Count > 0;
     }
 
-    /// <summary>从 AttackChainData.nodes 收集全部零件名（partTypeName）。</summary>
+    /// <summary>从 AttackChainData.nodes 收集全部零件标号（partType 1~5）。</summary>
+    public List<int> BuildAttackChainNodePartTypes()
+    {
+        List<int> types = new List<int>();
+        AttackChainNode[] nodes = AttackChain?.data?.nodes;
+        if (nodes == null || nodes.Length == 0)
+        {
+            return types;
+        }
+
+        HashSet<int> unique = new HashSet<int>();
+        for (int i = 0; i < nodes.Length; i++)
+        {
+            AttackChainNode node = nodes[i];
+            if (node == null || !TryResolveNodePartType(node, out int partType) || !unique.Add(partType))
+            {
+                continue;
+            }
+
+            types.Add(partType);
+        }
+
+        return types;
+    }
+
+    /// <summary>从 AttackChainData.nodes 收集全部零件显示名（partTypeName，兼容旧逻辑）。</summary>
     public List<string> BuildAttackChainNodePartNames()
     {
         List<string> names = new List<string>();
@@ -107,8 +132,8 @@ public sealed class CarVehicleDataStore
     }
 
     /// <summary>
-    /// 将攻击链路 links 的 sourceIp / targetIp 转为零件名对（依赖 nodes 中 partsIp 对照）。
-    /// 无法映射的 link 会跳过。
+    /// 将攻击链路 links 的 sourceIp / targetIp 转为 GridLine 零件名对。
+    /// 优先 nodes.partType → 场景 partRoot.name；失败再回退 partTypeName。
     /// </summary>
     public List<AttackChainPathEntry> BuildAttackPathEntries()
     {
@@ -119,7 +144,7 @@ public sealed class CarVehicleDataStore
             return entries;
         }
 
-        Dictionary<string, string> ipToPartName = BuildIpToPartNameMap(data.nodes);
+        Dictionary<string, AttackChainNode> ipToNode = BuildIpToNodeMap(data.nodes);
         for (int i = 0; i < data.links.Length; i++)
         {
             AttackChainLink link = data.links[i];
@@ -128,8 +153,8 @@ public sealed class CarVehicleDataStore
                 continue;
             }
 
-            if (!TryResolvePartNameByIp(ipToPartName, link.sourceIp, out string startPartName)
-                || !TryResolvePartNameByIp(ipToPartName, link.targetIp, out string endPartName))
+            if (!TryResolveGridLineKeyByIp(ipToNode, link.sourceIp, out string startPartName)
+                || !TryResolveGridLineKeyByIp(ipToNode, link.targetIp, out string endPartName))
             {
                 LogManager.LogFeatureWarning(
                     $"[CarVehicleDataStore] 跳过无法映射 IP 的攻击链路：{link.sourceIp} → {link.targetIp}");
@@ -142,9 +167,9 @@ public sealed class CarVehicleDataStore
         return entries;
     }
 
-    private static Dictionary<string, string> BuildIpToPartNameMap(AttackChainNode[] nodes)
+    private static Dictionary<string, AttackChainNode> BuildIpToNodeMap(AttackChainNode[] nodes)
     {
-        Dictionary<string, string> map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        Dictionary<string, AttackChainNode> map = new Dictionary<string, AttackChainNode>(StringComparer.OrdinalIgnoreCase);
         if (nodes == null)
         {
             return map;
@@ -153,31 +178,69 @@ public sealed class CarVehicleDataStore
         for (int i = 0; i < nodes.Length; i++)
         {
             AttackChainNode node = nodes[i];
-            if (node == null
-                || string.IsNullOrWhiteSpace(node.partsIp)
-                || string.IsNullOrWhiteSpace(node.partTypeName))
+            if (node == null || string.IsNullOrWhiteSpace(node.partsIp))
             {
                 continue;
             }
 
-            map[node.partsIp.Trim()] = node.partTypeName.Trim();
+            map[node.partsIp.Trim()] = node;
         }
 
         return map;
     }
 
-    private static bool TryResolvePartNameByIp(
-        Dictionary<string, string> ipToPartName,
+    private static bool TryResolveGridLineKeyByIp(
+        Dictionary<string, AttackChainNode> ipToNode,
         string ip,
         out string partName)
     {
         partName = null;
-        if (string.IsNullOrWhiteSpace(ip) || ipToPartName == null)
+        if (string.IsNullOrWhiteSpace(ip) || ipToNode == null)
         {
             return false;
         }
 
-        return ipToPartName.TryGetValue(ip.Trim(), out partName);
+        if (!ipToNode.TryGetValue(ip.Trim(), out AttackChainNode node) || node == null)
+        {
+            return false;
+        }
+
+        if (TryResolveNodePartType(node, out int partType))
+        {
+            VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+            if (transition != null
+                && transition.TryResolveGridLineKeyByPartType(partType, out string key)
+                && !string.IsNullOrEmpty(key))
+            {
+                partName = key;
+                return true;
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(node.partTypeName))
+        {
+            partName = node.partTypeName.Trim();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryResolveNodePartType(AttackChainNode node, out int partType)
+    {
+        partType = 0;
+        if (node == null)
+        {
+            return false;
+        }
+
+        if (PartTypeMatchUtil.TryParsePartType(node.partType, out partType))
+        {
+            return true;
+        }
+
+        // links 上也可能带 partType；nodes 主路径优先
+        return false;
     }
 
     private static void AppendSlides(
@@ -193,13 +256,42 @@ public sealed class CarVehicleDataStore
         for (int i = 0; i < parts.Length; i++)
         {
             PartProtectionStatusPart part = parts[i];
-            if (part == null || string.IsNullOrWhiteSpace(part.partTypeName))
+            if (part == null)
             {
                 continue;
             }
 
+            int partType = 0;
+            PartTypeMatchUtil.TryNormalizePartType(part.partType, out partType);
+
+            string displayName = !string.IsNullOrWhiteSpace(part.partTypeName)
+                ? part.partTypeName.Trim()
+                : string.Empty;
+
+            // 无显示名且无有效标号时跳过
+            if (displayName.Length == 0 && !PartTypeMatchUtil.IsValidPartType(partType))
+            {
+                continue;
+            }
+
+            if (displayName.Length == 0 && PartTypeMatchUtil.IsValidPartType(partType))
+            {
+                VehicleToPartTransitionController transition = VehicleToPartTransitionController.Instance;
+                if (transition != null
+                    && transition.TryResolvePartByType(partType, out Transform root)
+                    && root != null)
+                {
+                    displayName = root.name;
+                }
+                else
+                {
+                    displayName = partType.ToString();
+                }
+            }
+
             slides.Add(new CarVehiclePartSlide(
-                part.partTypeName.Trim(),
+                partType,
+                displayName,
                 state,
                 BuildPendingEventNames(part)));
         }
@@ -229,7 +321,7 @@ public sealed class CarVehicleDataStore
     }
 }
 
-/// <summary>攻击链路边经 IP 映射后的起点→终点零件名。</summary>
+/// <summary>攻击链路边经 IP 映射后的起点→终点零件名（GridLine 键）。</summary>
 public readonly struct AttackChainPathEntry
 {
     public readonly string StartPartName;
@@ -245,15 +337,18 @@ public readonly struct AttackChainPathEntry
 /// <summary>车辆零部件轮播一帧数据。</summary>
 public readonly struct CarVehiclePartSlide
 {
+    public readonly int PartType;
     public readonly string PartTypeName;
     public readonly ProtectionStateType ProtectionState;
     public readonly IReadOnlyList<string> EventNames;
 
     public CarVehiclePartSlide(
+        int partType,
         string partTypeName,
         ProtectionStateType protectionState,
         List<string> eventNames)
     {
+        PartType = partType;
         PartTypeName = partTypeName;
         ProtectionState = protectionState;
         EventNames = eventNames ?? new List<string>();

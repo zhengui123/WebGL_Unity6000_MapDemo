@@ -137,7 +137,7 @@ public class WebGLAPI : MonoBehaviour
     // }
 
     /// <summary>通知宿主操控级别跳转开始：from → to（JSON，级别 0~5）。</summary>
-    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null)
+    public void CallAndroidControlStateTransition(int fromState, int toState, string partId = null, int partType = 0)
     {
         if (!TryValidateControlState(fromState, nameof(CallAndroidControlStateTransition)) ||
             !TryValidateControlState(toState, nameof(CallAndroidControlStateTransition)))
@@ -148,17 +148,18 @@ public class WebGLAPI : MonoBehaviour
         ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildStarted(
             fromState,
             toState,
-            partId);
+            partId,
+            partType);
         string json = JsonUtility.ToJson(notify);
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"开始 {fromState}→{toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
+            $"开始 {fromState}→{toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, partType={notify.partType}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
     /// <summary>通知宿主操控级别过渡完成：from=-1，to 为已就绪级别（JSON）。</summary>
-    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null)
+    public void CallAndroidControlStateTransitionCompleted(int toState, string partId = null, int partType = 0)
     {
         if (!TryValidateControlState(toState, nameof(CallAndroidControlStateTransitionCompleted)))
         {
@@ -167,12 +168,13 @@ public class WebGLAPI : MonoBehaviour
 
         ControlStateTransitionNotify notify = ControlStateTransitionNotifyBuilder.BuildCompleted(
             toState,
-            partId);
+            partId,
+            partType);
         string json = JsonUtility.ToJson(notify);
         LogCommunication(
             "→ Host",
             "onUnityControlStateTransition",
-            $"完成 to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
+            $"完成 to={toState}, provinceCode={notify.provinceCode}, vin={notify.vin}, encryptVin={notify.encryptVin}, partType={notify.partType}, eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(notify.eventIds)} | {json}");
         CallHost("onUnityControlStateTransition", json);
     }
 
@@ -376,7 +378,11 @@ public class WebGLAPI : MonoBehaviour
 
     private void HandleVehicleToPartTransitionStarted(string _)
     {
-        NotifyControlStateTransition(GameManager.ControlState.VehicleLevel, GameManager.ControlState.PartLevel);
+        CallAndroidControlStateTransition(
+            (int)GameManager.ControlState.VehicleLevel,
+            (int)GameManager.ControlState.PartLevel,
+            ResolveCurrentPartId(),
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToPartTransitionReverseStarted(string _)
@@ -389,7 +395,8 @@ public class WebGLAPI : MonoBehaviour
         CallAndroidControlStateTransition(
             (int)GameManager.ControlState.PartLevel,
             (int)GameManager.ControlState.PartLevel,
-            partId);
+            partId,
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToAttackPathTransitionStarted()
@@ -407,12 +414,16 @@ public class WebGLAPI : MonoBehaviour
         CallAndroidControlStateTransition(
             (int)GameManager.ControlState.AttackPathLevel,
             (int)GameManager.ControlState.PartLevel,
-            partId);
+            partId,
+            ResolveCurrentPartType());
     }
 
-    private void NotifyControlStateTransitionCompleted(GameManager.ControlState to, string partId = null)
+    private void NotifyControlStateTransitionCompleted(
+        GameManager.ControlState to,
+        string partId = null,
+        int partType = 0)
     {
-        CallAndroidControlStateTransitionCompleted((int)to, partId);
+        CallAndroidControlStateTransitionCompleted((int)to, partId, partType);
     }
 
     private void HandleTransitionToPlateMapCompleted()
@@ -447,7 +458,10 @@ public class WebGLAPI : MonoBehaviour
 
     private void HandleVehicleToPartTransitionCompleted(string _)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, ResolveCurrentPartId());
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            ResolveCurrentPartId(),
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToPartTransitionReverseCompleted(string _)
@@ -457,7 +471,10 @@ public class WebGLAPI : MonoBehaviour
 
     private void HandlePartToPartTransitionCompleted(string _, string partId)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            partId,
+            ResolveCurrentPartType());
     }
 
     private void HandleVehicleToAttackPathTransitionCompleted()
@@ -472,7 +489,10 @@ public class WebGLAPI : MonoBehaviour
 
     private void HandleAttackPathToPartTransitionCompleted(string _, string partId)
     {
-        NotifyControlStateTransitionCompleted(GameManager.ControlState.PartLevel, partId);
+        NotifyControlStateTransitionCompleted(
+            GameManager.ControlState.PartLevel,
+            partId,
+            ResolveCurrentPartType());
     }
 
     private static string ResolveCurrentPartId()
@@ -485,6 +505,12 @@ public class WebGLAPI : MonoBehaviour
 
         string partId = controller.LastPartId;
         return string.IsNullOrEmpty(partId) ? null : partId;
+    }
+
+    private static int ResolveCurrentPartType()
+    {
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        return controller != null ? controller.LastPartType : 0;
     }
 
     /// <summary>
@@ -574,7 +600,8 @@ public class WebGLAPI : MonoBehaviour
     /// 字段（区分大小写）：
     /// targetState(int, 必填) 目标级别 0~5：0 地球、1 国家、2 省级、3 车辆、4 零件、5 攻击路径；
     /// provinceCode(string, 可选) 省/国家 code（国内 adcode / 国外 SOC）；
-    /// partId(string, 可选) 业务零部件 ID，用于进入零件级、零件切换、攻击路径 → 零件；
+    /// partId(string, 可选) 显示名（历史字段名不变），进入零件级时写入标签；
+    /// partType(int, 可选) 零部件标号 1~5，匹配场景模型；未传或 &lt;=0 时回退 partId/名称；
     /// useInstantTransition(bool, 可选) 是否跳过过渡动画，默认 false。
     ///
     /// JSON 示例 1 — 跳到省级并指定省 code：
@@ -583,8 +610,8 @@ public class WebGLAPI : MonoBehaviour
     /// JSON 示例 2 — 仅跳到车辆级（其余走默认）：
     /// {"targetState":3}
     ///
-    /// JSON 示例 3 — 跳到零件级：
-    /// {"targetState":4,"partId":"IDC"}
+    /// JSON 示例 3 — 跳到零件级（推荐同时传 partType）：
+    /// {"targetState":4,"partId":"IDC","partType":2}
     ///
     /// HTML 调用示例（同域调试，跨域请用 postMessage）：
     /// unityInstance.SendMessage('WebGLAPI', 'TransitionToControlState',
@@ -606,13 +633,14 @@ public class WebGLAPI : MonoBehaviour
             request.targetState,
             NormalizeOptionalString(request.provinceCode),
             NormalizeOptionalString(request.partId),
-            request.useInstantTransition);
+            request.useInstantTransition,
+            request.partType);
 
         if (!ok)
         {
             LogManager.LogHostWarning(
                 $"[ToStateError] reason=MapApi 启动失败 | target={request.targetState} | " +
-                $"provinceCode={request.provinceCode} | partId={request.partId} | json={json}");
+                $"provinceCode={request.provinceCode} | partId={request.partId} | partType={request.partType} | json={json}");
             return;
         }
 

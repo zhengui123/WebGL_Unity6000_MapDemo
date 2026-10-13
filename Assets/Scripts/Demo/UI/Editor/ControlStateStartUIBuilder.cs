@@ -2320,7 +2320,7 @@ public static class ControlStateStartUIBuilder
             panel.transform,
             resources,
             "PartNameDropdown",
-            "车辆零部件名字",
+            "零部件(partType Name)",
             12f,
             y,
             LabelWidth,

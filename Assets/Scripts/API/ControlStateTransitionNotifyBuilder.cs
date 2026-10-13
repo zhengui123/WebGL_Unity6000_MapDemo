@@ -9,15 +9,19 @@ public static class ControlStateTransitionNotifyBuilder
     private static readonly string[] EmptyEventIds = System.Array.Empty<string>();
 
     /// <summary>过渡开始通知。</summary>
-    public static ControlStateTransitionNotify BuildStarted(int fromState, int toState, string partId)
+    public static ControlStateTransitionNotify BuildStarted(
+        int fromState,
+        int toState,
+        string partId,
+        int partType = 0)
     {
-        return Build(fromState, toState, partId);
+        return Build(fromState, toState, partId, partType);
     }
 
     /// <summary>过渡完成通知（from=-1）。</summary>
-    public static ControlStateTransitionNotify BuildCompleted(int toState, string partId)
+    public static ControlStateTransitionNotify BuildCompleted(int toState, string partId, int partType = 0)
     {
-        return Build(AndroidMessage.ControlStateTransitionCompletedFrom, toState, partId);
+        return Build(AndroidMessage.ControlStateTransitionCompletedFrom, toState, partId, partType);
     }
 
     /// <summary>日志用：空数组显示 []，否则显示条数与 id 列表。</summary>
@@ -31,12 +35,17 @@ public static class ControlStateTransitionNotifyBuilder
         return $"[{eventIds.Length}] {string.Join(",", eventIds)}";
     }
 
-    private static ControlStateTransitionNotify Build(int fromState, int toState, string partId)
+    private static ControlStateTransitionNotify Build(
+        int fromState,
+        int toState,
+        string partId,
+        int partType = 0)
     {
         string provinceCode = ResolveCurrentProvinceCode();
         string vin = ResolveCurrentVin();
         string encryptVin = ResolveCurrentEncryptVin();
         string resolvedPartId = partId ?? string.Empty;
+        int resolvedPartType = ResolveNotifyPartType(toState, partType);
         int status = ResolveNotifyBigScreenStatus();
         return new ControlStateTransitionNotify
         {
@@ -47,14 +56,32 @@ public static class ControlStateTransitionNotifyBuilder
             vin = vin,
             encryptVin = encryptVin,
             partId = resolvedPartId,
+            partType = resolvedPartType,
             eventIds = ResolveThreatEventIds(
                 status,
                 toState,
                 provinceCode,
                 encryptVin,
                 vin,
-                resolvedPartId),
+                resolvedPartId,
+                resolvedPartType),
         };
+    }
+
+    private static int ResolveNotifyPartType(int toState, int partType)
+    {
+        if (toState != (int)GameManager.ControlState.PartLevel)
+        {
+            return 0;
+        }
+
+        if (PartTypeMatchUtil.IsValidPartType(partType))
+        {
+            return partType;
+        }
+
+        VehicleToPartTransitionController controller = VehicleToPartTransitionController.Instance;
+        return controller != null ? controller.LastPartType : 0;
     }
 
     /// <summary>
@@ -67,7 +94,8 @@ public static class ControlStateTransitionNotifyBuilder
         string provinceCode,
         string encryptVin,
         string vin,
-        string partId)
+        string partId,
+        int partType = 0)
     {
         if (status != (int)GameManager.BigScreenPlaybackState.Threat)
         {
@@ -84,7 +112,7 @@ public static class ControlStateTransitionNotifyBuilder
             case GameManager.ControlState.AttackPathLevel:
                 return CollectHighRiskEventIdsByVin(encryptVin, vin);
             case GameManager.ControlState.PartLevel:
-                return CollectActivePartEventId(partId);
+                return CollectActivePartEventId(partId, partType);
             default:
                 return EmptyEventIds;
         }
@@ -231,7 +259,7 @@ public static class ControlStateTransitionNotifyBuilder
     /// 零件级：仅当前威胁停留绑定的单个 eventId。
     /// 优先 ActivePartEventId；无则回退该零件 pending 首条（兼容非威胁流程进零件）。
     /// </summary>
-    private static string[] CollectActivePartEventId(string partId)
+    private static string[] CollectActivePartEventId(string partId, int partType = 0)
     {
         ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
         if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActivePartEventId))
@@ -239,40 +267,53 @@ public static class ControlStateTransitionNotifyBuilder
             return new[] { threatRunner.ActivePartEventId.Trim() };
         }
 
-        if (string.IsNullOrWhiteSpace(partId))
-        {
-            return EmptyEventIds;
-        }
-
-        string firstId = FindFirstPendingEventIdForPart(partId.Trim());
+        string firstId = FindFirstPendingEventIdForPart(partId, partType);
         return string.IsNullOrEmpty(firstId) ? EmptyEventIds : new[] { firstId };
     }
 
-    private static string FindFirstPendingEventIdForPart(string partKey)
+    private static string FindFirstPendingEventIdForPart(string partKey, int partType = 0)
     {
         PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
-        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partKey);
+        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partKey, partType);
         if (!string.IsNullOrEmpty(fromUnprotected))
         {
             return fromUnprotected;
         }
 
-        return FindFirstPendingEventId(data?.protectedParts, partKey);
+        return FindFirstPendingEventId(data?.protectedParts, partKey, partType);
     }
 
-    private static string FindFirstPendingEventId(PartProtectionStatusPart[] parts, string partKey)
+    private static string FindFirstPendingEventId(
+        PartProtectionStatusPart[] parts,
+        string partKey,
+        int partType = 0)
     {
         if (parts == null || parts.Length == 0)
         {
             return string.Empty;
         }
 
+        bool hasType = PartTypeMatchUtil.IsValidPartType(partType);
+        string nameKey = string.IsNullOrWhiteSpace(partKey) ? null : partKey.Trim();
+
         for (int i = 0; i < parts.Length; i++)
         {
             PartProtectionStatusPart part = parts[i];
-            if (part == null
-                || string.IsNullOrWhiteSpace(part.partTypeName)
-                || !string.Equals(part.partTypeName.Trim(), partKey, System.StringComparison.OrdinalIgnoreCase))
+            if (part == null)
+            {
+                continue;
+            }
+
+            bool matched = hasType && part.partType == partType;
+            if (!matched
+                && nameKey != null
+                && !string.IsNullOrWhiteSpace(part.partTypeName)
+                && string.Equals(part.partTypeName.Trim(), nameKey, System.StringComparison.OrdinalIgnoreCase))
+            {
+                matched = true;
+            }
+
+            if (!matched)
             {
                 continue;
             }

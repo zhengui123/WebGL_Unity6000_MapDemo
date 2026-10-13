@@ -15,6 +15,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
     [SerializeField] private Button _requestHttpButton;
     [SerializeField] private Button _applyLocalJsonButton;
     [SerializeField] private Button _applyLocalJson1012Button;
+    [SerializeField] private Button _applyLocalJsonWithIviButton;
     [SerializeField] private Button _showUiFromCacheButton;
     [SerializeField] private Button _closeCarUiButton;
     [SerializeField] private Button _backButton;
@@ -37,6 +38,11 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         {
             _applyLocalJson1012Button = transform.Find("ApplyLocalJson1012Button")?.GetComponent<Button>();
         }
+
+        if (_applyLocalJsonWithIviButton == null)
+        {
+            _applyLocalJsonWithIviButton = transform.Find("ApplyLocalJsonWithIviButton")?.GetComponent<Button>();
+        }
     }
 
     private void OnEnable()
@@ -44,6 +50,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         Bind(_requestHttpButton, OnClickRequestHttp, true);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, true);
         Bind(_applyLocalJson1012Button, OnClickApplyLocalJson1012, true);
+        Bind(_applyLocalJsonWithIviButton, OnClickApplyLocalJsonWithIvi, true);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, true);
         Bind(_closeCarUiButton, OnClickCloseCarUi, true);
         Bind(_backButton, OnBackClicked, true);
@@ -54,6 +61,7 @@ public class CarVehicleDataUIDemo : MonoBehaviour
         Bind(_requestHttpButton, OnClickRequestHttp, false);
         Bind(_applyLocalJsonButton, OnClickApplyLocalJson, false);
         Bind(_applyLocalJson1012Button, OnClickApplyLocalJson1012, false);
+        Bind(_applyLocalJsonWithIviButton, OnClickApplyLocalJsonWithIvi, false);
         Bind(_showUiFromCacheButton, OnClickShowUiFromCache, false);
         Bind(_closeCarUiButton, OnClickCloseCarUi, false);
         Bind(_backButton, OnBackClicked, false);
@@ -102,6 +110,14 @@ public class CarVehicleDataUIDemo : MonoBehaviour
             CarVehicleDataMockJson.PartProtectionStatusSuccessJson1012,
             CarVehicleDataMockJson.AttackChainSuccessJson1012,
             "10.12新本地json");
+    }
+
+    private void OnClickApplyLocalJsonWithIvi()
+    {
+        ApplyLocalJsonPair(
+            CarVehicleDataMockJson.PartProtectionStatusSuccessJsonWithIvi,
+            CarVehicleDataMockJson.AttackChainSuccessJsonWithIvi,
+            "含IVI本地json");
     }
 
     private void ApplyLocalJsonPair(string partProtectionJson, string attackChainJson, string label)

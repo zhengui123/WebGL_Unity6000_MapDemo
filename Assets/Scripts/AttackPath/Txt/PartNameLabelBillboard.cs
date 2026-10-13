@@ -65,6 +65,14 @@ public class PartNameLabelBillboard : MonoBehaviour
         RefreshLabelPosition();
     }
 
+    /// <summary>覆盖显示名（不改 GameObject.name）；空则回退物体名。</summary>
+    public void SetLabelText(string text)
+    {
+        _labelText = string.IsNullOrWhiteSpace(text) ? gameObject.name : text.Trim();
+        EnsureLabel();
+        RefreshLabelContent();
+    }
+
     /// <summary>由 Generator 写入偏移配置。</summary>
     public void ApplyOffsetSettings(Vector3 offset, bool useBoundsTop)
     {

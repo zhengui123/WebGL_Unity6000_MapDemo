@@ -106,23 +106,22 @@ window.addEventListener('message', (e) => {
 
 层级主干：`0 → 1 → 2 → 3`；`3` 下可分支到 `4`（零件）或 `5`（攻击路径），须经车辆级衔接。
 
-### 3.1 partId 有效取值
+### 3.1 partType / partId
 
-`partId` 为场景中 `VehicleToPartTransitionController` 已配置的零件 ID（`partId` 为空时取 GameObject 名），**当前项目支持以下取值**（区分大小写）：
+- **匹配模型**：请传 `partType`（整数 **1~5**），与场景 `VehicleToPartTransitionController._partRoots.partType` 一一对应。
+- **显示名**：`partId` 仍为历史字段名，语义改为**显示名**（如 `IDC` / `CCU`），写入零件标签；不再作为模型匹配主键。
+- 仅传 `partId`、未传 / `partType<=0` 时，Unity 会回退用显示名或物体名匹配（兼容旧宿主）。
+- 省略两者时，使用过渡控制器列表首项。
 
+| partType | 常见显示名（partId）示例 |
+| -------- | ---------------------- |
+| `1`      | `CCU`                  |
+| `2`      | `IDC`                  |
+| `3`      | `ADC`                  |
+| `4`      | `TBOX`                 |
+| `5`      | `WG`                   |
 
-| partId | 说明    |
-| ------ | ----- |
-| `IDC`  | 智驾域控  |
-| `CCU`  | 中央计算  |
-| `TBOX` | 车联网终端 |
-| `ADC`  | ADC   |
-| `WG`   | WG    |
-
-
-文档示例 **仅使用上述取值**。传入其它值时 Unity 可能无法匹配零件或切换失败。
-
-省略 `partId` 或传 `""` 时，使用过渡控制器默认配置或列表首项（通常为 `IDC`）。
+> 实际标号以场景 Inspector 中 `_partRoots` 配置为准。
 
 ---
 
@@ -159,13 +158,15 @@ window.addEventListener('message', (e) => {
 | ---------------------- | ------ | --- | ----------------------------- | ------------------------------------------------------------------ |
 | `targetState`          | int    | ✅   | —                             | 目标级别 `0~5`；非法值忽略请求                                                 |
 | `provinceCode`         | string |     | 可省略 / `""` / 空白 → Unity 用默认单元 | 省/国家 code：国内 adcode（如 `"370000"`）/ 国外 SOC（如 `"392"`）；内部解析显示名与板块模块名 |
-| `partId`               | string |     | 可省略 / `""` / 空白 → 控制器默认或列表首项  | 零件 ID，有效值：`IDC`、`CCU`、`TBOX`、`ADC`、`WG`                            |
+| `partId`               | string |     | 可省略 / `""` / 空白 → 控制器默认或列表首项  | 显示名（历史字段名不变）；进入零件级时写入标签                                         |
+| `partType`             | int    |     | 省略 / `0` → 回退用 `partId`/名称   | 零部件标号 `1~5`，匹配场景模型                                                   |
 | `useInstantTransition` | bool   |     | 省略 → `false`                  | `true` 时跳过过渡动画（临时置 0 时长）                                           |
 
 
 **可空规则（Unity 侧）：**
 
 - `provinceCode` / `partId`：字段省略、空字符串、仅空白，均视为 `null`，走 Unity 默认逻辑。
+- `partType`：JSON 中省略时解析为 `0`，表示未指定，回退显示名匹配。
 - `useInstantTransition`：JSON 中省略时，`JsonUtility` 解析为 `false`。
 - `targetState`：**不可省略**；若省略会被解析为 `0`（地球级），通常非预期。
 
@@ -207,28 +208,28 @@ callUnity('TransitionToControlState', JSON.stringify({
 {"targetState":2,"provinceCode":"370000"}
 ```
 
-**跳到零件级：**
+**跳到零件级（推荐同时传 partType）：**
 
 ```json
-{"targetState":4,"partId":"IDC"}
+{"targetState":4,"partId":"IDC","partType":2}
 ```
 
 **已在零件级时切换零件（targetState 仍为 4）：**
 
 ```json
-{"targetState":4,"partId":"CCU"}
+{"targetState":4,"partId":"CCU","partType":1}
 ```
 
 **切换到 TBOX：**
 
 ```json
-{"targetState":4,"partId":"TBOX"}
+{"targetState":4,"partId":"TBOX","partType":4}
 ```
 
 **攻击路径级跳到零件：**
 
 ```json
-{"targetState":4,"partId":"IDC"}
+{"targetState":4,"partId":"IDC","partType":2}
 ```
 
 **瞬时跳转（无动画）：**
@@ -920,7 +921,8 @@ if (data.method === 'onUnityWebGLReady') {
 | `provinceCode` | string   |     | 取不到时为 `""`           | 当前区域 code；国内为省 adcode，国外大屏为国家/区域 code。优先聚焦板块 / 进省缓存，无则默认单元 |
 | `vin`          | string   |     | 无车辆上下文为 `""`         | 当前车辆**加密** VIN（威胁事件 `vin` 如实回填）                              |
 | `encryptVin`   | string   |     | 无则 `""`                | 当前车辆**明文** VIN（威胁下钻缓存优先，否则回落最近车辆请求）                        |
-| `partId`       | string   |     | 无零件场景为 `""`          | 零件相关场景为 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`              |
+| `partId`       | string   |     | 无零件场景为 `""`          | 显示名；零件相关场景如 `IDC` / `CCU` / `TBOX` / `ADC` / `WG`         |
+| `partType`     | int      |     | 非零件为 `0`            | 零部件标号 `1~5`；零件相关通知可带值                                      |
 | `eventIds`     | string[] |     | `[]`                 | 见下方「eventIds 取值规则」                                         |
 
 
@@ -1174,11 +1176,11 @@ function onUnityCarYawRotationChanged(json) {
 | 进入国家地图    | `{"targetState":1}`                                       |
 | 聚焦山东省     | `{"targetState":2,"provinceCode":"370000"}`               |
 | 进入车辆视图    | `{"targetState":3,"provinceCode":"370000"}`               |
-| 查看零件 IDC  | `{"targetState":4,"partId":"IDC"}`                        |
-| 切换零件 CCU  | `{"targetState":4,"partId":"CCU"}`                        |
-| 切换零件 TBOX | `{"targetState":4,"partId":"TBOX"}`                       |
+| 查看零件 IDC  | `{"targetState":4,"partId":"IDC","partType":2}`           |
+| 切换零件 CCU  | `{"targetState":4,"partId":"CCU","partType":1}`           |
+| 切换零件 TBOX | `{"targetState":4,"partId":"TBOX","partType":4}`          |
 | 查看攻击路径    | `{"targetState":5}`                                       |
-| 攻击路径下看零件  | `{"targetState":4,"partId":"IDC"}`                        |
+| 攻击路径下看零件  | `{"targetState":4,"partId":"IDC","partType":2}`           |
 | 关闭大屏轮播    | `SetBigScreenAutoCarouselEnabled` → `{"enabled":false}`   |
 | 设置国内默认省浙江 | `SetWorldMapRegionDefaults` → `{"provinceCode":"330000","firstClassCode":"CHINA"}` |
 | 退出威胁下钻    | `ExitThreatDrill` → `""`                                  |
