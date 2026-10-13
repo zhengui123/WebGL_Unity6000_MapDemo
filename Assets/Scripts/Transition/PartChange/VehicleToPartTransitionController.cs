@@ -59,6 +59,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private readonly Dictionary<int, PartInitialState> _partInitialStates = new Dictionary<int, PartInitialState>();
     private Sequence _sequence;
     private bool _isTransitioning;
+    /// <summary>打断后下一次零件切换跳过旧零件收回，直接播新零件出现。</summary>
+    private bool _skipOldPartRetractOnNextPartSwitch;
     private Transform _activePart;
     private string _lastPartName;
     private string _lastPartId;
@@ -143,11 +145,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
     /// <param name="partId">业务零部件 ID；null 或空字符串时使用列表第一项。</param>
     public bool PlayTransition(string partId = null)
     {
-        if (_isTransitioning)
-        {
-            return false;
-        }
-
         if (!TryResolvePart(partId, out Transform part))
         {
             return false;
@@ -160,8 +157,20 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         string normalizedPartId = NormalizePartId(partId, part);
+
+        // 零件级快速切换：A→B 过渡中再切 C 时打断当前动画，立刻开切 C（跳过 B 收回）。
+        if (_isTransitioning && IsPartLevel())
+        {
+            InterruptInFlightPartTransitionForRetarget();
+        }
+        else if (_isTransitioning)
+        {
+            return false;
+        }
+
         if (IsPartLevel() && _activePart == part)
         {
+            _skipOldPartRetractOnNextPartSwitch = false;
             // 同零件：不播过渡动画，但仍走切换完成回调（威胁同零件多 eventId 需宿主收到完成通知）。
             _lastPartName = part.name;
             _lastPartId = normalizedPartId;
@@ -173,8 +182,12 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (ShouldPlayPartToPartTransition(part))
         {
-            return PlayPartToPartTransition(part, normalizedPartId);
+            bool skipOldRetract = _skipOldPartRetractOnNextPartSwitch;
+            _skipOldPartRetractOnNextPartSwitch = false;
+            return PlayPartToPartTransition(part, normalizedPartId, skipOldRetract);
         }
+
+        _skipOldPartRetractOnNextPartSwitch = false;
 
         if (IsAttackPathLevel())
         {
@@ -362,11 +375,22 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 执行零件→零件切换（严格串行）：
-    /// 1) 旧零件 second->first->初始位姿（等价倒播）
-    /// 2) 新零件 初始位姿->first->second（正播）
+    /// 打断进行中的零件过渡：停动画、零件全部回初始隐藏；下一次切换跳过旧零件收回。
     /// </summary>
-    private bool PlayPartToPartTransition(Transform targetPart, string targetPartId)
+    private void InterruptInFlightPartTransitionForRetarget()
+    {
+        KillSequence();
+        RestoreAllPartsToInitialState();
+        _skipOldPartRetractOnNextPartSwitch = true;
+        LogManager.LogFeature(
+            $"[VehicleToPart] 已打断零件过渡，下一切换跳过收回直接出现 | from={_activePart?.name ?? "(空)"}");
+    }
+
+    /// <summary>
+    /// 执行零件→零件切换。
+    /// 默认：旧零件收回 + 新零件出现；<paramref name="skipOldRetract"/> 为 true 时旧零件立即隐藏，只播新零件出现。
+    /// </summary>
+    private bool PlayPartToPartTransition(Transform targetPart, string targetPartId, bool skipOldRetract = false)
     {
         if (_activePart == null)
         {
@@ -374,10 +398,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         Transform oldPart = _activePart;
-        ApplyCachedPoseFromInitialState(oldPart);
-        Vector3 oldInitialPosition = _cachedPartLocalPosition;
-        Quaternion oldInitialRotation = _cachedPartLocalRotation;
-        Vector3 oldInitialScale = _cachedPartLocalScale;
 
         if (TryGetPartInitialState(targetPart, out PartInitialState targetInitialState))
         {
@@ -389,10 +409,6 @@ public class VehicleToPartTransitionController : MonoBehaviour
         KillSequence();
         StopAndHideAttackPath();
 
-        // StopAndHideAttackPath 只停攻击路径线，不影响零件显隐；此处再显式激活切换双方。
-        oldPart.gameObject.SetActive(true);
-        targetPart.gameObject.SetActive(false);
-
         _isTransitioning = true;
         _activePart = targetPart;
         _lastPartName = targetPart.name;
@@ -400,6 +416,36 @@ public class VehicleToPartTransitionController : MonoBehaviour
         EventManager.Instance?.TriggerPartToPartTransitionStarted(_lastPartName, _lastPartId);
 
         _sequence = DOTween.Sequence();
+
+        if (skipOldRetract)
+        {
+            // 打断重定向：旧零件立即藏起，只播新零件 初始→first→second。
+            if (TryGetPartInitialState(oldPart, out PartInitialState oldInitial))
+            {
+                oldPart.localPosition = oldInitial.LocalPosition;
+                oldPart.localRotation = oldInitial.LocalRotation;
+                oldPart.localScale = oldInitial.LocalScale;
+            }
+
+            oldPart.gameObject.SetActive(false);
+            targetPart.gameObject.SetActive(true);
+            AppendMoveToTarget(_sequence, targetPart, _firstTarget, _firstMoveDuration);
+            AppendMoveToTarget(_sequence, targetPart, _secondTarget, _secondMoveDuration);
+            _sequence.OnComplete(CompletePartToPartTransition);
+            LogManager.LogFeature(
+                $"[VehicleToPart] 零件切换（跳过收回）| {oldPart.name} → {targetPart.name}");
+            return true;
+        }
+
+        ApplyCachedPoseFromInitialState(oldPart);
+        Vector3 oldInitialPosition = _cachedPartLocalPosition;
+        Quaternion oldInitialRotation = _cachedPartLocalRotation;
+        Vector3 oldInitialScale = _cachedPartLocalScale;
+
+        // StopAndHideAttackPath 只停攻击路径线，不影响零件显隐；此处再显式激活切换双方。
+        oldPart.gameObject.SetActive(true);
+        targetPart.gameObject.SetActive(false);
+
         AppendMoveToTarget(_sequence, oldPart, _firstTarget, _secondMoveDuration);
         AppendMoveToPose(_sequence, oldPart, oldInitialPosition, oldInitialRotation, oldInitialScale, _firstMoveDuration);
         _sequence.AppendCallback(() =>
@@ -524,6 +570,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _kjCarRoot.SetActive(true);
         }
 
+        // 零件→车辆：确保攻击链路与零部件对象回到车辆级隐藏态。
+        EnsureVehicleLevelVisualsHidden();
         NotifyPartTransitionCompleted(isReverse: true);
     }
 
@@ -932,7 +980,21 @@ public class VehicleToPartTransitionController : MonoBehaviour
             _kjCarRoot.SetActive(true);
         }
 
+        // 攻击链路→车辆：再次确保链路与零部件正确隐藏。
+        EnsureVehicleLevelVisualsHidden();
         EventManager.Instance?.TriggerAttackPathToVehicleTransitionCompleted();
+    }
+
+    /// <summary>
+    /// 进入车辆级展示态：停止并隐藏攻击链路对象，零件还原为开局隐藏，关闭零件名标签。
+    /// 供零件→车辆 / 攻击链路→车辆过渡完成时调用。
+    /// </summary>
+    public void EnsureVehicleLevelVisualsHidden()
+    {
+        StopAndHideAttackPath();
+        RestoreAllPartsToInitialState();
+        _activePart = null;
+        SetPartNameLabelsVisible(false);
     }
 
     private bool PlayAttackPathToPartTransition(Transform targetPart, string targetPartId)
