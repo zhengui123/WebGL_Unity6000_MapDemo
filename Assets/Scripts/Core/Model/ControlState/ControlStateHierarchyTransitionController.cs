@@ -316,6 +316,36 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         return !string.IsNullOrWhiteSpace(_activeProvinceModuleName);
     }
 
+    /// <summary>
+    /// 同级车辆/攻击链路：跳过层级过渡动画，刷新展示，并触发一次完成事件（宿主 from=-1 回调）。
+    /// 数据请求（如 RequestCarVehicleData）仍由宿主另行调用，此处不替代。
+    /// </summary>
+    private IEnumerator ApplySameLevelNonHierarchyRefresh(GameManager.ControlState level)
+    {
+        yield return null;
+
+        EventManager em = EventManager.Instance;
+        if (level == GameManager.ControlState.VehicleLevel)
+        {
+            VehicleToPartTransitionController.Instance?.EnsureVehicleLevelVisualsHidden();
+            CarVehicleDataController.Instance?.TryShowVehicleUiFromCache();
+
+            string provinceName = ResolveActiveProvinceName();
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 同级车辆：跳过层级动画，刷新展示并完成回调 | province={provinceName}");
+            em?.TriggerPlateToVehicleViewTransitionCompleted(provinceName);
+            yield break;
+        }
+
+        if (level == GameManager.ControlState.AttackPathLevel)
+        {
+            CarVehicleDataController.Instance?.ApplyAttackPathsFromCacheForTransition();
+            LogManager.LogFeature(
+                "[ControlStateHierarchyTransitionController] 同级攻击链路：跳过层级动画，刷新链路并完成回调");
+            em?.TriggerVehicleToAttackPathTransitionCompleted();
+        }
+    }
+
     private IEnumerator BootstrapAfterWarmup(bool ensureEarthBaseline, GameManager.ControlState targetState)
     {
         for (int i = 0; i < Mathf.Max(0, _warmupFrames); i++)
@@ -403,6 +433,12 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                 {
                     yield return GoToProvinceLevel(_activeProvinceModuleName);
                     yield return WaitUntilControllersIdle();
+                }
+                else if (targetState == GameManager.ControlState.VehicleLevel
+                         || targetState == GameManager.ControlState.AttackPathLevel)
+                {
+                    // 同级车辆/攻击链路：不重播层级过渡，只刷非层级展示并发一次完成回调
+                    yield return ApplySameLevelNonHierarchyRefresh(targetState);
                 }
 
                 yield break;
