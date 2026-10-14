@@ -209,10 +209,15 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (IsPartLevel() && _activePart == part)
         {
+            // 同 partType 再进：打断后可能已全部隐藏，须重新显示并贴到最终展示位，避免零件消失。
             _skipOldPartRetractOnNextPartSwitch = false;
+            _isTransitioning = false;
+            EnsurePartVisibleAtSecondTarget(part);
             _lastPartName = part.name;
             _lastPartId = displayName;
             _lastPartType = resolvedType;
+            LogManager.LogFeature(
+                $"[VehicleToPart] 同零件再进：已确保显示并贴第二目标 | part={part.name} | type={resolvedType}");
             EventManager.Instance?.TriggerPartToPartTransitionCompleted(
                 _lastPartName,
                 _lastPartId);
@@ -221,6 +226,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
 
         if (ShouldPlayPartToPartTransition(part))
         {
+            // A→B 中途改切 C：skipOldRetract=true，直接从 C 出现（不播 B 收回）。
             bool skipOldRetract = _skipOldPartRetractOnNextPartSwitch;
             _skipOldPartRetractOnNextPartSwitch = false;
             return PlayPartToPartTransition(part, displayName, skipOldRetract, resolvedType);
@@ -521,7 +527,8 @@ public class VehicleToPartTransitionController : MonoBehaviour
     }
 
     /// <summary>
-    /// 打断进行中的零件过渡：停动画、零件全部回初始隐藏；下一次切换跳过旧零件收回。
+    /// 打断进行中的零件过渡（如 A→B 中途改切 C）：停动画、零件全部回初始隐藏；
+    /// 下一次切换跳过旧零件收回，直接从新零件出现动画开始。
     /// </summary>
     private void InterruptInFlightPartTransitionForRetarget()
     {
@@ -530,6 +537,26 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _skipOldPartRetractOnNextPartSwitch = true;
         LogManager.LogFeature(
             $"[VehicleToPart] 已打断零件过渡，下一切换跳过收回直接出现 | from={_activePart?.name ?? "(空)"}");
+    }
+
+    /// <summary>
+    /// 同零件再进 / 打断后仍切回当前件：强制显示并瞬时贴到第二目标（最终展示位）。
+    /// </summary>
+    private void EnsurePartVisibleAtSecondTarget(Transform part)
+    {
+        if (part == null)
+        {
+            return;
+        }
+
+        part.DOKill();
+        part.gameObject.SetActive(true);
+        if (_secondTarget != null)
+        {
+            part.position = _secondTarget.position;
+            part.rotation = _secondTarget.rotation;
+            part.localScale = _secondTarget.localScale;
+        }
     }
 
     /// <summary>
