@@ -342,6 +342,12 @@ public class CarVehicleDataController : MonoBehaviour
             return false;
         }
 
+        if (!CarPanelManager.IsDisplaySupportedOnCurrentPlatform)
+        {
+            LogManager.LogBackend("[CarVehicleDataController] 当前平台不展示 CarPanel/GridLine，跳过车辆 UI。");
+            return false;
+        }
+
         if (_carPanelManager == null)
         {
             _carPanelManager = CarPanelManager.Instance;

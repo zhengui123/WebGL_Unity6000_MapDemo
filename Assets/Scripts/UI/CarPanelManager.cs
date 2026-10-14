@@ -17,6 +17,22 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     [Tooltip("每个零部件在面板上停留的秒数")]
     [SerializeField] private float _partDisplaySeconds = 5f;
 
+    /// <summary>
+    /// Android 不展示 CarPanel / MessageListPanel，也不启用 GridLine 连线；
+    /// 车辆双接口仍可请求与写缓存。攻击链路级 AttackPath 连线不受此开关影响。
+    /// </summary>
+    public static bool IsDisplaySupportedOnCurrentPlatform
+    {
+        get
+        {
+#if UNITY_ANDROID
+            return false;
+#else
+            return true;
+#endif
+        }
+    }
+
     private string _currentStart3DObjectName;
     private Coroutine _partCarouselCoroutine;
     private Coroutine _restartCarouselCoroutine;
@@ -41,6 +57,11 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         {
             gridLine.ForceHideAllLineVisuals();
             gridLine.enabled = false;
+        }
+
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            LogManager.LogFeature("[CarPanelManager] 当前平台禁用 CarPanel/GridLine 展示。");
         }
     }
 
@@ -95,6 +116,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     /// <summary>仅显示 CarPanel 根节点；非 VehicleLevel 不显示（MessageListPanel 随父节点）。</summary>
     public void OpenCarPanel()
     {
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            LogManager.LogFeature("[CarPanelManager] 当前平台不展示 CarPanel，跳过 OpenCarPanel。");
+            EnsureCarPanelAndGridLineHidden();
+            return;
+        }
+
         if (!IsVehicleLevel())
         {
             LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，跳过打开 CarPanel。");
@@ -124,6 +152,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
 
     public bool OpenCarUI(string start3DObjectName)
     {
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            LogManager.LogFeature("[CarPanelManager] 当前平台不展示 CarPanel/GridLine，跳过 OpenCarUI。");
+            EnsureCarPanelAndGridLineHidden();
+            return false;
+        }
+
         if (!IsVehicleLevel())
         {
             LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法打开车辆 UI。");
@@ -177,6 +212,13 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     /// </summary>
     public bool StartPartMessageCarousel(IList<CarVehiclePartSlide> slides)
     {
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            LogManager.LogFeature("[CarPanelManager] 当前平台不展示 CarPanel/GridLine，跳过零部件轮播。");
+            EnsureCarPanelAndGridLineHidden();
+            return false;
+        }
+
         if (!IsVehicleLevel())
         {
             LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，无法开始零部件轮播。");
@@ -246,6 +288,11 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         ProtectionStateType protectionState,
         System.Collections.Generic.IList<string> abnormalEvents)
     {
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            return;
+        }
+
         if (!IsVehicleLevel())
         {
             LogManager.LogFeatureWarning("[CarPanelManager] 当前非 VehicleLevel，跳过 MessageListPanel 刷新。");
@@ -260,6 +307,23 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
         }
 
         panel.SetMessageList(title, protectionState, abnormalEvents);
+    }
+
+    /// <summary>确保 CarPanel 关闭且 GridLine 连线关闭（Android 平台强制调用）。</summary>
+    private void EnsureCarPanelAndGridLineHidden()
+    {
+        StopPartMessageCarousel();
+
+        if (CarPanel != null && CarPanel.activeSelf)
+        {
+            CarPanel.SetActive(false);
+        }
+
+        if (gridLine != null)
+        {
+            gridLine.ForceHideAllLineVisuals();
+            gridLine.enabled = false;
+        }
     }
 
     public void StopPartMessageCarousel()
@@ -384,6 +448,12 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     /// <summary>进入车辆级且有缓存时，延迟重启轮播（等待 GameManager 状态同步）。</summary>
     private void TryRestartCarouselFromCacheDeferred(string source)
     {
+        if (!IsDisplaySupportedOnCurrentPlatform)
+        {
+            EnsureCarPanelAndGridLineHidden();
+            return;
+        }
+
         if (!HasCarouselCache())
         {
             return;

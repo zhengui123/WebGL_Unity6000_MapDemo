@@ -65,6 +65,12 @@ public class MessageListPanel : MonoBehaviour
     /// <param name="abnormalEvents">异常事件（问题）列表，超过 5 条仅显示前 5 条；列表非空则已防护态用黄色。</param>
     public void SetMessageList(string title, ProtectionStateType protectionState, IList<string> abnormalEvents)
     {
+        // Android 不展示车辆 MessageListPanel（由 CarPanelManager 统一关闭面板与 GridLine）。
+        if (!CarPanelManager.IsDisplaySupportedOnCurrentPlatform)
+        {
+            return;
+        }
+
         EnsureReferences();
 
         if (_titleText != null)
