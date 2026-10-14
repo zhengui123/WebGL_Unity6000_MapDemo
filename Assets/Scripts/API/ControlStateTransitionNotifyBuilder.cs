@@ -86,7 +86,7 @@ public static class ControlStateTransitionNotifyBuilder
 
     /// <summary>
     /// status=2 时按目标级别取威胁 eventId；否则空数组。
-    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN（优先 encryptVin）；零件=当前停留绑定的单个 eventId。
+    /// 国家=全部；省=当前省；车辆/攻击链路=当前 VIN（优先 encryptVin）；零件=当前停留零件的全部 pending eventId。
     /// </summary>
     private static string[] ResolveThreatEventIds(
         int status,
@@ -112,7 +112,7 @@ public static class ControlStateTransitionNotifyBuilder
             case GameManager.ControlState.AttackPathLevel:
                 return CollectHighRiskEventIdsByVin(encryptVin, vin);
             case GameManager.ControlState.PartLevel:
-                return CollectActivePartEventId(partId, partType);
+                return CollectActivePartEventIds(partId, partType);
             default:
                 return EmptyEventIds;
         }
@@ -256,41 +256,44 @@ public static class ControlStateTransitionNotifyBuilder
     }
 
     /// <summary>
-    /// 零件级：仅当前威胁停留绑定的单个 eventId。
-    /// 优先 ActivePartEventId；无则回退该零件 pending 首条（兼容非威胁流程进零件）。
+    /// 零件级：当前威胁停留绑定的全部 eventId。
+    /// 优先 ActivePartEventIds；无则回退该零件 pending 全量（兼容非威胁流程进零件）。
     /// </summary>
-    private static string[] CollectActivePartEventId(string partId, int partType = 0)
+    private static string[] CollectActivePartEventIds(string partId, int partType = 0)
     {
         ThreatAlertFlowRunner threatRunner = ThreatAlertFlowRunner.Instance;
-        if (threatRunner != null && !string.IsNullOrWhiteSpace(threatRunner.ActivePartEventId))
+        if (threatRunner != null)
         {
-            return new[] { threatRunner.ActivePartEventId.Trim() };
+            string[] activeIds = threatRunner.ActivePartEventIds;
+            if (activeIds != null && activeIds.Length > 0)
+            {
+                return activeIds;
+            }
         }
 
-        string firstId = FindFirstPendingEventIdForPart(partId, partType);
-        return string.IsNullOrEmpty(firstId) ? EmptyEventIds : new[] { firstId };
+        return CollectAllPendingEventIdsForPart(partId, partType);
     }
 
-    private static string FindFirstPendingEventIdForPart(string partKey, int partType = 0)
+    private static string[] CollectAllPendingEventIdsForPart(string partKey, int partType = 0)
     {
         PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
-        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partKey, partType);
-        if (!string.IsNullOrEmpty(fromUnprotected))
+        string[] fromUnprotected = CollectPendingEventIdsFromParts(data?.unprotectedParts, partKey, partType);
+        if (fromUnprotected.Length > 0)
         {
             return fromUnprotected;
         }
 
-        return FindFirstPendingEventId(data?.protectedParts, partKey, partType);
+        return CollectPendingEventIdsFromParts(data?.protectedParts, partKey, partType);
     }
 
-    private static string FindFirstPendingEventId(
+    private static string[] CollectPendingEventIdsFromParts(
         PartProtectionStatusPart[] parts,
         string partKey,
         int partType = 0)
     {
         if (parts == null || parts.Length == 0)
         {
-            return string.Empty;
+            return EmptyEventIds;
         }
 
         bool hasType = PartTypeMatchUtil.IsValidPartType(partType);
@@ -319,24 +322,28 @@ public static class ControlStateTransitionNotifyBuilder
             }
 
             PartProtectionPendingEvent[] pending = part.pendingEvents;
-            if (pending == null)
+            if (pending == null || pending.Length == 0)
             {
-                return string.Empty;
+                return EmptyEventIds;
             }
 
-            for (int j = 0; j < pending.Length; j++)
+            int count = Mathf.Min(pending.Length, MessageListPanel.MaxMessageCount);
+            List<string> ids = new List<string>(count);
+            for (int j = 0; j < count; j++)
             {
                 PartProtectionPendingEvent evt = pending[j];
-                if (evt != null && !string.IsNullOrWhiteSpace(evt.eventId))
+                if (evt == null || string.IsNullOrWhiteSpace(evt.eventId))
                 {
-                    return evt.eventId.Trim();
+                    continue;
                 }
+
+                ids.Add(evt.eventId.Trim());
             }
 
-            return string.Empty;
+            return ids.Count == 0 ? EmptyEventIds : ids.ToArray();
         }
 
-        return string.Empty;
+        return EmptyEventIds;
     }
 
     private static string ResolveCurrentProvinceCode()

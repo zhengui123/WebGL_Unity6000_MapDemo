@@ -524,7 +524,7 @@ public void onUnityControlStateTransition(String json) { }
 | `2` 省 | 当前省威胁事件 |
 | `3` 车辆 | 当前车辆（优先 `encryptVin`，回退 `vin`）在高危缓存中的事件列表 |
 | `5` 攻击链路 | **同车辆**：当前车辆的事件列表 |
-| `4` 零部件 | **仅当前停留绑定的 1 个** eventId（同零件多条 pending 会多次进零件，每次回调只带当条）；无绑定时为 `[]` |
+| `4` 零部件 | **当前停留零件的全部** pending eventId（每个零件只跳转 1 次，一次回调带齐）；无事件时为 `[]` |
 | `0` 地球等 | `[]` |
 
 **过渡开始示例：**
@@ -545,16 +545,16 @@ public void onUnityControlStateTransition(String json) { }
 {"from":-1,"to":5,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"","eventIds":["evt-vin-01","evt-vin-02","evt-vin-03"]}
 ```
 
-**威胁-零部件开始（仅当前这条 eventId）：**
+**威胁-零部件开始（该零件全部 pending eventId）：**
 
 ```json
-{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01"]}
+{"from":5,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01","idc-evt-02"]}
 ```
 
-**威胁-零部件完成（同零件下一条 pending，仍为单元素）：**
+**威胁-零部件完成（同一次停留，eventIds 与开始一致）：**
 
 ```json
-{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-02"]}
+{"from":-1,"to":4,"status":2,"provinceCode":"370000","vin":"LSVAED49F47A","encryptVin":"ed49f47afa23e45b18d342767495643c","partId":"IDC","eventIds":["idc-evt-01","idc-evt-02"]}
 ```
 
 **过渡完成示例（非威胁-零件）：**
@@ -584,7 +584,7 @@ public void onUnityControlStateTransition(String json) {
                     + ", encryptVin=" + encryptVin
                     + ", status=" + status
                     + ", eventIds=" + eventIds);
-            // 隐藏 Loading、刷新原生界面；威胁零件级时 eventIds 通常仅 1 个
+            // 隐藏 Loading、刷新原生界面；威胁零件级时 eventIds 为该零件全部 pending
         } else {
             Log.d("UnityBridge", "过渡开始: " + from + " -> " + to
                     + ", status=" + status

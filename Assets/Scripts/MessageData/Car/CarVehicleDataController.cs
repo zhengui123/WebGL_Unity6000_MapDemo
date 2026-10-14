@@ -45,8 +45,15 @@ public class CarVehicleDataController : MonoBehaviour
     private string _activeStartTime;
     private string _activeEndTime;
     private Action<bool, string> _onBatchCompleted;
+    /// <summary>当前批次号；作废/新请求时递增，旧回调因不匹配而丢弃。</summary>
+    private int _activeBatchId;
+    private int _batchSeq;
 
     public bool IsRequesting => _isRequesting;
+
+    /// <summary>当前进行中或最近一次请求的 encryptVin（未请求过可为空）。</summary>
+    public string ActiveEncryptVin => _activeEncryptVin;
+
     public CarVehicleDataStore Store => CarVehicleDataStore.Instance;
 
     /// <summary>双接口均成功并覆盖缓存后触发。</summary>
@@ -75,6 +82,50 @@ public class CarVehicleDataController : MonoBehaviour
         Request(_defaultEncryptVin, _defaultStartTime, null, onCompleted);
     }
 
+    /// <summary>
+    /// 若有进行中的双接口请求：作废其回调与结果（旧 HTTP 回包忽略），再按新参数发起。
+    /// 威胁下钻同省换 Vin 时使用，保证一定用新 Vin 访问后端。
+    /// </summary>
+    public void RequestReplacingPending(
+        string encryptVin,
+        string startTime,
+        string endTime,
+        Action<bool, string> onCompleted = null)
+    {
+        if (_isRequesting)
+        {
+            CancelPendingRequest("RequestReplacingPending");
+        }
+
+        Request(encryptVin, startTime, endTime, onCompleted);
+    }
+
+    /// <summary>作废进行中的请求：旧回调收到失败；迟到的 HTTP 回包因 batchId 不匹配而忽略。</summary>
+    public void CancelPendingRequest(string reason = null)
+    {
+        if (!_isRequesting && _onBatchCompleted == null)
+        {
+            return;
+        }
+
+        _activeBatchId = ++_batchSeq;
+        Action<bool, string> oldCallback = _onBatchCompleted;
+        _onBatchCompleted = null;
+        _isRequesting = false;
+        _pendingCount = 0;
+        _partOk = false;
+        _attackOk = false;
+        _pendingPartResponse = null;
+        _pendingAttackResponse = null;
+
+        string reasonText = string.IsNullOrWhiteSpace(reason) ? "未说明" : reason.Trim();
+        LogManager.LogBackendWarning(
+            $"[CarVehicleDataController] 已作废进行中的车辆请求 | reason={reasonText} | " +
+            $"vin={_activeEncryptVin}");
+
+        oldCallback?.Invoke(false, "请求已作废（换 Vin 或新请求覆盖）。");
+    }
+
     /// <summary>同参并发请求防护状态与攻击链路；均成功才覆盖缓存并尝试刷车辆 UI。</summary>
     public void Request(
         string encryptVin,
@@ -101,22 +152,24 @@ public class CarVehicleDataController : MonoBehaviour
         _attackOk = false;
         _pendingPartResponse = null;
         _pendingAttackResponse = null;
+        int batchId = ++_batchSeq;
+        _activeBatchId = batchId;
 
         LogManager.LogBackend(
             $"[CarVehicleDataController] 开始双接口请求 | vin={_activeEncryptVin} | " +
-            $"start={_activeStartTime} | end={_activeEndTime}");
+            $"start={_activeStartTime} | end={_activeEndTime} | batch={batchId}");
 
         PartProtectionStatusApi.Request(
             _activeEncryptVin,
             _activeStartTime,
             _activeEndTime,
-            OnPartProtectionCompleted);
+            (result, response) => OnPartProtectionCompleted(batchId, result, response));
 
         AttackChainApi.Request(
             _activeEncryptVin,
             _activeStartTime,
             _activeEndTime,
-            OnAttackChainCompleted);
+            (result, response) => OnAttackChainCompleted(batchId, result, response));
     }
 
     /// <summary>跳过 HTTP：直接应用本地解析后的双响应（测试用）。</summary>
@@ -172,8 +225,18 @@ public class CarVehicleDataController : MonoBehaviour
         return ApplyLocalResponses(part, attack, out errorMessage);
     }
 
-    private void OnPartProtectionCompleted(HttpRequestResult result, PartProtectionStatusResponse response)
+    private void OnPartProtectionCompleted(
+        int batchId,
+        HttpRequestResult result,
+        PartProtectionStatusResponse response)
     {
+        if (batchId != _activeBatchId)
+        {
+            LogManager.LogBackend(
+                $"[CarVehicleDataController] 忽略过期防护状态回包 | batch={batchId} | active={_activeBatchId}");
+            return;
+        }
+
         _partOk = result != null && result.IsSuccess && response != null && response.IsSuccess;
         _pendingPartResponse = _partOk ? response : null;
         if (!_partOk)
@@ -181,11 +244,21 @@ public class CarVehicleDataController : MonoBehaviour
             LogManager.LogBackendWarning("[CarVehicleDataController] 防护状态接口失败。");
         }
 
-        CompleteOne();
+        CompleteOne(batchId);
     }
 
-    private void OnAttackChainCompleted(HttpRequestResult result, AttackChainResponse response)
+    private void OnAttackChainCompleted(
+        int batchId,
+        HttpRequestResult result,
+        AttackChainResponse response)
     {
+        if (batchId != _activeBatchId)
+        {
+            LogManager.LogBackend(
+                $"[CarVehicleDataController] 忽略过期攻击链路回包 | batch={batchId} | active={_activeBatchId}");
+            return;
+        }
+
         _attackOk = result != null && result.IsSuccess && response != null && response.IsSuccess;
         _pendingAttackResponse = _attackOk ? response : null;
         if (!_attackOk)
@@ -193,11 +266,16 @@ public class CarVehicleDataController : MonoBehaviour
             LogManager.LogBackendWarning("[CarVehicleDataController] 攻击链路接口失败。");
         }
 
-        CompleteOne();
+        CompleteOne(batchId);
     }
 
-    private void CompleteOne()
+    private void CompleteOne(int batchId)
     {
+        if (batchId != _activeBatchId)
+        {
+            return;
+        }
+
         _pendingCount--;
         if (_pendingCount > 0)
         {

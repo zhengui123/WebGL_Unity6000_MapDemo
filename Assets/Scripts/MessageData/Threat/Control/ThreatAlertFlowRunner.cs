@@ -50,8 +50,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     [Header("调试")]
     [Tooltip("Console 输出 [计时] 日志，区分过渡耗时与停留耗时")]
     [SerializeField] private bool _logStageTiming = true;
-    [Tooltip("零件下钻列表是否按零件名去重。关闭时：同一零件有 N 条 pending 威胁则停留 N 次")]
-    [SerializeField] private bool _dedupePartIdsForDrill = false;
+
+    private static readonly string[] EmptyPartEventIds = Array.Empty<string>();
 
     private Coroutine _flowRoutine;
     private Coroutine _interruptCooldownRoutine;
@@ -63,7 +63,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private string _activePlateModuleName;
     private string _activeEncryptVin;
     private string _activeVin;
-    private string _activePartEventId;
+    private string[] _activePartEventIds = EmptyPartEventIds;
     private bool _lastTransitionSucceeded;
     private float _holdCountdownRemaining;
     private float _holdCountdownTotal;
@@ -94,8 +94,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     /// <summary>当前威胁下钻车辆明文 vin；未进入 Vin 阶段时为空。</summary>
     public string ActiveVin => _activeVin;
 
-    /// <summary>当前零部件停留对应的 pending eventId；非零件停留时为空。</summary>
-    public string ActivePartEventId => _activePartEventId;
+    /// <summary>当前零部件停留对应的全部 pending eventId；非零件停留时为空数组。</summary>
+    public string[] ActivePartEventIds =>
+        _activePartEventIds != null ? _activePartEventIds : EmptyPartEventIds;
 
     /// <summary>是否处于主动打断后的冷却期。</summary>
     public bool IsInInterruptCooldown => _interruptCooldownRoutine != null;
@@ -456,7 +457,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activePlateModuleName = null;
         _activeEncryptVin = null;
         _activeVin = null;
-        _activePartEventId = null;
+        _activePartEventIds = EmptyPartEventIds;
         ClearHoldCountdown();
     }
 
@@ -539,7 +540,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             _activePlateModuleName = null;
             _activeEncryptVin = null;
             _activeVin = null;
-            _activePartEventId = null;
+            _activePartEventIds = EmptyPartEventIds;
             _flowRoutine = null;
             ThreatProvinceAlertController.NotifyFlowStopped();
         }
@@ -668,23 +669,29 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         if (qualifyingVins.Count > 0)
         {
             LogManager.LogFeature(
-                $"[ThreatAlertFlowRunner] 省级达标 Vin 数={qualifyingVins.Count}，开始轮流下钻 | province={provinceCode}");
+                $"[ThreatAlertFlowRunner] 省级达标 Vin 数={qualifyingVins.Count}，开始轮流下钻 | province={provinceCode} | " +
+                $"encryptVin列表=[{string.Join(" | ", qualifyingVins)}]");
 
             string provinceDisplayName = ResolveProvinceDisplayName(provinceCode, plateModuleName);
             for (int i = 0; i < qualifyingVins.Count; i++)
             {
                 string encryptVin = qualifyingVins[i];
-                bool hasNextVin = i < qualifyingVins.Count - 1;
+                string nextEncryptVin = i + 1 < qualifyingVins.Count ? qualifyingVins[i + 1] : null;
+                bool hasNextVin = !string.IsNullOrWhiteSpace(nextEncryptVin);
                 LogManager.LogFeature(
-                    $"[ThreatAlertFlowRunner] Vin 下钻 ({i + 1}/{qualifyingVins.Count}) | vin={encryptVin} | " +
-                    $"hasNextVin={hasNextVin}");
+                    $"[ThreatAlertFlowRunner] Vin 下钻 ({i + 1}/{qualifyingVins.Count}) | " +
+                    $"encryptVin={encryptVin} | nextEncryptVin={nextEncryptVin ?? "(无)"} | " +
+                    $"hasNextVin={hasNextVin} | control={GameManager.Instance?.CurrentState}");
+
+                // 先切换威胁缓存中的 vin/encryptVin；宿主回调改到进入车辆级之后（见 PlayVinDrillChain）。
+                CacheActiveVehicleIdentity(encryptVin, $"省内Vin循环入口({i + 1}/{qualifyingVins.Count})");
                 ThreatVehicleEntryRequested?.Invoke(encryptVin);
                 yield return PlayVinDrillChain(
                     provinceCode,
                     provinceDisplayName,
                     plateModuleName,
                     encryptVin,
-                    hasNextVin);
+                    nextEncryptVin);
             }
 
             RecordProvinceConsumedForSession(provinceCode);
@@ -707,9 +714,120 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activePlateModuleName = null;
         _activeEncryptVin = null;
         _activeVin = null;
-        _activePartEventId = null;
+        _activePartEventIds = EmptyPartEventIds;
         POI_Manager.Instance?.RemoveAllPoi();
         PlateMapHighlightController.Instance?.ClearHighlight();
+    }
+
+    /// <summary>
+    /// 已在车辆级时：身份已切到新 Vin 后，补发车辆级 onUnityControlStateTransition（开始+完成），
+    /// 再进入后续后端查询。首辆从省进车时由正常过渡发回调，此处跳过。
+    /// </summary>
+    private IEnumerator NotifyHostVehicleLevelAfterVinSwitchedIfNeeded(string encryptVin)
+    {
+        GameManager gm = GameManager.Instance;
+        if (gm == null || gm.CurrentState != GameManager.ControlState.VehicleLevel)
+        {
+            LogManager.LogFeature(
+                $"[ThreatAlertFlowRunner] 换车宿主回调跳过（当前非车辆级） | control={gm?.CurrentState} | " +
+                $"encryptVin={encryptVin} | activeEncryptVin={_activeEncryptVin} | activeVin={_activeVin}");
+            yield break;
+        }
+
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 同省换车：Vin 已切换，准备通知宿主车辆级 | encryptVin={encryptVin} | " +
+            $"activeEncryptVin={_activeEncryptVin} | activeVin={_activeVin} | " +
+            $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin}");
+        NotifyHostVehicleLevelVinSwitched();
+        yield return null;
+    }
+
+    /// <summary>宿主回调：车辆级同级换车（from=3→to=3 开始，再 from=-1→to=3 完成）。</summary>
+    private static void NotifyHostVehicleLevelVinSwitched()
+    {
+        int vehicle = (int)GameManager.ControlState.VehicleLevel;
+        ControlStateTransitionNotify started = ControlStateTransitionNotifyBuilder.BuildStarted(
+            vehicle,
+            vehicle,
+            null,
+            0);
+        ControlStateTransitionNotify completed = ControlStateTransitionNotifyBuilder.BuildCompleted(
+            vehicle,
+            null,
+            0);
+        ThreatAlertFlowRunner runner = Instance;
+        string expectEncrypt = runner != null ? runner.ActiveEncryptVin : null;
+        bool startMismatch = !string.IsNullOrWhiteSpace(expectEncrypt) &&
+                             !string.Equals(started.encryptVin, expectEncrypt, StringComparison.Ordinal);
+        bool doneMismatch = !string.IsNullOrWhiteSpace(expectEncrypt) &&
+                            !string.Equals(completed.encryptVin, expectEncrypt, StringComparison.Ordinal);
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 换车宿主回调载荷 | expectEncryptVin={expectEncrypt} | " +
+            $"start vin={started.vin} encryptVin={started.encryptVin} mismatch={startMismatch} " +
+            $"eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(started.eventIds)} | " +
+            $"done vin={completed.vin} encryptVin={completed.encryptVin} mismatch={doneMismatch} " +
+            $"eventIds={ControlStateTransitionNotifyBuilder.FormatEventIdsForLog(completed.eventIds)}");
+        if (startMismatch || doneMismatch)
+        {
+            LogManager.LogFeatureWarning(
+                "[ThreatAlertFlowRunner] 换车宿主回调 encryptVin 与 ActiveEncryptVin 不一致，前端可能仍显示旧车");
+        }
+
+        AndroidMessage android = AndroidMessage.Instance;
+        if (android != null)
+        {
+            LogManager.LogFeature("[ThreatAlertFlowRunner] 换车宿主通道=AndroidMessage");
+            android.CallAndroidControlStateTransition(vehicle, vehicle);
+            android.CallAndroidControlStateTransitionCompleted(vehicle);
+            return;
+        }
+
+        WebGLAPI webgl = WebGLAPI.Instance;
+        if (webgl != null)
+        {
+            LogManager.LogFeature("[ThreatAlertFlowRunner] 换车宿主通道=WebGLAPI");
+            webgl.CallAndroidControlStateTransition(vehicle, vehicle);
+            webgl.CallAndroidControlStateTransitionCompleted(vehicle);
+            return;
+        }
+
+        LogManager.LogFeatureWarning(
+            "[ThreatAlertFlowRunner] 换车宿主回调失败：AndroidMessage/WebGLAPI 均未找到，前端仍可能显示旧 Vin");
+    }
+
+    /// <summary>
+    /// 回车辆级过渡前先切到下一辆 Vin，保证 Part/攻击链路→车辆 的宿主回调已是新 Vin。
+    /// </summary>
+    private IEnumerator SwitchToNextVinThenReturnToVehicle(string currentEncryptVin, string nextEncryptVin)
+    {
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 准备切下一辆：回车辆前回填新 Vin | " +
+            $"fromEncryptVin={currentEncryptVin} | toEncryptVin={nextEncryptVin} | " +
+            $"beforeActiveEncryptVin={_activeEncryptVin} | control={GameManager.Instance?.CurrentState}");
+        CacheActiveVehicleIdentity(nextEncryptVin, "回车辆前切换下一Vin");
+
+        if (!string.Equals(_activeEncryptVin, nextEncryptVin?.Trim(), StringComparison.Ordinal))
+        {
+            LogManager.LogFeatureWarning(
+                $"[ThreatAlertFlowRunner] 回车辆前身份切换异常 | 期望={nextEncryptVin} | 实际Active={_activeEncryptVin}");
+        }
+
+        yield return ReturnToVehicleLevelFromDrill();
+        yield return null;
+
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 已回车辆级（宿主 Part/攻击→车辆 回调应已带新 Vin） | " +
+            $"activeEncryptVin={_activeEncryptVin} | activeVin={_activeVin} | " +
+            $"control={GameManager.Instance?.CurrentState} | " +
+            $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin ?? "(空)"}");
+
+        if (GameManager.Instance != null &&
+            GameManager.Instance.CurrentState != GameManager.ControlState.VehicleLevel)
+        {
+            LogManager.LogFeatureWarning(
+                $"[ThreatAlertFlowRunner] 回车辆后控制状态未到 VehicleLevel | control={GameManager.Instance.CurrentState} | " +
+                $"ActiveEncryptVin={_activeEncryptVin}");
+        }
     }
 
     /// <summary>单 Vin：车辆级 → 攻击链路级 → 轮流零件级；有下一 Vin 则回车辆级，否则留给省阶段瞬时回国家。</summary>
@@ -718,13 +836,31 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         string provinceDisplayName,
         string plateModuleName,
         string encryptVin,
-        bool hasNextVin)
+        string nextEncryptVin)
     {
+        bool hasNextVin = !string.IsNullOrWhiteSpace(nextEncryptVin);
         _activeProvinceCode = provinceCode;
         _activePlateModuleName = plateModuleName;
-        CacheActiveVehicleIdentity(encryptVin);
+        // 循环入口已切身份；此处再写一次，保证单独调用链时仍正确。
+        CacheActiveVehicleIdentity(encryptVin, "PlayVinDrillChain入口");
+
+        GameManager gmBeforeEnsure = GameManager.Instance;
+        bool alreadyAtVehicleLevel = gmBeforeEnsure != null &&
+                                     gmBeforeEnsure.CurrentState == GameManager.ControlState.VehicleLevel;
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] PlayVinDrillChain 进入车辆前 | encryptVin={encryptVin} | " +
+            $"ActiveEncryptVin={_activeEncryptVin} | ActiveVin={_activeVin} | " +
+            $"alreadyAtVehicleLevel={alreadyAtVehicleLevel} | control={gmBeforeEnsure?.CurrentState} | " +
+            $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin ?? "(空)"}");
 
         yield return RunTimedStep("进入车辆级", EnsureAtVehicleLevel(provinceCode, encryptVin));
+
+        // 同省第二辆起已在车辆级：省→车过渡不会再发，须在请求前补发车辆级宿主回调（载荷应为新 Vin）。
+        if (alreadyAtVehicleLevel)
+        {
+            yield return NotifyHostVehicleLevelAfterVinSwitchedIfNeeded(encryptVin);
+        }
+
         yield return RunTimedStep("车辆数据请求(非阻塞)", RequestVehicleDataAndWait(encryptVin));
 
         _visualStage = ThreatVisualStage.VehicleHold;
@@ -757,7 +893,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             LogManager.LogFeatureWarning($"[ThreatAlertFlowRunner] 无可用零部件，跳过零件级 | vin={encryptVin}");
             if (hasNextVin)
             {
-                yield return ReturnToVehicleLevelFromDrill();
+                yield return SwitchToNextVinThenReturnToVehicle(encryptVin, nextEncryptVin);
             }
             else
             {
@@ -773,7 +909,9 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             ThreatPartDrillStep step = partSteps[i];
             string partId = step.PartId;
             int partType = step.PartType;
-            _activePartEventId = string.IsNullOrWhiteSpace(step.EventId) ? null : step.EventId.Trim();
+            _activePartEventIds = step.EventIds != null && step.EventIds.Length > 0
+                ? step.EventIds
+                : EmptyPartEventIds;
 
             bool fromAttackPath = i == 0 &&
                                   GameManager.Instance != null &&
@@ -800,21 +938,22 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             float partHold = Mathf.Max(0.1f, _partLevelHoldSeconds);
             LogManager.LogFeature(
                 $"[ThreatAlertFlowRunner] 零件级停留 ({i + 1}/{partSteps.Count}) | type={partType} | part={partId} | " +
-                $"eventId={_activePartEventId ?? "(空)"} | {partHold:F1}s");
+                $"eventIds={FormatPartEventIdsForLog(_activePartEventIds)} | {partHold:F1}s");
             yield return WaitHoldSeconds(
                 partHold,
                 $"零件级停留 ({i + 1}/{partSteps.Count}) type={partType} part={partId}");
             _visualStage = ThreatVisualStage.None;
         }
 
-        _activePartEventId = null;
+        _activePartEventIds = EmptyPartEventIds;
 
         if (hasNextVin)
         {
-            // 还有下一 Vin：需先回到车辆级再请求下一辆
-            yield return ReturnToVehicleLevelFromDrill();
+            // 还有下一 Vin：回车辆过渡前先切身份，宿主 Part/攻击→车辆 回调即为新 Vin
+            yield return SwitchToNextVinThenReturnToVehicle(encryptVin, nextEncryptVin);
             LogManager.LogFeature(
-                $"[ThreatAlertFlowRunner] 本 Vin 全部零件展示完毕，已回车辆级，即将用下一 Vin 重新请求车辆数据 | vin={encryptVin}");
+                $"[ThreatAlertFlowRunner] 本 Vin 全部零件展示完毕，已切下一 Vin 并回车辆级 | " +
+                $"finishedEncryptVin={encryptVin} | nextActiveEncryptVin={_activeEncryptVin}");
         }
         else
         {
@@ -827,7 +966,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
     private IEnumerator EnsureAtVehicleLevel(string provinceCode, string encryptVin)
     {
-        CacheActiveVehicleIdentity(encryptVin);
+        CacheActiveVehicleIdentity(encryptVin, "EnsureAtVehicleLevel");
 
         GameManager gm = GameManager.Instance;
         if (gm == null)
@@ -838,13 +977,24 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         if (gm.CurrentState == GameManager.ControlState.PartLevel ||
             gm.CurrentState == GameManager.ControlState.AttackPathLevel)
         {
+            LogManager.LogFeature(
+                $"[ThreatAlertFlowRunner] EnsureAtVehicleLevel：从 {gm.CurrentState} 回车辆 | " +
+                $"ActiveEncryptVin={_activeEncryptVin} | ActiveVin={_activeVin}");
             yield return ReturnToVehicleLevelFromDrill();
         }
 
         if (gm.CurrentState == GameManager.ControlState.VehicleLevel)
         {
+            LogManager.LogFeature(
+                $"[ThreatAlertFlowRunner] EnsureAtVehicleLevel：已在车辆级，跳过层级过渡 | " +
+                $"请求encryptVin={encryptVin} | ActiveEncryptVin={_activeEncryptVin} | ActiveVin={_activeVin} | " +
+                $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin ?? "(空)"}");
             yield break;
         }
+
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] EnsureAtVehicleLevel：层级跳转到车辆级 | from={gm.CurrentState} | " +
+            $"ActiveEncryptVin={_activeEncryptVin} | ActiveVin={_activeVin}");
 
         ControlStateHierarchyTransitionController hierarchy =
             ControlStateHierarchyTransitionController.Instance;
@@ -860,11 +1010,15 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             useInstant: false,
             provinceCode: provinceCode,
             confirmTimeoutSeconds: 15f);
+
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] EnsureAtVehicleLevel：层级跳转结束 | control={gm.CurrentState} | " +
+            $"ActiveEncryptVin={_activeEncryptVin} | ActiveVin={_activeVin}");
     }
 
     private IEnumerator ReturnToVehicleLevelFromDrill()
     {
-        _activePartEventId = null;
+        _activePartEventIds = EmptyPartEventIds;
 
         GameManager gm = GameManager.Instance;
         if (gm == null)
@@ -1071,7 +1225,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         if (!string.IsNullOrWhiteSpace(encryptVin))
         {
-            CacheActiveVehicleIdentity(encryptVin);
+            CacheActiveVehicleIdentity(encryptVin, "RequestVehicleDataAndWait");
         }
 
         ResolveVehicleQueryWindowFromThreatEvents(
@@ -1079,21 +1233,53 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             out string startTime,
             out string endTime);
 
+        string targetVin = string.IsNullOrWhiteSpace(encryptVin) ? string.Empty : encryptVin.Trim();
+        string cachedVin = controller.Store != null ? controller.Store.LastEncryptVin : null;
+        bool vinMismatch = !string.IsNullOrWhiteSpace(cachedVin) &&
+                           !string.IsNullOrWhiteSpace(targetVin) &&
+                           !string.Equals(cachedVin.Trim(), targetVin, StringComparison.Ordinal);
         LogManager.LogFeature(
-            $"[ThreatAlertFlowRunner] 请求车辆态势 | encryptVin={encryptVin} | " +
+            $"[ThreatAlertFlowRunner] 请求车辆态势 | targetEncryptVin={targetVin} | " +
+            $"activeEncryptVin={_activeEncryptVin} | activeVin={_activeVin} | " +
+            $"storeLastEncryptVin={cachedVin} | controllerActiveEncryptVin={controller.ActiveEncryptVin} | " +
+            $"store与目标不一致={vinMismatch} | isRequesting={controller.IsRequesting} | " +
             $"startTime={startTime} | endTime={endTime}");
-        // 关键点：不要阻塞车辆停留计时。
-        // 先用已有缓存立即刷新车辆 UI；接口成功/失败都让流程按停留秒数继续跳转。
-        controller.TryShowVehicleUiFromCache();
-
-        if (controller.IsRequesting)
+        if (vinMismatch)
         {
             LogManager.LogFeatureWarning(
-                $"[ThreatAlertFlowRunner] 检测到已有车辆请求进行中，跳过本次请求启动（仍继续用当前缓存） | vin={encryptVin}");
+                $"[ThreatAlertFlowRunner] 换车请求：Store 仍是旧 Vin，将按新 Vin 发起后端查询 | " +
+                $"oldStore={cachedVin} | newTarget={targetVin}");
+        }
+
+        // 关键点：不要阻塞车辆停留计时。
+        // 仅当缓存已是当前 Vin 时才立刻刷 UI，避免同省下一辆仍展示上一辆。
+        bool cacheMatchesTarget = !string.IsNullOrWhiteSpace(cachedVin) &&
+                                  !string.IsNullOrWhiteSpace(targetVin) &&
+                                  string.Equals(cachedVin.Trim(), targetVin, StringComparison.Ordinal);
+        if (cacheMatchesTarget)
+        {
+            controller.TryShowVehicleUiFromCache();
+        }
+
+        bool sameVinInFlight = controller.IsRequesting &&
+                               !string.IsNullOrWhiteSpace(controller.ActiveEncryptVin) &&
+                               string.Equals(controller.ActiveEncryptVin.Trim(), targetVin, StringComparison.Ordinal);
+        if (sameVinInFlight)
+        {
+            LogManager.LogFeature(
+                $"[ThreatAlertFlowRunner] 同 Vin 请求进行中，不重复发起 | vin={targetVin}");
+            yield return null;
             yield break;
         }
 
-        controller.Request(
+        if (controller.IsRequesting)
+        {
+            LogManager.LogFeature(
+                $"[ThreatAlertFlowRunner] 作废进行中的旧车请求并按新 Vin 重发 | " +
+                $"oldVin={controller.ActiveEncryptVin} | newVin={targetVin}");
+        }
+
+        controller.RequestReplacingPending(
             encryptVin,
             startTime,
             endTime,
@@ -1101,9 +1287,24 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             {
                 if (!success)
                 {
+                    // 作废旧请求时也会回调失败，属预期，不按加载失败告警。
+                    if (!string.IsNullOrEmpty(error) &&
+                        error.IndexOf("作废", StringComparison.Ordinal) >= 0)
+                    {
+                        LogManager.LogFeature(
+                            $"[ThreatAlertFlowRunner] 旧车请求已作废（换 Vin） | targetEncryptVin={targetVin} | error={error}");
+                        return;
+                    }
+
                     LogManager.LogFeatureWarning(
-                        $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续（继续使用已有缓存） | vin={encryptVin} | error={error}");
+                        $"[ThreatAlertFlowRunner] 车辆信息加载失败，流程继续（继续使用已有缓存） | vin={targetVin} | error={error}");
+                    return;
                 }
+
+                LogManager.LogFeature(
+                    $"[ThreatAlertFlowRunner] 车辆态势请求成功 | targetEncryptVin={targetVin} | " +
+                    $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin ?? "(空)"} | " +
+                    $"ActiveEncryptVin={_activeEncryptVin}");
             });
 
         // 给一帧，避免后续阶段与请求回调在同一帧内竞争。
@@ -1290,91 +1491,26 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     {
         public readonly int PartType;
         public readonly string PartId;
-        public readonly string EventId;
+        public readonly string[] EventIds;
 
-        public ThreatPartDrillStep(int partType, string partId, string eventId)
+        public ThreatPartDrillStep(int partType, string partId, string[] eventIds)
         {
             PartType = partType;
             PartId = partId ?? string.Empty;
-            EventId = eventId ?? string.Empty;
+            EventIds = eventIds != null && eventIds.Length > 0 ? eventIds : EmptyPartEventIds;
         }
     }
 
     /// <summary>
-    /// 收集零件下钻步骤（partType + 显示名 + pending eventId）。
-    /// <see cref="_dedupePartIdsForDrill"/> 为 true：按 partType 去重（优先攻击链路节点）；
-    /// 为 false：按防护状态 pendingEvents 展开。
+    /// 按防护状态列表收集零件下钻步骤：每个零件只跳转 1 次，步骤内携带该零件全部 pending eventId。
+    /// 无 pending 的零件仍跳转 1 次（eventIds 为空）；无防护数据时回退攻击链路节点。
     /// </summary>
     private List<ThreatPartDrillStep> ResolvePartDrillSteps()
     {
-        if (!_dedupePartIdsForDrill)
-        {
-            return BuildPartDrillStepsExpandedByPendingEvents();
-        }
-
-        return BuildPartDrillStepsDeduped();
+        return BuildPartDrillStepsFromProtectionList();
     }
 
-    /// <summary>去重：攻击链路 partType 优先，否则防护状态轮播（各一次）。</summary>
-    private static List<ThreatPartDrillStep> BuildPartDrillStepsDeduped()
-    {
-        List<ThreatPartDrillStep> steps = new List<ThreatPartDrillStep>();
-        HashSet<int> uniqueTypes = new HashSet<int>();
-
-        List<int> types = CarVehicleDataStore.Instance.BuildAttackChainNodePartTypes();
-        AttackChainNode[] nodes = CarVehicleDataStore.Instance.AttackChain?.data?.nodes;
-        for (int i = 0; i < types.Count; i++)
-        {
-            int partType = types[i];
-            if (!uniqueTypes.Add(partType))
-            {
-                continue;
-            }
-
-            string displayName = ResolveDisplayNameForPartType(partType, nodes);
-            steps.Add(new ThreatPartDrillStep(
-                partType,
-                displayName,
-                GetFirstPendingEventIdForPart(displayName, partType)));
-        }
-
-        if (steps.Count > 0)
-        {
-            return steps;
-        }
-
-        List<CarVehiclePartSlide> slides = CarVehicleDataStore.Instance.BuildPartSlides();
-        for (int i = 0; i < slides.Count; i++)
-        {
-            CarVehiclePartSlide slide = slides[i];
-            int partType = slide.PartType;
-            if (PartTypeMatchUtil.IsValidPartType(partType))
-            {
-                if (!uniqueTypes.Add(partType))
-                {
-                    continue;
-                }
-            }
-            else if (string.IsNullOrWhiteSpace(slide.PartTypeName))
-            {
-                continue;
-            }
-
-            string name = slide.PartTypeName ?? string.Empty;
-            steps.Add(new ThreatPartDrillStep(
-                partType,
-                name,
-                GetFirstPendingEventIdForPart(name, partType)));
-        }
-
-        return steps;
-    }
-
-    /// <summary>
-    /// 不去重：按防护状态 pendingEvents 展开；无事件的零件仍保留 1 次（eventId 空）。
-    /// 若无防护状态数据，回退为攻击链路节点。
-    /// </summary>
-    private static List<ThreatPartDrillStep> BuildPartDrillStepsExpandedByPendingEvents()
+    private static List<ThreatPartDrillStep> BuildPartDrillStepsFromProtectionList()
     {
         List<ThreatPartDrillStep> result = new List<ThreatPartDrillStep>();
         PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
@@ -1388,14 +1524,17 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
 
         List<int> fallbackTypes = CarVehicleDataStore.Instance.BuildAttackChainNodePartTypes();
         AttackChainNode[] nodes = CarVehicleDataStore.Instance.AttackChain?.data?.nodes;
+        HashSet<int> uniqueTypes = new HashSet<int>();
         for (int i = 0; i < fallbackTypes.Count; i++)
         {
             int partType = fallbackTypes[i];
+            if (!uniqueTypes.Add(partType))
+            {
+                continue;
+            }
+
             string displayName = ResolveDisplayNameForPartType(partType, nodes);
-            result.Add(new ThreatPartDrillStep(
-                partType,
-                displayName,
-                GetFirstPendingEventIdForPart(displayName, partType)));
+            result.Add(new ThreatPartDrillStep(partType, displayName, EmptyPartEventIds));
         }
 
         return result;
@@ -1458,100 +1597,41 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 continue;
             }
 
-            PartProtectionPendingEvent[] pending = part.pendingEvents;
-            if (pending == null || pending.Length == 0)
-            {
-                steps.Add(new ThreatPartDrillStep(partType, partId, string.Empty));
-                continue;
-            }
-
-            int count = Mathf.Min(pending.Length, MessageListPanel.MaxMessageCount);
-            bool added = false;
-            for (int j = 0; j < count; j++)
-            {
-                PartProtectionPendingEvent evt = pending[j];
-                if (evt == null)
-                {
-                    continue;
-                }
-
-                string eventId = string.IsNullOrWhiteSpace(evt.eventId) ? string.Empty : evt.eventId.Trim();
-                steps.Add(new ThreatPartDrillStep(partType, partId, eventId));
-                added = true;
-            }
-
-            if (!added)
-            {
-                steps.Add(new ThreatPartDrillStep(partType, partId, string.Empty));
-            }
+            steps.Add(new ThreatPartDrillStep(partType, partId, CollectPendingEventIds(part.pendingEvents)));
         }
     }
 
-    private static string GetFirstPendingEventIdForPart(string partId, int partType = 0)
+    private static string[] CollectPendingEventIds(PartProtectionPendingEvent[] pending)
     {
-        PartProtectionStatusData data = CarVehicleDataStore.Instance?.PartProtectionStatus?.data;
-        string fromUnprotected = FindFirstPendingEventId(data?.unprotectedParts, partId, partType);
-        if (!string.IsNullOrEmpty(fromUnprotected))
+        if (pending == null || pending.Length == 0)
         {
-            return fromUnprotected;
+            return EmptyPartEventIds;
         }
 
-        return FindFirstPendingEventId(data?.protectedParts, partId, partType);
+        int count = Mathf.Min(pending.Length, MessageListPanel.MaxMessageCount);
+        List<string> ids = new List<string>(count);
+        for (int j = 0; j < count; j++)
+        {
+            PartProtectionPendingEvent evt = pending[j];
+            if (evt == null || string.IsNullOrWhiteSpace(evt.eventId))
+            {
+                continue;
+            }
+
+            ids.Add(evt.eventId.Trim());
+        }
+
+        return ids.Count == 0 ? EmptyPartEventIds : ids.ToArray();
     }
 
-    private static string FindFirstPendingEventId(
-        PartProtectionStatusPart[] parts,
-        string partId,
-        int partType = 0)
+    private static string FormatPartEventIdsForLog(string[] eventIds)
     {
-        if (parts == null || parts.Length == 0)
+        if (eventIds == null || eventIds.Length == 0)
         {
-            return string.Empty;
+            return "(空)";
         }
 
-        bool hasType = PartTypeMatchUtil.IsValidPartType(partType);
-        string partKey = string.IsNullOrWhiteSpace(partId) ? null : partId.Trim();
-        for (int i = 0; i < parts.Length; i++)
-        {
-            PartProtectionStatusPart part = parts[i];
-            if (part == null)
-            {
-                continue;
-            }
-
-            bool matched = hasType && part.partType == partType;
-            if (!matched
-                && partKey != null
-                && !string.IsNullOrWhiteSpace(part.partTypeName)
-                && string.Equals(part.partTypeName.Trim(), partKey, StringComparison.OrdinalIgnoreCase))
-            {
-                matched = true;
-            }
-
-            if (!matched)
-            {
-                continue;
-            }
-
-            PartProtectionPendingEvent[] pending = part.pendingEvents;
-            if (pending == null)
-            {
-                return string.Empty;
-            }
-
-            for (int j = 0; j < pending.Length; j++)
-            {
-                PartProtectionPendingEvent evt = pending[j];
-                if (evt != null && !string.IsNullOrWhiteSpace(evt.eventId))
-                {
-                    return evt.eventId.Trim();
-                }
-            }
-
-            return string.Empty;
-        }
-
-        return string.Empty;
+        return $"[{eventIds.Length}] {string.Join(",", eventIds)}";
     }
 
     private void RefreshProvinceStageVisuals(HighRiskSecurityEventDataStore store)
@@ -1941,16 +2021,26 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     }
 
     /// <summary>缓存当前下钻车辆：encryptVin 为请求键；vin 从事件如实取明文。</summary>
-    private void CacheActiveVehicleIdentity(string encryptVinKey)
+    private void CacheActiveVehicleIdentity(string encryptVinKey, string reason = null)
     {
         if (string.IsNullOrWhiteSpace(encryptVinKey))
         {
+            LogManager.LogFeatureWarning(
+                $"[ThreatAlertFlowRunner] CacheActiveVehicleIdentity 忽略空 encryptVin | reason={reason ?? "(无)"}");
             return;
         }
 
         string key = encryptVinKey.Trim();
+        string oldEncrypt = _activeEncryptVin;
+        string oldPlain = _activeVin;
+        bool changed = !string.Equals(oldEncrypt, key, StringComparison.Ordinal);
         _activeEncryptVin = key;
         _activeVin = ResolvePlainVinForEncryptKey(key);
+        LogManager.LogFeature(
+            $"[ThreatAlertFlowRunner] 切换车辆身份 | reason={reason ?? "(无)"} | changed={changed} | " +
+            $"encryptVin: {oldEncrypt ?? "(空)"} → {_activeEncryptVin} | " +
+            $"vin: {oldPlain ?? "(空)"} → {_activeVin ?? "(空)"} | " +
+            $"storeLastEncryptVin={CarVehicleDataStore.Instance?.LastEncryptVin ?? "(空)"}");
     }
 
     private string ResolvePlainVinForEncryptKey(string encryptVinKey)
