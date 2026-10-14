@@ -15,6 +15,7 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
     [SerializeField] private Button _injectEastAsiaSameVinButton;
     [SerializeField] private Button _injectChongqingShanghai1013Button;
     [SerializeField] private Button _injectChongqingHeilongjiangShanghai1013Button;
+    [SerializeField] private Button _injectHeilongjiangTianjinShanghaiZhejiang1014Button;
     [SerializeField] private Button _startThreatPollingButton;
     [SerializeField] private Button _stopThreatPollingButton;
     [SerializeField] private Button _skipHoldButton;
@@ -89,6 +90,10 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         Bind(_injectEastAsiaSameVinButton, OnInjectEastAsiaSameVinClicked, bind);
         Bind(_injectChongqingShanghai1013Button, OnInjectChongqingShanghai1013Clicked, bind);
         Bind(_injectChongqingHeilongjiangShanghai1013Button, OnInjectChongqingHeilongjiangShanghai1013Clicked, bind);
+        Bind(
+            _injectHeilongjiangTianjinShanghaiZhejiang1014Button,
+            OnInjectHeilongjiangTianjinShanghaiZhejiang1014Clicked,
+            bind);
         Bind(_startThreatPollingButton, OnStartThreatPollingClicked, bind);
         Bind(_stopThreatPollingButton, OnStopThreatPollingClicked, bind);
         Bind(_skipHoldButton, OnSkipHoldClicked, bind);
@@ -150,6 +155,13 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         InjectJson(
             ThreatLocalAlertTestMockJson.ChongqingHeilongjiangShanghai1013Json,
             "渝黑沪样例(10.13)");
+    }
+
+    private void OnInjectHeilongjiangTianjinShanghaiZhejiang1014Clicked()
+    {
+        InjectJson(
+            ThreatLocalAlertTestMockJson.HeilongjiangTianjinShanghaiZhejiang1014Json,
+            "黑津沪浙样例(10.14)");
     }
 
     /// <summary>注入东亚数据前切到国外·东亚大板块。</summary>
@@ -566,6 +578,12 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
         {
             _injectChongqingHeilongjiangShanghai1013Button =
                 transform.Find("InjectChongqingHeilongjiangShanghai1013Button")?.GetComponent<Button>();
+        }
+
+        if (_injectHeilongjiangTianjinShanghaiZhejiang1014Button == null)
+        {
+            _injectHeilongjiangTianjinShanghaiZhejiang1014Button =
+                transform.Find("InjectHeilongjiangTianjinShanghaiZhejiang1014Button")?.GetComponent<Button>();
         }
 
         if (_startThreatPollingButton == null)
