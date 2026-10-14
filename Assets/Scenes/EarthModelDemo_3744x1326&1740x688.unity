@@ -8648,6 +8648,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: UserTarget
       objectReference: {fileID: 0}
+    - target: {fileID: 5112551766752695943, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -2.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 5112551766752695943, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 7.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.57
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -2.6645344e-15
+      objectReference: {fileID: 0}
+    - target: {fileID: 7641616368198596424, guid: 47f70fc2aec7ac74c8ae660be2168248, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -5.329069e-15
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -14013,6 +14037,7 @@ MonoBehaviour:
   _requestHttpButton: {fileID: 800367492}
   _applyLocalJsonButton: {fileID: 1910092985}
   _applyLocalJson1012Button: {fileID: 0}
+  _applyLocalJsonWithIviButton: {fileID: 0}
   _showUiFromCacheButton: {fileID: 2064630231}
   _closeCarUiButton: {fileID: 99334928}
   _backButton: {fileID: 109306452}
@@ -42585,7 +42610,7 @@ Transform:
   m_GameObject: {fileID: 1438134882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.00002336502, y: 1.434285, z: -0.0000033471733}
+  m_LocalPosition: {x: 0.000008583069, y: 1.2800325, z: 0.075040095}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

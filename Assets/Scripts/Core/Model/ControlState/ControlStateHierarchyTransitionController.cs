@@ -56,6 +56,12 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <summary>本次跳转使用的板块模块名（调用参数优先，否则由默认省 code 解析）。</summary>
     private string _activeProvinceModuleName;
 
+    /// <summary>
+    /// 车辆→省级倒播使用的「当前物理省」显示名（换省前捕获）。
+    /// 空则回退 <see cref="_activeProvinceName"/>。
+    /// </summary>
+    private string _vehicleToProvinceReverseName;
+
     public override void Awake()
     {
         base.Awake();
@@ -160,7 +166,24 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             _partType = 0;
         }
 
+        // 先记下当前省（倒回省级动画用），再解析目标省参数
+        _vehicleToProvinceReverseName = CaptureCurrentProvinceDisplayNameForReverse();
         ResolveActiveProvinceParameters(provinceCode);
+
+        if (targetState == GameManager.ControlState.ProvinceLevel)
+        {
+            // 省级目标：真正切到目标省；缓存由 FocusModule 写入
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 省级目标换省 | " +
+                $"reverse={_vehicleToProvinceReverseName ?? "(空)"} → " +
+                $"target={_activeProvinceName}({_activeProvinceCode}) module={_activeProvinceModuleName}");
+        }
+        else
+        {
+            // 非省级：只更新省缓存供过渡动画，级别按邻接图走（同级则仅改缓存）
+            ApplyTargetProvinceCacheForNonProvinceTarget();
+        }
+
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
     }
@@ -211,6 +234,86 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager gm = GameManager.Instance;
             _activeProvinceName = gm != null ? gm.DefaultProvinceName : "浙江";
         }
+    }
+
+    /// <summary>捕获跳转前当前省显示名，供车辆→省级倒播使用。</summary>
+    private static string CaptureCurrentProvinceDisplayNameForReverse()
+    {
+        if (PlateProvinceFocusResolver.HasCachedProvince &&
+            !string.IsNullOrWhiteSpace(PlateProvinceFocusResolver.CachedProvinceName))
+        {
+            return PlateProvinceFocusResolver.CachedProvinceName.Trim();
+        }
+
+        if (PlateProvinceFocusResolver.TryGetFocusedPlateProvinceCode(out string focusedCode) &&
+            !string.IsNullOrWhiteSpace(focusedCode))
+        {
+            string name = WorldMapPlateResolver.ResolveUnitDisplayName(focusedCode);
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                return name.Trim();
+            }
+        }
+
+        GameManager gm = GameManager.Instance;
+        return gm != null ? gm.DefaultProvinceName : "浙江";
+    }
+
+    /// <summary>非省级目标：把解析后的目标省写入进省缓存（同级换省仅改缓存、不换画面层级）。</summary>
+    private void ApplyTargetProvinceCacheForNonProvinceTarget()
+    {
+        if (string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_activeProvinceModuleName) &&
+            PlateProvinceFocusResolver.TryCacheFromModuleName(_activeProvinceModuleName))
+        {
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 非省级目标已更新省缓存(模块) | " +
+                $"code={PlateProvinceFocusResolver.CachedProvinceCode} | " +
+                $"name={PlateProvinceFocusResolver.CachedProvinceName}");
+            return;
+        }
+
+        if (PlateProvinceFocusResolver.TryCacheProvince(_activeProvinceCode, _activeProvinceName))
+        {
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 非省级目标已更新省缓存 | " +
+                $"code={_activeProvinceCode} | name={_activeProvinceName}");
+        }
+    }
+
+    /// <summary>当前聚焦/缓存省是否与本次目标省不一致（需 Focus 换省）。</summary>
+    private bool NeedsProvinceRefocus()
+    {
+        if (string.IsNullOrWhiteSpace(_activeProvinceModuleName) &&
+            string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            return false;
+        }
+
+        PlateMapDisplayController display = PlateMapDisplayController.Instance;
+        PlateMapDisplayModule focused = display != null ? display.FocusedModule : null;
+        if (focused != null && !string.IsNullOrWhiteSpace(_activeProvinceModuleName))
+        {
+            return !string.Equals(
+                focused.ModuleKey,
+                _activeProvinceModuleName,
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode) &&
+            !string.IsNullOrWhiteSpace(_activeProvinceCode))
+        {
+            return !string.Equals(
+                cachedCode.Trim(),
+                _activeProvinceCode.Trim(),
+                StringComparison.OrdinalIgnoreCase);
+        }
+
+        return !string.IsNullOrWhiteSpace(_activeProvinceModuleName);
     }
 
     private IEnumerator BootstrapAfterWarmup(bool ensureEarthBaseline, GameManager.ControlState targetState)
@@ -295,6 +398,13 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             GameManager.ControlState currentState = GameManagerDemoAccess.GetCurrentState(manager);
             if (currentState == targetState)
             {
+                // 已在省级但目标省不同：补一次 Focus，避免「同级换省无效」
+                if (targetState == GameManager.ControlState.ProvinceLevel && NeedsProvinceRefocus())
+                {
+                    yield return GoToProvinceLevel(_activeProvinceModuleName);
+                    yield return WaitUntilControllersIdle();
+                }
+
                 yield break;
             }
 
@@ -462,11 +572,13 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         if (from == GameManager.ControlState.VehicleLevel
             && to == GameManager.ControlState.ProvinceLevel)
         {
+            // 倒播必须用「当前物理省」，不能用已解析的目标省（否则 A 车回不到 A 省）
+            string reverseName = ResolveProvinceNameForVehicleToProvinceReverse();
             yield return WaitForBoolStringEvent(
                 h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted += h,
                 h => EventManager.Instance.OnVehicleToPlateViewTransitionCompleted -= h,
-                () => MapApi.Instance.TransitionCityToPlateMap(ResolveActiveProvinceName()),
-                "车辆 → 板块聚焦倒播");
+                () => MapApi.Instance.TransitionCityToPlateMap(reverseName),
+                $"车辆 → 板块聚焦倒播 ({reverseName})");
             yield break;
         }
 
@@ -585,6 +697,17 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         GameManager gm = GameManager.Instance;
         return gm != null ? gm.DefaultProvinceName : "浙江";
+    }
+
+    /// <summary>车辆→省级倒播省名：优先换省前捕获的当前省。</summary>
+    private string ResolveProvinceNameForVehicleToProvinceReverse()
+    {
+        if (!string.IsNullOrWhiteSpace(_vehicleToProvinceReverseName))
+        {
+            return _vehicleToProvinceReverseName.Trim();
+        }
+
+        return ResolveActiveProvinceName();
     }
 
     private string ResolveActiveProvinceModuleName()
