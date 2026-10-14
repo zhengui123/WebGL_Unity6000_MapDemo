@@ -37,25 +37,16 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
         set => _intervalSeconds = Mathf.Max(1f, value);
     }
 
-    /// <summary>Android 平台不查询威胁数据。</summary>
-    private static bool ShouldSkipThreatQuery
-    {
-        get
-        {
-#if UNITY_ANDROID
-            return true;
-#else
-            return false;
-#endif
-        }
-    }
+    /// <summary>Android 等平台关闭威胁功能时跳过查询/轮询。</summary>
+    private static bool ShouldSkipThreatQuery =>
+        !ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform;
 
     private void Start()
     {
         if (ShouldSkipThreatQuery)
         {
             LogManager.LogBackend(
-                "[HighRiskSecurityEventApiController] Android 平台跳过威胁轮询，不自动 StartPolling。");
+                "[HighRiskSecurityEventApiController] 当前平台关闭威胁功能，跳过自动 StartPolling。");
             return;
         }
 
@@ -90,7 +81,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
         if (ShouldSkipThreatQuery)
         {
             LogManager.LogBackend(
-                "[HighRiskSecurityEventApiController] Android 平台不开启威胁轮询。");
+                "[HighRiskSecurityEventApiController] 当前平台关闭威胁功能，不开启威胁轮询。");
             return false;
         }
 

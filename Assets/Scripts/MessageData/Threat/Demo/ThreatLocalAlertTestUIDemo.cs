@@ -186,6 +186,12 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void OnStartThreatPollingClicked()
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            RefreshStatus("当前平台关闭威胁功能，无法开启轮询。");
+            return;
+        }
+
         HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
         if (controller == null)
         {
@@ -217,6 +223,12 @@ public class ThreatLocalAlertTestUIDemo : MonoBehaviour
 
     private void InjectJson(string json, string label)
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            RefreshStatus("当前平台关闭威胁功能，跳过 JSON 注入与下钻。");
+            return;
+        }
+
         EnsureFlowRunnerExists();
 
         bool wasProcessing = ThreatProvinceAlertController.IsProcessing;

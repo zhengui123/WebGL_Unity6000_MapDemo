@@ -49,6 +49,13 @@ public static class HighRiskSecurityEventApi
         Action<HttpRequestResult, HighRiskSecurityEventBatchResult> onCompleted = null,
         Dictionary<string, string> additionalHeaders = null)
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogBackend("[HighRiskSecurityEventApi] 当前平台关闭威胁功能，跳过全国请求。");
+            onCompleted?.Invoke(null, new HighRiskSecurityEventBatchResult());
+            return;
+        }
+
         if (_isDomesticRequestInProgress || _activeBatch != null)
         {
             LogManager.LogBackendWarning("[HighRiskSecurityEventApi] 已有请求进行中，忽略新的全国请求。");
@@ -128,6 +135,13 @@ public static class HighRiskSecurityEventApi
         Action<HttpRequestResult, HighRiskSecurityEventBatchResult> onCompleted = null,
         Dictionary<string, string> additionalHeaders = null)
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogBackend("[HighRiskSecurityEventApi] 当前平台关闭威胁功能，跳过 Request。");
+            onCompleted?.Invoke(null, new HighRiskSecurityEventBatchResult());
+            return;
+        }
+
         if (scope == ThreatQueryScope.Domestic)
         {
             RequestAllDomesticProvinces(startTime, endTime, onCompleted, additionalHeaders);
@@ -191,6 +205,13 @@ public static class HighRiskSecurityEventApi
         Dictionary<string, string> additionalHeaders = null,
         bool evaluateAlerts = true)
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogBackend("[HighRiskSecurityEventApi] 当前平台关闭威胁功能，跳过 RequestSingleRegion。");
+            onCompleted?.Invoke(null, null);
+            return;
+        }
+
         HighRiskSecurityEventRequest requestBody = HighRiskSecurityEventRequest.CreateForRegion(
             regionCodes,
             startTime,
@@ -231,6 +252,13 @@ public static class HighRiskSecurityEventApi
     {
         response = null;
         errorMessage = null;
+
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            errorMessage = "当前平台关闭威胁功能，跳过解析入库。";
+            LogManager.LogBackend("[HighRiskSecurityEventApi] 当前平台关闭威胁功能，跳过 TryParseAndStoreResponse。");
+            return false;
+        }
 
         if (!HttpJsonParser.TryParse(json, out response, out string parseError))
         {

@@ -177,6 +177,13 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     /// <summary>启动一轮威胁流程（进行中或冷却中则忽略）。始终从国家级开始下钻。</summary>
     public bool TryStartThreatFlow()
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogFeature(
+                "[ThreatAlertFlowRunner] 当前平台关闭威胁功能，拒绝启动 ThreatAlertFlowRunner。");
+            return false;
+        }
+
         if (_flowRoutine != null)
         {
             return false;

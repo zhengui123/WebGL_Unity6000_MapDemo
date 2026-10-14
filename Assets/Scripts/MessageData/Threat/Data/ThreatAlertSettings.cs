@@ -3,6 +3,22 @@
 /// </summary>
 public static class ThreatAlertSettings
 {
+    /// <summary>
+    /// 当前平台是否启用威胁数据（高危轮询/入库评估/ThreatAlertFlowRunner 下钻）。
+    /// Android（含 Editor 切 Android）关闭。
+    /// </summary>
+    public static bool IsThreatFeatureEnabledOnCurrentPlatform
+    {
+        get
+        {
+#if UNITY_ANDROID
+            return false;
+#else
+            return true;
+#endif
+        }
+    }
+
     /// <summary>单省触发告警的事件条数阈值（大于等于）。</summary>
     public const int EventsPerProvinceThreshold = 10;
 

@@ -762,11 +762,17 @@ public class AndroidMessage : MonoBehaviour
     /// </param>
     public void TransitionToControlState(string json)
     {
+        LogManager.LogHost($"[AndroidMessage] TransitionToControlState 收到: {json}");
+
         if (string.IsNullOrWhiteSpace(json))
         {
-            LogManager.LogHostWarning("[ToStateError] reason=JSON 为空 | method=TransitionToControlState");
+            LogManager.LogHostWarning(
+                "[AndroidMessage] TransitionToControlState 失败 | reason=JSON 为空");
             return;
         }
+
+        GameManager manager = GameManager.Instance;
+        string fromState = manager != null ? manager.CurrentState.ToString() : "(无 GameManager)";
 
         TransitionToControlStateRequest request = JsonUtility.FromJson<TransitionToControlStateRequest>(json);
         bool ok = MapApi.Instance.TransitionToControlState(
@@ -779,9 +785,16 @@ public class AndroidMessage : MonoBehaviour
         if (!ok)
         {
             LogManager.LogHostWarning(
-                $"[ToStateError] reason=MapApi 启动失败 | target={request.targetState} | " +
-                $"provinceCode={request.provinceCode} | partId={request.partId} | partType={request.partType} | json={json}");
+                $"[AndroidMessage] TransitionToControlState 失败 | reason=MapApi 启动失败 | from={fromState} | " +
+                $"target={request.targetState} | provinceCode={request.provinceCode} | partId={request.partId} | " +
+                $"partType={request.partType} | useInstantTransition={request.useInstantTransition} | json={json}");
+            return;
         }
+
+        LogManager.LogHost(
+            $"[AndroidMessage] TransitionToControlState 已接受并启动 | from={fromState} | target={request.targetState} | " +
+            $"provinceCode={request.provinceCode} | partId={request.partId} | partType={request.partType} | " +
+            $"useInstantTransition={request.useInstantTransition}");
     }
 
     /// <summary>Android 调用：进入操控层级下一级（等同双击）。</summary>

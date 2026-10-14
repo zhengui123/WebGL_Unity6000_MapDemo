@@ -659,6 +659,12 @@ public class MapApi : UnitySingle<MapApi>
     /// </summary>
     public bool StartThreatHighRiskPolling()
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogFeature("[MapApi] 当前平台关闭威胁功能，跳过 StartThreatHighRiskPolling。");
+            return false;
+        }
+
         HighRiskSecurityEventApiController controller = HighRiskSecurityEventApiController.Instance;
         if (controller == null)
         {

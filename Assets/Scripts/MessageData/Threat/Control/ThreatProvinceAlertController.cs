@@ -47,6 +47,13 @@ public static class ThreatProvinceAlertController
     /// </summary>
     public static void EvaluateAfterDataUpdated()
     {
+        if (!ThreatAlertSettings.IsThreatFeatureEnabledOnCurrentPlatform)
+        {
+            LogManager.LogBackend(
+                "[ThreatProvinceAlertController] 当前平台关闭威胁功能，跳过评估与下钻。");
+            return;
+        }
+
         if (IsInInterruptCooldown)
         {
             LogManager.LogBackend(
