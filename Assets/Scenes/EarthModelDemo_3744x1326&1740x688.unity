@@ -33052,7 +33052,6 @@ MonoBehaviour:
   _flushConsumedMarkOnFlowEnd: 1
   _pauseThreatPollingDuringDrill: 1
   _logStageTiming: 1
-  _dedupePartIdsForDrill: 0
 --- !u!4 &1112964611
 Transform:
   m_ObjectHideFlags: 0
@@ -189265,7 +189264,6 @@ GameObject:
   - component: {fileID: 6903406265409791169}
   - component: {fileID: 923784344537485995}
   - component: {fileID: 8687447666533933593}
-  - component: {fileID: 8687447666533933594}
   m_Layer: 7
   m_Name: "\u53F0\u6E7E"
   m_TagString: Untagged
@@ -203893,22 +203891,6 @@ MonoBehaviour:
   _centerBrightness: 1
   _rebuildOnStart: 1
   _spawnMappedPointCubesOnce: 0
---- !u!114 &8687447666533933594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7579526914308380557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 779f0f59051bfb148bfdf3d323f337db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayRangeExclude
-  _excludeRoots:
-  - {fileID: 147744118}
-  _autoFindDefaultChild: 1
-  _disableExcludedColliders: 1
 --- !u!33 &8687956866963729217
 MeshFilter:
   m_ObjectHideFlags: 0
