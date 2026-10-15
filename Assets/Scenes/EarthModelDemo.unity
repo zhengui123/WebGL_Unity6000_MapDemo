@@ -6803,7 +6803,7 @@ GameObject:
   - component: {fileID: 255307189}
   - component: {fileID: 255307191}
   - component: {fileID: 255307190}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: default (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -135073,7 +135073,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!33 &3105383594462097742
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -135487,7 +135487,7 @@ GameObject:
   - component: {fileID: 6159593605670378228}
   - component: {fileID: 9055730476104426430}
   - component: {fileID: 5515168752871737130}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -190390,7 +190390,6 @@ GameObject:
   - component: {fileID: 6903406265409791169}
   - component: {fileID: 923784344537485995}
   - component: {fileID: 8687447666533933593}
-  - component: {fileID: 8687447666533933594}
   m_Layer: 7
   m_Name: "\u53F0\u6E7E"
   m_TagString: Untagged
@@ -205027,22 +205026,6 @@ MonoBehaviour:
   _centerBrightness: 1
   _rebuildOnStart: 1
   _spawnMappedPointCubesOnce: 0
---- !u!114 &8687447666533933594
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7579526914308380557}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 779f0f59051bfb148bfdf3d323f337db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlateMapDisplayRangeExclude
-  _excludeRoots:
-  - {fileID: 6159593605670378228}
-  _autoFindDefaultChild: 1
-  _disableExcludedColliders: 1
 --- !u!33 &8687956866963729217
 MeshFilter:
   m_ObjectHideFlags: 0
