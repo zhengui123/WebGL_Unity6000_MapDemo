@@ -1386,7 +1386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40b924e2dad56384a8df2a1e111bb675, type: 3}
   m_Name: Vignette
   m_EditorClassIdentifier: Unity.Postprocessing.Runtime::UnityEngine.Rendering.PostProcessing.Vignette
-  active: 0
+  active: 1
   enabled:
     overrideState: 1
     value: 1
@@ -1401,20 +1401,20 @@ MonoBehaviour:
     value: {x: 0.5, y: 0.5}
   intensity:
     overrideState: 1
-    value: 0.687
+    value: 0.66
   smoothness:
     overrideState: 1
-    value: 0.524
+    value: 0.25
   roundness:
     overrideState: 1
-    value: 0.902
+    value: 0.54
   rounded:
     overrideState: 1
     value: 0
   mask:
-    overrideState: 0
+    overrideState: 1
     value: {fileID: 0}
     defaultState: 1
   opacity:
-    overrideState: 0
+    overrideState: 1
     value: 1
