@@ -29,7 +29,35 @@ Material:
     - _Alpha: 0.92
     - _CircuitIntensity: 0.238
     - _CircuitScale: 1
+    - _EdgeBandPower: 1.4
+    - _EdgeBandWidth: 0.28
+    - _EdgeBandWidthWorld: 0.08
+    - _EdgeGradientAlbedoMix: 0.85
+    - _EdgeGradientIntensity: 1.1
+    - _EdgeGradientPower: 1.8
+    - _EdgeGradientSoftness: 0.06
+    - _EdgeMinPlateSize: 0.2
+    - _EdgeObjectRadius: 1
+    - _EdgeOutlineIntensity: 1.8
+    - _EdgeOutlineWidth: 0.045
+    - _EdgeOutlineWidthWorld: 0.012
+    - _EdgeRadialWeight: 0.45
+    - _EdgeRefPlateSize: 1.2
+    - _EdgeSizeKeepFloor: 0.45
+    - _EdgeSmallPlateInnerBias: 0.65
+    - _EdgeSmallPlateOuterScale: 0.22
+    - _EdgeUseObjectSpace: 0
     - _EmissionIntensity: 3
+    - _GeoEdgeIntensity: 2.2
+    - _GeoEdgePower: 2.2
+    - _GeoSoftIntensity: 1.15
+    - _GeoSoftPower: 1.1
+    - _GeomAmp: 900
+    - _GeomEdgeAmp: 1200
+    - _GeomEdgeIntensity: 2.8
+    - _GeomEdgePower: 2.2
+    - _GeomSoftAmp: 420
+    - _GeomSoftBoost: 0.55
     - _GridIntensity: 1.38
     - _GridLineWidth: 0.5
     - _GridScale: 1
@@ -41,6 +69,9 @@ Material:
     - _RimPower: 4.4
     m_Colors:
     - _BaseColor: {r: 0.02, g: 0.06, b: 0.18, a: 0.75}
+    - _EdgeGradientCenter: {r: 0.5, g: 0.55, b: 0, a: 0}
+    - _EdgeInnerColor: {r: 0.01, g: 0.04, b: 0.12, a: 1}
+    - _EdgeOuterColor: {r: 0, g: 0.85, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0.7058821, b: 1, a: 1}
     - _GridColor: {r: 1, g: 0.5502859, b: 0.10196078, a: 1}
     - _RimColor: {r: 0.3, g: 0.95, b: 1, a: 1}

@@ -19,7 +19,7 @@ public class PlateMapDisplayModule : MonoBehaviour
     [SerializeField] private bool _autoAddMeshColliderIfMissing = true;
 
     [Header("边界线")]
-    [Tooltip("边界线 Renderer 运行时固定 _EmissionIntensity，与板块高亮基准分离")]
+    [Tooltip("回退值：子物体无边界线材质或读不到 _EmissionIntensity 时使用。正常开局会读第一个边界线材质球的发光强度。")]
     [SerializeField] private float _lineEmissionIntensity = 3f;
 
     /// <summary>全部 Tech Renderer（板块填充 + 边界线），用于 Alpha / 发光。</summary>
@@ -68,6 +68,7 @@ public class PlateMapDisplayModule : MonoBehaviour
         }
 
         CacheBaseEmissionIntensity();
+        CacheLineEmissionIntensity();
         ApplyAlphaImmediate(_currentAlpha);
         ApplyEmissionIntensityImmediate(_currentEmissionIntensity);
     }
@@ -222,6 +223,25 @@ public class PlateMapDisplayModule : MonoBehaviour
         }
 
         _currentEmissionIntensity = _baseEmissionIntensity;
+    }
+
+    /// <summary>
+    /// 从第一个子物体边界线材质球读取 <c>_EmissionIntensity</c>，供开局显示；读不到则保留 Inspector 回退值。
+    /// </summary>
+    private void CacheLineEmissionIntensity()
+    {
+        CacheRenderers();
+        Renderer line = FindFirstRenderer(_lineRenderers);
+        if (line == null)
+        {
+            return;
+        }
+
+        Material mat = line.sharedMaterial;
+        if (mat != null && mat.HasProperty(EmissionIntensityId))
+        {
+            _lineEmissionIntensity = Mathf.Max(0f, mat.GetFloat(EmissionIntensityId));
+        }
     }
 
     private void ApplyLineEmissionIntensity()
