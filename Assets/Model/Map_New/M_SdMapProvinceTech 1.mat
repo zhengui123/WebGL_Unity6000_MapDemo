@@ -31,13 +31,33 @@ Material:
     - _CircuitScale: 1
     - _EdgeBandPower: 1.4
     - _EdgeBandWidth: 0.18
+    - _EdgeBandWidthWorld: 0.08
     - _EdgeGradientAlbedoMix: 0.4
     - _EdgeGradientIntensity: 0.69
     - _EdgeGradientPower: 1.8
     - _EdgeGradientSoftness: 0.05
+    - _EdgeMinPlateSize: 0.2
+    - _EdgeObjectRadius: 1
     - _EdgeOutlineIntensity: 1.6
     - _EdgeOutlineWidth: 0.04
+    - _EdgeOutlineWidthWorld: 0.012
+    - _EdgeRadialWeight: 0.45
+    - _EdgeRefPlateSize: 1.2
+    - _EdgeSizeKeepFloor: 0.45
+    - _EdgeSmallPlateInnerBias: 0.65
+    - _EdgeSmallPlateOuterScale: 0.22
+    - _EdgeUseObjectSpace: 0
     - _EmissionIntensity: 1
+    - _GeoEdgeIntensity: 2.2
+    - _GeoEdgePower: 2.2
+    - _GeoSoftIntensity: 1.15
+    - _GeoSoftPower: 1.1
+    - _GeomAmp: 900
+    - _GeomEdgeAmp: 1200
+    - _GeomEdgeIntensity: 2.8
+    - _GeomEdgePower: 2.2
+    - _GeomSoftAmp: 420
+    - _GeomSoftBoost: 0.55
     - _GridIntensity: 0
     - _GridLineWidth: 0.01
     - _GridScale: 0.00001
