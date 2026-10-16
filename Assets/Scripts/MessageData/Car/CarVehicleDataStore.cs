@@ -77,7 +77,7 @@ public sealed class CarVehicleDataStore
         return BuildAttackPathEntries().Count > 0;
     }
 
-    /// <summary>从 AttackChainData.nodes 收集全部零件标号（partType 1~5）。</summary>
+    /// <summary>从 AttackChainData.nodes 收集全部零件标号（partType 1~6）。</summary>
     public List<int> BuildAttackChainNodePartTypes()
     {
         List<int> types = new List<int>();

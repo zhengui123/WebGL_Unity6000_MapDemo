@@ -2,12 +2,12 @@ using System;
 using System.Globalization;
 
 /// <summary>
-/// 零部件 partType 标号工具：有效范围为 1~5，与 <see cref="VehicleToPartTransitionController"/> 的 _partRoots 配置一致。
+/// 零部件 partType 标号工具：有效范围为 1~6，与 <see cref="VehicleToPartTransitionController"/> 的 _partRoots 配置一致。
 /// </summary>
 public static class PartTypeMatchUtil
 {
     public const int MinPartType = 1;
-    public const int MaxPartType = 5;
+    public const int MaxPartType = 6;
 
     public static bool IsValidPartType(int partType)
     {

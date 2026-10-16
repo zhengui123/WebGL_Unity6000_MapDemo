@@ -165,7 +165,7 @@ public static class CarVehicleDataMockJson
         "{\"id\":\"1466356575215616\",\"partType\":\"1\",\"partTypeName\":\"CCU666\",\"partsModel\":\"CCU001\",\"partsCode\":null,\"partsIp\":\"192.168.5.200\"}," +
         "{\"id\":\"1466490932486144\",\"partType\":\"2\",\"partTypeName\":\"IDC666\",\"partsModel\":\"IDC-01\",\"partsCode\":null,\"partsIp\":\"192.168.0.201\"}," +
         "{\"id\":\"1433366079176704\",\"partType\":\"3\",\"partTypeName\":\"AD666C\",\"partsModel\":\"x1000\",\"partsCode\":null,\"partsIp\":\"192.168.6.203\"}," +
-        "{\"id\":\"1466264241029120\",\"partType\":\"4\",\"partTypeName\":\"TBOX666\",\"partsModel\":\"TBOX001\",\"partsCode\":null,\"partsIp\":\"192.168.0.202\"}" +
+        "{\"id\":\"1466264241029120\",\"partType\":\"6\",\"partTypeName\":\"TBOX666\",\"partsModel\":\"TBOX001\",\"partsCode\":null,\"partsIp\":\"192.168.0.202\"}" +
         "],\"links\":[" +
         "{\"partType\":\"1\",\"sourceIp\":\"192.168.5.200\",\"targetIp\":\"192.168.0.201\"}," +
         "{\"partType\":\"4\",\"sourceIp\":\"192.168.0.202\",\"targetIp\":\"192.168.0.201\"}," +

@@ -1040,7 +1040,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
                 changed = true;
             }
 
-            // 未配标号时按列表顺序 1~5 补齐，便于场景迁移
+            // 未配标号时按列表顺序 1~6 补齐，便于场景迁移
             if (!PartTypeMatchUtil.IsValidPartType(binding.partType))
             {
                 int fallback = i + 1;

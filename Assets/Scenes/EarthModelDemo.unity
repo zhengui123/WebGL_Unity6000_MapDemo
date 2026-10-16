@@ -267,6 +267,26 @@ PrefabInstance:
       propertyPath: m_Name
       value: All
       objectReference: {fileID: 0}
+    - target: {fileID: 7987532813835649650, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+      propertyPath: _lineBindings.Array.size
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7987532813835649650, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+      propertyPath: _lineBindings.Array.data[5].endUI
+      value: 
+      objectReference: {fileID: 3624540488398044676}
+    - target: {fileID: 7987532813835649650, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+      propertyPath: _lineBindings.Array.data[5].start3D
+      value: 
+      objectReference: {fileID: 3624540488398044678}
+    - target: {fileID: 7987532813835649650, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+      propertyPath: _lineBindings.Array.data[5].startUI
+      value: 
+      objectReference: {fileID: 3624540488398044677}
+    - target: {fileID: 7987532813835649650, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+      propertyPath: _lineBindings.Array.data[5].start3DObjectName
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 8266769009896387234, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -288,6 +308,27 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+--- !u!114 &3624540488398044676 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 798258334682256841, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+  m_PrefabInstance: {fileID: 3624540488398044675}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c724e84831409004d8e91fd915fcd656, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MessageListPanel
+--- !u!224 &3624540488398044677 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 2175438751715666351, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+  m_PrefabInstance: {fileID: 3624540488398044675}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3624540488398044678 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5613030716177048246, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
+  m_PrefabInstance: {fileID: 3624540488398044675}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
