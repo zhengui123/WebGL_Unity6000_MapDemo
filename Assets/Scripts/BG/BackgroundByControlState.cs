@@ -48,10 +48,11 @@ public class BackgroundByControlState : MonoBehaviour
 
         em.OnTransitionToPlateMapCompleted += ApplyVisibility;
         em.OnTransitionToEarthCompleted += ApplyVisibility;
-        em.OnPlateMapFocusModuleCompleted += ApplyVisibilityNamed;
+        em.OnPlateMapFocusModuleCompleted += ShowOnProvinceFocusCompleted;
         em.OnPlateMapRestoreCameraCompleted += ApplyVisibility;
+        em.OnPlateToVehicleViewTransitionStarted += HideOnProvinceToVehicleStarted;
         em.OnPlateToVehicleViewTransitionCompleted += ApplyVisibilityNamed;
-        em.OnVehicleToPlateViewTransitionCompleted += ApplyVisibilityNamed;
+        em.OnVehicleToPlateViewTransitionCompleted += ShowOnProvinceFocusCompleted;
         em.OnVehicleToPartTransitionCompleted += ApplyVisibilityNamed;
         em.OnVehicleToPartTransitionReverseCompleted += ApplyVisibilityNamed;
         em.OnVehicleToAttackPathTransitionCompleted += ApplyVisibility;
@@ -72,10 +73,11 @@ public class BackgroundByControlState : MonoBehaviour
         {
             em.OnTransitionToPlateMapCompleted -= ApplyVisibility;
             em.OnTransitionToEarthCompleted -= ApplyVisibility;
-            em.OnPlateMapFocusModuleCompleted -= ApplyVisibilityNamed;
+            em.OnPlateMapFocusModuleCompleted -= ShowOnProvinceFocusCompleted;
             em.OnPlateMapRestoreCameraCompleted -= ApplyVisibility;
+            em.OnPlateToVehicleViewTransitionStarted -= HideOnProvinceToVehicleStarted;
             em.OnPlateToVehicleViewTransitionCompleted -= ApplyVisibilityNamed;
-            em.OnVehicleToPlateViewTransitionCompleted -= ApplyVisibilityNamed;
+            em.OnVehicleToPlateViewTransitionCompleted -= ShowOnProvinceFocusCompleted;
             em.OnVehicleToPartTransitionCompleted -= ApplyVisibilityNamed;
             em.OnVehicleToPartTransitionReverseCompleted -= ApplyVisibilityNamed;
             em.OnVehicleToAttackPathTransitionCompleted -= ApplyVisibility;
@@ -84,6 +86,16 @@ public class BackgroundByControlState : MonoBehaviour
         }
 
         _subscribed = false;
+    }
+
+    private void ShowOnProvinceFocusCompleted(string _)
+    {
+        SetVisible(true);
+    }
+
+    private void HideOnProvinceToVehicleStarted(string _)
+    {
+        SetVisible(false);
     }
 
     private void ApplyVisibilityNamed(string _)
@@ -98,12 +110,16 @@ public class BackgroundByControlState : MonoBehaviour
 
     private void ApplyVisibility()
     {
+        SetVisible(ShouldShow());
+    }
+
+    private void SetVisible(bool show)
+    {
         if (_backgroundRoot == null)
         {
             return;
         }
 
-        bool show = ShouldShow();
         if (_backgroundRoot.activeSelf != show)
         {
             _backgroundRoot.SetActive(show);
