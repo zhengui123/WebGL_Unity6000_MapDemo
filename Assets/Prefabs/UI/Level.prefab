@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1990442439560957860}
   - component: {fileID: 7781878088413126041}
   - component: {fileID: 5294942074059970279}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -78,4 +78,4 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: v2.2
+  m_Text: v2.3
