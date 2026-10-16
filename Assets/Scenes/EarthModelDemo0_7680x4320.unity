@@ -312,7 +312,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 648676457077593530, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
       propertyPath: m_ClearFlags
-      value: 3
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 648676457077593530, guid: bc8771721e55cf042b05f3f5934588e5, type: 3}
       propertyPath: m_TargetTexture
@@ -2492,14 +2492,34 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3052309693052478561, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4179175768554813509, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4495362612916963276, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_Name
       value: BGCameraList
+      objectReference: {fileID: 0}
+    - target: {fileID: 4495362612916963276, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5622852736977674903, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: volumeTrigger
       value: 
       objectReference: {fileID: 1010916636}
+    - target: {fileID: 7808961081059565810, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

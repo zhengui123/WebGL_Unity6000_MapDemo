@@ -1,8 +1,10 @@
+using System;
 using UnityEngine;
 
 /// <summary>
 /// 按操控层级开关背景物体：地球/国家/省级显示，车辆/零部件/攻击链路隐藏。默认开启。
 /// 请挂到任意常驻物体，并将背景根拖到 <see cref="_backgroundRoot"/>。
+/// 背景根未指定或已销毁时直接跳过，异常不向外抛，避免打断同事件上的层级跳转。
 /// </summary>
 [DisallowMultipleComponent]
 public class BackgroundByControlState : MonoBehaviour
@@ -90,12 +92,12 @@ public class BackgroundByControlState : MonoBehaviour
 
     private void ShowOnProvinceFocusCompleted(string _)
     {
-        SetVisible(true);
+        SafeSetVisible(true);
     }
 
     private void HideOnProvinceToVehicleStarted(string _)
     {
-        SetVisible(false);
+        SafeSetVisible(false);
     }
 
     private void ApplyVisibilityNamed(string _)
@@ -110,7 +112,21 @@ public class BackgroundByControlState : MonoBehaviour
 
     private void ApplyVisibility()
     {
-        SetVisible(ShouldShow());
+        SafeSetVisible(ShouldShow());
+    }
+
+    /// <summary>背景根不存在或显隐失败时只记日志，不把异常抛给 EventManager 的其它订阅者。</summary>
+    private void SafeSetVisible(bool show)
+    {
+        try
+        {
+            SetVisible(show);
+        }
+        catch (Exception exception)
+        {
+            LogManager.LogFeatureWarning(
+                $"[BackgroundByControlState] 背景显隐失败，已忽略，不影响层级跳转：{exception.Message}");
+        }
     }
 
     private void SetVisible(bool show)
