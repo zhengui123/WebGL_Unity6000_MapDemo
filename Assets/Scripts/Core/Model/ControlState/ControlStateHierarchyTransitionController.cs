@@ -12,9 +12,9 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 {
     [Header("开局跳转")]
     [SerializeField] private bool _applyOnPlay = true;
-    [SerializeField] private GameManager.ControlState _startState = GameManager.ControlState.EarthLevel;
-    [Tooltip("Play 进入时先将 GameManager 逻辑状态对齐为地球级（场景默认地球视角）")]
-    [SerializeField] private bool _ensureEarthBaselineOnPlay = true;
+    [SerializeField] private GameManager.ControlState _startState = GameManager.ControlState.CountryLevel;
+    [Tooltip("Play 进入时先将 GameManager 逻辑状态对齐为地球级。关闭则从当前状态直接走到开局目标（默认国家级）。")]
+    [SerializeField] private bool _ensureEarthBaselineOnPlay = false;
     [Tooltip("勾选后将过渡动画时长临时置 0，跳转结束后自动恢复")]
     [SerializeField] private bool _useInstantTransition = true;
 

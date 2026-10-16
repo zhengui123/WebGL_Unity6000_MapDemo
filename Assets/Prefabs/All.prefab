@@ -172121,7 +172121,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ControlStateStartDemo
   _applyOnPlay: 1
   _startState: 1
-  _ensureEarthBaselineOnPlay: 1
+  _ensureEarthBaselineOnPlay: 0
   _useInstantTransition: 1
   _partId: 
   _partType: 0
