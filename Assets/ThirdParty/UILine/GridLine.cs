@@ -872,17 +872,11 @@ public class GridLine : MonoBehaviour
 
     private static Vector2 ScreenPointToViewport(Camera cam, Vector3 screenPoint)
     {
+        // WorldToScreenPoint 是整屏像素。GL.LoadOrtho 的 0~1 只覆盖相机 pixelRect，
+        // 须先减去视口原点再除以视口宽高，不能按全屏比例压缩。
         Rect pixelRect = cam.pixelRect;
         float width = Mathf.Max(pixelRect.width, 1f);
         float height = Mathf.Max(pixelRect.height, 1f);
-
-        // 高分辨率 / DPI 缩放时，UI 屏幕坐标与相机像素尺寸可能不一致
-        if (Screen.width > 0 && Screen.height > 0)
-        {
-            screenPoint.x *= width / Screen.width;
-            screenPoint.y *= height / Screen.height;
-        }
-
         return new Vector2(
             (screenPoint.x - pixelRect.x) / width,
             (screenPoint.y - pixelRect.y) / height);
