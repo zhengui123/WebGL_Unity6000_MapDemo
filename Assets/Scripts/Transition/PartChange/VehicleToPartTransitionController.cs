@@ -1228,6 +1228,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         KillSequence();
+        ResetCarDragRotation();
         RestoreAllPartsToInitialState();
         HideAttackPathControllerImmediate();
         List<Transform> displayParts = PrepareAttackPathDisplayPartsAtInitial();
@@ -1260,6 +1261,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         KillSequence();
+        ResetCarDragRotation();
         HideAttackPathControllerImmediate();
         SetPartNameLabelsVisible(false);
 
