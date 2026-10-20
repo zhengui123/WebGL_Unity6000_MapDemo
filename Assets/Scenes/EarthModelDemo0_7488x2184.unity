@@ -10970,7 +10970,7 @@ Camera:
     x: 0.2494
     y: 0
     width: 0.501
-    height: 0.611
+    height: 0.685
   near clip plane: 0.3
   far clip plane: 100000
   field of view: 60
@@ -13731,8 +13731,12 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 454393289036439751, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 454393289036439751, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 454393289036439751, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_SizeDelta.x
@@ -13740,11 +13744,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 454393289036439751, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 1326
+      value: 1480
       objectReference: {fileID: 0}
     - target: {fileID: 454393289036439751, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -1092
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 694179577213801049, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: volumeTrigger
@@ -13820,7 +13824,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3120277376718931330, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_NormalizedViewPortRect.height
-      value: 0.611
+      value: 0.685
       objectReference: {fileID: 0}
     - target: {fileID: 3534725766277977495, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_IsActive
@@ -13884,7 +13888,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6763715507717111890, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_NormalizedViewPortRect.y
-      value: 0.611
+      value: 0.685
       objectReference: {fileID: 0}
     - target: {fileID: 6763715507717111890, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_NormalizedViewPortRect.width
