@@ -41858,8 +41858,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
   _enableFeatureTestLog: 0
-  _enableBackendHttpLog: 0
-  _enableHostBridgeLog: 0
+  _enableBackendHttpLog: 1
+  _enableHostBridgeLog: 1
   _enableFailureLog: 1
 --- !u!1 &1373568775
 GameObject:
