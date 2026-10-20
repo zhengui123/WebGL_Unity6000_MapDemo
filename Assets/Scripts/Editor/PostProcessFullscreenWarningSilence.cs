@@ -145,14 +145,14 @@ public static class PostProcessFullscreenWarningSilence
     }
 }
 
-/// <summary>打包前再次确保已关闭上述警告。</summary>
-public sealed class PostProcessFullscreenWarningSilenceBuildHook : IPreprocessBuildWithReport
-{
-    public int callbackOrder => 0;
+///// <summary>打包前再次确保已关闭上述警告。</summary>
+//public sealed class PostProcessFullscreenWarningSilenceBuildHook : IPreprocessBuildWithReport
+//{
+//    public int callbackOrder => 0;
 
-    public void OnPreprocessBuild(BuildReport report)
-    {
-        PostProcessFullscreenWarningSilence.TrySilence();
-    }
-}
+//    public void OnPreprocessBuild(BuildReport report)
+ //   {
+ //       PostProcessFullscreenWarningSilence.TrySilence();
+ //   }
+//}
 #endif
