@@ -155367,7 +155367,7 @@ Transform:
   m_GameObject: {fileID: 5329170128714289105}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -783.42, y: 0, z: 102.3}
+  m_LocalPosition: {x: -783.497, y: 0, z: 102.368}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -180468,7 +180468,7 @@ MonoBehaviour:
     latitude: 30.675
   _eastAnchor:
     marker: {fileID: 8879891050381366692}
-    longitude: 122.118
+    longitude: 122.24
     latitude: 31.872
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
@@ -181331,12 +181331,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 4644746225799036997}
   _westAnchor:
     marker: {fileID: 4076564780898107555}
-    longitude: 119.279
-    latitude: 21.897
+    longitude: 120.018947
+    latitude: 21.883333
   _eastAnchor:
     marker: {fileID: 287435518000671913}
-    longitude: 124.585
-    latitude: 25.3
+    longitude: 122.012178
+    latitude: 25.308926
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &6904862671072700398
@@ -208107,7 +208107,7 @@ Transform:
   m_GameObject: {fileID: 7470218490253445753}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -791.23, y: 0, z: 92.95498}
+  m_LocalPosition: {x: -792.594, y: 0, z: 93.226}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
