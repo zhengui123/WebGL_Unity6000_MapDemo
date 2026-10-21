@@ -113401,7 +113401,6 @@ GameObject:
   - component: {fileID: 6847199799494421174}
   - component: {fileID: 2384245234264940894}
   - component: {fileID: 3170163026027616531}
-  - component: {fileID: 8622435845396104189}
   m_Layer: 7
   m_Name: "\u4E0A\u6D77"
   m_TagString: Untagged
@@ -203866,22 +203865,6 @@ Transform:
   - {fileID: 8879891050381366692}
   m_Father: {fileID: 7168906387403574966}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8622435845396104189
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 931662402970886791}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 779f0f59051bfb148bfdf3d323f337db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _excludeRoots:
-  - {fileID: 4595922940092536131}
-  _autoFindDefaultChild: 0
-  _disableExcludedColliders: 0
 --- !u!23 &8624762566033746363
 MeshRenderer:
   m_ObjectHideFlags: 0

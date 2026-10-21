@@ -1,9 +1,11 @@
 using System;
 using UnityEngine;
+using UnityEngine.Rendering.PostProcessing;
 
 /// <summary>
 /// 按操控层级开关背景物体：地球/国家/省级显示，车辆/零部件/攻击链路隐藏。默认开启。
-/// 请挂到任意常驻物体，并将背景根拖到 <see cref="_backgroundRoot"/>。
+/// BG 开启时关闭 PostVolume 的 Vignette；BG 关闭时开启 Vignette。
+/// 请挂到任意常驻物体，并将背景根拖到 <see cref="_backgroundRoot"/>，PostVolume 拖到 <see cref="_postProcessVolume"/>。
 /// 背景根未指定或已销毁时直接跳过，异常不向外抛，避免打断同事件上的层级跳转。
 /// </summary>
 [DisallowMultipleComponent]
@@ -11,6 +13,9 @@ public class BackgroundByControlState : MonoBehaviour
 {
     [Tooltip("背景根物体（手动拖拽）")]
     [SerializeField] private GameObject _backgroundRoot;
+
+    [Tooltip("场景 PostVolume（手动拖拽）；用于随 BG 显隐开关 Vignette")]
+    [SerializeField] private PostProcessVolume _postProcessVolume;
 
     private bool _subscribed;
 
@@ -121,6 +126,7 @@ public class BackgroundByControlState : MonoBehaviour
         try
         {
             SetVisible(show);
+            SetVignetteEnabled(!show);
         }
         catch (Exception exception)
         {
@@ -139,6 +145,25 @@ public class BackgroundByControlState : MonoBehaviour
         if (_backgroundRoot.activeSelf != show)
         {
             _backgroundRoot.SetActive(show);
+        }
+    }
+
+    /// <summary>BG 开 → 关 Vignette；BG 关 → 开 Vignette。Volume 未配或无该效果时跳过。</summary>
+    private void SetVignetteEnabled(bool enabled)
+    {
+        if (_postProcessVolume == null || _postProcessVolume.profile == null)
+        {
+            return;
+        }
+
+        if (!_postProcessVolume.profile.TryGetSettings(out Vignette vignette))
+        {
+            return;
+        }
+
+        if (vignette.enabled.value != enabled)
+        {
+            vignette.enabled.Override(enabled);
         }
     }
 

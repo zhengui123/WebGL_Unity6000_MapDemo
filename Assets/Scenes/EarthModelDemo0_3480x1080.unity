@@ -13913,6 +13913,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5875704790100788444, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: _postProcessVolume
+      value: 
+      objectReference: {fileID: 1773839546}
     - target: {fileID: 5944465831482112233, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_LocalScale.x
       value: 2401.5754
