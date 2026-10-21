@@ -15369,7 +15369,7 @@ MonoBehaviour:
   _defaultProvinceName: "\u6D59\u6C5F"
   _enablePlateClickAtCountryLevel: 1
   _disableClickWhenFocusingProvince: 1
-  _acceleratePendingHierarchyTransition: 0
+  _acceleratePendingHierarchyTransition: 1
 --- !u!4 &463976651
 Transform:
   m_ObjectHideFlags: 0

@@ -53,13 +53,13 @@ public class GameManager : UnitySingle<GameManager>
     [SerializeField] private bool _disableClickWhenFocusingProvince = true;
 
     [Header("层级跳转")]
-    [Tooltip("开启：跳转中任意新指令都打断并瞬时改派。关闭（默认）：仅当新指令目标层级与正在跳转的目标不同时打断并瞬时跳转；目标层级相同则同省忽略、换省排队等播完。")]
+    [Tooltip("跳转动画进行中收到新指令时：加速完成当前过渡，并执行最新指令（覆盖旧请求）。关闭则拒绝新跳转。")]
     [SerializeField] private bool _acceleratePendingHierarchyTransition = false;
 
     public ControlState CurrentState => _currentState;
 
     /// <summary>
-    /// 为 true：忙碌时一律打断瞬时改派。为 false：仅跨目标层级打断瞬时；同目标层级按同省忽略 / 换省排队。
+    /// 层级跳转进行中是否允许用新指令覆盖：加速完成当前过渡后执行最新目标。
     /// </summary>
     public bool AcceleratePendingHierarchyTransition => _acceleratePendingHierarchyTransition;
 

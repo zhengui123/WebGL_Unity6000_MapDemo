@@ -47,10 +47,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private bool _hasPendingTransitionRequest;
     private PendingTransitionRequest _pendingTransitionRequest;
 
-    /// <summary>当前正在执行的 Bootstrap 目标级别（用于同目标忽略 / 同级换省排队）。</summary>
-    private bool _hasActiveBootstrapTarget;
-    private GameManager.ControlState _activeBootstrapTarget;
-
     /// <summary>本次跳转使用的省名（调用参数优先，否则 GameManager 默认）。</summary>
     private string _activeProvinceName;
 
@@ -117,7 +113,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     /// <param name="partId">显示名；为 null 时沿用 Inspector 配置（零部件级返回车辆时忽略）。</param>
     /// <param name="ensureEarthBaseline">是否先将逻辑状态对齐为地球级。</param>
     /// <param name="partType">零部件标号 1~5；&lt;=0 时沿用 Inspector / 回退显示名。</param>
-    /// <returns>已启动跳转 / 排队 / 同目标忽略时均返回 true。</returns>
+    /// <returns>已启动跳转返回 true；打断并改派最新目标时也返回 true。</returns>
     public bool TransitionToState(
         bool useInstantTransition,
         GameManager.ControlState targetState,
@@ -138,16 +134,20 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             ? 0
             : partType;
 
-        bool transitionBusy = _isBootstrapping || IsAnyTransitionBusy();
-        if (transitionBusy)
+        // 跳转中或动画未结束：终止当前动画，强制瞬时改派到新目标
+        if (_isBootstrapping || IsAnyTransitionBusy())
         {
-            return HandleBusyTransitionRequest(
-                useInstantTransition,
+            QueuePendingTransition(
+                useInstantTransition: true,
                 targetState,
                 provinceCode,
                 partIdForTransition,
                 ensureEarthBaseline,
                 partTypeForTransition);
+            RequestRestartAfterCurrentTransition();
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 打断当前层级过渡，强制瞬时跳转 → {targetState}");
+            return true;
         }
 
         _useInstantTransition = useInstantTransition;
@@ -186,93 +186,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         StartCoroutine(BootstrapAfterWarmup(ensureEarthBaseline, targetState));
         return true;
-    }
-
-    /// <summary>
-    /// 忙碌中收到新指令。
-    /// 加速开：一律打断瞬时改派。
-    /// 加速关：目标层级与正在跳转的目标不同 → 打断瞬时；目标相同 → 同省忽略，换省排队等播完。
-    /// </summary>
-    private bool HandleBusyTransitionRequest(
-        bool useInstantTransition,
-        GameManager.ControlState targetState,
-        string provinceCode,
-        string partId,
-        bool ensureEarthBaseline,
-        int partType)
-    {
-        string requestUnitCode = ResolveUnitCodeForRequest(provinceCode);
-        bool accelerate = ManagerWantsAcceleratePending();
-        bool sameTargetLevel = _hasActiveBootstrapTarget && _activeBootstrapTarget == targetState;
-
-        // 开启加速，或关闭加速但目标层级变了：打断并瞬时跳到新层级
-        if (accelerate || !sameTargetLevel)
-        {
-            QueuePendingTransition(
-                useInstantTransition: true,
-                targetState,
-                provinceCode,
-                partId,
-                ensureEarthBaseline,
-                partType);
-            RequestRestartAfterCurrentTransition();
-            LogManager.LogFeature(
-                $"[ControlStateHierarchyTransitionController] 打断当前层级过渡，强制瞬时跳转 → {targetState} | " +
-                $"province={requestUnitCode} | accelerate={accelerate} | sameTarget={sameTargetLevel}");
-            return true;
-        }
-
-        bool sameProvince = string.Equals(
-            NormalizeProvinceCodeKey(_activeProvinceCode),
-            NormalizeProvinceCodeKey(requestUnitCode),
-            StringComparison.Ordinal);
-
-        if (sameProvince)
-        {
-            LogManager.LogFeature(
-                $"[ControlStateHierarchyTransitionController] 过渡进行中且同目标同省，忽略改派 | " +
-                $"target={targetState} | province={requestUnitCode}");
-            return true;
-        }
-
-        // 同目标层级换省：排队，等当前过渡播完后再跳（不强制瞬时）
-        QueuePendingTransition(
-            useInstantTransition,
-            targetState,
-            provinceCode,
-            partId,
-            ensureEarthBaseline,
-            partType);
-        LogManager.LogFeature(
-            $"[ControlStateHierarchyTransitionController] 同目标换省，排队等待播完后再跳 | " +
-            $"target={targetState} | province={requestUnitCode} | instant={useInstantTransition}");
-        return true;
-    }
-
-    private static bool ManagerWantsAcceleratePending()
-    {
-        GameManager gm = GameManager.Instance;
-        return gm != null && gm.AcceleratePendingHierarchyTransition;
-    }
-
-    private static string ResolveUnitCodeForRequest(string provinceCode)
-    {
-        if (!string.IsNullOrWhiteSpace(provinceCode))
-        {
-            return WorldMapPlateResolver.ResolveUnitCode(provinceCode);
-        }
-
-        if (PlateProvinceFocusResolver.TryGetCachedProvinceCode(out string cachedCode))
-        {
-            return cachedCode;
-        }
-
-        return WorldMapPlateResolver.ResolveUnitCode(null);
-    }
-
-    private static string NormalizeProvinceCodeKey(string code)
-    {
-        return string.IsNullOrWhiteSpace(code) ? string.Empty : code.Trim();
     }
 
     /// <summary>
@@ -451,8 +364,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     private IEnumerator BootstrapToState(GameManager.ControlState targetState, bool ensureEarthBaseline)
     {
         _isBootstrapping = true;
-        _hasActiveBootstrapTarget = true;
-        _activeBootstrapTarget = targetState;
         try
         {
             GameManager manager = GameManager.Instance;
@@ -482,7 +393,6 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         finally
         {
             _isBootstrapping = false;
-            _hasActiveBootstrapTarget = false;
         }
     }
 
@@ -1158,7 +1068,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
     private void LateUpdate()
     {
-        if (_isBootstrapping || IsAnyTransitionBusy())
+        if (_isBootstrapping)
         {
             return;
         }
