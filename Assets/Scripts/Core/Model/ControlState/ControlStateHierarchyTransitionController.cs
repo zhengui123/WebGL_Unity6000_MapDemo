@@ -189,8 +189,9 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
     }
 
     /// <summary>
-    /// 忙碌中收到新指令：由 GameManager.AcceleratePendingHierarchyTransition 决定打断瞬时改派，或播完再排队。
-    /// 同目标且同省忽略；同级换省或不同目标在「不加速」模式下排队（保留调用方的 useInstantTransition）。
+    /// 忙碌中收到新指令。
+    /// 加速开：一律打断瞬时改派。
+    /// 加速关：目标层级与正在跳转的目标不同 → 打断瞬时；目标相同 → 同省忽略，换省排队等播完。
     /// </summary>
     private bool HandleBusyTransitionRequest(
         bool useInstantTransition,
@@ -201,23 +202,11 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
         int partType)
     {
         string requestUnitCode = ResolveUnitCodeForRequest(provinceCode);
-        bool sameTargetAndProvince = _hasActiveBootstrapTarget
-            && _activeBootstrapTarget == targetState
-            && string.Equals(
-                NormalizeProvinceCodeKey(_activeProvinceCode),
-                NormalizeProvinceCodeKey(requestUnitCode),
-                StringComparison.Ordinal);
-
         bool accelerate = ManagerWantsAcceleratePending();
-        if (!accelerate && sameTargetAndProvince)
-        {
-            LogManager.LogFeature(
-                $"[ControlStateHierarchyTransitionController] 过渡进行中且同目标同省，忽略改派 | " +
-                $"target={targetState} | province={requestUnitCode}");
-            return true;
-        }
+        bool sameTargetLevel = _hasActiveBootstrapTarget && _activeBootstrapTarget == targetState;
 
-        if (accelerate)
+        // 开启加速，或关闭加速但目标层级变了：打断并瞬时跳到新层级
+        if (accelerate || !sameTargetLevel)
         {
             QueuePendingTransition(
                 useInstantTransition: true,
@@ -229,11 +218,24 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             RequestRestartAfterCurrentTransition();
             LogManager.LogFeature(
                 $"[ControlStateHierarchyTransitionController] 打断当前层级过渡，强制瞬时跳转 → {targetState} | " +
-                $"province={requestUnitCode}");
+                $"province={requestUnitCode} | accelerate={accelerate} | sameTarget={sameTargetLevel}");
             return true;
         }
 
-        // 一定要走完当前过渡：只排队，不打断、不强制瞬时
+        bool sameProvince = string.Equals(
+            NormalizeProvinceCodeKey(_activeProvinceCode),
+            NormalizeProvinceCodeKey(requestUnitCode),
+            StringComparison.Ordinal);
+
+        if (sameProvince)
+        {
+            LogManager.LogFeature(
+                $"[ControlStateHierarchyTransitionController] 过渡进行中且同目标同省，忽略改派 | " +
+                $"target={targetState} | province={requestUnitCode}");
+            return true;
+        }
+
+        // 同目标层级换省：排队，等当前过渡播完后再跳（不强制瞬时）
         QueuePendingTransition(
             useInstantTransition,
             targetState,
@@ -242,7 +244,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             ensureEarthBaseline,
             partType);
         LogManager.LogFeature(
-            $"[ControlStateHierarchyTransitionController] 过渡进行中，排队等待播完后再跳 | " +
+            $"[ControlStateHierarchyTransitionController] 同目标换省，排队等待播完后再跳 | " +
             $"target={targetState} | province={requestUnitCode} | instant={useInstantTransition}");
         return true;
     }
