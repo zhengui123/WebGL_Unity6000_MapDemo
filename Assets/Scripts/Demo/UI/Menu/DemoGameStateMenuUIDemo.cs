@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 /// <summary>
@@ -14,7 +15,8 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private RectTransform _menuPanelRect;
     [SerializeField] private float _expandedPanelHeight = 640f;
     [SerializeField] private float _collapsedPanelHeight = 96f;
-    [SerializeField] private Button _clearConsumedMarkEntryButton;
+    [FormerlySerializedAs("_clearConsumedMarkEntryButton")]
+    [SerializeField] private Button _toggleUiLanguageEntryButton;
     [SerializeField] private Button _controlStateJumpEntryButton;
     [SerializeField] private Button _plateMapHighlightEntryButton;
     [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
@@ -39,10 +41,13 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
             RefreshMenuContentVisible();
         }
 
-        if (_clearConsumedMarkEntryButton != null)
+        if (_toggleUiLanguageEntryButton != null)
         {
-            _clearConsumedMarkEntryButton.onClick.AddListener(OnClearConsumedMarkEntryClicked);
+            _toggleUiLanguageEntryButton.onClick.AddListener(OnToggleUiLanguageEntryClicked);
+            RefreshToggleUiLanguageButtonLabel();
         }
+
+        LanguageManager.OnLanguageChanged += HandleLanguageChanged;
 
         if (_controlStateJumpEntryButton != null)
         {
@@ -112,9 +117,11 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
             _menuVisibleToggle.onValueChanged.RemoveListener(OnMenuVisibleToggleChanged);
         }
 
-        if (_clearConsumedMarkEntryButton != null)
+        LanguageManager.OnLanguageChanged -= HandleLanguageChanged;
+
+        if (_toggleUiLanguageEntryButton != null)
         {
-            _clearConsumedMarkEntryButton.onClick.RemoveListener(OnClearConsumedMarkEntryClicked);
+            _toggleUiLanguageEntryButton.onClick.RemoveListener(OnToggleUiLanguageEntryClicked);
         }
 
         if (_controlStateJumpEntryButton != null)
@@ -235,23 +242,49 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         _menuPanelRect.sizeDelta = size;
     }
 
-    private void OnClearConsumedMarkEntryClicked()
+    private void OnToggleUiLanguageEntryClicked()
     {
-        LogManager.LogFeature("[DemoGameStateMenuUIDemo] 清除服务端高危事件消费标记…");
-        HighRiskEventConsumedClearApi.Request((result, response) =>
+        UiLanguage current = MapApi.Instance != null
+            ? MapApi.Instance.GetUiLanguage()
+            : LanguageManager.Instance.CurrentLanguage;
+        string nextCode = current == UiLanguage.English ? "zh-CN" : "en-US";
+        bool ok = MapApi.Instance != null && MapApi.Instance.SetUiLanguage(nextCode);
+        if (!ok)
         {
-            if (result != null && result.IsSuccess && response != null && response.IsSuccess)
-            {
-                LogManager.LogFeature(
-                    $"[DemoGameStateMenuUIDemo] 清除消费标记成功：data={response.data}");
-                return;
-            }
+            LogManager.LogFeatureWarning(
+                $"[DemoGameStateMenuUIDemo] 切换 UI 语言失败：{nextCode}");
+            return;
+        }
 
-            string error = result != null && !string.IsNullOrWhiteSpace(result.Error)
-                ? result.Error
-                : (response != null ? $"code={response.code}，msg={response.msg}" : "请求失败");
-            LogManager.LogFeatureWarning($"[DemoGameStateMenuUIDemo] 清除消费标记失败：{error}");
-        });
+        LogManager.LogFeature($"[DemoGameStateMenuUIDemo] 已切换 UI 语言 → {nextCode}");
+        RefreshToggleUiLanguageButtonLabel();
+    }
+
+    private void HandleLanguageChanged(UiLanguage _)
+    {
+        RefreshToggleUiLanguageButtonLabel();
+    }
+
+    private void RefreshToggleUiLanguageButtonLabel()
+    {
+        if (_toggleUiLanguageEntryButton == null)
+        {
+            return;
+        }
+
+        Text label = _toggleUiLanguageEntryButton.GetComponentInChildren<Text>();
+        if (label == null)
+        {
+            return;
+        }
+
+        UiLanguage current = LanguageManager.Instance != null
+            ? LanguageManager.Instance.CurrentLanguage
+            : UiLanguage.Chinese;
+        // 按钮文案表示「点击后将切到」的目标语言
+        label.text = current == UiLanguage.English
+            ? "切换中文 (zh-CN)"
+            : "切换英文 (en-US)";
     }
 
     private void OnControlStateJumpEntryClicked()

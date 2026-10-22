@@ -139,7 +139,12 @@ public class SecurityEventDetailData
             return eventLevel.Trim();
         }
 
-        string prefix = level >= 7 ? "高" : level >= 4 ? "中" : "低";
+        bool english = LanguageManager.Instance != null
+            && LanguageManager.Instance.CurrentLanguage == UiLanguage.English;
+        string prefix = english
+            ? (level >= 7 ? "High" : level >= 4 ? "Medium" : "Low")
+            : (level >= 7 ? "高" : level >= 4 ? "中" : "低");
+
         return $"{prefix}[{level}]";
     }
 

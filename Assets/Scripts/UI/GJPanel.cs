@@ -210,6 +210,11 @@ public class GJPanel : MonoBehaviour
     private void HandleLanguageChanged(UiLanguage _)
     {
         ApplyLocalizedLabels();
+        // 等级高/中/低 ↔ High/Medium/Low 随语言重算，需重刷事件名称展示
+        if (_currentEvent != null)
+        {
+            SetEventData(_currentEvent);
+        }
     }
 
     private void ApplyLocalizedLabels()

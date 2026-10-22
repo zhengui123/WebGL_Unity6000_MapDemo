@@ -42,7 +42,7 @@ public static class ControlStateStartUIBuilder
     private const string HttpApiTestUiTitle = "接口调用测试";
     private const string AndroidBridgeApiMenuLabel = "Android 桥接 API";
     private const string AndroidBridgeApiUiTitle = "Android 桥接 API";
-    private const string ClearConsumedMarkMenuLabel = "清除消费标记(测试)";
+    private const string ToggleUiLanguageMenuLabel = "切换英文 (en-US)";
     private const string ThreatHighRiskSecurityEventMenuLabel = ThreatHighRiskSecurityEventUIDemoBuilder.MenuLabel;
     private const string ThreatHighRiskSecurityEventUiTitle = ThreatHighRiskSecurityEventUIDemoBuilder.UiTitle;
     private const string ThreatLocalAlertTestMenuLabel = ThreatLocalAlertTestUIDemoBuilder.MenuLabel;
@@ -357,13 +357,13 @@ public static class ControlStateStartUIBuilder
         Transform contentParent = menuContent.transform;
         float contentY = 0f;
 
-        GameObject clearConsumedMarkEntryButtonGo = DefaultControls.CreateButton(resources);
-        clearConsumedMarkEntryButtonGo.name = "ClearConsumedMarkEntryButton";
-        SetupChildRect(clearConsumedMarkEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
-        Text clearConsumedMarkEntryButtonText = clearConsumedMarkEntryButtonGo.GetComponentInChildren<Text>();
-        if (clearConsumedMarkEntryButtonText != null)
+        GameObject toggleUiLanguageEntryButtonGo = DefaultControls.CreateButton(resources);
+        toggleUiLanguageEntryButtonGo.name = "ToggleUiLanguageEntryButton";
+        SetupChildRect(toggleUiLanguageEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
+        Text toggleUiLanguageEntryButtonText = toggleUiLanguageEntryButtonGo.GetComponentInChildren<Text>();
+        if (toggleUiLanguageEntryButtonText != null)
         {
-            clearConsumedMarkEntryButtonText.text = ClearConsumedMarkMenuLabel;
+            toggleUiLanguageEntryButtonText.text = ToggleUiLanguageMenuLabel;
         }
 
         contentY -= MenuButtonHeight + 8f;
@@ -516,8 +516,8 @@ public static class ControlStateStartUIBuilder
         serializedMenu.FindProperty("_menuPanelRect").objectReferenceValue = panelRect;
         serializedMenu.FindProperty("_expandedPanelHeight").floatValue = expandedPanelHeight;
         serializedMenu.FindProperty("_collapsedPanelHeight").floatValue = MenuCollapsedPanelHeight;
-        serializedMenu.FindProperty("_clearConsumedMarkEntryButton").objectReferenceValue =
-            clearConsumedMarkEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_toggleUiLanguageEntryButton").objectReferenceValue =
+            toggleUiLanguageEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_controlStateJumpEntryButton").objectReferenceValue =
             entryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_plateMapHighlightEntryButton").objectReferenceValue =
