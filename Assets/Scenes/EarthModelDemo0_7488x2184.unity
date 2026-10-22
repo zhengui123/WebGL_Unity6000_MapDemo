@@ -2101,7 +2101,7 @@ Transform:
   m_GameObject: {fileID: 73747873}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.000019659978, y: 1.434285, z: 0.000035843546}
+  m_LocalPosition: {x: 0.000026464462, y: 1.5071692, z: 0.07309151}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -9673,7 +9673,7 @@ Transform:
   m_GameObject: {fileID: 300151694}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.00002002716, y: 1.434285, z: 0.000014781952}
+  m_LocalPosition: {x: -0.00004053116, y: 1.4236727, z: 0.07643795}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -11448,7 +11448,7 @@ Transform:
   m_GameObject: {fileID: 321899602}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000014781952, y: 1.434285, z: 0.0000076293945}
+  m_LocalPosition: {x: 0.0000022649765, y: 1.6620765, z: 0.090100765}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12147,7 +12147,7 @@ MonoBehaviour:
   _menuPanelRect: {fileID: 345572231}
   _expandedPanelHeight: 360
   _collapsedPanelHeight: 96
-  _clearConsumedMarkEntryButton: {fileID: 570869140}
+  _toggleUiLanguageEntryButton: {fileID: 570869140}
   _controlStateJumpEntryButton: {fileID: 133579269}
   _plateMapHighlightEntryButton: {fileID: 1443535559}
   _vehicleHeatmapUpdateEntryButton: {fileID: 589115538}
@@ -41511,7 +41511,7 @@ Transform:
   m_GameObject: {fileID: 1366869155}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000023007393, y: 1.434285, z: -0.000024795532}
+  m_LocalPosition: {x: 0.000040650368, y: 1.7409337, z: 0.1136601}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -43480,7 +43480,7 @@ Transform:
   m_GameObject: {fileID: 1438134882}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000008583069, y: 1.2800325, z: 0.075040095}
+  m_LocalPosition: {x: 0.000008583069, y: 1.2800571, z: 0.075040095}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -91121,7 +91121,7 @@ Transform:
   m_GameObject: {fileID: 1719946832}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.000006198883, y: 1.7409091, z: 0.11370945}
+  m_LocalPosition: {x: 0.000018239021, y: 1.7409302, z: 0.11368501}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -162187,6 +162187,18 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2716528359609950938, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716528359609950938, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2716528359609950938, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 2804044467674871224, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -162233,6 +162245,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4544250248710502814, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_RaycastTarget
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5748813799303990877, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5748813799303990877, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5748813799303990877, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5935138524182687770, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
@@ -162345,7 +162369,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7994040676269500978, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 40
+      value: 99.675
+      objectReference: {fileID: 0}
+    - target: {fileID: 8075410628850553199, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8075410628850553199, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8075410628850553199, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8834631599014246974, guid: 41761fa606f7cf344bdfcc3ebdd3eecb, type: 3}
       propertyPath: m_AnchorMax.y
@@ -208775,6 +208811,9 @@ MonoBehaviour:
   _partTypeText: {fileID: 0}
   _vehicleInfoText: {fileID: 0}
   _hideOnAwake: 1
+  _eventNameWrapSpacer: {fileID: 0}
+  _eventNameWrapSpacer2: {fileID: 0}
+  _eventNameWrapSpacer3: {fileID: 0}
 --- !u!4 &8967678455996607142
 Transform:
   m_ObjectHideFlags: 0

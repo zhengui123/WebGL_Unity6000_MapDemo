@@ -33,8 +33,17 @@ public class GJPanel : MonoBehaviour
     [Header("启动行为")]
     [SerializeField] private bool _hideOnAwake = true;
 
+    [Header("事件名称换行占位（留空则按节点名自动查找）")]
+    [Tooltip("MessageList/NullName (1)：≥2 行时开启")]
+    [SerializeField] private GameObject _eventNameWrapSpacer;
+    [Tooltip("MessageList/NullName (2)：≥2 行时开启")]
+    [SerializeField] private GameObject _eventNameWrapSpacer2;
+    [Tooltip("MessageList/NullName (3)：超过 2 行时开启")]
+    [SerializeField] private GameObject _eventNameWrapSpacer3;
+
     private SecurityEventDetailData _currentEvent;
     private bool _hasCustomTitle;
+    private bool _eventNameWrapSpacerDefaultApplied;
 
     public static GJPanel Instance
     {
@@ -146,7 +155,11 @@ public class GJPanel : MonoBehaviour
         string vehicleInfo = null)
     {
         EnsureReferences();
-        if (eventName != null) SetText(_eventNameText, eventName);
+        if (eventName != null)
+        {
+            SetEventNameText(eventName);
+        }
+
         if (riskName != null) SetText(_riskNameText, riskName);
         if (happenTime != null) SetText(_happenTimeText, happenTime);
         if (vin != null) SetText(_vinText, vin);
@@ -250,6 +263,90 @@ public class GJPanel : MonoBehaviour
         if (_vinText == null) _vinText = FindText("MessageList/VinName/VinText");
         if (_partTypeText == null) _partTypeText = FindText("MessageList/LJName/LJText");
         if (_vehicleInfoText == null) _vehicleInfoText = FindText("MessageList/PPName/PPText");
+
+        if (_eventNameWrapSpacer == null)
+        {
+            Transform spacer = transform.Find("MessageList/NullName (1)");
+            if (spacer != null) _eventNameWrapSpacer = spacer.gameObject;
+        }
+
+        if (_eventNameWrapSpacer2 == null)
+        {
+            Transform spacer = transform.Find("MessageList/NullName (2)");
+            if (spacer != null) _eventNameWrapSpacer2 = spacer.gameObject;
+        }
+
+        if (_eventNameWrapSpacer3 == null)
+        {
+            Transform spacer = transform.Find("MessageList/NullName (3)");
+            if (spacer != null) _eventNameWrapSpacer3 = spacer.gameObject;
+        }
+
+        // 默认全部关闭；仅首次，避免后续 EnsureReferences 误关已开启状态
+        if (!_eventNameWrapSpacerDefaultApplied)
+        {
+            SetEventNameWrapSpacersActive(false, false, false);
+            _eventNameWrapSpacerDefaultApplied = true;
+        }
+    }
+
+    /// <summary>写入事件名（固定字号、可换行）；按估算行数开关 NullName (1)(2)(3) 占位。</summary>
+    private void SetEventNameText(string value)
+    {
+        if (_eventNameText == null)
+        {
+            return;
+        }
+
+        _eventNameText.horizontalOverflow = HorizontalWrapMode.Wrap;
+        _eventNameText.verticalOverflow = VerticalWrapMode.Overflow;
+        _eventNameText.text = value ?? string.Empty;
+        UpdateEventNameWrapSpacer();
+    }
+
+    /// <summary>
+    /// 1 行：全关；2 行：开 (1)(2)；超过 2 行：(1)(2)(3) 全开。
+    /// 行数按单行 preferredWidth / Rect 宽度向上取整。
+    /// </summary>
+    private void UpdateEventNameWrapSpacer()
+    {
+        string content = _eventNameText != null ? _eventNameText.text : null;
+        if (string.IsNullOrEmpty(content))
+        {
+            SetEventNameWrapSpacersActive(false, false, false);
+            return;
+        }
+
+        RectTransform rect = _eventNameText.rectTransform;
+        float maxWidth = rect.rect.width;
+        if (maxWidth <= 1f)
+        {
+            Canvas.ForceUpdateCanvases();
+            maxWidth = rect.rect.width;
+        }
+
+        if (maxWidth <= 1f)
+        {
+            SetEventNameWrapSpacersActive(false, false, false);
+            return;
+        }
+
+        HorizontalWrapMode prev = _eventNameText.horizontalOverflow;
+        _eventNameText.horizontalOverflow = HorizontalWrapMode.Overflow;
+        float singleLineWidth = _eventNameText.preferredWidth;
+        _eventNameText.horizontalOverflow = prev;
+
+        int lineCount = Mathf.Max(1, Mathf.CeilToInt(singleLineWidth / maxWidth - 0.001f));
+        bool enable12 = lineCount >= 2;
+        bool enable3 = lineCount > 2;
+        SetEventNameWrapSpacersActive(enable12, enable12, enable3);
+    }
+
+    private void SetEventNameWrapSpacersActive(bool enable1, bool enable2, bool enable3)
+    {
+        if (_eventNameWrapSpacer != null) _eventNameWrapSpacer.SetActive(enable1);
+        if (_eventNameWrapSpacer2 != null) _eventNameWrapSpacer2.SetActive(enable2);
+        if (_eventNameWrapSpacer3 != null) _eventNameWrapSpacer3.SetActive(enable3);
     }
 
     private Text FindText(string path)

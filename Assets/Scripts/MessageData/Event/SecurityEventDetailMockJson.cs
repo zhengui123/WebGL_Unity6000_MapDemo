@@ -10,7 +10,7 @@ public static class SecurityEventDetailMockJson
         "\"msg\":\"操作成功！\"," +
         "\"data\":{" +
         "\"event_id\":\"123dfdsafffff\"," +
-        "\"event_name\":\"风险异常事件\"," +
+        "\"event_name\":\"风险异常事件风险异常事件风风险异常事件\"," +
         "\"event_level\":\"7\"," +
         "\"happen_time\":\"2026-06-30 17:41:23\"," +
         "\"vin\":\"123***\"," +
