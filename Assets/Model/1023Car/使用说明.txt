@@ -1,0 +1,73 @@
+Car07 全息渲染 — Unity Built-in 内置管线
+
+用途
+适用于桌面端、非 XR 的 Built-in 相机。基于已经预览过的 Three.js 版本移植。
+本机未安装 Unity Editor，因此本包尚未完成 Unity 编译和实机画面验证。
+材质/边缘算法与网页版本对应；Bloom 改用轻量高斯模糊，光晕范围并非逐像素一致。
+
+导入与设置
+1. 将整个 Car07Hologram 文件夹复制到 Unity 项目的 Assets 下，等待导入。
+2. Edit > Project Settings > Player > Other Settings > Rendering > Color Space 设为 Linear。
+   Graphics 与当前 Quality 等级均未指定 Render Pipeline Asset 时才是 Built-in。
+3. 选择 Car07_smooth_normals.obj：Model > Normals = Import > Apply。
+   如果材质引用缺失，直接使用下面新建的全息材质；它不需要原来的 material.mtl 或贴图。
+4. Create > Material，选择 Shader：Car07/Hologram Surface BuiltIn。
+   把材质赋给汽车所有 MeshRenderer 的材质槽。先保留材质的所有默认参数。
+5. 把 Car07HologramCamera.cs 拖到实际渲染汽车的 Camera 上。
+   将 Car07HologramPost.shader 拖进该组件的 Post Shader 字段。请显式赋值，以便构建时保留 Shader。
+6. 相机：Clear Flags = Solid Color；Background = 黑色；Allow HDR = 开启。
+   Field of View = 31；近裁剪面和远裁剪面先用 0.05 / 20（针对本 OBJ 原始尺寸）。
+   相机朝向汽车包围盒中心，距离约为车长的 1.7 倍，俯角约 18°。
+7. 打开 Game 视图观察。本组件已有描边和 Bloom，不要再叠加其他 Bloom、AO、镜头污渍或色调映射。
+   普通灯光不会改变这个 Unlit 车身材质。
+
+材质默认值
+Lower Blue (linear RGB) = (0.0001, 0.003, 0.018)
+Upper Blue (linear RGB) = (0.0001, 0.016, 0.30)
+Rim Color (linear HDR RGB) = (0, 0.78, 1.1)
+Rim Power = 4.2
+Rim Strength = 0.4
+Scan Strength = 0.13；设 0 关闭扫描线
+Scan Cycles Across Model Height = 21.4531
+Scan Phase Speed = 1.7 弧度/秒
+Mesh Local Minimum Y = 0
+Mesh Local Height = 0.336985
+
+颜色用 Vector 字段直接传入线性 RGB；不要再做 sRGB 到 Linear 的转换。
+网页扫描公式是 sin(localY * 400 - time * 1.7)。本包改成按车高归一化，
+21.4531 = 400 * 0.336985 / (2*pi)，方便在 Unity 中调整物体 Transform Scale。
+若导入器改变了网格自身的顶点尺度或坐标原点，请把 Mesh Local Minimum Y / Height
+设为 MeshFilter.sharedMesh.bounds.min.y / bounds.size.y；普通 Transform 缩放不需要改它们。
+
+相机组件默认值
+Line Color = (0, 1.3, 1.65)，线性 HDR RGB
+Line Width = 1.5 像素
+Line Strength = 1
+Normal Start / End = 0.045 / 0.20
+Depth Start / End = 0.008 / 0.022
+Bloom Strength = 0.35
+Bloom Threshold = 0.88，线性亮度；不是 Unity Post-processing Stack 的 gamma 阈值
+Blur Radius = 1.2，半分辨率像素
+Blur Iterations = 3
+
+调整顺序
+碎线太多：Normal Start 从 0.045 加到 0.07，Normal End 加到 0.25。
+车窗边缘不明显：Normal Start 适当降到 0.025，注意这也会带出更多网格细节。
+泛光糊成一片：Bloom Strength 降到 0.2；不要先降低 Bloom Threshold。
+扫描线太强：Scan Strength 降到 0.08。
+车身太亮：降低 Upper Blue 的第三个值（蓝色通道）。
+有明显三角斑块：先确认导入的是 smooth_normals 版本且 Normals = Import。
+
+范围与限制
+相机脚本对它看到的所有不透明物体做边缘提取，不只针对汽车。
+大屏整合建议让汽车使用独立 Layer，相机 Culling Mask 只渲染该 Layer，输出到 RenderTexture。
+本包面向单目桌面画面；不实现 XR 单通道渲染、移动端性能适配或透明背景输出。
+若已有其他 OnRenderImage 或 Post-process Layer，需要检查执行顺序，避免重复泛光和色彩转换。
+
+对应网页源码
+viewer/car07/HologramEffect.js
+viewer/car07/app.js
+
+官方资料
+https://docs.unity3d.com/6000.0/Documentation/ScriptReference/MonoBehaviour.OnRenderImage.html
+https://docs.unity3d.com/6000.0/Documentation/Manual/SL-CameraDepthTexture.html
