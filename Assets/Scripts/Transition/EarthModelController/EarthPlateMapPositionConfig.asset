@@ -30,7 +30,7 @@ MonoBehaviour:
     localPosition: {x: -55, y: -460, z: 130}
   - plateCode: WESTERN_EUROPE
     plateName: "\u897F\u6B27"
-    localPosition: {x: 272, y: -385, z: -65}
+    localPosition: {x: -275, y: -900, z: -300}
   - plateCode: NORTHERN_EUROPE
     plateName: "\u5317\u6B27"
     localPosition: {x: 258, y: -485, z: -230}
@@ -43,6 +43,9 @@ MonoBehaviour:
   - plateCode: EASTERN_EUROPE
     plateName: "\u4E1C\u6B27"
     localPosition: {x: -390, y: -1100, z: -309}
+  - plateCode: EUROPE
+    plateName: "\u6B27\u6D32"
+    localPosition: {x: -275, y: -900, z: -290}
   - plateCode: NORTH_AFRICA
     plateName: "\u5317\u975E"
     localPosition: {x: 195, y: -480, z: 181}
