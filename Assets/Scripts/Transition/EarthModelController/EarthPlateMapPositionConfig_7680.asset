@@ -15,7 +15,7 @@ MonoBehaviour:
   _entries:
   - plateCode: EAST_ASIA
     plateName: "\u4E1C\u4E9A"
-    localPosition: {x: -300, y: -680, z: 150}
+    localPosition: {x: -300, y: -840, z: 130}
   - plateCode: SOUTHEAST_ASIA
     plateName: "\u4E1C\u5357\u4E9A"
     localPosition: {x: -483, y: -480, z: 290}
@@ -45,7 +45,7 @@ MonoBehaviour:
     localPosition: {x: -390, y: -1100, z: -309}
   - plateCode: NORTH_AFRICA
     plateName: "\u5317\u975E"
-    localPosition: {x: 195, y: -700, z: 320}
+    localPosition: {x: 160, y: -680, z: 330}
   - plateCode: WEST_AFRICA
     plateName: "\u897F\u975E"
     localPosition: {x: 285, y: -380, z: 228}
@@ -60,7 +60,7 @@ MonoBehaviour:
     localPosition: {x: 80, y: -450, z: 470}
   - plateCode: NORTH_AMERICA_REGION
     plateName: "\u5317\u7F8E"
-    localPosition: {x: 1050, y: -1150, z: -230}
+    localPosition: {x: 1050, y: -1140, z: -230}
   - plateCode: CENTRAL_AMERICA
     plateName: "\u4E2D\u7F8E\u6D32"
     localPosition: {x: 920, y: -430, z: 190}
@@ -72,7 +72,7 @@ MonoBehaviour:
     localPosition: {x: 719, y: -700, z: 520}
   - plateCode: AUSTRALASIA
     plateName: "\u6FB3\u65B0"
-    localPosition: {x: -680, y: -530, z: 520}
+    localPosition: {x: -695, y: -560, z: 520}
   - plateCode: MELANESIA
     plateName: "\u7F8E\u62C9\u5C3C\u897F\u4E9A"
     localPosition: {x: -752, y: -380, z: 420}
