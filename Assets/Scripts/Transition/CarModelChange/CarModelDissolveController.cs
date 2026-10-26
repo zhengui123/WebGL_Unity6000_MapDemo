@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 
@@ -7,6 +8,17 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class CarModelDissolveController : MonoBehaviour
 {
+    /// <summary>
+    /// KJ_Car 可见强度：0=完全溶解/隐藏，1=完全显示。
+    /// 由溶解量换算：visible = 1 - DissolveAmount。供全息后处理等同步。
+    /// </summary>
+    public static event Action<float> OnKjCarVisibleStrengthChanged;
+
+    /// <summary>按 KJ 溶解量通知可见强度（DissolveAmount 0=显，1=隐）。</summary>
+    public static void NotifyKjCarVisibleStrengthFromDissolve(float dissolveAmount)
+    {
+        OnKjCarVisibleStrengthChanged?.Invoke(Mathf.Clamp01(1f - dissolveAmount));
+    }
     [Header("模型引用（留空则自动查找 Model/Car 下子物体）")]
     [SerializeField] private GameObject _realyCarRoot;
     [SerializeField] private GameObject _kjCarRoot;
@@ -26,6 +38,12 @@ public class CarModelDissolveController : MonoBehaviour
 
     public bool IsTransitioning => _isTransitioning;
     public bool ShowingKjCar => _showingKjCar;
+
+    /// <summary>溶解过渡时长（供全息后处理 effectStrength 等共用）。</summary>
+    public float TransitionDuration => _transitionDuration;
+
+    /// <summary>溶解过渡缓动（供全息后处理 effectStrength 等共用）。</summary>
+    public Ease TransitionEase => _transitionEase;
 
     /// <summary>KJ_Car 根节点（供零件过渡等模块复用，统一在此 Inspector 配置）。</summary>
     public GameObject KjCarRoot
@@ -136,6 +154,15 @@ public class CarModelDissolveController : MonoBehaviour
 
         hideGroup.SetDissolveAmount(0f);
         appearGroup.SetDissolveAmount(1f);
+        // 起始：显现方全溶、隐藏方全显 → KJ 可见度与溶解一致
+        if (showKjCar)
+        {
+            NotifyKjCarVisibleStrengthFromDissolve(1f);
+        }
+        else
+        {
+            NotifyKjCarVisibleStrengthFromDissolve(0f);
+        }
 
         float hideAmount = 0f;
         float appearAmount = 1f;
@@ -145,12 +172,22 @@ public class CarModelDissolveController : MonoBehaviour
         {
             hideAmount = value;
             hideGroup.SetDissolveAmount(value);
+            // 切回 Realy：KJ 为隐藏方，溶解 0→1 → 可见度 1→0
+            if (!showKjCar)
+            {
+                NotifyKjCarVisibleStrengthFromDissolve(value);
+            }
         }, 1f, _transitionDuration).SetEase(_transitionEase));
 
         _sequence.Join(DOTween.To(() => appearAmount, value =>
         {
             appearAmount = value;
             appearGroup.SetDissolveAmount(value);
+            // 切到 KJ：KJ 为显现方，溶解 1→0 → 可见度 0→1
+            if (showKjCar)
+            {
+                NotifyKjCarVisibleStrengthFromDissolve(value);
+            }
         }, 0f, _transitionDuration).SetEase(_transitionEase));
 
         _sequence.OnComplete(() => CompleteTransition(showKjCar, hideRoot, appearGroup));
@@ -169,6 +206,7 @@ public class CarModelDissolveController : MonoBehaviour
 
         appearGroup.SetDissolveAmount(0f);
         hideRoot.SetActive(false);
+        NotifyKjCarVisibleStrengthFromDissolve(showKjCar ? 0f : 1f);
 
         EventManager em = EventManager.Instance;
         if (em == null)
@@ -199,6 +237,7 @@ public class CarModelDissolveController : MonoBehaviour
 
         _realyDissolve.SetDissolveAmount(0f);
         _kjDissolve.SetDissolveAmount(1f);
+        NotifyKjCarVisibleStrengthFromDissolve(1f);
     }
 
     private void CacheDissolveMaterials()

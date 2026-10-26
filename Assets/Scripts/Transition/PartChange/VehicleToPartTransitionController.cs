@@ -333,7 +333,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         EventManager.Instance?.TriggerVehicleToPartTransitionReverseStarted(part.name);
         part.gameObject.SetActive(true);
         _kjCarRoot.SetActive(true);
-        _kjDissolve.SetDissolveAmount(1f);
+        SetKjDissolveAmount(1f);
 
         _sequence = DOTween.Sequence();
         AppendMoveToTarget(_sequence, part, _firstTarget, _secondMoveDuration);
@@ -730,7 +730,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void CompleteForwardTransition()
     {
         _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(1f);
+        SetKjDissolveAmount(1f);
 
         if (_kjCarRoot != null)
         {
@@ -743,7 +743,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void CompleteReverseTransition()
     {
         _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(0f);
+        SetKjDissolveAmount(0f);
 
         if (_kjCarRoot != null)
         {
@@ -1314,7 +1314,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         _isTransitioning = true;
         EventManager.Instance?.TriggerAttackPathToVehicleTransitionStarted();
         _kjCarRoot.SetActive(true);
-        _kjDissolve.SetDissolveAmount(1f);
+        SetKjDissolveAmount(1f);
 
         _sequence = DOTween.Sequence();
         AppendPartsMoveToInitialAndHide(_sequence, displayParts, excludePart: null);
@@ -1367,7 +1367,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void CompleteVehicleToAttackPathTransition(AttackPathController controller)
     {
         _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(1f);
+        SetKjDissolveAmount(1f);
 
         if (_kjCarRoot != null)
         {
@@ -1402,7 +1402,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
     private void CompleteAttackPathToVehicleTransition()
     {
         _isTransitioning = false;
-        _kjDissolve.SetDissolveAmount(0f);
+        SetKjDissolveAmount(0f);
 
         if (_kjCarRoot != null)
         {
@@ -2259,13 +2259,13 @@ public class VehicleToPartTransitionController : MonoBehaviour
         }
 
         _kjCarRoot.SetActive(true);
-        _kjDissolve.SetDissolveAmount(0f);
+        SetKjDissolveAmount(0f);
 
         float dissolveAmount = 0f;
         return DOTween.To(() => dissolveAmount, value =>
         {
             dissolveAmount = value;
-            _kjDissolve.SetDissolveAmount(value);
+            SetKjDissolveAmount(value);
         }, 1f, _kjDissolveDuration).SetEase(_kjDissolveEase);
     }
 
@@ -2280,7 +2280,7 @@ public class VehicleToPartTransitionController : MonoBehaviour
         return DOTween.To(() => dissolveAmount, value =>
         {
             dissolveAmount = value;
-            _kjDissolve.SetDissolveAmount(value);
+            SetKjDissolveAmount(value);
         }, 0f, _kjDissolveDuration).SetEase(_kjDissolveEase);
     }
 
@@ -2289,7 +2289,14 @@ public class VehicleToPartTransitionController : MonoBehaviour
         // 使用材质实例，避免修改 sharedMaterial 污染 Part_CarLine 等资源
         _kjDissolve.CollectFrom(_kjCarRoot, isShareMaterial: false);
         _kjDissolve.SetDissolveNoiseScale(_dissolveNoiseScale);
-        _kjDissolve.SetDissolveAmount(0f);
+        SetKjDissolveAmount(0f);
+    }
+
+    /// <summary>写入 KJ 溶解量，并同步全息可见强度（visible = 1 - amount）。</summary>
+    private void SetKjDissolveAmount(float amount)
+    {
+        _kjDissolve.SetDissolveAmount(amount);
+        CarModelDissolveController.NotifyKjCarVisibleStrengthFromDissolve(amount);
     }
 
     private void ResetCarDragRotation()
