@@ -58,7 +58,8 @@ public sealed class Car07HologramCamera : MonoBehaviour
     private void OnEnable()
     {
         targetCamera = GetComponent<Camera>();
-        targetCamera.depthTextureMode |= DepthTextureMode.DepthNormals;
+        // DepthNormals：描边；Depth：WebGL 上与 Opaque KJ 深度一致时更稳
+        targetCamera.depthTextureMode |= DepthTextureMode.Depth | DepthTextureMode.DepthNormals;
         targetCamera.allowHDR = true;
         CacheDefaultFarClip();
 
@@ -88,7 +89,7 @@ public sealed class Car07HologramCamera : MonoBehaviour
     {
         if (targetCamera != null)
         {
-            targetCamera.depthTextureMode |= DepthTextureMode.DepthNormals;
+            targetCamera.depthTextureMode |= DepthTextureMode.Depth | DepthTextureMode.DepthNormals;
         }
     }
 

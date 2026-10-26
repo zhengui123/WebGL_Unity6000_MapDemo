@@ -45,10 +45,13 @@ Shader "Custom/CarHologram"
 
     SubShader
     {
+        // 必须 Opaque+Geometry：Car07 后处理描边读 _CameraDepthNormalsTexture，
+        // Built-in/WebGL 替换通道不收录 Transparent；过渡中有线是因为 RealyCar 为 Opaque。
+        // 颜色透明度仍由 _HoloSrcBlend/_HoloDstBlend/_HoloZWrite 控制（材质可保持不透明混合）。
         Tags
         {
-            "Queue" = "Transparent"
-            "RenderType" = "Transparent"
+            "Queue" = "Geometry"
+            "RenderType" = "Opaque"
             "IgnoreProjector" = "True"
         }
 
@@ -94,5 +97,6 @@ Shader "Custom/CarHologram"
     }
 
     CustomEditor "CarHologramShaderGUI"
-    FallBack "Transparent/Diffuse"
+    // 勿用 Transparent Fallback，否则 WebGL 上仍可能按透明物体处理
+    FallBack "Diffuse"
 }
