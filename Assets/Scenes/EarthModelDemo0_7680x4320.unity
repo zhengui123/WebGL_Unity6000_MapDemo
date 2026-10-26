@@ -10096,7 +10096,7 @@ MonoBehaviour:
   effectStrength: 0
   _hologramFarClip: 1000
   lineColor: {x: 0, y: 1.3, z: 1.65}
-  lineWidth: 1
+  lineWidth: 1.8
   lineStrength: 1
   normalStart: 0
   normalEnd: 0.2
@@ -24208,9 +24208,25 @@ PrefabInstance:
       propertyPath: volumeTrigger
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 694179577213801049, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: antialiasingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 694179577213801049, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: stopNaNPropagation
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 1042975299702242536, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: volumeTrigger
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042975299702242536, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: antialiasingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1042975299702242536, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: stopNaNPropagation
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2224729447446724167, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24310,14 +24326,22 @@ PrefabInstance:
       objectReference: {fileID: 1773839546}
     - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_ShowToolkit
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: volumeTrigger
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: antialiasingMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
       propertyPath: m_ShowCustomSorter
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6470379102125178505, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
+      propertyPath: stopNaNPropagation
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6763715507717111890, guid: 90fab6613d16c634b960afbc33be7af6, type: 3}
