@@ -1,12 +1,10 @@
-// 汽车全息展示（Built-in）：Fresnel + 网格 + 扫描线；深度预写入 + 背面剔除，避免内饰/内侧穿透
+// 汽车全息展示（Built-in）：Fresnel + 网格 + 扫描线；深度预写入 + 背面剔除
+// 渲染类型与 RealyCar（CarStandardDissolve）一致：固定 Opaque + Geometry，无表面模式切换
 
 Shader "Custom/CarHologram"
 {
     Properties
     {
-        [Header(Surface Mode)]
-        [KeywordEnum(Transparent, Opaque)] _SurfaceType ("表面模式", Float) = 0
-
         [Header(Base)]
         [HDR] _BaseColor ("基色", Color) = (0.08, 0.45, 0.65, 1)
         [HDR] _GlowColor ("发光色", Color) = (0.3, 0.95, 1.0, 1)
@@ -37,17 +35,10 @@ Shader "Custom/CarHologram"
         [Header(Dissolve)]
         _DissolveAmount ("Dissolve Amount", Range(0, 1)) = 0
         _DissolveNoiseScale ("Dissolve Noise Scale", Range(0.1, 50)) = 12
-
-        [HideInInspector] _HoloSrcBlend ("", Float) = 5
-        [HideInInspector] _HoloDstBlend ("", Float) = 10
-        [HideInInspector] _HoloZWrite ("", Float) = 0
     }
 
     SubShader
     {
-        // 必须 Opaque+Geometry：Car07 后处理描边读 _CameraDepthNormalsTexture，
-        // Built-in/WebGL 替换通道不收录 Transparent；过渡中有线是因为 RealyCar 为 Opaque。
-        // 颜色透明度仍由 _HoloSrcBlend/_HoloDstBlend/_HoloZWrite 控制（材质可保持不透明混合）。
         Tags
         {
             "Queue" = "Geometry"
@@ -57,7 +48,7 @@ Shader "Custom/CarHologram"
 
         LOD 200
 
-        // Pass 0：写入最前层外表深度，遮挡同车内饰/内侧子网格
+        // Pass 0：写入最前层外表深度
         Pass
         {
             Name "DepthPrepass"
@@ -68,7 +59,6 @@ Shader "Custom/CarHologram"
 
             CGPROGRAM
             #pragma target 3.0
-            #pragma shader_feature_local _ _SURFACETYPE_OPAQUE
             #pragma vertex vert
             #pragma fragment fragDepth
             #include "UnityCG.cginc"
@@ -76,18 +66,17 @@ Shader "Custom/CarHologram"
             ENDCG
         }
 
-        // Pass 1：颜色（受深度缓冲约束）
+        // Pass 1：不透明着色（与 RealyCar Opaque 一致）
         Pass
         {
             Name "Forward"
-            Blend [_HoloSrcBlend] [_HoloDstBlend]
-            ZWrite [_HoloZWrite]
+            Blend One Zero
+            ZWrite On
             ZTest LEqual
             Cull Back
 
             CGPROGRAM
             #pragma target 3.0
-            #pragma shader_feature_local _ _SURFACETYPE_OPAQUE
             #pragma vertex vert
             #pragma fragment fragColor
             #include "UnityCG.cginc"
@@ -96,7 +85,5 @@ Shader "Custom/CarHologram"
         }
     }
 
-    CustomEditor "CarHologramShaderGUI"
-    // 勿用 Transparent Fallback，否则 WebGL 上仍可能按透明物体处理
     FallBack "Diffuse"
 }
