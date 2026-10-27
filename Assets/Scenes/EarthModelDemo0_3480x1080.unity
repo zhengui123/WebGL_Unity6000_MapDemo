@@ -199988,7 +199988,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 8354218801994410969}
   _instancedRenderer: {fileID: 8354218801994410971}
-  _useDefaultVehiclePointsTestData: 1
+  _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u52A0\u62FF\u5927-001"
     longitude: -136.054688

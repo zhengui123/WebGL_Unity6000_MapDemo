@@ -2,12 +2,17 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// 基于 Left / Right 两控制点做经纬度 ↔ 局部 XZ 仿射映射。
-/// 映射只依赖两锚点的 Transform（局部坐标）及其 longitude/latitude，不扫描子模型网格，不读省界 Database。
+/// 基于 Left / Right 两对角控制点做经纬度 ↔ 局部 XZ 映射。
+/// 经度按度数线性插值；纬度按 Web Mercator（与 Online Maps Spherical Mercator 同族）插值，
+/// 使热力点与世界地图投影一致。不扫描子模型网格，不读省界 Database。
+/// 约定：西锚点=西南角(LonW,LatW)，东锚点=东北角(LonE,LatE)，且与 marker 局部位姿对齐。
 /// </summary>
 [DisallowMultipleComponent]
 public class PlateMapGeoConverter : MonoBehaviour
 {
+    /// <summary>Web Mercator 纬度钳制（度），避免极点发散。</summary>
+    private const double MercatorMaxLatitude = 85.05112878;
+
     /// <summary>控制点：局部位置 + 该点对应的经纬度。</summary>
     [Serializable]
     public struct GeoAnchor
@@ -203,12 +208,12 @@ public class PlateMapGeoConverter : MonoBehaviour
         float dx = _eastAnchor.marker.localPosition.x - _westAnchor.marker.localPosition.x;
         float dz = _eastAnchor.marker.localPosition.z - _westAnchor.marker.localPosition.z;
         double dLon = _eastAnchor.longitude - _westAnchor.longitude;
-        double dLat = _eastAnchor.latitude - _westAnchor.latitude;
+        double dMerc = LatitudeToMercatorY(_eastAnchor.latitude) - LatitudeToMercatorY(_westAnchor.latitude);
 
         return Math.Abs(dx) > 1e-6f &&
                Math.Abs(dz) > 1e-6f &&
                Math.Abs(dLon) > 1e-9 &&
-               Math.Abs(dLat) > 1e-9;
+               Math.Abs(dMerc) > 1e-15;
     }
 
     private void RefreshVehiclePointsDisplayIfPlaying()
@@ -251,19 +256,20 @@ public class PlateMapGeoConverter : MonoBehaviour
     }
 
     /// <summary>
-    /// 仿射：经度沿西→东锚点插值 X，纬度沿西→东锚点插值 Z。
-    /// （约定两锚点为对角控制点：携带各自经度与纬度。）
+    /// 经度：度数线性 → X；纬度：Mercator Y 线性 → Z（对角西南/东北锚点）。
     /// </summary>
     private Vector3 ComputeLocalPosition(double longitude, double latitude)
     {
         Vector3 westLocal = _westAnchor.marker.localPosition;
         Vector3 eastLocal = _eastAnchor.marker.localPosition;
 
-        float tLon = Mathf.InverseLerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, (float)longitude);
-        float tLat = Mathf.InverseLerp((float)_westAnchor.latitude, (float)_eastAnchor.latitude, (float)latitude);
+        double tLon = InverseLerpDouble(_westAnchor.longitude, _eastAnchor.longitude, longitude);
+        double mercSouth = LatitudeToMercatorY(_westAnchor.latitude);
+        double mercNorth = LatitudeToMercatorY(_eastAnchor.latitude);
+        double tLat = InverseLerpDouble(mercSouth, mercNorth, LatitudeToMercatorY(latitude));
 
-        float x = Mathf.Lerp(westLocal.x, eastLocal.x, tLon);
-        float z = Mathf.Lerp(westLocal.z, eastLocal.z, tLat);
+        float x = (float)LerpDouble(westLocal.x, eastLocal.x, tLon);
+        float z = (float)LerpDouble(westLocal.z, eastLocal.z, tLat);
         return new Vector3(x, 0f, z);
     }
 
@@ -280,11 +286,46 @@ public class PlateMapGeoConverter : MonoBehaviour
         Vector3 westLocal = _westAnchor.marker.localPosition;
         Vector3 eastLocal = _eastAnchor.marker.localPosition;
 
-        float tLon = Mathf.InverseLerp(westLocal.x, eastLocal.x, localPosition.x);
-        float tLat = Mathf.InverseLerp(westLocal.z, eastLocal.z, localPosition.z);
-        longitude = Mathf.Lerp((float)_westAnchor.longitude, (float)_eastAnchor.longitude, tLon);
-        latitude = Mathf.Lerp((float)_westAnchor.latitude, (float)_eastAnchor.latitude, tLat);
+        double tLon = InverseLerpDouble(westLocal.x, eastLocal.x, localPosition.x);
+        double tLat = InverseLerpDouble(westLocal.z, eastLocal.z, localPosition.z);
+        longitude = LerpDouble(_westAnchor.longitude, _eastAnchor.longitude, tLon);
+
+        double mercSouth = LatitudeToMercatorY(_westAnchor.latitude);
+        double mercNorth = LatitudeToMercatorY(_eastAnchor.latitude);
+        double mercY = LerpDouble(mercSouth, mercNorth, tLat);
+        latitude = MercatorYToLatitude(mercY);
         return true;
+    }
+
+    /// <summary>WGS84 纬度（度）→ Web Mercator Y（无量纲，与 Spherical Mercator 同族）。</summary>
+    private static double LatitudeToMercatorY(double latitudeDegrees)
+    {
+        double lat = Math.Max(-MercatorMaxLatitude, Math.Min(MercatorMaxLatitude, latitudeDegrees));
+        double latRad = lat * Math.PI / 180.0;
+        return Math.Log(Math.Tan(Math.PI * 0.25 + latRad * 0.5));
+    }
+
+    /// <summary>Web Mercator Y → WGS84 纬度（度）。</summary>
+    private static double MercatorYToLatitude(double mercatorY)
+    {
+        double latRad = 2.0 * Math.Atan(Math.Exp(mercatorY)) - Math.PI * 0.5;
+        return latRad * 180.0 / Math.PI;
+    }
+
+    private static double InverseLerpDouble(double a, double b, double value)
+    {
+        double den = b - a;
+        if (Math.Abs(den) < 1e-15)
+        {
+            return 0.0;
+        }
+
+        return (value - a) / den;
+    }
+
+    private static double LerpDouble(double a, double b, double t)
+    {
+        return a + (b - a) * t;
     }
 
     public bool TryLongitudeLatitudeToLocal(double longitude, double latitude, out Vector3 localPosition)
