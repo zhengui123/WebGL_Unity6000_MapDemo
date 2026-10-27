@@ -200708,7 +200708,7 @@ MonoBehaviour:
   _eastAnchor:
     marker: {fileID: 1944426547}
     longitude: -52.650001525878906
-    latitude: 73.2300033569336
+    latitude: 83.111
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8354218801994410973
