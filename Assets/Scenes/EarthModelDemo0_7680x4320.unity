@@ -39158,7 +39158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
   _startMode: 0
-  _startForeignPlateCode: MELANESIA
+  _startForeignPlateCode: NORTH_AMERICA_REGION
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
   - plateCode: EAST_ASIA
@@ -41633,9 +41633,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9bd670fdb1ffe0449b4e3493f0683a52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
-  _enableFeatureTestLog: 0
-  _enableBackendHttpLog: 0
-  _enableHostBridgeLog: 0
+  _enableFeatureTestLog: 1
+  _enableBackendHttpLog: 1
+  _enableHostBridgeLog: 1
   _enableFailureLog: 1
 --- !u!1 &1374839711
 GameObject:
@@ -138230,7 +138230,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlateMapVehiclePointController
   _mapRoot: {fileID: 1218114647836255267}
   _instancedRenderer: {fileID: 3314871514854689192}
-  _useDefaultVehiclePointsTestData: 0
+  _useDefaultVehiclePointsTestData: 1
   _vehiclePoints:
   - vehicleId: "\u6FB3\u5927\u5229\u4E9A-001"
     longitude: 132.24036464363053

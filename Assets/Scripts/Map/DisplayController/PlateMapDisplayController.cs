@@ -133,6 +133,21 @@ public class PlateMapDisplayController : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 世界地图聚焦/还原用的控制器：优先 WorldMapRegionController 绑定的实例
+    /// （场景可有多个 PlateMapDisplayController，FindFirst 会指到国内省板导致国外国家找不到）。
+    /// </summary>
+    public static PlateMapDisplayController ResolveForWorldMap()
+    {
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        if (region != null && region.DisplayController != null)
+        {
+            return region.DisplayController;
+        }
+
+        return Instance;
+    }
+
     private void Awake()
     {
         _instance = this;
@@ -283,13 +298,16 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>重新收集子级模块（相对当前板块根）。</summary>
-    public void RefreshModuleList()
+    /// <param name="force">true=无论缓存是否非空都按当前 plateRoot 重扫（切国内外板后必须 force）。</param>
+    public void RefreshModuleList(bool force = false)
     {
-        if (_modules == null || _modules.Length == 0)
+        if (!force && _modules != null && _modules.Length > 0)
         {
-            Transform root = _plateMapRoot != null ? _plateMapRoot : transform;
-            _modules = root.GetComponentsInChildren<PlateMapDisplayModule>(true);
+            return;
         }
+
+        Transform root = _plateMapRoot != null ? _plateMapRoot : transform;
+        _modules = root.GetComponentsInChildren<PlateMapDisplayModule>(true);
     }
 
     /// <summary>
@@ -298,6 +316,8 @@ public class PlateMapDisplayController : MonoBehaviour
     /// </summary>
     public void BindPlateMapRoot(Transform plateRoot)
     {
+        // 标记为世界地图主控制器，避免 Instance 落在其它省板 Controller 上
+        _instance = this;
         _plateMapRoot = plateRoot != null ? plateRoot : transform;
         KillCameraTweens();
         _focusedModule = null;
@@ -416,30 +436,69 @@ public class PlateMapDisplayController : MonoBehaviour
 
     /// <summary>
     /// 按模块名聚焦（默认匹配场景 GameObject 名；亦匹配 DisplayName）。
+    /// 国外切板后：强制重扫当前 plateRoot；名找不到时再按国家 code（对照表）查找。
     /// </summary>
-    /// <param name="moduleName">如 polySurface3</param>
-    /// <returns>是否找到模块并开始播放动画。</returns>
+    /// <param name="moduleName">如 polySurface3 / 澳大利亚</param>
+    /// <returns>是否找到模块并成功启动聚焦动画。</returns>
     public bool FocusModule(string moduleName)
     {
-        if (!TryGetModuleByName(moduleName, out PlateMapDisplayModule module))
+        if (string.IsNullOrWhiteSpace(moduleName))
         {
-            LogManager.LogFeatureWarning($"[PlateMapDisplayController] 未找到模块：{moduleName}");
+            LogManager.LogFeatureWarning("[PlateMapDisplayController] 未找到模块：名称为空");
             return false;
         }
 
-        FocusModule(module);
-        return true;
+        string key = moduleName.Trim();
+        RefreshModuleList(force: true);
+
+        if (!TryGetModuleByName(key, out PlateMapDisplayModule module) &&
+            !TryGetModuleByForeignCountryKey(key, out module))
+        {
+            string rootName = _plateMapRoot != null ? _plateMapRoot.name : "(null)";
+            int moduleCount = _modules != null ? _modules.Length : 0;
+            LogManager.LogFeatureWarning(
+                $"[PlateMapDisplayController] 未找到模块：{key} | plateRoot={rootName} | modules={moduleCount}");
+            return false;
+        }
+
+        return FocusModule(module);
+    }
+
+    /// <summary>国外：模块名或 SOC → 当前板根下按 GeoConverter.provinceCode 找模块。</summary>
+    private bool TryGetModuleByForeignCountryKey(string key, out PlateMapDisplayModule module)
+    {
+        module = null;
+        string countryCode = null;
+        if (WorldMapRegionCodeTable.TryGetCountryByCode(key, out WorldMapCountryCodeEntry byCode))
+        {
+            countryCode = byCode.countryCode;
+        }
+        else if (WorldMapRegionCodeTable.TryGetCountryCodeByName(key, out string byName) &&
+                 !string.IsNullOrWhiteSpace(byName))
+        {
+            countryCode = byName.Trim();
+        }
+
+        if (string.IsNullOrWhiteSpace(countryCode))
+        {
+            return false;
+        }
+
+        return TryFindModuleByProvinceCode(countryCode, out module);
     }
 
     /// <summary>
     /// 聚焦到指定模块：只移动 CameraPivot，使模块居中并按视距装框；FogCamera 本地位姿不变。
     /// 仅首次聚焦前缓存位姿供还原。
     /// </summary>
-    public void FocusModule(PlateMapDisplayModule module)
+    /// <returns>是否已启动聚焦（会触发完成事件）；机位算不出或引用缺失时为 false。</returns>
+    public bool FocusModule(PlateMapDisplayModule module)
     {
         if (module == null || _cameraRig == null || _cameraTransform == null || _pickCamera == null)
         {
-            return;
+            LogManager.LogFeatureWarning(
+                $"[PlateMapDisplayController] 无法聚焦：module/camera 引用缺失 | module={(module != null ? module.ModuleKey : "null")}");
+            return false;
         }
 
         KillCameraTweens();
@@ -461,8 +520,9 @@ public class PlateMapDisplayController : MonoBehaviour
 
         if (!TryComputeRigPositionForModuleAtViewCenter(module, fogLocalKeep, viewDistance, out Vector3 rigTargetPos))
         {
-            LogManager.LogFeatureWarning("[PlateMapDisplayController] 无法计算聚焦机位。");
-            return;
+            LogManager.LogFeatureWarning(
+                $"[PlateMapDisplayController] 无法计算聚焦机位 | module={module.ModuleKey}");
+            return false;
         }
 
         _focusedModule = module;
@@ -494,6 +554,7 @@ public class PlateMapDisplayController : MonoBehaviour
             });
 
         LogManager.LogFeature($"[PlateMapDisplayController] 聚焦模块：{moduleKey} | viewDistance={viewDistance:F1}");
+        return true;
     }
 
     /// <summary>
@@ -594,7 +655,11 @@ public class PlateMapDisplayController : MonoBehaviour
             return false;
         }
 
-        RefreshModuleList();
+        if (_modules == null || _modules.Length == 0)
+        {
+            RefreshModuleList(force: true);
+        }
+
         if (_modules == null)
         {
             return false;
@@ -608,7 +673,8 @@ public class PlateMapDisplayController : MonoBehaviour
                 continue;
             }
 
-            if (candidate.ModuleKey == moduleName || candidate.DisplayName == moduleName)
+            if (string.Equals(candidate.ModuleKey, moduleName, System.StringComparison.Ordinal) ||
+                string.Equals(candidate.DisplayName, moduleName, System.StringComparison.Ordinal))
             {
                 module = candidate;
                 return true;
@@ -939,14 +1005,14 @@ public class PlateMapDisplayController : MonoBehaviour
             return false;
         }
 
-        RefreshModuleList();
+        string query = provinceCode.Trim();
+        PlateMapBoundaryDatabase.TryNormalizeProvinceCode(query, out string normalizedQuery);
+
+        RefreshModuleList(force: true);
         if (_modules == null)
         {
             return false;
         }
-
-        string query = provinceCode.Trim();
-        PlateMapBoundaryDatabase.TryNormalizeProvinceCode(query, out string normalizedQuery);
 
         // 优先 ModuleKey 与对照表一致的候选，避免共享父级 GeoConverter 时命中列表第一项
         string preferredModuleName = null;

@@ -36,10 +36,11 @@ public class MapApi : UnitySingle<MapApi>
 
     /// <summary>
     /// 聚焦指定板块模块,默认对应场景中 GameObject 名，如 polySurface2）。
+    /// 使用世界地图绑定的 DisplayController（勿用场景内任意省板的 Instance）。
     /// </summary>
     public bool FocusPlateMapModule(string moduleName)
     {
-        PlateMapDisplayController controller = PlateMapDisplayController.Instance;
+        PlateMapDisplayController controller = PlateMapDisplayController.ResolveForWorldMap();
         if (controller == null)
         {
             LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapDisplayController，无法聚焦模块。");
@@ -52,7 +53,7 @@ public class MapApi : UnitySingle<MapApi>
     /// <summary>还原板块相机至首次聚焦前的位姿。</summary>
     public bool RestorePlateMapCamera()
     {
-        PlateMapDisplayController controller = PlateMapDisplayController.Instance;
+        PlateMapDisplayController controller = PlateMapDisplayController.ResolveForWorldMap();
         if (controller == null)
         {
             LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapDisplayController，无法还原相机。");

@@ -71,6 +71,13 @@ public class WorldMapRegionController : MonoBehaviour
     /// <summary>当前激活的板块根。</summary>
     public Transform ActivePlateRoot { get; private set; }
 
+    /// <summary>
+    /// 世界地图切换所用的显示控制器（与 BindPlateMapRoot 同一实例）。
+    /// 场景内可能有多个 PlateMapDisplayController，聚焦必须用此引用，勿盲用 FindFirst。
+    /// </summary>
+    public PlateMapDisplayController DisplayController =>
+        _displayController != null ? _displayController : PlateMapDisplayController.Instance;
+
     /// <summary>Inspector 绑定的国外大板块列表（只读视图）。</summary>
     public IReadOnlyList<ForeignPlateBinding> ForeignPlates =>
         _foreignPlates ?? Array.Empty<ForeignPlateBinding>();
@@ -327,9 +334,7 @@ public class WorldMapRegionController : MonoBehaviour
 
     private void RebindDisplayController(Transform plateRoot)
     {
-        PlateMapDisplayController controller = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
+        PlateMapDisplayController controller = DisplayController;
         if (controller == null)
         {
             return;

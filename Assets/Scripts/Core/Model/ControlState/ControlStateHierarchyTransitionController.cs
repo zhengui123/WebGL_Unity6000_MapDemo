@@ -429,10 +429,26 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             if (currentState == targetState)
             {
                 // 已在省级但目标省不同：补一次 Focus，避免「同级换省无效」
-                if (targetState == GameManager.ControlState.ProvinceLevel && NeedsProvinceRefocus())
+                if (targetState == GameManager.ControlState.ProvinceLevel)
                 {
-                    yield return GoToProvinceLevel(_activeProvinceModuleName);
-                    yield return WaitUntilControllersIdle();
+                    if (NeedsProvinceRefocus())
+                    {
+                        yield return GoToProvinceLevel(_activeProvinceModuleName);
+                        yield return WaitUntilControllersIdle();
+                    }
+                    else
+                    {
+                        PlateMapDisplayController display = PlateMapDisplayController.Instance;
+                        if (display == null || display.FocusedModule == null)
+                        {
+                            // 逻辑已在省级但无聚焦模块：仍尝试 Focus，并打诊断日志
+                            LogProvinceLevelJumpFailure(
+                                "已在省级逻辑态但 FocusedModule 为空，强制补一次 Focus",
+                                resolvedModuleName: _activeProvinceModuleName);
+                            yield return GoToProvinceLevel(_activeProvinceModuleName);
+                            yield return WaitUntilControllersIdle();
+                        }
+                    }
                 }
                 else if (targetState == GameManager.ControlState.VehicleLevel
                          || targetState == GameManager.ControlState.AttackPathLevel)
@@ -698,17 +714,79 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
 
         if (string.IsNullOrWhiteSpace(key))
         {
-            LogManager.LogFeatureWarning(
-                $"[ToStateError] reason=未解析到板块模块名，无法进入省级 | moduleName={moduleName} | " +
-                $"activeModule={_activeProvinceModuleName} | activeProvince={_activeProvinceName}");
+            LogProvinceLevelJumpFailure(
+                "未解析到板块模块名，无法进入省级",
+                resolvedModuleName: moduleName);
             yield break;
         }
 
-        yield return WaitForBoolStringEvent(
-            h => EventManager.Instance.OnPlateMapFocusModuleCompleted += h,
-            h => EventManager.Instance.OnPlateMapFocusModuleCompleted -= h,
-            () => MapApi.Instance.FocusPlateMapModule(key),
-            $"板块 → 板块聚焦 {key}");
+        EventManager em = EventManager.Instance;
+        if (em == null)
+        {
+            LogProvinceLevelJumpFailure("未找到 EventManager", resolvedModuleName: key);
+            yield break;
+        }
+
+        // 专用等待：Focus 启动失败 / 完成事件超时都走省级诊断日志（勿用通用 WaitForBoolStringEvent，否则只打「步骤超时」）
+        _stepDone = false;
+        em.OnPlateMapFocusModuleCompleted += OnStepDoneWithName;
+        yield return WaitUntilControllersIdle();
+
+        bool started = MapApi.Instance.FocusPlateMapModule(key);
+        if (!started)
+        {
+            em.OnPlateMapFocusModuleCompleted -= OnStepDoneWithName;
+            LogProvinceLevelJumpFailure(
+                $"FocusPlateMapModule 启动失败（未找到模块或无法计算机位）| 模块「{key}」",
+                resolvedModuleName: key);
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (!_stepDone && !_restartRequested && elapsed < _stepTimeoutSeconds)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        em.OnPlateMapFocusModuleCompleted -= OnStepDoneWithName;
+
+        if (!_stepDone && !_restartRequested)
+        {
+            LogProvinceLevelJumpFailure(
+                $"聚焦完成事件超时（未收到 OnPlateMapFocusModuleCompleted）| 模块「{key}」| timeout={_stepTimeoutSeconds}s",
+                resolvedModuleName: key);
+        }
+    }
+
+    /// <summary>
+    /// 省级跳转失败诊断：失败原因 + 当前大板块 + 期望省级 code。
+    /// </summary>
+    private void LogProvinceLevelJumpFailure(string reason, string resolvedModuleName = null)
+    {
+        string plateCode = WorldMapRegionContext.IsInitialized
+            ? (WorldMapRegionContext.PlateCode ?? string.Empty)
+            : string.Empty;
+        string plateName = WorldMapRegionContext.IsInitialized
+            ? (WorldMapRegionContext.PlateName ?? string.Empty)
+            : string.Empty;
+        string mode = WorldMapRegionContext.IsInitialized
+            ? WorldMapRegionContext.Mode.ToString()
+            : "Uninitialized";
+        string expectCode = string.IsNullOrWhiteSpace(_activeProvinceCode)
+            ? "(空)"
+            : _activeProvinceCode.Trim();
+        string expectName = string.IsNullOrWhiteSpace(_activeProvinceName)
+            ? "(空)"
+            : _activeProvinceName.Trim();
+        string module = string.IsNullOrWhiteSpace(resolvedModuleName)
+            ? (string.IsNullOrWhiteSpace(_activeProvinceModuleName) ? "(空)" : _activeProvinceModuleName.Trim())
+            : resolvedModuleName.Trim();
+
+        LogManager.LogFeatureWarning(
+            $"TransitionToControlState——[ToStateError] 省级层级跳转失败 | reason={reason} | " +
+            $"当前大板块={plateName}({plateCode}) mode={mode} | " +
+            $"期望省级code={expectCode} | 期望名={expectName} | 解析模块名={module}");
     }
 
     private IEnumerator GoToVehicleLevel(string provinceName)

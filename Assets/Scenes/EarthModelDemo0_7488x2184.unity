@@ -38908,7 +38908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WorldMapRegionController
   _startMode: 0
-  _startForeignPlateCode: MELANESIA
+  _startForeignPlateCode: NORTH_AMERICA_REGION
   _domesticPlateRoot: {fileID: 7168906387403574966}
   _foreignPlates:
   - plateCode: EAST_ASIA
@@ -41873,8 +41873,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LogManager
   _enableFeatureTestLog: 0
-  _enableBackendHttpLog: 0
-  _enableHostBridgeLog: 0
+  _enableBackendHttpLog: 1
+  _enableHostBridgeLog: 1
   _enableFailureLog: 1
 --- !u!1 &1373568775
 GameObject:

@@ -80,7 +80,8 @@ public static class WorldMapPlateResolver
 
     /// <summary>
     /// code → 场景聚焦模块名（GO.name）。
-    /// 优先事件总线 GeoConverter 注册；其次对照表中文名；国内还可回落省名。
+    /// 国外：对照表国家 code → 国家名（不用热力总线的大板名，避免同板多国抢同一 PlateMapKey）。
+    /// 国内：优先事件总线 GeoConverter 注册，其次对照表/省名。
     /// </summary>
     public static bool TryResolveUnitModuleName(string unitCode, out string moduleName)
     {
@@ -98,6 +99,28 @@ public static class WorldMapPlateResolver
             return false;
         }
 
+        // 国外国家 SOC：用对照表国家名作为模块名（与场景国家 GO / DisplayName 对齐）
+        bool isForeignCountry = WorldMapRegionCodeTable.TryGetCountryByCode(code, out WorldMapCountryCodeEntry country);
+        if (isForeignCountry || WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign)
+        {
+            if (isForeignCountry && !string.IsNullOrWhiteSpace(country.countryName))
+            {
+                moduleName = country.countryName.Trim();
+                return true;
+            }
+
+            if (WorldMapRegionCodeTable.TryResolveUnitDisplayName(code, out string foreignDisplay) &&
+                !string.IsNullOrWhiteSpace(foreignDisplay) &&
+                !string.Equals(foreignDisplay, "全国", StringComparison.Ordinal))
+            {
+                moduleName = foreignDisplay.Trim();
+                return true;
+            }
+
+            return false;
+        }
+
+        // 国内：热力/点位总线映射的是省模块名，可优先使用
         PlateMapVehiclePointEvents hub = PlateMapVehiclePointEvents.Instance;
         if (hub != null)
         {
