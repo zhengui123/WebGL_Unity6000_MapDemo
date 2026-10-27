@@ -22367,84 +22367,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 703108174}
   m_CullTransparentMesh: 1
---- !u!1001 &706250483
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 3409956484429499149}
-    m_Modifications:
-    - target: {fileID: 4297045587352522589, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_Name
-      value: BG
-      objectReference: {fileID: 0}
-    - target: {fileID: 4297045587352522589, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 8809.624
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 32.07345
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 4902.214
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -115.019035
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 12.925476
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -284.71448
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: -0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
---- !u!4 &706250484 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 4865905622972978133, guid: fe1842d97f16cb54d8ac04e9d008463a, type: 3}
-  m_PrefabInstance: {fileID: 706250483}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &706646992
 GameObject:
   m_ObjectHideFlags: 0
@@ -138833,8 +138755,7 @@ Transform:
   m_LocalPosition: {x: 400.86893, y: 0.16689919, z: -503.07483}
   m_LocalScale: {x: 0.9900001, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 706250484}
+  m_Children: []
   m_Father: {fileID: 5144913201777476236}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &3411006651817051935
@@ -182270,7 +182191,7 @@ MonoBehaviour:
     alertValue: 0.45318112
   - vehicleId: "\u7F8E\u56FD-003"
     longitude: -110.04689738170714
-    latitude: 34.73270961642265
+    latitude: 38.9072
     alertValue: 0.22750771
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002

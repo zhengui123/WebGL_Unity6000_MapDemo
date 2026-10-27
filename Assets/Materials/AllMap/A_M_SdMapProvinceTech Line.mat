@@ -47,7 +47,7 @@ Material:
     - _EdgeSmallPlateInnerBias: 0.65
     - _EdgeSmallPlateOuterScale: 0.22
     - _EdgeUseObjectSpace: 0
-    - _EmissionIntensity: 3
+    - _EmissionIntensity: 4
     - _GeoEdgeIntensity: 2.2
     - _GeoEdgePower: 2.2
     - _GeoSoftIntensity: 1.15
