@@ -27975,7 +27975,7 @@ Transform:
   m_GameObject: {fileID: 866235291}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 353.08884, y: 0, z: 260.7731}
+  m_LocalPosition: {x: -19.42, y: 0, z: 203.81}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -35462,7 +35462,7 @@ Transform:
   m_GameObject: {fileID: 1178825435}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -353.18884, y: 0, z: -260.77353}
+  m_LocalPosition: {x: -348.06, y: 0, z: 76.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -182289,12 +182289,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 7000456782889705370}
   _westAnchor:
     marker: {fileID: 866235292}
-    longitude: -125
-    latitude: 25
+    longitude: -117.114258
+    latitude: 32.51256
   _eastAnchor:
     marker: {fileID: 1178825436}
-    longitude: -66.95999908447266
-    latitude: 49.5
+    longitude: -67.785645
+    latitude: 47.060027
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7000456782889705374
@@ -199950,17 +199950,9 @@ MonoBehaviour:
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u52A0\u62FF\u5927-001"
-    longitude: -98.83052570038353
-    latitude: 72.66401370653512
+    longitude: -136.054688
+    latitude: 67.80717
     alertValue: 0.18816443
-  - vehicleId: "\u52A0\u62FF\u5927-002"
-    longitude: -89.99143727600995
-    latitude: 56.835362633731165
-    alertValue: 0.5193486
-  - vehicleId: "\u52A0\u62FF\u5927-003"
-    longitude: -80.74121621312997
-    latitude: 45.78623994893974
-    alertValue: 0.3316985
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -200017,7 +200009,7 @@ MonoBehaviour:
   _eastAnchor:
     marker: {fileID: 1944426547}
     longitude: -52.650001525878906
-    latitude: 73.2300033569336
+    latitude: 83.111
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8354218801994410973
