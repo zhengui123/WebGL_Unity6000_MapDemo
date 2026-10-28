@@ -48,6 +48,40 @@ public class HighRiskSecurityEventItem
         return string.Empty;
     }
 
+    /// <summary>
+    /// 地图分组单元 code：国内用 province（adcode）；国外 province 为空时用 country（SOC）。
+    /// </summary>
+    public bool TryResolveMapUnitCode(out string unitCode)
+    {
+        unitCode = null;
+        if (TryNormalizeMapUnitCode(province, out unitCode))
+        {
+            return true;
+        }
+
+        return TryNormalizeMapUnitCode(country, out unitCode);
+    }
+
+    private static bool TryNormalizeMapUnitCode(string raw, out string unitCode)
+    {
+        unitCode = null;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+        if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(trimmed, out string normalized) &&
+            !string.IsNullOrWhiteSpace(normalized))
+        {
+            unitCode = normalized;
+            return true;
+        }
+
+        unitCode = trimmed;
+        return true;
+    }
+
     public bool TryGetLongitudeLatitude(out double longitudeValue, out double latitudeValue)
     {
         longitudeValue = 0d;

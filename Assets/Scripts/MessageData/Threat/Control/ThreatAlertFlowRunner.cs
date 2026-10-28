@@ -1421,10 +1421,10 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
                 continue;
             }
 
-            // 全量回退时仍尽量限定当前威胁省（按条目 province）
+            // 全量回退时仍尽量限定当前威胁单元（国内 province / 国外 country）
             if (fromAllEvents
                 && !string.IsNullOrWhiteSpace(provinceCode)
-                && !MatchesThreatProvince(item.province, provinceCode))
+                && !MatchesThreatMapUnit(item, provinceCode))
             {
                 continue;
             }
@@ -1435,32 +1435,34 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         return matched;
     }
 
-    private static bool MatchesThreatProvince(string itemProvince, string provinceCode)
+    /// <summary>条目地理单元是否与目标 code 一致（province 优先，空则比 country）。</summary>
+    private static bool MatchesThreatMapUnit(HighRiskSecurityEventItem item, string unitCode)
     {
-        if (string.IsNullOrWhiteSpace(itemProvince) || string.IsNullOrWhiteSpace(provinceCode))
+        if (item == null || string.IsNullOrWhiteSpace(unitCode))
         {
             return false;
         }
 
-        string itemKey = itemProvince.Trim();
-        string provinceKey = provinceCode.Trim();
-        if (string.Equals(itemKey, provinceKey, StringComparison.Ordinal))
+        if (!item.TryResolveMapUnitCode(out string itemUnit) || string.IsNullOrWhiteSpace(itemUnit))
+        {
+            return false;
+        }
+
+        string itemKey = itemUnit.Trim();
+        string unitKey = unitCode.Trim();
+        if (string.Equals(itemKey, unitKey, StringComparison.Ordinal))
         {
             return true;
         }
 
-        bool hasQuery = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(provinceKey, out string normalizedQuery);
-        if (!hasQuery)
+        bool hasQuery = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(unitKey, out string normalizedQuery);
+        bool hasItem = PlateMapBoundaryDatabase.TryNormalizeProvinceCode(itemKey, out string normalizedItem);
+        if (hasQuery && hasItem)
         {
-            return false;
+            return string.Equals(normalizedItem, normalizedQuery, StringComparison.Ordinal);
         }
 
-        if (!PlateMapBoundaryDatabase.TryNormalizeProvinceCode(itemKey, out string normalizedItem))
-        {
-            return false;
-        }
-
-        return string.Equals(normalizedItem, normalizedQuery, StringComparison.Ordinal);
+        return false;
     }
 
     private static bool TryParseThreatProcessTime(string processTime, out DateTime result)

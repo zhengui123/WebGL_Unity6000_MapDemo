@@ -220,6 +220,7 @@ public class HighRiskSecurityEventDataStore : UnitySingle<HighRiskSecurityEventD
             return false;
         }
 
-        return PlateMapBoundaryDatabase.TryNormalizeProvinceCode(item.province, out provinceCode);
+        // 国内：province；国外后端 province 常为空，回退 country（SOC）
+        return item.TryResolveMapUnitCode(out provinceCode);
     }
 }
