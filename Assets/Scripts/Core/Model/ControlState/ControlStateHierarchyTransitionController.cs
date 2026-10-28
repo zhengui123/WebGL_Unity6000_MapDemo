@@ -294,7 +294,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
             return false;
         }
 
-        PlateMapDisplayController display = PlateMapDisplayController.Instance;
+        PlateMapDisplayController display = PlateMapDisplayController.ResolveForWorldMap();
         PlateMapDisplayModule focused = display != null ? display.FocusedModule : null;
         if (focused != null && !string.IsNullOrWhiteSpace(_activeProvinceModuleName))
         {
@@ -438,7 +438,7 @@ public class ControlStateHierarchyTransitionController : UnitySingle<ControlStat
                     }
                     else
                     {
-                        PlateMapDisplayController display = PlateMapDisplayController.Instance;
+                        PlateMapDisplayController display = PlateMapDisplayController.ResolveForWorldMap();
                         if (display == null || display.FocusedModule == null)
                         {
                             // 逻辑已在省级但无聚焦模块：仍尝试 Focus，并打诊断日志

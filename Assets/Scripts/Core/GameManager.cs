@@ -87,12 +87,7 @@ public class GameManager : UnitySingle<GameManager>
 
     private void Awake()
     {
-        // 运行时确保引用存在
-        if (_plateMapDisplayController == null)
-        {
-            _plateMapDisplayController = PlateMapDisplayController.Instance;
-        }
-
+        ResolveActivePlateDisplayController();
         EnsureDefaultProvinceNameFromCode();
     }
 
@@ -217,12 +212,7 @@ public class GameManager : UnitySingle<GameManager>
     /// <summary>地球级就绪：板块根可能已隐藏，仍须立刻还原各模块透明度。</summary>
     private void RestorePlateDisplayForEarthLevel()
     {
-        if (_plateMapDisplayController == null)
-        {
-            _plateMapDisplayController = PlateMapDisplayController.Instance;
-        }
-
-        _plateMapDisplayController?.RestoreAllModulesAlphaImmediate();
+        ResolveActivePlateDisplayController()?.RestoreAllModulesAlphaImmediate();
     }
 
     // 省级聚焦开始（相机动动画开始时）
@@ -424,16 +414,16 @@ public class GameManager : UnitySingle<GameManager>
 
     /// <summary>
     /// 世界地图切换板块后：逻辑态瞬时回到「全国」（CountryLevel），不播省级还原链。
+    /// 已是国家级时也要刷新副作用（点选开关绑到新大板的 DisplayController）。
     /// </summary>
     public void NotifyRegionSwitchedToNational()
     {
-        if (_currentState != ControlState.ProvinceLevel)
+        if (_currentState == ControlState.ProvinceLevel ||
+            _currentState == ControlState.CountryLevel)
         {
-            return;
+            SetState(ControlState.CountryLevel);
+            ApplyStateSideEffects(ControlState.CountryLevel);
         }
-
-        SetState(ControlState.CountryLevel);
-        ApplyStateSideEffects(ControlState.CountryLevel);
     }
 
     private void EnsureDefaultProvinceNameFromCode()
@@ -526,11 +516,6 @@ public class GameManager : UnitySingle<GameManager>
 
     private void ApplyStateSideEffects(ControlState state)
     {
-        if (_plateMapDisplayController == null)
-        {
-            _plateMapDisplayController = PlateMapDisplayController.Instance;
-        }
-
         // 只有“国家级别”允许点击（由 Inspector bool 控制）
         if (state == ControlState.CountryLevel)
         {
@@ -542,14 +527,33 @@ public class GameManager : UnitySingle<GameManager>
         SetPlateClickEnabled(false);
     }
 
+    /// <summary>
+    /// 当前世界地图大板上的 DisplayController（切国外后必须跟 ActivePlateRoot，勿缓存中国地图实例）。
+    /// </summary>
+    private PlateMapDisplayController ResolveActivePlateDisplayController()
+    {
+        PlateMapDisplayController resolved = PlateMapDisplayController.ResolveForWorldMap();
+        if (resolved != null)
+        {
+            _plateMapDisplayController = resolved;
+        }
+        else if (_plateMapDisplayController == null)
+        {
+            _plateMapDisplayController = PlateMapDisplayController.Instance;
+        }
+
+        return _plateMapDisplayController;
+    }
+
     private void SetPlateClickEnabled(bool enabled)
     {
-        if (_plateMapDisplayController == null)
+        PlateMapDisplayController controller = ResolveActivePlateDisplayController();
+        if (controller == null)
         {
             return;
         }
 
-        _plateMapDisplayController.enabled = enabled;
+        controller.enabled = enabled;
     }
 
     #endregion

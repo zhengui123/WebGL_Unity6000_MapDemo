@@ -42,7 +42,7 @@ public class WorldMapRegionController : MonoBehaviour
     [SerializeField] private ForeignPlateBinding[] _foreignPlates = Array.Empty<ForeignPlateBinding>();
 
     [Header("显示")]
-    [Tooltip("场景中的板块显示控制器；切换时会重绑 plateRoot 并清聚焦")]
+    [Tooltip("可选回退：各大板根上找不到 PlateMapDisplayController 时使用。正常应挂在各国/中国地图根上，由 ActivePlateRoot 自动解析")]
     [SerializeField] private PlateMapDisplayController _displayController;
 
     [Tooltip("世界模式背景线（如「世界地图边界线」）；国内关闭，国外打开")]
@@ -72,11 +72,11 @@ public class WorldMapRegionController : MonoBehaviour
     public Transform ActivePlateRoot { get; private set; }
 
     /// <summary>
-    /// 世界地图切换所用的显示控制器（与 BindPlateMapRoot 同一实例）。
-    /// 场景内可能有多个 PlateMapDisplayController，聚焦必须用此引用，勿盲用 FindFirst。
+    /// 当前激活大板根上的显示控制器（点击聚焦 / 还原 / MapApi 必须用此实例）。
+    /// 各大板（中国地图、澳新等）各自挂有 PlateMapDisplayController；勿固定绑国内根，否则切国外后还原失效。
     /// </summary>
     public PlateMapDisplayController DisplayController =>
-        _displayController != null ? _displayController : PlateMapDisplayController.Instance;
+        ResolveDisplayControllerForPlate(ActivePlateRoot);
 
     /// <summary>Inspector 绑定的国外大板块列表（只读视图）。</summary>
     public IReadOnlyList<ForeignPlateBinding> ForeignPlates =>
@@ -242,16 +242,15 @@ public class WorldMapRegionController : MonoBehaviour
         SetRootsVisibility(activeForeign: null);
         SetWorldModeBackgroundLineVisible(false);
         WorldMapRegionContext.ApplyDomestic();
-        RebindDisplayController(_domesticPlateRoot);
+        PlateMapDisplayController display = RebindDisplayController(_domesticPlateRoot);
         // 国内不居中板块；瞬时归位相机与国家级缩放
-        PlateMapDisplayController display = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
         display?.SnapCameraToCountryHomeImmediate();
         RestorePlateRootOriginalPose(_domesticPlateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(WorldMapRegionCodeTable.DomesticNationalCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
-        LogManager.LogFeature($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
+        LogManager.LogFeature(
+            $"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()} | " +
+            $"display={(display != null ? display.name : "(null)")}");
     }
 
     private void ApplyForeign(ForeignPlateBinding binding, bool instantNationalView)
@@ -282,16 +281,15 @@ public class WorldMapRegionController : MonoBehaviour
         SetRootsVisibility(activeForeign: binding);
         SetWorldModeBackgroundLineVisible(true);
         WorldMapRegionContext.ApplyForeignPlate(plateCode, plateName);
-        RebindDisplayController(binding.plateRoot);
+        PlateMapDisplayController display = RebindDisplayController(binding.plateRoot);
         // 国外整体位置只走 EarthTransition（AllPlateMap），不改各大板块自身 transform
-        PlateMapDisplayController display = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
         display?.SnapCameraToCountryHomeImmediate();
         RestorePlateRootOriginalPose(binding.plateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(plateCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
-        LogManager.LogFeature($"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()}");
+        LogManager.LogFeature(
+            $"[WorldMapRegionController] 已切换 | {WorldMapRegionContext.Describe()} | " +
+            $"display={(display != null ? display.name : "(null)")}");
     }
 
     private void SetWorldModeBackgroundLineVisible(bool visible)
@@ -332,15 +330,45 @@ public class WorldMapRegionController : MonoBehaviour
         }
     }
 
-    private void RebindDisplayController(Transform plateRoot)
+    /// <summary>
+    /// 解析并重绑当前大板根上的 DisplayController（只取根节点组件，避免国内省板子级误命中）。
+    /// </summary>
+    private PlateMapDisplayController RebindDisplayController(Transform plateRoot)
     {
-        PlateMapDisplayController controller = DisplayController;
+        PlateMapDisplayController controller = ResolveDisplayControllerForPlate(plateRoot);
         if (controller == null)
         {
-            return;
+            LogManager.LogFeatureWarning(
+                $"[WorldMapRegionController] 板块根缺少 PlateMapDisplayController | root={(plateRoot != null ? plateRoot.name : "(null)")}");
+            return null;
         }
 
+        // 运行时记住当前板，供序列化回退字段与 Inspector 调试
+        _displayController = controller;
         controller.BindPlateMapRoot(plateRoot);
+        return controller;
+    }
+
+    /// <summary>
+    /// 大板根上的 DisplayController：仅 GetComponent（各大板根自带一份；勿 InChildren，国内会误取省级）。
+    /// </summary>
+    private PlateMapDisplayController ResolveDisplayControllerForPlate(Transform plateRoot)
+    {
+        if (plateRoot != null)
+        {
+            PlateMapDisplayController onRoot = plateRoot.GetComponent<PlateMapDisplayController>();
+            if (onRoot != null)
+            {
+                return onRoot;
+            }
+        }
+
+        if (_displayController != null)
+        {
+            return _displayController;
+        }
+
+        return PlateMapDisplayController.Instance;
     }
 
     /// <summary>恢复板块根缓存的原始本地位姿（国内回退用）。</summary>
@@ -351,10 +379,7 @@ public class WorldMapRegionController : MonoBehaviour
             return;
         }
 
-        PlateMapDisplayController controller = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
-        controller?.RestorePlateRootOriginalLocalPose(plateRoot);
+        ResolveDisplayControllerForPlate(plateRoot)?.RestorePlateRootOriginalLocalPose(plateRoot);
     }
 
     /// <summary>切换前清聚焦并瞬时归位全国相机（不播 Tween，避免国外居中用错机位）。</summary>
@@ -365,15 +390,9 @@ public class WorldMapRegionController : MonoBehaviour
             return;
         }
 
-        PlateMapDisplayController controller = _displayController != null
-            ? _displayController
-            : PlateMapDisplayController.Instance;
-        if (controller == null)
-        {
-            return;
-        }
-
-        controller.SnapCameraToCountryHomeImmediate();
+        // 切板前仍指向旧 ActivePlateRoot 上的 Controller
+        PlateMapDisplayController controller = ResolveDisplayControllerForPlate(ActivePlateRoot);
+        controller?.SnapCameraToCountryHomeImmediate();
     }
 
     private bool TryFindForeignBinding(string plateCode, out ForeignPlateBinding binding)

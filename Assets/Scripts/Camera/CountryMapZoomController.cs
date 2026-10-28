@@ -315,7 +315,12 @@ public class CountryMapZoomController : MonoBehaviour
             return true;
         }
 
-        if (_plateMapDisplayController == null)
+        PlateMapDisplayController plateDisplay = PlateMapDisplayController.ResolveForWorldMap();
+        if (plateDisplay != null)
+        {
+            _plateMapDisplayController = plateDisplay;
+        }
+        else if (_plateMapDisplayController == null)
         {
             _plateMapDisplayController = PlateMapDisplayController.Instance;
         }

@@ -134,8 +134,8 @@ public class PlateMapDisplayController : MonoBehaviour
     }
 
     /// <summary>
-    /// 世界地图聚焦/还原用的控制器：优先 WorldMapRegionController 绑定的实例
-    /// （场景可有多个 PlateMapDisplayController，FindFirst 会指到国内省板导致国外国家找不到）。
+    /// 世界地图聚焦/还原用的控制器：取当前激活大板根上的实例
+    /// （中国地图 / 澳新 / 东亚等各自一份；切板后必须跟 ActivePlateRoot，否则还原无 pose）。
     /// </summary>
     public static PlateMapDisplayController ResolveForWorldMap()
     {
