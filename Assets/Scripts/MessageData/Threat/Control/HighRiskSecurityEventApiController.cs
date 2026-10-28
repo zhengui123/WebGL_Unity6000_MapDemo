@@ -3,7 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// 高危安全事件（威胁）HTTP 定时轮询：默认间隔 60s；默认开局自动轮询（Inspector `_autoStart` 可关）。
-/// 威胁打断冷却期内暂停请求；冷却结束后若仍处于「期望轮询」则先拉一次接口再恢复间隔循环。
+/// 开局首次请求延迟 <see cref="_initialDelaySeconds"/>；之后按间隔循环。
+/// 威胁打断冷却期内暂停请求；冷却结束后若仍期望轮询则立即拉一次再恢复间隔循环。
 /// Android（含 Editor 切 Android）不创建实例、不查询威胁数据。
 /// </summary>
 [DisallowMultipleComponent]
@@ -13,13 +14,15 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
     [Tooltip("开局自动 StartPolling；可在 Inspector 关闭。")]
     [SerializeField] private bool _autoStart = true;
     [SerializeField] private float _intervalSeconds = 60f;
-    [Tooltip("开启轮询后是否立即请求一次，再进入间隔等待。")]
-    [SerializeField] private bool _requestImmediatelyOnStart = true;
+    [Tooltip("进 Play 后首次威胁请求前等待秒数；不影响冷却恢复与后续间隔轮询。")]
+    [SerializeField] private float _initialDelaySeconds = 20f;
 
     private Coroutine _pollCoroutine;
     private bool _wantPolling;
     private bool _pausedByCooldown;
     private bool _isRequesting;
+    /// <summary>开局延迟是否已用过（冷却恢复不再走开局延迟）。</summary>
+    private bool _startupDelayDone;
 
     /// <summary>宿主是否已开启轮询意图（冷却暂停时仍为 true）。</summary>
     public bool IsPollingEnabled => _wantPolling;
@@ -98,7 +101,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
 
         StartPollCoroutine();
         LogManager.LogBackend(
-            $"[HighRiskSecurityEventApiController] 已开启轮询，间隔={IntervalSeconds}s");
+            $"[HighRiskSecurityEventApiController] 已开启轮询 | 开局延迟={Mathf.Max(0f, _initialDelaySeconds):0.#}s | 间隔={IntervalSeconds}s");
         return true;
     }
 
@@ -147,6 +150,7 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
 
         LogManager.LogBackend(
             "[HighRiskSecurityEventApiController] 威胁冷却结束，先请求接口更新数据后再恢复轮询。");
+        RequestOnce();
         StartPollCoroutine();
     }
 
@@ -188,9 +192,23 @@ public class HighRiskSecurityEventApiController : UnitySingle<HighRiskSecurityEv
 
     private IEnumerator PollRoutine()
     {
-        if (_requestImmediatelyOnStart)
+        // 仅开局第一次：延迟后再首请求；冷却恢复已 RequestOnce，此处不再走开局延迟
+        if (!_startupDelayDone)
         {
-            BeginRequest();
+            _startupDelayDone = true;
+            float delay = Mathf.Max(0f, _initialDelaySeconds);
+            if (delay > 0f)
+            {
+                LogManager.LogBackend(
+                    $"[HighRiskSecurityEventApiController] 开局延迟 {delay:0.#}s 后首次请求威胁数据。");
+                yield return new WaitForSecondsRealtime(delay);
+                if (!_wantPolling || _pausedByCooldown)
+                {
+                    yield break;
+                }
+
+                BeginRequest();
+            }
         }
 
         WaitForSecondsRealtime wait = new WaitForSecondsRealtime(IntervalSeconds);

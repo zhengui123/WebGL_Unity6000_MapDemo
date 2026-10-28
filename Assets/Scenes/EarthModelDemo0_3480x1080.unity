@@ -40308,7 +40308,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighRiskSecurityEventApiController
   _autoStart: 1
   _intervalSeconds: 5
-  _requestImmediatelyOnStart: 1
+  _initialDelaySeconds: 20
 --- !u!1 &1302683226
 GameObject:
   m_ObjectHideFlags: 0
@@ -143446,17 +143446,9 @@ MonoBehaviour:
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
   - vehicleId: "\u65E5\u672C-001"
-    longitude: 137.17915633337634
-    latitude: 32.339991232207765
+    longitude: 139.6503
+    latitude: 35.6762
     alertValue: 0.85167223
-  - vehicleId: "\u65E5\u672C-002"
-    longitude: 136.3553827853948
-    latitude: 39.00195884987818
-    alertValue: 0.8157867
-  - vehicleId: "\u65E5\u672C-003"
-    longitude: 142.56466238324174
-    latitude: 44.550320982598805
-    alertValue: 0.6541256
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -143508,8 +143500,8 @@ MonoBehaviour:
   _mapRoot: {fileID: 3879762697208835000}
   _westAnchor:
     marker: {fileID: 1879121031}
-    longitude: 129.41000366210938
-    latitude: 31.030000686645508
+    longitude: 127.659791
+    latitude: 26.055717
   _eastAnchor:
     marker: {fileID: 1687921650}
     longitude: 145.5399932861328

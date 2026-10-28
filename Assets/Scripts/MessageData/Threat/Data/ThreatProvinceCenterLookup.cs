@@ -24,6 +24,15 @@ public static class ThreatProvinceCenterLookup
             return true;
         }
 
+        // 国外国家 SOC：世界国家经纬度表
+        if (WorldCountryMapDatabase.TryGetByCode(provinceCode, out ChinaProvinceMapFocusData foreignFocus) &&
+            foreignFocus != null)
+        {
+            longitude = foreignFocus.Longitude;
+            latitude = foreignFocus.Latitude;
+            return true;
+        }
+
         if (PlateMapAPI.Instance != null &&
             PlateMapAPI.Instance.TryGetProvinceName(provinceCode, out string boundaryName) &&
             ChinaProvinceMapDatabase.TryGet(boundaryName, out focus))
@@ -40,7 +49,7 @@ public static class ThreatProvinceCenterLookup
             return true;
         }
 
-        LogManager.LogFeatureWarning($"[ThreatProvinceCenterLookup] 未找到省中心：code={provinceCode}");
+        LogManager.LogFeatureWarning($"[ThreatProvinceCenterLookup] 未找到省/国家中心：code={provinceCode}");
         return false;
     }
 }

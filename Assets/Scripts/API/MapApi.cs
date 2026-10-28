@@ -66,7 +66,7 @@ public class MapApi : UnitySingle<MapApi>
     /// <summary>高亮指定板块模块，其余板块取消高亮（压低透明度）。</summary>
     public bool HighlightPlateMapModule(string moduleName)
     {
-        PlateMapHighlightController controller = PlateMapHighlightController.Instance;
+        PlateMapHighlightController controller = PlateMapHighlightController.ResolveForWorldMap();
         if (controller == null)
         {
             LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapHighlightController，无法高亮模块。");
@@ -79,7 +79,7 @@ public class MapApi : UnitySingle<MapApi>
     /// <summary>取消全部板块高亮。</summary>
     public void ClearPlateMapHighlight()
     {
-        PlateMapHighlightController controller = PlateMapHighlightController.Instance;
+        PlateMapHighlightController controller = PlateMapHighlightController.ResolveForWorldMap();
         if (controller == null)
         {
             LogManager.LogFeatureWarning("[MapApi] 未找到 PlateMapHighlightController，无法取消高亮。");

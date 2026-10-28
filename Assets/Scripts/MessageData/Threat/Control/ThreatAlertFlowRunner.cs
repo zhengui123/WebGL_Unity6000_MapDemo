@@ -351,7 +351,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _threatFlowPausedPolling = false;
 
         POI_Manager.Instance?.RemoveAllPoi();
-        PlateMapHighlightController.Instance?.ClearHighlight();
+        PlateMapHighlightController.ResolveForWorldMap()?.ClearHighlight();
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
 
         // 退出打断不改 ControlState，保持当前级别。
@@ -447,7 +447,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         HighRiskSecurityEventApiController.Instance?.OnThreatInterruptCooldownEnded();
         ThreatProvinceAlertController.NotifyFlowStopped();
         POI_Manager.Instance?.RemoveAllPoi();
-        PlateMapHighlightController.Instance?.ClearHighlight();
+        PlateMapHighlightController.ResolveForWorldMap()?.ClearHighlight();
     }
 
     private void StopFlowInternal()
@@ -723,7 +723,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         _activeVin = null;
         _activePartEventIds = EmptyPartEventIds;
         POI_Manager.Instance?.RemoveAllPoi();
-        PlateMapHighlightController.Instance?.ClearHighlight();
+        PlateMapHighlightController.ResolveForWorldMap()?.ClearHighlight();
     }
 
     /// <summary>
@@ -1926,7 +1926,8 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
     private static void ApplyCountryStageVisuals(IReadOnlyList<string> qualifiedProvinceCodes)
     {
         POI_Manager.Instance?.RemoveAllPoi();
-        PlateMapHighlightController.Instance?.ClearHighlight();
+        PlateMapHighlightController highlight = PlateMapHighlightController.ResolveForWorldMap();
+        highlight?.ClearHighlight();
 
         if (qualifiedProvinceCodes == null || qualifiedProvinceCodes.Count == 0)
         {
@@ -1937,12 +1938,12 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         for (int i = 0; i < qualifiedProvinceCodes.Count; i++)
         {
             string code = qualifiedProvinceCodes[i];
-            if (!ThreatProvinceCenterLookup.TryGetCenter(code, out double lon, out double lat))
-            {
-                continue;
-            }
 
-            POI_Manager.Instance?.SpawnPoi(code, POIType.provinece_Rad, lon, lat);
+            // 中心点仅用于 POI；失败不阻断高亮（国外 SOC 可能无国内高德表）
+            if (ThreatProvinceCenterLookup.TryGetCenter(code, out double lon, out double lat))
+            {
+                POI_Manager.Instance?.SpawnPoi(code, POIType.provinece_Rad, lon, lat);
+            }
 
             if (PlateMapAPI.Instance != null &&
                 PlateMapAPI.Instance.TryResolvePlateMapName(code, out string plateName) &&
@@ -1953,7 +1954,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
             }
         }
 
-        PlateMapHighlightController.Instance?.HighlightModulesByName(plateNames);
+        highlight?.HighlightModulesByName(plateNames);
     }
 
     private static void ApplyProvinceStageVisuals(
@@ -2211,7 +2212,7 @@ public class ThreatAlertFlowRunner : UnitySingle<ThreatAlertFlowRunner>
         ResumeThreatPollingAfterNaturalEndIfNeeded();
 
         POI_Manager.Instance?.RemoveAllPoi();
-        PlateMapHighlightController.Instance?.ClearHighlight();
+        PlateMapHighlightController.ResolveForWorldMap()?.ClearHighlight();
         GameManager.Instance?.SetPlaybackState(GameManager.BigScreenPlaybackState.Default);
         ThreatProvinceAlertController.NotifyAllAlertsCompleted();
 

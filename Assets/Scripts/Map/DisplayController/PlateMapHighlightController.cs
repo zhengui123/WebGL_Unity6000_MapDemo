@@ -68,6 +68,26 @@ public class PlateMapHighlightController : UnitySingle<PlateMapHighlightControll
         }
     }
 
+    /// <summary>
+    /// 世界地图高亮用控制器：取当前激活大板根上的实例
+    /// （中国地图 / 西欧等各自一份；切国外后必须跟 ActivePlateRoot，否则国家级威胁高亮打到国内板）。
+    /// </summary>
+    public static PlateMapHighlightController ResolveForWorldMap()
+    {
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        if (region != null && region.ActivePlateRoot != null)
+        {
+            PlateMapHighlightController onActive =
+                region.ActivePlateRoot.GetComponentInChildren<PlateMapHighlightController>(true);
+            if (onActive != null)
+            {
+                return onActive;
+            }
+        }
+
+        return Instance;
+    }
+
     private void Awake()
     {
         _instance = this;

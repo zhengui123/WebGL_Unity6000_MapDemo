@@ -39457,7 +39457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HighRiskSecurityEventApiController
   _autoStart: 1
   _intervalSeconds: 5
-  _requestImmediatelyOnStart: 1
+  _initialDelaySeconds: 20
 --- !u!1 &1302683226
 GameObject:
   m_ObjectHideFlags: 0
@@ -143793,8 +143793,8 @@ MonoBehaviour:
   _mapRoot: {fileID: 3879762697208835000}
   _westAnchor:
     marker: {fileID: 1879121031}
-    longitude: 129.41000366210938
-    latitude: 31.030000686645508
+    longitude: 127.659791
+    latitude: 26.055717
   _eastAnchor:
     marker: {fileID: 1687921650}
     longitude: 145.5399932861328
