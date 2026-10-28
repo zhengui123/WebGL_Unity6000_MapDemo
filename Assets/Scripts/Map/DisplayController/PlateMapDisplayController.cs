@@ -530,12 +530,13 @@ public class PlateMapDisplayController : MonoBehaviour
 
         // 进入省级时立即缓存单元 code/name（国内=省，国外=国家），供下钻与回退恢复
         PlateProvinceFocusResolver.TryCacheFromModule(module);
-        FadeWorldMapBoundaryLine(0f, _otherModuleFadeDuration, _otherModuleFadeEase, disableWhenHidden: true);
 
-        // 先硬关缩放；先发聚焦事件（会禁用组件并 OnDisable Kill 空 Tween）；再开 DOTween
+        // 先硬关缩放；先发聚焦事件（GameManager 可能 disable 本组件 → OnDisable Kill Tween）
+        // 世界边界线淡出必须放在事件之后，否则会被 OnDisable 立刻杀掉导致国外默认边界线失控
         CountryMapZoomController.Instance?.SetSuppressed(true);
         EventManager.Instance?.TriggerPlateMapDisplayFocus(moduleKey);
 
+        FadeWorldMapBoundaryLine(0f, _otherModuleFadeDuration, _otherModuleFadeEase, disableWhenHidden: true);
         FadeModulesForFocus(module, _otherModuleFadeDuration, _otherModuleFadeEase);
         PlayCameraTween(
             rigTargetPos,

@@ -162,7 +162,21 @@ public class NorthAmericaExtraBoundaryVisibility : MonoBehaviour
 
     private void HandleRegionChanged()
     {
-        SyncFromCurrentState(immediate: true);
+        // 切板后 WorldMapRegionController 必回全国机位，但 Notify→CountryLevel 晚于 OnRegionChanged。
+        // 若此处仍按旧 ProvinceLevel 判断会误藏线且之后无二次 Sync。匹配目标板则直接显示。
+        if (!_hasBoundLines)
+        {
+            return;
+        }
+
+        if (ShouldShowForCurrentRegion())
+        {
+            ShowImmediate();
+        }
+        else
+        {
+            HideImmediate();
+        }
     }
 
     private void SyncFromCurrentState(bool immediate)
@@ -186,23 +200,10 @@ public class NorthAmericaExtraBoundaryVisibility : MonoBehaviour
             return;
         }
 
+        // 已在目标板：仅 OnEnable 等补同步时参考层级；进省/回国家以 Focus/Restore 事件为准
         GameManager gm = GameManager.Instance;
-        bool countryLevel = gm == null || gm.CurrentState == GameManager.ControlState.CountryLevel;
-        if (countryLevel)
-        {
-            if (immediate)
-            {
-                ShowImmediate();
-            }
-            else
-            {
-                ShowFade();
-            }
-
-            return;
-        }
-
-        if (gm != null && gm.CurrentState == GameManager.ControlState.ProvinceLevel)
+        bool hideForProvince = gm != null && gm.CurrentState == GameManager.ControlState.ProvinceLevel;
+        if (hideForProvince)
         {
             if (immediate)
             {
@@ -212,6 +213,17 @@ public class NorthAmericaExtraBoundaryVisibility : MonoBehaviour
             {
                 HideFade();
             }
+
+            return;
+        }
+
+        if (immediate)
+        {
+            ShowImmediate();
+        }
+        else
+        {
+            ShowFade();
         }
     }
 
