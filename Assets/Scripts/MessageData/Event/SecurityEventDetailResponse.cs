@@ -168,6 +168,15 @@ public class SecurityEventOriginalMap
     public string district;
     public string longitude;
 
+    /// <summary>国外国家 ISO 数字码（如 250=法国）；国内事件通常为空。</summary>
+    public string country;
+
+    /// <summary>国外国家显示名（如 法国）。</summary>
+    public string country_name;
+
+    /// <summary>国外大板块 firstClassCode（如 WESTERN_EUROPE）。</summary>
+    public string region;
+
     // 兼容旧字段（若后端仍返回）
     public string ids_name;
     public string process_time;

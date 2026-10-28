@@ -20,7 +20,7 @@ public static class SecurityEventDetailApi
     /// <summary>事件溯源会话是否有效（未 CloseGJPanel；与 GJ 面板是否可见无关）。</summary>
     public static bool HasActiveTraceSession { get; private set; }
 
-    /// <summary>会话中的溯源省份 adcode。</summary>
+    /// <summary>会话中的溯源地图单元 code（国内省 adcode / 国外国家 SOC）。</summary>
     public static string TraceSessionProvinceCode { get; private set; }
 
     private static double _traceSessionLongitude;
@@ -156,8 +156,9 @@ public static class SecurityEventDetailApi
             LogManager.LogBackendWarning("[SecurityEventDetailApi] 未找到 GJPanel，已缓存数据但未刷新面板。");
         }
 
-        // 开启/刷新溯源会话，并按当前操控级别决定是否立刻显示黄点
+        // 开启/刷新溯源会话；国外可按 region 对齐大板后再刷黄点
         BeginTraceSessionFromData(response.data);
+        TryAlignWorldRegionFromOriginalMap(response.data);
         RefreshTracePoiForCurrentControlState();
         return true;
     }
@@ -271,21 +272,84 @@ public static class SecurityEventDetailApi
             return;
         }
 
-        string provinceCode = ResolveProvinceCode(data);
-        if (string.IsNullOrWhiteSpace(provinceCode) || provinceCode == "0")
+        string unitCode = ResolveMapUnitCode(data);
+        if (string.IsNullOrWhiteSpace(unitCode) || unitCode == "0")
         {
             LogManager.LogBackendWarning(
-                "[SecurityEventDetailApi] originalMap.province 无效，未开启溯源会话（需要省级 adcode）。");
+                "[SecurityEventDetailApi] originalMap 无有效 province/country，未开启溯源会话" +
+                "（国内需省级 adcode，国外需国家 SOC）。");
             return;
         }
 
         HasActiveTraceSession = true;
-        TraceSessionProvinceCode = provinceCode;
+        TraceSessionProvinceCode = unitCode;
         _traceSessionLongitude = longitude;
         _traceSessionLatitude = latitude;
         LogManager.LogBackend(
-            $"[SecurityEventDetailApi] 已记录溯源会话 | province={provinceCode} | " +
+            $"[SecurityEventDetailApi] 已记录溯源会话 | unitCode={unitCode} | " +
             $"lon={longitude} | lat={latitude}");
+    }
+
+    /// <summary>
+    /// 国外事件：若 originalMap.region 与当前大板不一致，切到对应国外板（国内有 province 时不切）。
+    /// </summary>
+    private static void TryAlignWorldRegionFromOriginalMap(SecurityEventDetailData data)
+    {
+        if (data?.originalMap == null)
+        {
+            return;
+        }
+
+        // 国内省事件：不按 region 切国外板
+        if (!string.IsNullOrWhiteSpace(data.originalMap.province))
+        {
+            return;
+        }
+
+        string regionCode = data.originalMap.region != null ? data.originalMap.region.Trim() : null;
+        if (string.IsNullOrWhiteSpace(regionCode))
+        {
+            // 无 region 时尝试用国家 SOC 反查大板
+            string countryCode = data.originalMap.country != null ? data.originalMap.country.Trim() : null;
+            if (WorldMapRegionCodeTable.TryGetCountryByCode(countryCode, out WorldMapCountryCodeEntry country) &&
+                !string.IsNullOrWhiteSpace(country.plateCode))
+            {
+                regionCode = country.plateCode.Trim();
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(regionCode))
+        {
+            return;
+        }
+
+        if (WorldMapRegionContext.Mode == WorldMapRegionMode.Foreign &&
+            string.Equals(
+                WorldMapRegionContext.PlateCode,
+                regionCode,
+                StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        WorldMapRegionController regionController = WorldMapRegionController.Instance;
+        if (regionController == null)
+        {
+            LogManager.LogBackendWarning(
+                "[SecurityEventDetailApi] 未找到 WorldMapRegionController，无法按 region 切板。");
+            return;
+        }
+
+        if (regionController.SwitchToForeignPlate(regionCode))
+        {
+            LogManager.LogBackend(
+                $"[SecurityEventDetailApi] 已按溯源 region 切换国外大板 | region={regionCode}");
+        }
+        else
+        {
+            LogManager.LogBackendWarning(
+                $"[SecurityEventDetailApi] 按 region 切板失败 | region={regionCode}");
+        }
     }
 
     private static bool TryGetTraceSessionCoordinates(out double longitude, out double latitude)
@@ -360,22 +424,55 @@ public static class SecurityEventDetailApi
         return false;
     }
 
-    private static string ResolveProvinceCode(SecurityEventDetailData data)
+    /// <summary>
+    /// 地图单元 code：国内优先 originalMap.province（adcode）；国外回退 country（SOC，如 250）。
+    /// </summary>
+    private static string ResolveMapUnitCode(SecurityEventDetailData data)
     {
-        string raw = data.originalMap != null ? data.originalMap.province : null;
-        if (string.IsNullOrWhiteSpace(raw))
+        if (data?.originalMap == null)
         {
             return null;
         }
 
-        raw = raw.Trim();
-        if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(raw, out string normalized) &&
-            !string.IsNullOrWhiteSpace(normalized))
+        SecurityEventOriginalMap map = data.originalMap;
+        if (TryNormalizeMapUnitCode(map.province, out string fromProvince))
         {
-            return normalized;
+            return fromProvince;
         }
 
-        return raw;
+        if (TryNormalizeMapUnitCode(map.country, out string fromCountry))
+        {
+            return fromCountry;
+        }
+
+        return null;
+    }
+
+    private static bool TryNormalizeMapUnitCode(string raw, out string normalized)
+    {
+        normalized = null;
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return false;
+        }
+
+        string trimmed = raw.Trim();
+        if (PlateMapBoundaryDatabase.TryNormalizeProvinceCode(trimmed, out string code) &&
+            !string.IsNullOrWhiteSpace(code) &&
+            code != "0")
+        {
+            normalized = code;
+            return true;
+        }
+
+        // 边界表未收录时仍保留原串，供 WorldMapPlateResolver / Geo 名称回退
+        if (trimmed != "0")
+        {
+            normalized = trimmed;
+            return true;
+        }
+
+        return false;
     }
 
     private static void RaiseRequestCompleted(HttpRequestResult result, SecurityEventDetailResponse response)
