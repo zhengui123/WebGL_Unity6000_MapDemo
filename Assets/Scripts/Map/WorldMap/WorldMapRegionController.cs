@@ -10,6 +10,8 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class WorldMapRegionController : MonoBehaviour
 {
+    private static readonly int BoundaryAlphaId = Shader.PropertyToID("_Alpha");
+
     [Serializable]
     public class ForeignPlateBinding
     {
@@ -70,6 +72,9 @@ public class WorldMapRegionController : MonoBehaviour
 
     /// <summary>当前激活的板块根。</summary>
     public Transform ActivePlateRoot { get; private set; }
+
+    /// <summary>世界模式背景线（各大板 DisplayController Find 失败时回退）。</summary>
+    public GameObject WorldModeBackgroundLine => _worldModeBackgroundLine;
 
     /// <summary>
     /// 当前激活大板根上的显示控制器（点击聚焦 / 还原 / MapApi 必须用此实例）。
@@ -243,8 +248,8 @@ public class WorldMapRegionController : MonoBehaviour
         SetWorldModeBackgroundLineVisible(false);
         WorldMapRegionContext.ApplyDomestic();
         PlateMapDisplayController display = RebindDisplayController(_domesticPlateRoot);
-        // 国内不居中板块；瞬时归位相机与国家级缩放
-        display?.SnapCameraToCountryHomeImmediate();
+        // 国内不居中板块；瞬时归位相机与国家级缩放（此时 Mode 已 Domestic）
+        display?.SnapCameraToCountryHomeImmediate(syncWorldMapBoundaryLine: true);
         RestorePlateRootOriginalPose(_domesticPlateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(WorldMapRegionCodeTable.DomesticNationalCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
@@ -283,7 +288,8 @@ public class WorldMapRegionController : MonoBehaviour
         WorldMapRegionContext.ApplyForeignPlate(plateCode, plateName);
         PlateMapDisplayController display = RebindDisplayController(binding.plateRoot);
         // 国外整体位置只走 EarthTransition（AllPlateMap），不改各大板块自身 transform
-        display?.SnapCameraToCountryHomeImmediate();
+        // Mode 已 Foreign：同步边界线（含地球级 AllPlateMap 未激活时经 WorldModeBackgroundLine 引用）
+        display?.SnapCameraToCountryHomeImmediate(syncWorldMapBoundaryLine: true);
         RestorePlateRootOriginalPose(binding.plateRoot);
         EarthTransition.Instance?.ApplyPlateMapInitialPosition(plateCode);
         GameManager.Instance?.NotifyRegionSwitchedToNational();
@@ -299,9 +305,55 @@ public class WorldMapRegionController : MonoBehaviour
             return;
         }
 
-        if (_worldModeBackgroundLine.activeSelf != visible)
+        if (visible)
         {
-            _worldModeBackgroundLine.SetActive(visible);
+            if (!_worldModeBackgroundLine.activeSelf)
+            {
+                _worldModeBackgroundLine.SetActive(true);
+            }
+
+            // 仅 SetActive 不够：切板前 Domestic Snap 可能已把 _Alpha 打成 0
+            ApplyWorldModeBackgroundLineAlpha(1f);
+        }
+        else if (_worldModeBackgroundLine.activeSelf)
+        {
+            ApplyWorldModeBackgroundLineAlpha(0f);
+            _worldModeBackgroundLine.SetActive(false);
+        }
+    }
+
+    private void ApplyWorldModeBackgroundLineAlpha(float alpha)
+    {
+        if (_worldModeBackgroundLine == null)
+        {
+            return;
+        }
+
+        alpha = Mathf.Clamp01(alpha);
+        Renderer[] renderers = _worldModeBackgroundLine.GetComponentsInChildren<Renderer>(true);
+        if (renderers == null || renderers.Length == 0)
+        {
+            return;
+        }
+
+        var block = new MaterialPropertyBlock();
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            Renderer renderer = renderers[i];
+            if (renderer == null)
+            {
+                continue;
+            }
+
+            Material mat = renderer.sharedMaterial;
+            if (mat == null || !mat.HasProperty(BoundaryAlphaId))
+            {
+                continue;
+            }
+
+            renderer.GetPropertyBlock(block);
+            block.SetFloat(BoundaryAlphaId, alpha);
+            renderer.SetPropertyBlock(block);
         }
     }
 
@@ -390,9 +442,9 @@ public class WorldMapRegionController : MonoBehaviour
             return;
         }
 
-        // 切板前仍指向旧 ActivePlateRoot 上的 Controller
+        // 切板前仍指向旧 ActivePlateRoot；勿按旧 Mode 改世界边界线（随后会按新 Mode 再同步）
         PlateMapDisplayController controller = ResolveDisplayControllerForPlate(ActivePlateRoot);
-        controller?.SnapCameraToCountryHomeImmediate();
+        controller?.SnapCameraToCountryHomeImmediate(syncWorldMapBoundaryLine: false);
     }
 
     private bool TryFindForeignBinding(string plateCode, out ForeignPlateBinding binding)

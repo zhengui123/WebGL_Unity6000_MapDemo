@@ -278,7 +278,18 @@ public class PlateMapDisplayController : MonoBehaviour
             return;
         }
 
-        _worldMapBoundaryLine = GameObject.Find("世界地图边界线");
+        // AllPlateMap 未激活时 Find 找不到；优先用 WorldMapRegionController 序列化引用
+        WorldMapRegionController region = WorldMapRegionController.Instance;
+        if (region != null && region.WorldModeBackgroundLine != null)
+        {
+            _worldMapBoundaryLine = region.WorldModeBackgroundLine;
+        }
+
+        if (_worldMapBoundaryLine == null)
+        {
+            _worldMapBoundaryLine = GameObject.Find("世界地图边界线");
+        }
+
         CacheWorldMapBoundaryLineRenderers();
     }
 
@@ -343,7 +354,11 @@ public class PlateMapDisplayController : MonoBehaviour
     /// <summary>
     /// 瞬时归位国家级相机（杀 Tween、恢复 Home 缩放、不播还原动画）。
     /// </summary>
-    public void SnapCameraToCountryHomeImmediate()
+    /// <param name="syncWorldMapBoundaryLine">
+    /// 是否按当前国内外 Mode 同步世界边界线。切板前 ClearFocus 应传 false，
+    /// 避免仍按旧 Domestic 把边界线 Alpha 打成 0，而随后 Find 又因 AllPlateMap 未激活失败。
+    /// </param>
+    public void SnapCameraToCountryHomeImmediate(bool syncWorldMapBoundaryLine = true)
     {
         ResolveCameraReferences();
         ResolveWorldMapBoundaryLine();
@@ -385,7 +400,16 @@ public class PlateMapDisplayController : MonoBehaviour
             }
         }
 
-        FadeWorldMapBoundaryLineForCurrentRegion(immediate: true);
+        if (syncWorldMapBoundaryLine)
+        {
+            FadeWorldMapBoundaryLineForCurrentRegion(immediate: true);
+        }
+    }
+
+    /// <summary>按当前国内外 Mode 同步世界地图边界线显隐（地球→国家完成等时机补刷）。</summary>
+    public void SyncWorldMapBoundaryLineForCurrentRegion(bool immediate = true)
+    {
+        FadeWorldMapBoundaryLineForCurrentRegion(immediate);
     }
 
     private void CacheCountryHomeZoomIfNeeded()

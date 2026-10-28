@@ -200,6 +200,9 @@ public class GameManager : UnitySingle<GameManager>
         // 地球 → 板块过渡完成：进入国家级别
         SetState(ControlState.CountryLevel);
         ApplyStateSideEffects(ControlState.CountryLevel);
+        // 开局先切国外再进国家时，补刷世界边界线（避免 Alpha 仍为 0 / 引用未解析）
+        PlateMapDisplayController.ResolveForWorldMap()
+            ?.SyncWorldMapBoundaryLineForCurrentRegion(immediate: true);
     }
 
     private void HandleTransitionToEarthCompleted()
