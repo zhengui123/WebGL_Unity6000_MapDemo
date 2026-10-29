@@ -129497,10 +129497,10 @@ MonoBehaviour:
   _westAnchor:
     marker: {fileID: 907974860}
     longitude: 20.149999618530273
-    latitude: 34.91999816894531
+    latitude: 35.866353
   _eastAnchor:
     marker: {fileID: 2022195989}
-    longitude: 26.600000381469727
+    longitude: 28.245517
     latitude: 41.83000183105469
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
@@ -146334,11 +146334,11 @@ MonoBehaviour:
   _mapRoot: {fileID: 4137189341924856537}
   _westAnchor:
     marker: {fileID: 964320877}
-    longitude: -180
+    longitude: 19.637385
     latitude: 41.150001525878906
   _eastAnchor:
     marker: {fileID: 1787436219}
-    longitude: 180
+    longitude: 190.35153
     latitude: 81.25
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
@@ -200234,8 +200234,8 @@ MonoBehaviour:
     latitude: 54.79999923706055
   _eastAnchor:
     marker: {fileID: 327059356}
-    longitude: 12.6899995803833
-    latitude: 57.72999954223633
+    longitude: 15.155308
+    latitude: 57.587044
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8464764715589474772
@@ -203048,7 +203048,7 @@ MonoBehaviour:
   _mapRoot: {fileID: 2508850021731764690}
   _westAnchor:
     marker: {fileID: 1369790821}
-    longitude: 23.34000015258789
+    longitude: 21.829669
     latitude: 57.470001220703125
   _eastAnchor:
     marker: {fileID: 687763751}
