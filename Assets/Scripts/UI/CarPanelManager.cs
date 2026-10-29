@@ -18,20 +18,11 @@ public class CarPanelManager : UnitySingle<CarPanelManager>
     [SerializeField] private float _partDisplaySeconds = 5f;
 
     /// <summary>
-    /// Android 不展示 CarPanel / MessageListPanel，也不启用 GridLine 连线；
+    /// 是否展示 CarPanel / MessageListPanel / GridLine 连线；
+    /// 统一由 <see cref="GameManager.EnableAndroidDisabledFeatures"/> 控制。
     /// 车辆双接口仍可请求与写缓存。攻击链路级 AttackPath 连线不受此开关影响。
     /// </summary>
-    public static bool IsDisplaySupportedOnCurrentPlatform
-    {
-        get
-        {
-#if UNITY_ANDROID
-            return false;
-#else
-            return true;
-#endif
-        }
-    }
+    public static bool IsDisplaySupportedOnCurrentPlatform = true;
 
     private string _currentStart3DObjectName;
     private Coroutine _partCarouselCoroutine;

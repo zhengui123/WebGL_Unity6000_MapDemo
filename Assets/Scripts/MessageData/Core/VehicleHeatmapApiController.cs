@@ -51,18 +51,10 @@ public class VehicleHeatmapApiController : UnitySingle<VehicleHeatmapApiControll
         set => _intervalSeconds = Mathf.Max(1f, value);
     }
 
-    /// <summary>Android 平台不自动查询车辆热力图。</summary>
-    private static bool ShouldSkipHeatmapQuery
-    {
-        get
-        {
-#if UNITY_ANDROID
-            return true;
-#else
-            return false;
-#endif
-        }
-    }
+    /// <summary>
+    /// 是否跳过车辆热力图查询；统一由 <see cref="GameManager.EnableAndroidDisabledFeatures"/> 控制。
+    /// </summary>
+    private static bool ShouldSkipHeatmapQuery = false;
 
     private void Start()
     {

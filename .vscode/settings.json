@@ -56,6 +56,6 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "U6_MapDemo.sln",
+    "dotnet.defaultSolution": "TestWebGL_Unity6000_MapDemo.sln",
     "dotrush.roslyn.projectOrSolutionFiles": []
 }

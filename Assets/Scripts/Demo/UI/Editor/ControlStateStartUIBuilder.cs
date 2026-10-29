@@ -17,7 +17,8 @@ public static class ControlStateStartUIBuilder
     private const string MenuPanelName = "DemoGameStateMenuPanel";
     private const string PanelName = "ControlStateJumpPanel";
     private const string HighlightPanelName = "PlateMapHighlightPanel";
-    private const string VehicleHeatmapPanelName = "VehicleHeatmapUpdatePanel";
+    private const string SimulateHeatmapPanelName = "SimulateHeatmapPanel";
+    private const string WorldMapSwitchPanelName = "WorldMapSwitchPanel";
     private const string CarPanelUiPanelName = "CarPanelUIPanel";
     private const string PreviousLevelPanelName = "PreviousLevelPanel";
     private const string BigScreenCarouselPanelName = "BigScreenCarouselPanel";
@@ -30,13 +31,13 @@ public static class ControlStateStartUIBuilder
     private const string DemoUiFontPath = "Assets/Font/GeourceAltCHT-Medium.ttf";
     private const string PlateMapHighlightUiTitle = "省级高亮";
     private const string PlateMapHighlightMenuLabel = "省级高亮";
-    private const string VehicleHeatmapMenuLabel = "更新车辆热力图";
-    private const string VehicleHeatmapUiTitle = "更新车辆热力图";
+    private const string SimulateHeatmapMenuLabel = "模拟热力图";
+    private const string SimulateHeatmapUiTitle = "模拟热力图";
+    private const string WorldMapSwitchMenuLabel = "切换世界地图";
+    private const string WorldMapSwitchUiTitle = "切换世界地图";
     private const string CarPanelUiMenuLabel = "车辆 UI 连线";
     private const string CarPanelUiTitle = "车辆 UI 连线";
-    private const string PreviousLevelMenuLabel = "返回上个层级";
     private const string PreviousLevelUiTitle = "返回上个层级";
-    private const string BigScreenCarouselMenuLabel = "大屏自动轮播";
     private const string BigScreenCarouselUiTitle = "大屏自动轮播";
     private const string HttpApiTestMenuLabel = "接口调用测试";
     private const string HttpApiTestUiTitle = "接口调用测试";
@@ -133,10 +134,9 @@ public static class ControlStateStartUIBuilder
         MenuPanelName,
         PanelName,
         HighlightPanelName,
-        VehicleHeatmapPanelName,
+        SimulateHeatmapPanelName,
+        WorldMapSwitchPanelName,
         CarPanelUiPanelName,
-        PreviousLevelPanelName,
-        BigScreenCarouselPanelName,
         HttpApiTestPanelName,
         AndroidBridgeApiPanelName,
         ThreatHighRiskSecurityEventPanelName,
@@ -199,29 +199,22 @@ public static class ControlStateStartUIBuilder
             preserved.GetPanelLayout(HighlightPanelName),
             navigator,
             demoUiFont);
-        GameObject vehicleHeatmapPanel = CreateVehicleHeatmapUpdatePanel(
+        GameObject simulateHeatmapPanel = CreateSimulateHeatmapPanel(
             uiRoot.transform,
             resources,
-            preserved.GetPanelLayout(VehicleHeatmapPanelName),
+            preserved.GetPanelLayout(SimulateHeatmapPanelName),
+            navigator,
+            demoUiFont);
+        GameObject worldMapSwitchPanel = CreateWorldMapSwitchPanel(
+            uiRoot.transform,
+            resources,
+            preserved.GetPanelLayout(WorldMapSwitchPanelName),
             navigator,
             demoUiFont);
         GameObject carPanelUiPanel = CreateCarPanelUiPanel(
             uiRoot.transform,
             resources,
             preserved.GetPanelLayout(CarPanelUiPanelName),
-            navigator,
-            demoUiFont);
-        GameObject previousLevelPanel = CreatePreviousLevelPanel(
-            uiRoot.transform,
-            resources,
-            preserved.GetPanelLayout(PreviousLevelPanelName),
-            navigator,
-            preserved.InstantToggleCheckmarkSprite ?? resources.checkmark,
-            demoUiFont);
-        GameObject bigScreenCarouselPanel = CreateBigScreenCarouselPanel(
-            uiRoot.transform,
-            resources,
-            preserved.GetPanelLayout(BigScreenCarouselPanelName),
             navigator,
             demoUiFont);
         GameObject httpApiTestPanel = CreateHttpApiTestPanel(
@@ -283,10 +276,9 @@ public static class ControlStateStartUIBuilder
         serializedNavigator.FindProperty("_menuPanel").objectReferenceValue = menuPanel;
         serializedNavigator.FindProperty("_controlStateJumpPanel").objectReferenceValue = jumpPanel;
         serializedNavigator.FindProperty("_plateMapHighlightPanel").objectReferenceValue = highlightPanel;
-        serializedNavigator.FindProperty("_vehicleHeatmapUpdatePanel").objectReferenceValue = vehicleHeatmapPanel;
+        serializedNavigator.FindProperty("_simulateHeatmapPanel").objectReferenceValue = simulateHeatmapPanel;
+        serializedNavigator.FindProperty("_worldMapSwitchPanel").objectReferenceValue = worldMapSwitchPanel;
         serializedNavigator.FindProperty("_carPanelUiPanel").objectReferenceValue = carPanelUiPanel;
-        serializedNavigator.FindProperty("_previousLevelPanel").objectReferenceValue = previousLevelPanel;
-        serializedNavigator.FindProperty("_bigScreenCarouselPanel").objectReferenceValue = bigScreenCarouselPanel;
         serializedNavigator.FindProperty("_httpApiTestPanel").objectReferenceValue = httpApiTestPanel;
         serializedNavigator.FindProperty("_androidBridgeApiPanel").objectReferenceValue = androidBridgeApiPanel;
         serializedNavigator.FindProperty("_threatHighRiskSecurityEventPanel").objectReferenceValue =
@@ -301,10 +293,9 @@ public static class ControlStateStartUIBuilder
 
         jumpPanel.SetActive(false);
         highlightPanel.SetActive(false);
-        vehicleHeatmapPanel.SetActive(false);
+        simulateHeatmapPanel.SetActive(false);
+        worldMapSwitchPanel.SetActive(false);
         carPanelUiPanel.SetActive(false);
-        previousLevelPanel.SetActive(false);
-        bigScreenCarouselPanel.SetActive(false);
         httpApiTestPanel.SetActive(false);
         androidBridgeApiPanel.SetActive(false);
         threatHighRiskSecurityEventPanel.SetActive(false);
@@ -390,13 +381,24 @@ public static class ControlStateStartUIBuilder
 
         contentY -= MenuButtonHeight + 8f;
 
-        GameObject heatmapEntryButtonGo = DefaultControls.CreateButton(resources);
-        heatmapEntryButtonGo.name = "VehicleHeatmapUpdateEntryButton";
-        SetupChildRect(heatmapEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
-        Text heatmapEntryButtonText = heatmapEntryButtonGo.GetComponentInChildren<Text>();
-        if (heatmapEntryButtonText != null)
+        GameObject simulateHeatmapEntryButtonGo = DefaultControls.CreateButton(resources);
+        simulateHeatmapEntryButtonGo.name = "SimulateHeatmapEntryButton";
+        SetupChildRect(simulateHeatmapEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
+        Text simulateHeatmapEntryButtonText = simulateHeatmapEntryButtonGo.GetComponentInChildren<Text>();
+        if (simulateHeatmapEntryButtonText != null)
         {
-            heatmapEntryButtonText.text = VehicleHeatmapMenuLabel;
+            simulateHeatmapEntryButtonText.text = SimulateHeatmapMenuLabel;
+        }
+
+        contentY -= MenuButtonHeight + 8f;
+
+        GameObject worldMapSwitchEntryButtonGo = DefaultControls.CreateButton(resources);
+        worldMapSwitchEntryButtonGo.name = "WorldMapSwitchEntryButton";
+        SetupChildRect(worldMapSwitchEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
+        Text worldMapSwitchEntryButtonText = worldMapSwitchEntryButtonGo.GetComponentInChildren<Text>();
+        if (worldMapSwitchEntryButtonText != null)
+        {
+            worldMapSwitchEntryButtonText.text = WorldMapSwitchMenuLabel;
         }
 
         contentY -= MenuButtonHeight + 8f;
@@ -408,28 +410,6 @@ public static class ControlStateStartUIBuilder
         if (carPanelUiEntryButtonText != null)
         {
             carPanelUiEntryButtonText.text = CarPanelUiMenuLabel;
-        }
-
-        contentY -= MenuButtonHeight + 8f;
-
-        GameObject previousLevelEntryButtonGo = DefaultControls.CreateButton(resources);
-        previousLevelEntryButtonGo.name = "PreviousLevelEntryButton";
-        SetupChildRect(previousLevelEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
-        Text previousLevelEntryButtonText = previousLevelEntryButtonGo.GetComponentInChildren<Text>();
-        if (previousLevelEntryButtonText != null)
-        {
-            previousLevelEntryButtonText.text = PreviousLevelMenuLabel;
-        }
-
-        contentY -= MenuButtonHeight + 8f;
-
-        GameObject bigScreenCarouselEntryButtonGo = DefaultControls.CreateButton(resources);
-        bigScreenCarouselEntryButtonGo.name = "BigScreenCarouselEntryButton";
-        SetupChildRect(bigScreenCarouselEntryButtonGo, contentParent, 12f, contentY, PanelWidth - 24f, MenuButtonHeight);
-        Text bigScreenCarouselEntryButtonText = bigScreenCarouselEntryButtonGo.GetComponentInChildren<Text>();
-        if (bigScreenCarouselEntryButtonText != null)
-        {
-            bigScreenCarouselEntryButtonText.text = BigScreenCarouselMenuLabel;
         }
 
         contentY -= MenuButtonHeight + 8f;
@@ -522,14 +502,12 @@ public static class ControlStateStartUIBuilder
             entryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_plateMapHighlightEntryButton").objectReferenceValue =
             highlightEntryButtonGo.GetComponent<Button>();
-        serializedMenu.FindProperty("_vehicleHeatmapUpdateEntryButton").objectReferenceValue =
-            heatmapEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_simulateHeatmapEntryButton").objectReferenceValue =
+            simulateHeatmapEntryButtonGo.GetComponent<Button>();
+        serializedMenu.FindProperty("_worldMapSwitchEntryButton").objectReferenceValue =
+            worldMapSwitchEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_carPanelUiEntryButton").objectReferenceValue =
             carPanelUiEntryButtonGo.GetComponent<Button>();
-        serializedMenu.FindProperty("_previousLevelEntryButton").objectReferenceValue =
-            previousLevelEntryButtonGo.GetComponent<Button>();
-        serializedMenu.FindProperty("_bigScreenCarouselEntryButton").objectReferenceValue =
-            bigScreenCarouselEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_httpApiTestEntryButton").objectReferenceValue =
             httpApiTestEntryButtonGo.GetComponent<Button>();
         serializedMenu.FindProperty("_androidBridgeApiEntryButton").objectReferenceValue =
@@ -2051,14 +2029,14 @@ public static class ControlStateStartUIBuilder
         return panel;
     }
 
-    private static GameObject CreateVehicleHeatmapUpdatePanel(
+    private static GameObject CreateSimulateHeatmapPanel(
         Transform parent,
         DefaultControls.Resources resources,
         ControlStateJumpPanelLayout.RectLayoutData layout,
         DemoGameStateUINavigator navigator,
         Font demoUiFont)
     {
-        GameObject panel = CreatePanel(parent, VehicleHeatmapPanelName);
+        GameObject panel = CreatePanel(parent, SimulateHeatmapPanelName);
         RectTransform panelRect = panel.GetComponent<RectTransform>();
         ApplyPanelLayout(panelRect, layout);
 
@@ -2080,8 +2058,46 @@ public static class ControlStateStartUIBuilder
 
         y -= BackButtonHeight + 8f;
 
-        CreateLabel(panel.transform, VehicleHeatmapUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        CreateLabel(panel.transform, SimulateHeatmapUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
         y -= 36f;
+
+        GameObject statusLabelGo = CreateLabelObject(
+            panel.transform,
+            "StatusLabel",
+            "就绪",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text statusLabel = statusLabelGo.GetComponent<Text>();
+        y -= RowHeight + 8f;
+
+        GameObject enableButtonGo = DefaultControls.CreateButton(resources);
+        enableButtonGo.name = "EnableSimulateButton";
+        SetupChildRect(enableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text enableButtonText = enableButtonGo.GetComponentInChildren<Text>();
+        if (enableButtonText != null)
+        {
+            enableButtonText.text = "开启模拟热力图";
+        }
+
+        y -= 48f;
+
+        GameObject disableButtonGo = DefaultControls.CreateButton(resources);
+        disableButtonGo.name = "DisableSimulateButton";
+        SetupChildRect(disableButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text disableButtonText = disableButtonGo.GetComponentInChildren<Text>();
+        if (disableButtonText != null)
+        {
+            disableButtonText.text = "关闭模拟热力图";
+        }
+
+        y -= 48f;
+
+        CreateLabel(panel.transform, "大量模拟数据", 12f, y, PanelWidth - 24f, 24f, 16, FontStyle.Bold);
+        y -= 32f;
 
         InputField pointCountInput = CreateLabeledInputField(
             panel.transform,
@@ -2092,26 +2108,150 @@ public static class ControlStateStartUIBuilder
             y,
             LabelWidth,
             FieldWidth,
-            VehicleHeatmapUpdateUIDemo.DefaultPointCountText,
+            SimulateHeatmapUIDemo.DefaultPointCountText,
             InputFieldFontSize);
         y -= RowHeight + 12f;
 
-        GameObject updateButtonGo = DefaultControls.CreateButton(resources);
-        updateButtonGo.name = "UpdateButton";
-        SetupChildRect(updateButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
-        Text updateButtonText = updateButtonGo.GetComponentInChildren<Text>();
-        if (updateButtonText != null)
+        GameObject createBulkButtonGo = DefaultControls.CreateButton(resources);
+        createBulkButtonGo.name = "CreateBulkDataButton";
+        SetupChildRect(createBulkButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text createBulkButtonText = createBulkButtonGo.GetComponentInChildren<Text>();
+        if (createBulkButtonText != null)
         {
-            updateButtonText.text = "更新";
+            createBulkButtonText.text = "创建大量模拟数据";
         }
 
-        VehicleHeatmapUpdateUIDemo uiDemo = panel.AddComponent<VehicleHeatmapUpdateUIDemo>();
+        SimulateHeatmapUIDemo uiDemo = panel.AddComponent<SimulateHeatmapUIDemo>();
         SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
+        serializedDemo.FindProperty("_enableButton").objectReferenceValue =
+            enableButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_disableButton").objectReferenceValue =
+            disableButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_pointCountInput").objectReferenceValue = pointCountInput;
-        serializedDemo.FindProperty("_updateButton").objectReferenceValue =
-            updateButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_createBulkDataButton").objectReferenceValue =
+            createBulkButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
         serializedDemo.FindProperty("_pointsDemo").objectReferenceValue = pointsDemo;
+        serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
+        serializedDemo.ApplyModifiedPropertiesWithoutUndo();
+
+        ApplyPanelFont(panel, demoUiFont);
+
+        return panel;
+    }
+
+    private static GameObject CreateWorldMapSwitchPanel(
+        Transform parent,
+        DefaultControls.Resources resources,
+        ControlStateJumpPanelLayout.RectLayoutData layout,
+        DemoGameStateUINavigator navigator,
+        Font demoUiFont)
+    {
+        GameObject panel = CreatePanel(parent, WorldMapSwitchPanelName);
+        RectTransform panelRect = panel.GetComponent<RectTransform>();
+        ApplyPanelLayout(panelRect, layout);
+
+        Image panelImage = panel.GetComponent<Image>();
+        panelImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+        float y = -12f;
+        GameObject backButtonGo = DefaultControls.CreateButton(resources);
+        backButtonGo.name = "BackButton";
+        SetupChildRect(backButtonGo, panel.transform, 12f, y, 80f, BackButtonHeight);
+        Text backButtonText = backButtonGo.GetComponentInChildren<Text>();
+        if (backButtonText != null)
+        {
+            backButtonText.text = "返回";
+        }
+
+        y -= BackButtonHeight + 8f;
+
+        CreateLabel(panel.transform, WorldMapSwitchUiTitle, 12f, y, PanelWidth - 24f, 28f, 18, FontStyle.Bold);
+        y -= 36f;
+
+        GameObject statusLabelGo = CreateLabelObject(
+            panel.transform,
+            "StatusLabel",
+            "就绪",
+            12f,
+            y,
+            PanelWidth - 24f,
+            RowHeight,
+            14,
+            FontStyle.Normal);
+        Text statusLabel = statusLabelGo.GetComponent<Text>();
+        y -= RowHeight + 8f;
+
+        List<string> regionTypeOptions = new List<string>
+        {
+            WorldMapSwitchUIDemo.RegionTypeDomestic,
+            WorldMapSwitchUIDemo.RegionTypeForeign,
+        };
+        Dropdown regionTypeDropdown = CreateLabeledDropdown(
+            panel.transform,
+            resources,
+            "RegionTypeDropdown",
+            "类型",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            regionTypeOptions,
+            0);
+        y -= RowHeight + 8f;
+
+        List<string> foreignPlateOptions = new List<string>
+        {
+            "东亚",
+            "西欧",
+            "北非",
+            "北美",
+            "南美",
+            "澳新",
+        };
+        int foreignDefaultIndex = FindOptionIndex(
+            foreignPlateOptions,
+            WorldMapSwitchUIDemo.DefaultForeignPlateName);
+        Dropdown foreignPlateDropdown = CreateLabeledDropdown(
+            panel.transform,
+            resources,
+            "ForeignPlateDropdown",
+            "世界板块",
+            12f,
+            y,
+            LabelWidth,
+            FieldWidth,
+            foreignPlateOptions,
+            foreignDefaultIndex);
+        GameObject foreignPlateRow = foreignPlateDropdown != null
+            ? foreignPlateDropdown.transform.parent.gameObject
+            : null;
+        if (foreignPlateRow != null)
+        {
+            foreignPlateRow.SetActive(false);
+        }
+
+        y -= RowHeight + 12f;
+
+        GameObject switchButtonGo = DefaultControls.CreateButton(resources);
+        switchButtonGo.name = "SwitchButton";
+        SetupChildRect(switchButtonGo, panel.transform, 12f, y, PanelWidth - 24f, 40f);
+        Text switchButtonText = switchButtonGo.GetComponentInChildren<Text>();
+        if (switchButtonText != null)
+        {
+            switchButtonText.text = "切换";
+        }
+
+        WorldMapSwitchUIDemo uiDemo = panel.AddComponent<WorldMapSwitchUIDemo>();
+        SerializedObject serializedDemo = new SerializedObject(uiDemo);
+        serializedDemo.FindProperty("_regionTypeDropdown").objectReferenceValue = regionTypeDropdown;
+        serializedDemo.FindProperty("_foreignPlateDropdown").objectReferenceValue = foreignPlateDropdown;
+        serializedDemo.FindProperty("_foreignPlateRow").objectReferenceValue = foreignPlateRow;
+        serializedDemo.FindProperty("_switchButton").objectReferenceValue =
+            switchButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_backButton").objectReferenceValue = backButtonGo.GetComponent<Button>();
+        serializedDemo.FindProperty("_statusLabel").objectReferenceValue = statusLabel;
         serializedDemo.FindProperty("_navigator").objectReferenceValue = navigator;
         serializedDemo.ApplyModifiedPropertiesWithoutUndo();
 

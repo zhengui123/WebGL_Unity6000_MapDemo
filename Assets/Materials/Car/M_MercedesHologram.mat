@@ -50,4 +50,3 @@ Material:
     - _DissolveEdgeColor: {r: 0, g: 0.11764706, b: 0.4509804, a: 1}
     - _GlowColor: {r: 0, g: 0.11603593, b: 0.45230317, a: 0.9137255}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1

@@ -24,6 +24,9 @@ public class PlateMapVehiclePointController : MonoBehaviour
         new VehicleMapPointData { vehicleId = "SD-003", longitude = 118.35, latitude = 37.44, alertValue = 0.3f }
     };
 
+    /// <summary>Awake 时缓存的 Inspector 默认点，供 Demo「模拟热力图」运行时回灌。</summary>
+    private VehicleMapPointData[] _defaultVehiclePointsSnapshot;
+
     [Header("近距离合并")]
     [SerializeField] private bool _enableProximityMerge = true;
     [Tooltip("地图局部 XZ 平面距离小于该值则合并")]
@@ -96,6 +99,13 @@ public class PlateMapVehiclePointController : MonoBehaviour
 
     /// <summary>板块地图 GameObject 名称，作为事件总线字典 key。</summary>
     private string PlateMapKey => EventPlateMapKey;
+
+    private void Awake()
+    {
+        // 须在 OnEnable 清空测试数据之前快照 Inspector 默认点
+        _defaultVehiclePointsSnapshot =
+            PlateMapVehiclePointEvents.CloneVehiclePointArray(_vehiclePoints);
+    }
 
     private void OnEnable()
     {
@@ -246,6 +256,37 @@ public class PlateMapVehiclePointController : MonoBehaviour
     public static void NotifyHeatmapInactive()
     {
         _followCountryZoom = false;
+    }
+
+    /// <summary>将本板块 Inspector 默认热力点写回并刷新显示。</summary>
+    public void ApplyDefaultVehiclePointsTestData(bool syncNow = true)
+    {
+        VehicleMapPointData[] defaults = _defaultVehiclePointsSnapshot != null
+            ? _defaultVehiclePointsSnapshot
+            : _vehiclePoints;
+        ApplySetVehiclePoints(defaults, syncNow);
+    }
+
+    /// <summary>对场景中全部板块回灌各自 Inspector 默认热力点。</summary>
+    public static int ApplyDefaultVehiclePointsTestDataToAllPlates(bool syncNow = true)
+    {
+        PlateMapVehiclePointController[] controllers = FindObjectsByType<PlateMapVehiclePointController>(
+            FindObjectsInactive.Include,
+            FindObjectsSortMode.None);
+        int applied = 0;
+        for (int i = 0; i < controllers.Length; i++)
+        {
+            PlateMapVehiclePointController controller = controllers[i];
+            if (controller == null)
+            {
+                continue;
+            }
+
+            controller.ApplyDefaultVehiclePointsTestData(syncNow);
+            applied++;
+        }
+
+        return applied;
     }
 
     private static void CaptureCountryHomeDistanceIfNeeded(float distance)

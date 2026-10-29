@@ -64,18 +64,11 @@ public class GJPanel : MonoBehaviour
     /// <summary>当前语言下的默认标题。</summary>
     public static string LocalizedDefaultTitle => LanguageManager.Get(UiTextKeys.GjTitle);
 
-    /// <summary>Android 平台不展示 GJ_Panel（请求/缓存仍可由 SecurityEventDetailApi 执行）。</summary>
-    public static bool IsDisplaySupportedOnCurrentPlatform
-    {
-        get
-        {
-#if UNITY_ANDROID
-            return false;
-#else
-            return true;
-#endif
-        }
-    }
+    /// <summary>
+    /// 是否展示 GJ_Panel；统一由 <see cref="GameManager.EnableAndroidDisabledFeatures"/> 控制。
+    /// 请求/缓存仍可由 SecurityEventDetailApi 执行。
+    /// </summary>
+    public static bool IsDisplaySupportedOnCurrentPlatform = true;
 
     private void Awake()
     {

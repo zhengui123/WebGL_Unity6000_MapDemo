@@ -19,10 +19,9 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
     [SerializeField] private Button _toggleUiLanguageEntryButton;
     [SerializeField] private Button _controlStateJumpEntryButton;
     [SerializeField] private Button _plateMapHighlightEntryButton;
-    [SerializeField] private Button _vehicleHeatmapUpdateEntryButton;
+    [SerializeField] private Button _simulateHeatmapEntryButton;
+    [SerializeField] private Button _worldMapSwitchEntryButton;
     [SerializeField] private Button _carPanelUiEntryButton;
-    [SerializeField] private Button _previousLevelEntryButton;
-    [SerializeField] private Button _bigScreenCarouselEntryButton;
     [SerializeField] private Button _httpApiTestEntryButton;
     [SerializeField] private Button _androidBridgeApiEntryButton;
     [SerializeField] private Button _threatHighRiskSecurityEventEntryButton;
@@ -59,24 +58,19 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
             _plateMapHighlightEntryButton.onClick.AddListener(OnPlateMapHighlightEntryClicked);
         }
 
-        if (_vehicleHeatmapUpdateEntryButton != null)
+        if (_simulateHeatmapEntryButton != null)
         {
-            _vehicleHeatmapUpdateEntryButton.onClick.AddListener(OnVehicleHeatmapUpdateEntryClicked);
+            _simulateHeatmapEntryButton.onClick.AddListener(OnSimulateHeatmapEntryClicked);
+        }
+
+        if (_worldMapSwitchEntryButton != null)
+        {
+            _worldMapSwitchEntryButton.onClick.AddListener(OnWorldMapSwitchEntryClicked);
         }
 
         if (_carPanelUiEntryButton != null)
         {
             _carPanelUiEntryButton.onClick.AddListener(OnCarPanelUiEntryClicked);
-        }
-
-        if (_previousLevelEntryButton != null)
-        {
-            _previousLevelEntryButton.onClick.AddListener(OnPreviousLevelEntryClicked);
-        }
-
-        if (_bigScreenCarouselEntryButton != null)
-        {
-            _bigScreenCarouselEntryButton.onClick.AddListener(OnBigScreenCarouselEntryClicked);
         }
 
         if (_httpApiTestEntryButton != null)
@@ -134,24 +128,19 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
             _plateMapHighlightEntryButton.onClick.RemoveListener(OnPlateMapHighlightEntryClicked);
         }
 
-        if (_vehicleHeatmapUpdateEntryButton != null)
+        if (_simulateHeatmapEntryButton != null)
         {
-            _vehicleHeatmapUpdateEntryButton.onClick.RemoveListener(OnVehicleHeatmapUpdateEntryClicked);
+            _simulateHeatmapEntryButton.onClick.RemoveListener(OnSimulateHeatmapEntryClicked);
+        }
+
+        if (_worldMapSwitchEntryButton != null)
+        {
+            _worldMapSwitchEntryButton.onClick.RemoveListener(OnWorldMapSwitchEntryClicked);
         }
 
         if (_carPanelUiEntryButton != null)
         {
             _carPanelUiEntryButton.onClick.RemoveListener(OnCarPanelUiEntryClicked);
-        }
-
-        if (_previousLevelEntryButton != null)
-        {
-            _previousLevelEntryButton.onClick.RemoveListener(OnPreviousLevelEntryClicked);
-        }
-
-        if (_bigScreenCarouselEntryButton != null)
-        {
-            _bigScreenCarouselEntryButton.onClick.RemoveListener(OnBigScreenCarouselEntryClicked);
         }
 
         if (_httpApiTestEntryButton != null)
@@ -196,7 +185,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
 
     private void OnMenuVisibleToggleChanged(bool visible)
     {
-        // 子面板中勾选「显示菜单」→ 回到主菜单并展开入口
+        // 子面板中勾选「显示菜单」→ 返回主菜单并展开入口
         if (_inSubMenuMode && visible)
         {
             DemoGameStateUINavigator navigator = ResolveNavigator();
@@ -311,7 +300,7 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         navigator.ShowPlateMapHighlightPanel();
     }
 
-    private void OnVehicleHeatmapUpdateEntryClicked()
+    private void OnSimulateHeatmapEntryClicked()
     {
         DemoGameStateUINavigator navigator = ResolveNavigator();
         if (navigator == null)
@@ -320,7 +309,19 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
             return;
         }
 
-        navigator.ShowVehicleHeatmapUpdatePanel();
+        navigator.ShowSimulateHeatmapPanel();
+    }
+
+    private void OnWorldMapSwitchEntryClicked()
+    {
+        DemoGameStateUINavigator navigator = ResolveNavigator();
+        if (navigator == null)
+        {
+            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
+            return;
+        }
+
+        navigator.ShowWorldMapSwitchPanel();
     }
 
     private void OnCarPanelUiEntryClicked()
@@ -333,30 +334,6 @@ public class DemoGameStateMenuUIDemo : MonoBehaviour
         }
 
         navigator.ShowCarPanelUiPanel();
-    }
-
-    private void OnPreviousLevelEntryClicked()
-    {
-        DemoGameStateUINavigator navigator = ResolveNavigator();
-        if (navigator == null)
-        {
-            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
-            return;
-        }
-
-        navigator.ShowPreviousLevelPanel();
-    }
-
-    private void OnBigScreenCarouselEntryClicked()
-    {
-        DemoGameStateUINavigator navigator = ResolveNavigator();
-        if (navigator == null)
-        {
-            LogManager.LogFeatureWarning("[DemoGameStateMenuUIDemo] 未找到 DemoGameStateUINavigator。");
-            return;
-        }
-
-        navigator.ShowBigScreenCarouselPanel();
     }
 
     private void OnHttpApiTestEntryClicked()

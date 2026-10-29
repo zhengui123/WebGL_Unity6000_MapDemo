@@ -12,10 +12,9 @@ public class DemoGameStateUINavigator : MonoBehaviour
     [SerializeField] private GameObject _menuPanel;
     [SerializeField] private GameObject _controlStateJumpPanel;
     [SerializeField] private GameObject _plateMapHighlightPanel;
-    [SerializeField] private GameObject _vehicleHeatmapUpdatePanel;
+    [SerializeField] private GameObject _simulateHeatmapPanel;
+    [SerializeField] private GameObject _worldMapSwitchPanel;
     [SerializeField] private GameObject _carPanelUiPanel;
-    [SerializeField] private GameObject _previousLevelPanel;
-    [SerializeField] private GameObject _bigScreenCarouselPanel;
     [SerializeField] private GameObject _httpApiTestPanel;
     [SerializeField] private GameObject _androidBridgeApiPanel;
     [SerializeField] private GameObject _threatHighRiskSecurityEventPanel;
@@ -70,24 +69,19 @@ public class DemoGameStateUINavigator : MonoBehaviour
         ShowOnly(_plateMapHighlightPanel);
     }
 
-    public void ShowVehicleHeatmapUpdatePanel()
+    public void ShowSimulateHeatmapPanel()
     {
-        ShowOnly(_vehicleHeatmapUpdatePanel);
+        ShowOnly(_simulateHeatmapPanel);
+    }
+
+    public void ShowWorldMapSwitchPanel()
+    {
+        ShowOnly(_worldMapSwitchPanel);
     }
 
     public void ShowCarPanelUiPanel()
     {
         ShowOnly(_carPanelUiPanel);
-    }
-
-    public void ShowPreviousLevelPanel()
-    {
-        ShowOnly(_previousLevelPanel);
-    }
-
-    public void ShowBigScreenCarouselPanel()
-    {
-        ShowOnly(_bigScreenCarouselPanel);
     }
 
     public void ShowHttpApiTestPanel()
@@ -126,10 +120,9 @@ public class DemoGameStateUINavigator : MonoBehaviour
         SetPanelActive(_menuPanel, true);
         SetPanelActive(_controlStateJumpPanel, activePanel == _controlStateJumpPanel);
         SetPanelActive(_plateMapHighlightPanel, activePanel == _plateMapHighlightPanel);
-        SetPanelActive(_vehicleHeatmapUpdatePanel, activePanel == _vehicleHeatmapUpdatePanel);
+        SetPanelActive(_simulateHeatmapPanel, activePanel == _simulateHeatmapPanel);
+        SetPanelActive(_worldMapSwitchPanel, activePanel == _worldMapSwitchPanel);
         SetPanelActive(_carPanelUiPanel, activePanel == _carPanelUiPanel);
-        SetPanelActive(_previousLevelPanel, activePanel == _previousLevelPanel);
-        SetPanelActive(_bigScreenCarouselPanel, activePanel == _bigScreenCarouselPanel);
         SetPanelActive(_httpApiTestPanel, activePanel == _httpApiTestPanel);
         SetPanelActive(_androidBridgeApiPanel, activePanel == _androidBridgeApiPanel);
         SetPanelActive(_threatHighRiskSecurityEventPanel, activePanel == _threatHighRiskSecurityEventPanel);

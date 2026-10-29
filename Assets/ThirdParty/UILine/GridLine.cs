@@ -30,18 +30,8 @@ public class GridLine : MonoBehaviour
     public static bool isShowGridLine = true;
     public Material lineMaterial;
 
-    /// <summary>Android 平台不播放零件→UI 画线（消息面板仍可由绑定 endUI 显示）。</summary>
-    public static bool IsLineDrawingSupportedOnCurrentPlatform
-    {
-        get
-        {
-#if UNITY_ANDROID
-            return false;
-#else
-            return true;
-#endif
-        }
-    }
+    /// <summary>是否播放零件→UI 画线动画（含 Android）。</summary>
+    public static bool IsLineDrawingSupportedOnCurrentPlatform => true;
 
     [Header("连线配置（三维物体 → UI）")]
     [SerializeField] private List<GridLineBindingData> _lineBindings = new List<GridLineBindingData>();
@@ -190,11 +180,6 @@ public class GridLine : MonoBehaviour
             //lineMaterial.shader.hideFlags = HideFlags.HideAndDontSave;
         }
 
-        if (!IsLineDrawingSupportedOnCurrentPlatform)
-        {
-            isShowGridLine = false;
-        }
-
         BuildBindingCache();
     }
 
@@ -211,12 +196,6 @@ public class GridLine : MonoBehaviour
             Debug.LogError($"[GridLine] 未找到三维物体连线配置：{start3DObjectName}");
             onComplete?.Invoke();
             return false;
-        }
-
-        // Android：不画线，仅切换激活绑定并显示 endUI（供 MessageListPanel）
-        if (!IsLineDrawingSupportedOnCurrentPlatform)
-        {
-            return ShowEndUiWithoutLine(start3DObjectName, targetBinding, onComplete);
         }
 
         if (IsSameActiveAndFullyShown(start3DObjectName, targetBinding))
@@ -309,19 +288,6 @@ public class GridLine : MonoBehaviour
             Debug.LogError($"[GridLine] 未找到三维物体连线配置：{start3DObjectName}");
             onComplete?.Invoke();
             return false;
-        }
-
-        if (!IsLineDrawingSupportedOnCurrentPlatform)
-        {
-            StopAnimation();
-            HideBinding(binding);
-            if (_activeStart3DName == start3DObjectName)
-            {
-                _activeStart3DName = null;
-            }
-
-            onComplete?.Invoke();
-            return true;
         }
 
         if (_activeStart3DName != start3DObjectName || !IsBindingVisible(binding))

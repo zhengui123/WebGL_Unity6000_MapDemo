@@ -554,7 +554,7 @@ namespace FCG
 
 
 
-            speed = myRigidbody.linearVelocity.magnitude * 3.6f;
+            //speed = myRigidbody.linearVelocity.magnitude * 3.6f;
 
             VerificaPoints();
 
