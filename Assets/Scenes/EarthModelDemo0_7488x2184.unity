@@ -130115,12 +130115,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 2656636409481426110}
   _westAnchor:
     marker: {fileID: 1410523508}
-    longitude: 73.50199890136719
-    latitude: 18.159000396728516
+    longitude: 11.193738
+    latitude: -4.885171
   _eastAnchor:
     marker: {fileID: 378196330}
-    longitude: 135.09500122070312
-    latitude: 53.55799865722656
+    longitude: 18.670595
+    latitude: 3.615502
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!33 &2656870163195054261
@@ -197894,12 +197894,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 4716471000865041907}
   _westAnchor:
     marker: {fileID: 289071875}
-    longitude: 9.3100004196167
+    longitude: 8.42619
     latitude: 1.0099999904632568
   _eastAnchor:
     marker: {fileID: 649085718}
     longitude: 11.289999961853027
-    latitude: 2.2799999713897705
+    latitude: 3.781394
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &8221748176204315592
