@@ -105305,18 +105305,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 241557482512623249}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u66FC-001"
-    longitude: 58.540350865986966
-    latitude: 17.858501847833395
-    alertValue: 0.3815363
-  - vehicleId: "\u963F\u66FC-002"
-    longitude: 57.32913752146328
-    latitude: 20.07606988400221
-    alertValue: 0.22876579
-  - vehicleId: "\u963F\u66FC-003"
-    longitude: 53.53656714665715
-    latitude: 22.011149153113365
-    alertValue: 0.5349463
+  - vehicleId: CAP-512
+    longitude: 58.593312
+    latitude: 23.613325
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -107771,18 +107763,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 433489992607221418}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u83AB\u6851\u6BD4\u514B-001"
-    longitude: 35.32755094576942
-    latitude: -18.881509659731478
-    alertValue: 0.9916774
-  - vehicleId: "\u83AB\u6851\u6BD4\u514B-002"
-    longitude: 32.563419744003795
-    latitude: -20.226088444722677
-    alertValue: 0.293195
-  - vehicleId: "\u83AB\u6851\u6BD4\u514B-003"
-    longitude: 31.540376529965556
-    latitude: -25.34988352532001
-    alertValue: 0.7850655
+  - vehicleId: CAP-508
+    longitude: 32.587217
+    latitude: -25.953332
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -113671,18 +113655,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 966374613229114578}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u73BB\u5229\u7EF4\u4E9A-001"
-    longitude: -69.05728809306254
-    latitude: -12.677146838816043
-    alertValue: 0.26359725
-  - vehicleId: "\u73BB\u5229\u7EF4\u4E9A-002"
-    longitude: -64.08183047663442
-    latitude: -10.32573514591968
-    alertValue: 0.4612256
-  - vehicleId: "\u73BB\u5229\u7EF4\u4E9A-003"
-    longitude: -67.75604003652688
-    latitude: -11.090723565781445
-    alertValue: 0.44849753
+  - vehicleId: CAP-068
+    longitude: -68.151931
+    latitude: -16.496028
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -116691,18 +116667,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 1332570280070328713}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u82F1\u56FD-001"
-    longitude: 0.3319741015753124
-    latitude: 53.285729141337924
-    alertValue: 0.27084857
-  - vehicleId: "\u82F1\u56FD-002"
-    longitude: 0.7157297606175632
-    latitude: 54.15199205593444
-    alertValue: 0.22134325
-  - vehicleId: "\u82F1\u56FD-003"
-    longitude: 0.03951201708912322
-    latitude: 50.22783759954498
-    alertValue: 0.21175757
+  - vehicleId: CAP-826
+    longitude: -0.118668
+    latitude: 51.501941
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -117055,18 +117023,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 1353399687170455327}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7259\u4E70\u52A0-001"
-    longitude: -77.32608375260952
-    latitude: 17.857921985623534
-    alertValue: 0.63283384
-  - vehicleId: "\u7259\u4E70\u52A0-002"
-    longitude: -76.79327426082727
-    latitude: 17.833008223445063
-    alertValue: 0.5057396
-  - vehicleId: "\u7259\u4E70\u52A0-003"
-    longitude: -76.30895323745244
-    latitude: 17.895510694340146
-    alertValue: 0.6964949
+  - vehicleId: CAP-388
+    longitude: -76.767434
+    latitude: 17.977077
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -119102,18 +119062,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 1548316947814759775}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4EE5\u8272\u5217-001"
-    longitude: 34.311662705079215
-    latitude: 30.63515448211092
-    alertValue: 0.5068712
-  - vehicleId: "\u4EE5\u8272\u5217-002"
-    longitude: 35.6304782166053
-    latitude: 30.307932061709835
-    alertValue: 0.34767556
-  - vehicleId: "\u4EE5\u8272\u5217-003"
-    longitude: 34.50940096925376
-    latitude: 29.504698070402664
-    alertValue: 0.8278173
+  - vehicleId: CAP-376
+    longitude: 35.206626
+    latitude: 31.778408
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -119397,18 +119349,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 1561856550457341954}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E2D\u975E\u5171\u548C\u56FD-001"
-    longitude: 25.212318632229426
-    latitude: 2.4962003510848003
-    alertValue: 0.8223561
-  - vehicleId: "\u4E2D\u975E\u5171\u548C\u56FD-002"
-    longitude: 14.482159987300598
-    latitude: 4.675301684363475
-    alertValue: 0.34419063
-  - vehicleId: "\u4E2D\u975E\u5171\u548C\u56FD-003"
-    longitude: 15.427710623811983
-    latitude: 5.6359967444684855
-    alertValue: 0.5225368
+  - vehicleId: CAP-140
+    longitude: 18.558288
+    latitude: 4.366644
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -125189,18 +125133,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 2149974021896628946}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5B89\u9053\u5C14-001"
-    longitude: 1.7147455749418157
-    latitude: 42.5200989330699
-    alertValue: 0.16355279
-  - vehicleId: "\u5B89\u9053\u5C14-002"
-    longitude: 1.5092270570462993
-    latitude: 42.530795138139865
-    alertValue: 0.80585486
-  - vehicleId: "\u5B89\u9053\u5C14-003"
-    longitude: 1.678237211914599
-    latitude: 42.59793453588759
-    alertValue: 0.27394587
+  - vehicleId: CAP-020
+    longitude: 1.516486
+    latitude: 42.500001
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -128535,18 +128471,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 2516461283264190930}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CD5\u56FD-001"
-    longitude: 8.56632464406141
-    latitude: 45.78219275258607
-    alertValue: 0.64087737
-  - vehicleId: "\u6CD5\u56FD-002"
-    longitude: 7.287202941242754
-    latitude: 49.85415960937189
-    alertValue: 0.65601546
-  - vehicleId: "\u6CD5\u56FD-003"
-    longitude: 8.288014127312522
-    latitude: 45.519017640345965
-    alertValue: 0.72064257
+  - vehicleId: CAP-250
+    longitude: 2.33139
+    latitude: 48.868639
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -129513,18 +129441,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 2618520028550396407}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5E0C\u814A-001"
-    longitude: 22.077533712994068
-    latitude: 37.08073038977727
-    alertValue: 0.32736084
-  - vehicleId: "\u5E0C\u814A-002"
-    longitude: 20.93615383938669
-    latitude: 40.03030328321802
-    alertValue: 0.5755
-  - vehicleId: "\u5E0C\u814A-003"
-    longitude: 25.17459278531578
-    latitude: 41.08462067916844
-    alertValue: 0.4548722
+  - vehicleId: CAP-300
+    longitude: 23.731375
+    latitude: 37.985272
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -130137,18 +130057,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 2656636409481426113}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u521A\u679C-001"
-    longitude: 82.11349160365148
-    latitude: 19.761718755311264
-    alertValue: 0.61040866
-  - vehicleId: "\u521A\u679C-002"
-    longitude: 123.17430764883647
-    latitude: 44.41105282902822
-    alertValue: 0.6996504
-  - vehicleId: "\u521A\u679C-003"
-    longitude: 119.50242881740542
-    latitude: 43.24064539521555
-    alertValue: 0.7976754
+  - vehicleId: CAP-178
+    longitude: 15.282744
+    latitude: -4.25724
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -131162,18 +131074,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 2719574728962701966}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u5E03\u4E9A\u65B0\u51E0\u5185\u4E9A-001"
-    longitude: 150.48042639156938
-    latitude: -6.7294844465665165
-    alertValue: 0.5705757
-  - vehicleId: "\u5DF4\u5E03\u4E9A\u65B0\u51E0\u5185\u4E9A-002"
-    longitude: 143.64718079257887
-    latitude: -5.804938474578307
-    alertValue: 0.9003809
-  - vehicleId: "\u5DF4\u5E03\u4E9A\u65B0\u51E0\u5185\u4E9A-003"
-    longitude: 143.4588803320837
-    latitude: -5.859553504694873
-    alertValue: 0.12597665
+  - vehicleId: CAP-598
+    longitude: 147.192504
+    latitude: -9.464708
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -134277,18 +134181,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3029588625346748642}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u57FA\u65AF\u5766-001"
-    longitude: 67.87247902822241
-    latitude: 25.214700578240553
-    alertValue: 0.16533196
-  - vehicleId: "\u5DF4\u57FA\u65AF\u5766-002"
-    longitude: 74.87773667793226
-    latitude: 28.8969639749115
-    alertValue: 0.3440419
-  - vehicleId: "\u5DF4\u57FA\u65AF\u5766-003"
-    longitude: 74.92659572312186
-    latitude: 31.7222020479918
-    alertValue: 0.2309491
+  - vehicleId: CAP-586
+    longitude: 73.164689
+    latitude: 33.701942
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -134941,18 +134837,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3101058713514736112}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u52A0\u84EC-001"
-    longitude: 11.003656282515124
-    latitude: -3.2100461709285
-    alertValue: 0.92106825
-  - vehicleId: "\u52A0\u84EC-002"
-    longitude: 10.04124419798265
-    latitude: -0.06976216583856854
-    alertValue: 0.7538467
-  - vehicleId: "\u52A0\u84EC-003"
-    longitude: 14.359449194427725
-    latitude: 1.0906411736342534
-    alertValue: 0.40535507
+  - vehicleId: CAP-266
+    longitude: 9.457965
+    latitude: 0.385389
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -135799,18 +135687,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3165957616235779979}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65AF\u6D1B\u6587\u5C3C\u4E9A-001"
-    longitude: 15.778032576732073
-    latitude: 46.74016069249501
-    alertValue: 0.7071441
-  - vehicleId: "\u65AF\u6D1B\u6587\u5C3C\u4E9A-002"
-    longitude: 16.049788369390853
-    latitude: 46.84533165264156
-    alertValue: 0.40997073
-  - vehicleId: "\u65AF\u6D1B\u6587\u5C3C\u4E9A-003"
-    longitude: 14.59916798228548
-    latitude: 46.46223430847135
-    alertValue: 0.99062437
+  - vehicleId: CAP-705
+    longitude: 14.514969
+    latitude: 46.055288
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -135933,18 +135813,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3167467945279984077}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7F05\u7538-001"
-    longitude: 99.62980256344508
-    latitude: 23.599840111085314
-    alertValue: 0.2764402
-  - vehicleId: "\u7F05\u7538-002"
-    longitude: 98.08873664624434
-    latitude: 14.328330982529565
-    alertValue: 0.14034954
-  - vehicleId: "\u7F05\u7538-003"
-    longitude: 92.37312540527012
-    latitude: 26.773343272081092
-    alertValue: 0.8212753
+  - vehicleId: CAP-104
+    longitude: 96.164732
+    latitude: 16.7853
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -137543,18 +137415,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3291952305441658916}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7279\u7ACB\u5C3C\u8FBE\u548C\u591A\u5DF4\u54E5-001"
-    longitude: -61.446118580852044
-    latitude: 10.254011352594972
-    alertValue: 0.59576154
-  - vehicleId: "\u7279\u7ACB\u5C3C\u8FBE\u548C\u591A\u5DF4\u54E5-002"
-    longitude: -61.03768840560497
-    latitude: 10.554582964134795
-    alertValue: 0.2737004
-  - vehicleId: "\u7279\u7ACB\u5C3C\u8FBE\u548C\u591A\u5DF4\u54E5-003"
-    longitude: -61.305905151476736
-    latitude: 10.431925658308444
-    alertValue: 0.5537028
+  - vehicleId: CAP-780
+    longitude: -61.517031
+    latitude: 10.651997
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -138045,18 +137909,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3314871514854689192}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6FB3\u5927\u5229\u4E9A-001"
-    longitude: 132.24036464363053
-    latitude: -22.22545633756056
-    alertValue: 0.9401773
-  - vehicleId: "\u6FB3\u5927\u5229\u4E9A-002"
-    longitude: 144.89888143967983
-    latitude: -24.279971322480037
-    alertValue: 0.67413926
-  - vehicleId: "\u6FB3\u5927\u5229\u4E9A-003"
-    longitude: 123.5503181645372
-    latitude: -38.61250275295342
-    alertValue: 0.8853262
+  - vehicleId: CAP-036
+    longitude: 149.129026
+    latitude: -35.283029
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -140131,18 +139987,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3551347209524073686}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u585E\u62C9\u5229\u6602-001"
-    longitude: -12.107342986713093
-    latitude: 6.832313942415549
-    alertValue: 0.4232246
-  - vehicleId: "\u585E\u62C9\u5229\u6602-002"
-    longitude: -10.927232473677122
-    latitude: 8.62165327891887
-    alertValue: 0.7291905
-  - vehicleId: "\u585E\u62C9\u5229\u6602-003"
-    longitude: -11.223323172692517
-    latitude: 7.112841777520174
-    alertValue: 0.14396828
+  - vehicleId: CAP-694
+    longitude: -13.236162
+    latitude: 8.471957
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -141233,18 +141081,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3641354059146258123}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u5DF4\u591A\u65AF-001"
-    longitude: -59.54004256755775
-    latitude: 13.15284069202147
-    alertValue: 0.577775
-  - vehicleId: "\u5DF4\u5DF4\u591A\u65AF-002"
-    longitude: -59.48003951578153
-    latitude: 13.250043722418866
-    alertValue: 0.47225988
-  - vehicleId: "\u5DF4\u5DF4\u591A\u65AF-003"
-    longitude: -59.569539004922035
-    latitude: 13.072974135084408
-    alertValue: 0.45256644
+  - vehicleId: CAP-052
+    longitude: -59.616527
+    latitude: 13.102003
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -142377,18 +142217,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3774706168349846304}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u610F\u5927\u5229-001"
-    longitude: 7.663815205570842
-    latitude: 46.441113233566284
-    alertValue: 0.33608896
-  - vehicleId: "\u610F\u5927\u5229-002"
-    longitude: 16.130736782439726
-    latitude: 44.65298318862915
-    alertValue: 0.24613854
-  - vehicleId: "\u610F\u5927\u5229-003"
-    longitude: 9.178469825685283
-    latitude: 44.4871651828289
-    alertValue: 0.24998173
+  - vehicleId: CAP-380
+    longitude: 12.481313
+    latitude: 41.897902
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -143445,10 +143277,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3879762697208835002}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65E5\u672C-001"
-    longitude: 139.6503
-    latitude: 35.6762
-    alertValue: 0.85167223
+  - vehicleId: CAP-392
+    longitude: 139.749462
+    latitude: 35.686963
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -143923,18 +143755,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 3910955263952393465}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u67EC\u57D4\u5BE8-001"
-    longitude: 107.38775654588335
-    latitude: 12.019102017896273
-    alertValue: 0.33885077
-  - vehicleId: "\u67EC\u57D4\u5BE8-002"
-    longitude: 103.72246184000574
-    latitude: 12.93979332634433
-    alertValue: 0.73217916
-  - vehicleId: "\u67EC\u57D4\u5BE8-003"
-    longitude: 103.75845400016146
-    latitude: 13.594404677514376
-    alertValue: 0.15574157
+  - vehicleId: CAP-116
+    longitude: 104.914689
+    latitude: 11.551976
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -145196,18 +145020,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4024260358103184701}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u62C9\u8131\u7EF4\u4E9A-001"
-    longitude: 28.170705422259516
-    latitude: 55.79599766550311
-    alertValue: 0.36474547
-  - vehicleId: "\u62C9\u8131\u7EF4\u4E9A-002"
-    longitude: 21.301149547212184
-    latitude: 55.813191667234804
-    alertValue: 0.7191166
-  - vehicleId: "\u62C9\u8131\u7EF4\u4E9A-003"
-    longitude: 21.332456437575296
-    latitude: 56.019289428715126
-    alertValue: 0.7450008
+  - vehicleId: CAP-428
+    longitude: 24.099965
+    latitude: 56.950024
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -145399,18 +145215,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4037258257540251744}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5317\u9A6C\u5176\u987F-001"
-    longitude: 20.548493418480618
-    latitude: 40.902634640185696
-    alertValue: 0.7077124
-  - vehicleId: "\u5317\u9A6C\u5176\u987F-002"
-    longitude: 20.814331727607794
-    latitude: 41.88366392041621
-    alertValue: 0.39534473
-  - vehicleId: "\u5317\u9A6C\u5176\u987F-003"
-    longitude: 22.292229211992662
-    latitude: 41.251486113352826
-    alertValue: 0.4320926
+  - vehicleId: CAP-807
+    longitude: 21.433462
+    latitude: 42.000006
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -145801,18 +145609,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4071392509076841982}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u591A\u54E5-001"
-    longitude: 0.35189069788825045
-    latitude: 6.667951600759984
-    alertValue: 0.16722366
-  - vehicleId: "\u591A\u54E5-002"
-    longitude: 1.410928043000892
-    latitude: 9.290619388945657
-    alertValue: 0.6718225
-  - vehicleId: "\u591A\u54E5-003"
-    longitude: 0.4378104216457178
-    latitude: 7.437879221041854
-    alertValue: 0.10719573
+  - vehicleId: CAP-768
+    longitude: 1.220811
+    latitude: 6.133883
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -146479,18 +146279,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4137189341924856539}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4FC4\u7F57\u65AF-001"
-    longitude: -173.68019990622997
-    latitude: 47.52670175755554
-    alertValue: 0.21882959
-  - vehicleId: "\u4FC4\u7F57\u65AF-002"
-    longitude: 110.77948093414307
-    latitude: 52.98459634153528
-    alertValue: 0.84597135
-  - vehicleId: "\u4FC4\u7F57\u65AF-003"
-    longitude: -53.40886473655701
-    latitude: 72.23166302188292
-    alertValue: 0.23212916
+  - vehicleId: CAP-643
+    longitude: 37.613577
+    latitude: 55.75411
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -146944,18 +146736,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4198646370206883474}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65B0\u52A0\u5761-001"
-    longitude: 104.04451781511307
-    latitude: 1.1966218340820145
-    alertValue: 0.7793776
-  - vehicleId: "\u65B0\u52A0\u5761-002"
-    longitude: 104.08403694629669
-    latitude: 1.2040035033827845
-    alertValue: 0.20405695
-  - vehicleId: "\u65B0\u52A0\u5761-003"
-    longitude: 104.08097404241562
-    latitude: 1.4787485692833968
-    alertValue: 0.595115
+  - vehicleId: CAP-702
+    longitude: 103.853875
+    latitude: 1.294979
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -148206,18 +147990,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4279760446174722414}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6C99\u7279\u963F\u62C9\u4F2F-001"
-    longitude: 39.15852780646139
-    latitude: 30.992295124636485
-    alertValue: 0.5737909
-  - vehicleId: "\u6C99\u7279\u963F\u62C9\u4F2F-002"
-    longitude: 42.54415735388716
-    latitude: 16.41819256096298
-    alertValue: 0.37537044
-  - vehicleId: "\u6C99\u7279\u963F\u62C9\u4F2F-003"
-    longitude: 42.766109723511136
-    latitude: 20.579956653580496
-    alertValue: 0.89122164
+  - vehicleId: CAP-682
+    longitude: 46.770796
+    latitude: 24.642779
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -148998,18 +148774,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4361139904065187546}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u591A\u7C73\u5C3C\u514B-001"
-    longitude: -61.312930721590874
-    latitude: 15.348366973477084
-    alertValue: 0.9184914
-  - vehicleId: "\u591A\u7C73\u5C3C\u514B-002"
-    longitude: -61.44289045582252
-    latitude: 15.358401856758462
-    alertValue: 0.9153417
-  - vehicleId: "\u591A\u7C73\u5C3C\u514B-003"
-    longitude: -61.25648156756051
-    latitude: 15.561888862214573
-    alertValue: 0.29169726
+  - vehicleId: CAP-212
+    longitude: -61.387013
+    latitude: 15.301016
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -149121,18 +148889,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4362197425603261691}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6590\u6D4E-001"
-    longitude: 33.252718448638916
-    latitude: -16.213190880633192
-    alertValue: 0.79590994
-  - vehicleId: "\u6590\u6D4E-002"
-    longitude: -164.32873114943504
-    latitude: -17.14650977380711
-    alertValue: 0.72132266
-  - vehicleId: "\u6590\u6D4E-003"
-    longitude: -33.639514446258545
-    latitude: -17.4753546219373
-    alertValue: 0.9854694
+  - vehicleId: CAP-242
+    longitude: 178.441707
+    latitude: -18.133016
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -149244,18 +149004,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4365603570243797293}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5409\u5E03\u63D0-001"
-    longitude: 42.405705773234104
-    latitude: 11.609931000109952
-    alertValue: 0.4357255
-  - vehicleId: "\u5409\u5E03\u63D0-002"
-    longitude: 42.340905168648305
-    latitude: 11.370444246212486
-    alertValue: 0.8809762
-  - vehicleId: "\u5409\u5E03\u63D0-003"
-    longitude: 42.000402442517384
-    latitude: 11.080025810959647
-    alertValue: 0.65366757
+  - vehicleId: CAP-262
+    longitude: 43.148002
+    latitude: 11.595015
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -150151,18 +149903,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4432052227112162899}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8D8A\u5357-001"
-    longitude: 102.50809281037311
-    latitude: 9.05908992420882
-    alertValue: 0.3444714
-  - vehicleId: "\u8D8A\u5357-002"
-    longitude: 109.07406920071662
-    latitude: 22.565811961889267
-    alertValue: 0.33444208
-  - vehicleId: "\u8D8A\u5357-003"
-    longitude: 108.50130838473888
-    latitude: 14.072474889457226
-    alertValue: 0.7213188
+  - vehicleId: CAP-704
+    longitude: 105.848068
+    latitude: 21.035273
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -150886,18 +150630,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4488918586889929510}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E4C\u62C9\u572D-001"
-    longitude: -53.41589727686733
-    latitude: -32.38756769446513
-    alertValue: 0.22175705
-  - vehicleId: "\u4E4C\u62C9\u572D-002"
-    longitude: -53.52282176180597
-    latitude: -31.01205632192614
-    alertValue: 0.4762272
-  - vehicleId: "\u4E4C\u62C9\u572D-003"
-    longitude: -54.07044346188559
-    latitude: -31.125704420639977
-    alertValue: 0.91495496
+  - vehicleId: CAP-858
+    longitude: -56.172998
+    latitude: -34.856096
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -151987,18 +151723,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4581123956623153800}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u9A6C\u91CC-001"
-    longitude: 0.5023497164244191
-    latitude: 20.975705962393704
-    alertValue: 0.7897077
-  - vehicleId: "\u9A6C\u91CC-002"
-    longitude: -7.8060779908402225
-    latitude: 17.251728995524218
-    alertValue: 0.5087339
-  - vehicleId: "\u9A6C\u91CC-003"
-    longitude: 2.523993915202823
-    latitude: 15.974735419171566
-    alertValue: 0.89105177
+  - vehicleId: CAP-466
+    longitude: -8.001985
+    latitude: 12.651961
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -152441,18 +152169,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4617038677497318118}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u521A\u679C\u6C11\u4E3B\u5171\u548C\u56FD-001"
-    longitude: 30.77433584213304
-    latitude: -4.9826225642848385
-    alertValue: 0.69047767
-  - vehicleId: "\u521A\u679C\u6C11\u4E3B\u5171\u548C\u56FD-002"
-    longitude: 13.846734335226827
-    latitude: -7.450044446628567
-    alertValue: 0.64581436
-  - vehicleId: "\u521A\u679C\u6C11\u4E3B\u5171\u548C\u56FD-003"
-    longitude: 24.304918870818597
-    latitude: 2.772914414920706
-    alertValue: 0.524131
+  - vehicleId: CAP-180
+    longitude: 15.313026
+    latitude: -4.327778
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -152612,18 +152332,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4621470129922148460}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8499\u53E4-001"
-    longitude: 112.52745942228466
-    latitude: 51.3048752538748
-    alertValue: 0.6655288
-  - vehicleId: "\u8499\u53E4-002"
-    longitude: 102.71483763327205
-    latitude: 44.04370906461793
-    alertValue: 0.64474136
-  - vehicleId: "\u8499\u53E4-003"
-    longitude: 115.2638255838101
-    latitude: 48.6517235450458
-    alertValue: 0.5802482
+  - vehicleId: CAP-496
+    longitude: 106.91467
+    latitude: 47.918619
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -152841,18 +152553,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4636413200680920151}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65AF\u5A01\u58EB\u5170-001"
-    longitude: 31.75253759853331
-    latitude: -27.15354309416128
-    alertValue: 0.2908397
-  - vehicleId: "\u65AF\u5A01\u58EB\u5170-002"
-    longitude: 31.446941256524042
-    latitude: -26.03580328294811
-    alertValue: 0.39747366
-  - vehicleId: "\u65AF\u5A01\u58EB\u5170-003"
-    longitude: 31.784071296835464
-    latitude: -26.276220438757036
-    alertValue: 0.8384673
+  - vehicleId: CAP-748
+    longitude: 31.133335
+    latitude: -26.316651
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -153448,18 +153152,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4676833567596346258}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E1C\u5E1D\u6C76-001"
-    longitude: 125.87274640597025
-    latitude: -9.19758032142299
-    alertValue: 0.27725464
-  - vehicleId: "\u4E1C\u5E1D\u6C76-002"
-    longitude: 126.94530689374369
-    latitude: -8.463558806668857
-    alertValue: 0.6789408
-  - vehicleId: "\u4E1C\u5E1D\u6C76-003"
-    longitude: 125.7295596200529
-    latitude: -8.364510755418678
-    alertValue: 0.2094647
+  - vehicleId: CAP-626
+    longitude: 125.579456
+    latitude: -8.559388
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -155766,18 +155462,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4908126933083968973}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u54E5\u65AF\u8FBE\u9ECE\u52A0-001"
-    longitude: -84.65476306630717
-    latitude: 9.844169066825373
-    alertValue: 0.87880033
-  - vehicleId: "\u54E5\u65AF\u8FBE\u9ECE\u52A0-002"
-    longitude: -84.8689436304744
-    latitude: 10.768645534777079
-    alertValue: 0.9484707
-  - vehicleId: "\u54E5\u65AF\u8FBE\u9ECE\u52A0-003"
-    longitude: -84.9341349627598
-    latitude: 8.64185088887534
-    alertValue: 0.314354
+  - vehicleId: CAP-188
+    longitude: -84.085997
+    latitude: 9.936958
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -156073,18 +155761,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4925727630592883196}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CD5\u5C5E\u572D\u4E9A\u90A3\uFF08\u6CD5\uFF09-001"
-    longitude: -52.25238609313965
-    latitude: 3.051809229253145
-    alertValue: 0.3123209
-  - vehicleId: "\u6CD5\u5C5E\u572D\u4E9A\u90A3\uFF08\u6CD5\uFF09-002"
-    longitude: -51.85109078884125
-    latitude: 2.330004169658922
-    alertValue: 0.21273851
-  - vehicleId: "\u6CD5\u5C5E\u572D\u4E9A\u90A3\uFF08\u6CD5\uFF09-003"
-    longitude: -54.173307970166206
-    latitude: 2.694982199615797
-    alertValue: 0.8205444
+  - vehicleId: CAP-254
+    longitude: -52.3135
+    latitude: 4.9224
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -156293,18 +155973,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4944964965306875175}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5C3C\u65E5\u5229\u4E9A-001"
-    longitude: 10.559310425965322
-    latitude: 13.524349495833235
-    alertValue: 0.2643174
-  - vehicleId: "\u5C3C\u65E5\u5229\u4E9A-002"
-    longitude: 14.259470858596899
-    latitude: 9.71547662387394
-    alertValue: 0.19699684
-  - vehicleId: "\u5C3C\u65E5\u5229\u4E9A-003"
-    longitude: 14.159155901627798
-    latitude: 10.8461986903622
-    alertValue: 0.25581232
+  - vehicleId: CAP-566
+    longitude: 7.531382
+    latitude: 9.085279
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -156522,18 +156194,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 4957543911480542139}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5357\u975E-001"
-    longitude: 29.98727694305626
-    latitude: -24.241854544984562
-    alertValue: 0.890281
-  - vehicleId: "\u5357\u975E-002"
-    longitude: 22.357846909861905
-    latitude: -22.525444451409385
-    alertValue: 0.82833874
-  - vehicleId: "\u5357\u975E-003"
-    longitude: 25.399835623591798
-    latitude: -32.636783750929396
-    alertValue: 0.6243482
+  - vehicleId: CAP-710
+    longitude: 18.433042
+    latitude: -33.918065
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -157504,18 +157168,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5070428541314890955}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5723\u6587\u68EE\u7279\u548C\u683C\u6797\u7EB3\u4E01\u65AF-001"
-    longitude: -61.20375829292925
-    latitude: 12.79299476456518
-    alertValue: 0.83666086
-  - vehicleId: "\u5723\u6587\u68EE\u7279\u548C\u683C\u6797\u7EB3\u4E01\u65AF-002"
-    longitude: -61.1580431393395
-    latitude: 13.263644572173234
-    alertValue: 0.58326644
-  - vehicleId: "\u5723\u6587\u68EE\u7279\u548C\u683C\u6797\u7EB3\u4E01\u65AF-003"
-    longitude: -61.41250470795569
-    latitude: 12.629292791913237
-    alertValue: 0.9687765
+  - vehicleId: CAP-670
+    longitude: -61.212062
+    latitude: 13.148279
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -157794,18 +157450,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5088941342507541756}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4F0A\u6717-001"
-    longitude: 53.81856701536117
-    latitude: 28.29474105126343
-    alertValue: 0.78221405
-  - vehicleId: "\u4F0A\u6717-002"
-    longitude: 57.975718971681545
-    latitude: 26.366922846448873
-    alertValue: 0.121693924
-  - vehicleId: "\u4F0A\u6717-003"
-    longitude: 51.316561254725
-    latitude: 38.63009807820936
-    alertValue: 0.54167694
+  - vehicleId: CAP-364
+    longitude: 51.422398
+    latitude: 35.673889
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -158108,18 +157756,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5105889554242609210}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u683C\u6797\u7EB3\u8FBE-001"
-    longitude: -61.61025738566104
-    latitude: 12.076370911200627
-    alertValue: 0.32683522
-  - vehicleId: "\u683C\u6797\u7EB3\u8FBE-002"
-    longitude: -61.74531387972149
-    latitude: 12.035578071525777
-    alertValue: 0.13897088
-  - vehicleId: "\u683C\u6797\u7EB3\u8FBE-003"
-    longitude: -61.78622128355872
-    latitude: 12.084809961793894
-    alertValue: 0.97611415
+  - vehicleId: CAP-308
+    longitude: -61.741643
+    latitude: 12.052633
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -158622,18 +158262,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5164638365529546972}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u82CF\u4E39-001"
-    longitude: 32.77061883416684
-    latitude: 13.54572764377778
-    alertValue: 0.17416877
-  - vehicleId: "\u82CF\u4E39-002"
-    longitude: 28.168797114684935
-    latitude: 17.128055927806315
-    alertValue: 0.37589818
-  - vehicleId: "\u82CF\u4E39-003"
-    longitude: 25.810449135768465
-    latitude: 9.336052452042814
-    alertValue: 0.51804197
+  - vehicleId: CAP-729
+    longitude: 32.532233
+    latitude: 15.590024
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -159467,18 +159099,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5248293483842673836}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E2D\u56FD-001"
-    longitude: 124.64801240360794
-    latitude: 41.4876273665534
-    alertValue: 0.52765137
-  - vehicleId: "\u4E2D\u56FD-002"
-    longitude: 90.48849841713263
-    latitude: 21.142175537434554
-    alertValue: 0.2903612
-  - vehicleId: "\u4E2D\u56FD-003"
-    longitude: 87.88623583304206
-    latitude: 47.71227444275564
-    alertValue: 0.49454817
+  - vehicleId: CAP-156
+    longitude: 116.38634
+    latitude: 39.930838
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -159646,18 +159270,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5261178584568137644}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5409\u5C14\u5409\u65AF\u65AF\u5766-001"
-    longitude: 74.63371330065911
-    latitude: 39.518237497666036
-    alertValue: 0.28290862
-  - vehicleId: "\u5409\u5C14\u5409\u65AF\u65AF\u5766-002"
-    longitude: 73.15567591907029
-    latitude: 39.58774568619933
-    alertValue: 0.2655424
-  - vehicleId: "\u5409\u5C14\u5409\u65AF\u65AF\u5766-003"
-    longitude: 78.230447815562
-    latitude: 39.681292129257315
-    alertValue: 0.533322
+  - vehicleId: CAP-417
+    longitude: 74.583258
+    latitude: 42.875025
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -160917,18 +160533,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5346878778091169429}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u9ECE\u5DF4\u5AE9-001"
-    longitude: 36.11923821608184
-    latitude: 33.20512804645395
-    alertValue: 0.9219869
-  - vehicleId: "\u9ECE\u5DF4\u5AE9-002"
-    longitude: 35.76786754190857
-    latitude: 33.11548385846563
-    alertValue: 0.3101042
-  - vehicleId: "\u9ECE\u5DF4\u5AE9-003"
-    longitude: 36.58329444757601
-    latitude: 34.353399471447574
-    alertValue: 0.1880228
+  - vehicleId: CAP-422
+    longitude: 35.507762
+    latitude: 33.873921
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -161232,18 +160840,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5368463863346445436}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7A81\u5C3C\u65AF-001"
-    longitude: 7.612606725809141
-    latitude: 35.61091912928532
-    alertValue: 0.30431694
-  - vehicleId: "\u7A81\u5C3C\u65AF-002"
-    longitude: 11.034333335400618
-    latitude: 33.871037897050314
-    alertValue: 0.3365534
-  - vehicleId: "\u7A81\u5C3C\u65AF-003"
-    longitude: 10.776869492071683
-    latitude: 30.77989630277959
-    alertValue: 0.9357607
+  - vehicleId: CAP-788
+    longitude: 10.179678
+    latitude: 36.802778
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -162391,18 +161991,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5440904460607179019}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7ACB\u9676\u5B9B-001"
-    longitude: 21.718316608303468
-    latitude: 55.271626341231695
-    alertValue: 0.47589803
-  - vehicleId: "\u7ACB\u9676\u5B9B-002"
-    longitude: 23.212842185185195
-    latitude: 54.703368956820896
-    alertValue: 0.82062805
-  - vehicleId: "\u7ACB\u9676\u5B9B-003"
-    longitude: 25.48188560912581
-    latitude: 54.20499744016308
-    alertValue: 0.4265307
+  - vehicleId: CAP-440
+    longitude: 25.316635
+    latitude: 54.683366
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -162569,18 +162161,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5450909351082029836}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7F57\u9A6C\u5C3C\u4E9A-001"
-    longitude: 21.905792935721763
-    latitude: 47.957893034333665
-    alertValue: 0.75734293
-  - vehicleId: "\u7F57\u9A6C\u5C3C\u4E9A-002"
-    longitude: 28.317003344130626
-    latitude: 47.575573514041025
-    alertValue: 0.12972349
-  - vehicleId: "\u7F57\u9A6C\u5C3C\u4E9A-003"
-    longitude: 20.80134109485718
-    latitude: 44.600332604088294
-    alertValue: 0.6538607
+  - vehicleId: CAP-642
+    longitude: 26.098001
+    latitude: 44.435318
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -162764,18 +162348,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5457166156005131824}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5361\u5854\u5C14-001"
-    longitude: 50.84280056596259
-    latitude: 24.76958869002462
-    alertValue: 0.38097754
-  - vehicleId: "\u5361\u5854\u5C14-002"
-    longitude: 50.75562567862085
-    latitude: 25.01735251785948
-    alertValue: 0.9390877
-  - vehicleId: "\u5361\u5854\u5C14-003"
-    longitude: 51.28019612808362
-    latitude: 24.699663527237234
-    alertValue: 0.5179233
+  - vehicleId: CAP-634
+    longitude: 51.532968
+    latitude: 25.286556
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -163855,18 +163431,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5542267298691078694}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5188\u6BD4\u4E9A-001"
-    longitude: -16.78712665475905
-    latitude: 13.62600801885128
-    alertValue: 0.53598905
-  - vehicleId: "\u5188\u6BD4\u4E9A-002"
-    longitude: -15.346084654331207
-    latitude: 13.360195271670818
-    alertValue: 0.76935136
-  - vehicleId: "\u5188\u6BD4\u4E9A-003"
-    longitude: -16.139082342386246
-    latitude: 13.386469386518002
-    alertValue: 0.188108
+  - vehicleId: CAP-270
+    longitude: -16.591702
+    latitude: 13.453877
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -164576,18 +164144,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5610347696650033778}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u54E5\u4F26\u6BD4\u4E9A-001"
-    longitude: -69.66167557073459
-    latitude: -2.8100744562909057
-    alertValue: 0.4261173
-  - vehicleId: "\u54E5\u4F26\u6BD4\u4E9A-002"
-    longitude: -72.08595070076353
-    latitude: 5.584519626652195
-    alertValue: 0.81998205
-  - vehicleId: "\u54E5\u4F26\u6BD4\u4E9A-003"
-    longitude: -66.9969611596407
-    latitude: 4.411695040560858
-    alertValue: 0.7638712
+  - vehicleId: CAP-170
+    longitude: -74.08529
+    latitude: 4.598369
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -164720,18 +164280,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5615275304458358021}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u62C9\u572D-001"
-    longitude: -58.15527841628523
-    latitude: -23.316150319043572
-    alertValue: 0.68393785
-  - vehicleId: "\u5DF4\u62C9\u572D-002"
-    longitude: -56.7256089011305
-    latitude: -20.77364318119362
-    alertValue: 0.37557268
-  - vehicleId: "\u5DF4\u62C9\u572D-003"
-    longitude: -57.515881446189496
-    latitude: -25.046361738385485
-    alertValue: 0.28965846
+  - vehicleId: CAP-600
+    longitude: -57.643451
+    latitude: -25.294457
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -166402,18 +165954,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5784418512645729695}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8D5E\u6BD4\u4E9A-001"
-    longitude: 30.655744899370347
-    latitude: -16.441919942450824
-    alertValue: 0.46928787
-  - vehicleId: "\u8D5E\u6BD4\u4E9A-002"
-    longitude: 30.077286499901902
-    latitude: -8.886673538301693
-    alertValue: 0.8059616
-  - vehicleId: "\u8D5E\u6BD4\u4E9A-003"
-    longitude: 33.030808739657004
-    latitude: -17.308857242865784
-    alertValue: 0.34787416
+  - vehicleId: CAP-894
+    longitude: 28.281382
+    latitude: -15.414698
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -166580,18 +166124,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5789563718260830979}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4F0A\u62C9\u514B-001"
-    longitude: 45.8339827650434
-    latitude: 35.030526662231864
-    alertValue: 0.6515662
-  - vehicleId: "\u4F0A\u62C9\u514B-002"
-    longitude: 44.89182139649165
-    latitude: 30.245075908545317
-    alertValue: 0.2964185
-  - vehicleId: "\u4F0A\u62C9\u514B-003"
-    longitude: 41.53890271267937
-    latitude: 36.988593091113444
-    alertValue: 0.80773205
+  - vehicleId: CAP-368
+    longitude: 44.391923
+    latitude: 33.340594
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -166888,18 +166424,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5825998052999053895}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6D25\u5DF4\u5E03\u97E6-001"
-    longitude: 28.07649007620995
-    latitude: -16.25296614301442
-    alertValue: 0.1644434
-  - vehicleId: "\u6D25\u5DF4\u5E03\u97E6-002"
-    longitude: 27.272061052956644
-    latitude: -21.718124430269498
-    alertValue: 0.1762861
-  - vehicleId: "\u6D25\u5DF4\u5E03\u97E6-003"
-    longitude: 28.038075959648552
-    latitude: -18.89922456057309
-    alertValue: 0.4644538
+  - vehicleId: CAP-716
+    longitude: 31.042764
+    latitude: -17.815844
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -167403,18 +166931,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5883069022477790371}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-001"
-    longitude: 166.5813238031078
-    latitude: -21.748248862675894
-    alertValue: 0.2124058
-  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-002"
-    longitude: 166.2029215386301
-    latitude: -20.91211795577476
-    alertValue: 0.26786625
-  - vehicleId: "\u65B0\u5580\u91CC\u591A\u5C3C\u4E9A\uFF08\u6CD5\uFF09-003"
-    longitude: 166.43783172391704
-    latitude: -20.61637474539839
-    alertValue: 0.13554314
+  - vehicleId: CAP-540
+    longitude: 166.458
+    latitude: -22.2758
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -167957,18 +167477,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 5922029539976543713}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5370\u5EA6\u5C3C\u897F\u4E9A-001"
-    longitude: 103.78393280145531
-    latitude: -9.66921946807132
-    alertValue: 0.68296653
-  - vehicleId: "\u5370\u5EA6\u5C3C\u897F\u4E9A-002"
-    longitude: 113.28580700631255
-    latitude: 2.3894091666588224
-    alertValue: 0.615176
-  - vehicleId: "\u5370\u5EA6\u5C3C\u897F\u4E9A-003"
-    longitude: 107.10034461831424
-    latitude: -6.125079627896369
-    alertValue: 0.31630835
+  - vehicleId: CAP-360
+    longitude: 106.827492
+    latitude: -6.172472
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -168020,12 +167532,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 2284446813405232901}
   _westAnchor:
     marker: {fileID: 496282489}
-    longitude: 95.29000091552734
+    longitude: 92.218574
     latitude: -10.359999656677246
   _eastAnchor:
     marker: {fileID: 755576563}
     longitude: 141.02999877929688
-    latitude: 5.480000019073486
+    latitude: 13.921102
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5922029539976543715
@@ -168833,18 +168345,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6020960556320336134}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5229\u6BD4\u4E9A-001"
-    longitude: 17.192693757555162
-    latitude: 33.0801234316566
-    alertValue: 0.25130492
-  - vehicleId: "\u5229\u6BD4\u4E9A-002"
-    longitude: 19.64988734659414
-    latitude: 22.890524441749733
-    alertValue: 0.67140067
-  - vehicleId: "\u5229\u6BD4\u4E9A-003"
-    longitude: 12.020899977475949
-    latitude: 30.578825937052898
-    alertValue: 0.91537285
+  - vehicleId: CAP-434
+    longitude: 13.180012
+    latitude: 32.8925
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -169260,18 +168764,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6062050631461577104}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5371\u5730\u9A6C\u62C9-001"
-    longitude: -90.25379395484924
-    latitude: 15.781442074748725
-    alertValue: 0.52412856
-  - vehicleId: "\u5371\u5730\u9A6C\u62C9-002"
-    longitude: -88.7094030380249
-    latitude: 14.93590428738679
-    alertValue: 0.302881
-  - vehicleId: "\u5371\u5730\u9A6C\u62C9-003"
-    longitude: -90.7229950428009
-    latitude: 17.44212171307504
-    alertValue: 0.67178035
+  - vehicleId: CAP-320
+    longitude: -90.528911
+    latitude: 14.623081
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -170040,18 +169536,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6124886418030705363}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u585E\u5185\u52A0\u5C14-001"
-    longitude: -11.955750149276355
-    latitude: 12.578058413261573
-    alertValue: 0.78578794
-  - vehicleId: "\u585E\u5185\u52A0\u5C14-002"
-    longitude: -17.6285312367329
-    latitude: 13.603544823264542
-    alertValue: 0.8280621
-  - vehicleId: "\u585E\u5185\u52A0\u5C14-003"
-    longitude: -13.83241002095275
-    latitude: 12.71820027899534
-    alertValue: 0.7941865
+  - vehicleId: CAP-686
+    longitude: -17.475076
+    latitude: 14.717778
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -170300,18 +169788,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6131852383718074203}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u571F\u5E93\u66FC\u65AF\u5766-001"
-    longitude: 52.65195616324418
-    latitude: 37.2870947783573
-    alertValue: 0.25373757
-  - vehicleId: "\u571F\u5E93\u66FC\u65AF\u5766-002"
-    longitude: 66.16184374007571
-    latitude: 42.20668269144562
-    alertValue: 0.9323135
-  - vehicleId: "\u571F\u5E93\u66FC\u65AF\u5766-003"
-    longitude: 61.26663764695786
-    latitude: 39.90576110841562
-    alertValue: 0.76818377
+  - vehicleId: CAP-795
+    longitude: 58.383299
+    latitude: 37.949995
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -170478,18 +169958,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6144191041500885316}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E4C\u5E72\u8FBE-001"
-    longitude: 33.209594378567886
-    latitude: 2.7077469855425136
-    alertValue: 0.38538432
-  - vehicleId: "\u4E4C\u5E72\u8FBE-002"
-    longitude: 31.632351650880878
-    latitude: 1.5801348805158284
-    alertValue: 0.34713557
-  - vehicleId: "\u4E4C\u5E72\u8FBE-003"
-    longitude: 33.734071539641945
-    latitude: 0.8212206716243315
-    alertValue: 0.2100344
+  - vehicleId: CAP-800
+    longitude: 32.581378
+    latitude: 0.318605
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -170673,18 +170145,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6150389149427541616}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u9A6C\u8FBE\u52A0\u65AF\u52A0-001"
-    longitude: 43.928645143903225
-    latitude: -17.156648334052022
-    alertValue: 0.23268878
-  - vehicleId: "\u9A6C\u8FBE\u52A0\u65AF\u52A0-002"
-    longitude: 44.16643783176079
-    latitude: -13.148504610985924
-    alertValue: 0.15057756
-  - vehicleId: "\u9A6C\u8FBE\u52A0\u65AF\u52A0-003"
-    longitude: 49.4952291396894
-    latitude: -19.353453273591697
-    alertValue: 0.3813995
+  - vehicleId: CAP-450
+    longitude: 47.514678
+    latitude: -18.914692
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -171085,18 +170549,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6178545764650972641}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u5C14\u5DF4\u5C3C\u4E9A-001"
-    longitude: 19.328113316804377
-    latitude: 41.35472332101517
-    alertValue: 0.97130597
-  - vehicleId: "\u963F\u5C14\u5DF4\u5C3C\u4E9A-002"
-    longitude: 19.881483441812634
-    latitude: 40.52540323406515
-    alertValue: 0.7932529
-  - vehicleId: "\u963F\u5C14\u5DF4\u5C3C\u4E9A-003"
-    longitude: 21.01425297806054
-    latitude: 42.58987587493539
-    alertValue: 0.2810989
+  - vehicleId: CAP-008
+    longitude: 19.818883
+    latitude: 41.327541
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -171927,18 +171383,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6271656618299331258}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5362\u65FA\u8FBE-001"
-    longitude: 29.697691069892926
-    latitude: -2.647871687754586
-    alertValue: 0.5744777
-  - vehicleId: "\u5362\u65FA\u8FBE-002"
-    longitude: 30.425621366767245
-    latitude: -1.6264251653654682
-    alertValue: 0.93538076
-  - vehicleId: "\u5362\u65FA\u8FBE-003"
-    longitude: 30.207018098770504
-    latitude: -2.6439552261094814
-    alertValue: 0.5635066
+  - vehicleId: CAP-646
+    longitude: 30.058586
+    latitude: -1.951644
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -172788,18 +172236,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6325399393050639596}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5854\u5409\u514B\u65AF\u5766-001"
-    longitude: 72.09579306748356
-    latitude: 40.49924629638508
-    alertValue: 0.5898805
-  - vehicleId: "\u5854\u5409\u514B\u65AF\u5766-002"
-    longitude: 70.11118516752481
-    latitude: 37.564738202372496
-    alertValue: 0.24384923
-  - vehicleId: "\u5854\u5409\u514B\u65AF\u5766-003"
-    longitude: 68.2651602462505
-    latitude: 40.94098934388421
-    alertValue: 0.47296712
+  - vehicleId: CAP-762
+    longitude: 68.773879
+    latitude: 38.560035
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -173120,18 +172560,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6364908866560139562}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u83B1\u7D22\u6258-001"
-    longitude: 27.00588679587052
-    latitude: -29.55225932598114
-    alertValue: 0.4978859
-  - vehicleId: "\u83B1\u7D22\u6258-002"
-    longitude: 28.039009792757838
-    latitude: -28.9703049659729
-    alertValue: 0.20183447
-  - vehicleId: "\u83B1\u7D22\u6258-003"
-    longitude: 28.12202432832771
-    latitude: -28.983667850494385
-    alertValue: 0.784525
+  - vehicleId: CAP-426
+    longitude: 27.483273
+    latitude: -29.316674
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -173706,18 +173138,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6410925255123783092}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E4C\u5179\u522B\u514B\u65AF\u5766-001"
-    longitude: 71.9012560234687
-    latitude: 41.09457552673598
-    alertValue: 0.7439998
-  - vehicleId: "\u4E4C\u5179\u522B\u514B\u65AF\u5766-002"
-    longitude: 67.70828141368702
-    latitude: 37.80743766828064
-    alertValue: 0.6603903
-  - vehicleId: "\u4E4C\u5179\u522B\u514B\u65AF\u5766-003"
-    longitude: 64.5268355872845
-    latitude: 43.80150801484615
-    alertValue: 0.26190746
+  - vehicleId: CAP-860
+    longitude: 69.292987
+    latitude: 41.313648
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -173925,18 +173349,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6421031082095518637}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6D2A\u90FD\u62C9\u65AF-001"
-    longitude: -84.4015326061708
-    latitude: 15.392391204348996
-    alertValue: 0.16991705
-  - vehicleId: "\u6D2A\u90FD\u62C9\u65AF-002"
-    longitude: -83.48329150960853
-    latitude: 14.38994309369184
-    alertValue: 0.3490522
-  - vehicleId: "\u6D2A\u90FD\u62C9\u65AF-003"
-    longitude: -86.38321377634475
-    latitude: 13.456396540924999
-    alertValue: 0.8973259
+  - vehicleId: CAP-340
+    longitude: -87.219475
+    latitude: 14.103991
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -174074,18 +173490,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6424704025377961398}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5370\u5EA6-001"
-    longitude: 70.87142459028314
-    latitude: 24.135167410894525
-    alertValue: 0.3584162
-  - vehicleId: "\u5370\u5EA6-002"
-    longitude: 78.32248013250592
-    latitude: 15.310028808687193
-    alertValue: 0.7774512
-  - vehicleId: "\u5370\u5EA6-003"
-    longitude: 76.3963674550514
-    latitude: 32.89119031240614
-    alertValue: 0.28297237
+  - vehicleId: CAP-356
+    longitude: 77.19998
+    latitude: 28.600023
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -174339,18 +173747,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6432961279537339180}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5723\u591A\u7F8E\u548C\u666E\u6797\u897F\u6BD4-001"
-    longitude: 6.673285037279129
-    latitude: 1.4887118946578113
-    alertValue: 0.436975
-  - vehicleId: "\u5723\u591A\u7F8E\u548C\u666E\u6797\u897F\u6BD4-002"
-    longitude: 7.124287545681
-    latitude: 1.230891333491842
-    alertValue: 0.84138674
-  - vehicleId: "\u5723\u591A\u7F8E\u548C\u666E\u6797\u897F\u6BD4-003"
-    longitude: 7.008476674556732
-    latitude: 0.6007146258129622
-    alertValue: 0.3600694
+  - vehicleId: CAP-678
+    longitude: 6.733325
+    latitude: 0.333402
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -174592,18 +173992,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6456976923417490523}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u591A\u7C73\u5C3C\u52A0-001"
-    longitude: -71.48578340800589
-    latitude: 18.852959841808115
-    alertValue: 0.21418208
-  - vehicleId: "\u591A\u7C73\u5C3C\u52A0-002"
-    longitude: -71.3561770600428
-    latitude: 19.434468374369317
-    alertValue: 0.3255128
-  - vehicleId: "\u591A\u7C73\u5C3C\u52A0-003"
-    longitude: -70.8920859822249
-    latitude: 19.256138670671135
-    alertValue: 0.63911986
+  - vehicleId: CAP-214
+    longitude: -69.902031
+    latitude: 18.472019
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -174945,18 +174337,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6492717797218742766}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E4C\u514B\u5170-001"
-    longitude: 24.311216427946135
-    latitude: 52.33117883971272
-    alertValue: 0.7842032
-  - vehicleId: "\u4E4C\u514B\u5170-002"
-    longitude: 39.45904862570842
-    latitude: 49.689301226797625
-    alertValue: 0.619327
-  - vehicleId: "\u4E4C\u514B\u5170-003"
-    longitude: 29.671184351261445
-    latitude: 50.84990413392052
-    alertValue: 0.3758971
+  - vehicleId: CAP-804
+    longitude: 30.514682
+    latitude: 50.435313
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -175282,18 +174666,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6519204515245102846}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5B89\u54E5\u62C9-001"
-    longitude: 18.81940856796831
-    latitude: -12.857977483624637
-    alertValue: 0.7109969
-  - vehicleId: "\u5B89\u54E5\u62C9-002"
-    longitude: 19.338979664028955
-    latitude: -9.855539458991615
-    alertValue: 0.996485
-  - vehicleId: "\u5B89\u54E5\u62C9-003"
-    longitude: 13.854848056827862
-    latitude: -5.37631157569507
-    alertValue: 0.21916026
+  - vehicleId: CAP-024
+    longitude: 13.232481
+    latitude: -8.83634
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -175805,18 +175181,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6548677336089452498}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u54C8\u9A6C-001"
-    longitude: -77.97026527515709
-    latitude: 24.936314080835928
-    alertValue: 0.13235807
-  - vehicleId: "\u5DF4\u54C8\u9A6C-002"
-    longitude: -78.82775405537251
-    latitude: 25.867132286431115
-    alertValue: 0.12314146
-  - vehicleId: "\u5DF4\u54C8\u9A6C-003"
-    longitude: -77.77163090280146
-    latitude: 25.68265609313221
-    alertValue: 0.91789514
+  - vehicleId: CAP-044
+    longitude: -77.350044
+    latitude: 25.08339
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -175928,18 +175296,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6549004538626491557}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5766\u6851\u5C3C\u4E9A-001"
-    longitude: 38.64280721504201
-    latitude: -1.9804273776866381
-    alertValue: 0.5629444
-  - vehicleId: "\u5766\u6851\u5C3C\u4E9A-002"
-    longitude: 33.46400988432447
-    latitude: -4.565026619486513
-    alertValue: 0.5495683
-  - vehicleId: "\u5766\u6851\u5C3C\u4E9A-003"
-    longitude: 34.09088341098891
-    latitude: -4.6347338218191645
-    alertValue: 0.6295795
+  - vehicleId: CAP-834
+    longitude: 39.266396
+    latitude: -6.798067
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -176232,18 +175592,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6564951844613894665}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u8054\u914B-001"
-    longitude: 55.37520067504556
-    latitude: 24.423692040344918
-    alertValue: 0.8651071
-  - vehicleId: "\u963F\u8054\u914B-002"
-    longitude: 53.09978919003129
-    latitude: 25.87377338342094
-    alertValue: 0.7882573
-  - vehicleId: "\u963F\u8054\u914B-003"
-    longitude: 55.07238465251021
-    latitude: 23.95692030746602
-    alertValue: 0.16202232
+  - vehicleId: CAP-784
+    longitude: 54.366593
+    latitude: 24.466684
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -176783,18 +176135,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6596769820318433384}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u745E\u5178-001"
-    longitude: 20.907732868575977
-    latitude: 60.98365198075771
-    alertValue: 0.200703
-  - vehicleId: "\u745E\u5178-002"
-    longitude: 15.051318157618226
-    latitude: 66.36172431707382
-    alertValue: 0.59016144
-  - vehicleId: "\u745E\u5178-003"
-    longitude: 13.181111740862619
-    latitude: 62.061444029212
-    alertValue: 0.65726084
+  - vehicleId: CAP-752
+    longitude: 18.095389
+    latitude: 59.352706
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -177178,18 +176522,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6635464102890680419}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6587\u83B1-001"
-    longitude: 115.43369328975677
-    latitude: 4.65619723563276
-    alertValue: 0.3676737
-  - vehicleId: "\u6587\u83B1-002"
-    longitude: 115.25727978348732
-    latitude: 5.056714525385416
-    alertValue: 0.3787778
-  - vehicleId: "\u6587\u83B1-003"
-    longitude: 115.43036019802094
-    latitude: 4.276049214560729
-    alertValue: 0.37282115
+  - vehicleId: CAP-096
+    longitude: 114.933284
+    latitude: 4.883331
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -178107,18 +177443,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6716939020807664387}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4F2F\u5229\u5179-001"
-    longitude: -88.11657954875682
-    latitude: 16.336911759746826
-    alertValue: 0.85928625
-  - vehicleId: "\u4F2F\u5229\u5179-002"
-    longitude: -88.80775694296472
-    latitude: 16.456132658458017
-    alertValue: 0.1639356
-  - vehicleId: "\u4F2F\u5229\u5179-003"
-    longitude: -89.05388752902206
-    latitude: 17.842987521884368
-    alertValue: 0.35666505
+  - vehicleId: CAP-084
+    longitude: -88.767073
+    latitude: 17.252034
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -178342,18 +177670,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6727480344613933742}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u62FF\u9A6C-001"
-    longitude: -78.87177231363376
-    latitude: 7.352447430766521
-    alertValue: 0.51356655
-  - vehicleId: "\u5DF4\u62FF\u9A6C-002"
-    longitude: -80.0726073558103
-    latitude: 7.712117818222524
-    alertValue: 0.8014087
-  - vehicleId: "\u5DF4\u62FF\u9A6C-003"
-    longitude: -79.04654729047479
-    latitude: 8.08641572612295
-    alertValue: 0.7171396
+  - vehicleId: CAP-591
+    longitude: -79.534983
+    latitude: 8.969963
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -179013,18 +178333,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6803707558033041520}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u79D8\u9C81-001"
-    longitude: -78.56635250921818
-    latitude: -9.60252049555412
-    alertValue: 0.52143943
-  - vehicleId: "\u79D8\u9C81-002"
-    longitude: -74.86919652369124
-    latitude: -9.910408198025985
-    alertValue: 0.5868141
-  - vehicleId: "\u79D8\u9C81-003"
-    longitude: -80.65031202029957
-    latitude: -0.14360505740986795
-    alertValue: 0.28326762
+  - vehicleId: CAP-604
+    longitude: -77.052008
+    latitude: -12.046067
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -179159,18 +178471,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6808652615496743299}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6240\u7F57\u95E8\u7FA4\u5C9B-001"
-    longitude: 158.7079916747034
-    latitude: -10.44557481540252
-    alertValue: 0.10464183
-  - vehicleId: "\u6240\u7F57\u95E8\u7FA4\u5C9B-002"
-    longitude: 156.97848971471706
-    latitude: -7.316684343470172
-    alertValue: 0.64341635
-  - vehicleId: "\u6240\u7F57\u95E8\u7FA4\u5C9B-003"
-    longitude: 160.31369551134503
-    latitude: -9.470926886927245
-    alertValue: 0.921426
+  - vehicleId: CAP-090
+    longitude: 159.949766
+    latitude: -9.437994
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -179396,18 +178700,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6823996524040304018}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u6839\u5EF7-001"
-    longitude: -64.79711190363128
-    latitude: -27.33687651699279
-    alertValue: 0.83460987
-  - vehicleId: "\u963F\u6839\u5EF7-002"
-    longitude: -53.84411765776531
-    latitude: -24.31490439743834
-    alertValue: 0.39623493
-  - vehicleId: "\u963F\u6839\u5EF7-003"
-    longitude: -65.83241610043137
-    latitude: -30.924754281540686
-    alertValue: 0.35670936
+  - vehicleId: CAP-032
+    longitude: -58.399477
+    latitude: -34.600556
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -180272,18 +179568,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6888240504463751338}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u5C14\u53CA\u5229\u4E9A-001"
-    longitude: 5.58718574835666
-    latitude: 33.681219944123086
-    alertValue: 0.2898739
-  - vehicleId: "\u963F\u5C14\u53CA\u5229\u4E9A-002"
-    longitude: 6.641971749868844
-    latitude: 29.5687611631364
-    alertValue: 0.8826499
-  - vehicleId: "\u963F\u5C14\u53CA\u5229\u4E9A-003"
-    longitude: 0.10727932784402583
-    latitude: 32.50099689671981
-    alertValue: 0.38976318
+  - vehicleId: CAP-012
+    longitude: 3.048607
+    latitude: 36.765011
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -180393,18 +179681,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6890029679727466186}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7EB3\u7C73\u6BD4\u4E9A-001"
-    longitude: 20.126858656135823
-    latitude: -25.294729191822
-    alertValue: 0.8379849
-  - vehicleId: "\u7EB3\u7C73\u6BD4\u4E9A-002"
-    longitude: 23.503022089242677
-    latitude: -23.569356657145022
-    alertValue: 0.7811696
-  - vehicleId: "\u7EB3\u7C73\u6BD4\u4E9A-003"
-    longitude: 21.63829923272408
-    latitude: -28.47372885118297
-    alertValue: 0.64939404
+  - vehicleId: CAP-516
+    longitude: 17.083546
+    latitude: -22.570006
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -180815,18 +180095,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6917737026990871790}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u80AF\u5C3C\u4E9A-001"
-    longitude: 35.05915042858078
-    latitude: 2.5035030166362446
-    alertValue: 0.8407099
-  - vehicleId: "\u80AF\u5C3C\u4E9A-002"
-    longitude: 40.27234284164297
-    latitude: 3.042709672901424
-    alertValue: 0.57766175
-  - vehicleId: "\u80AF\u5C3C\u4E9A-003"
-    longitude: 34.11146160526289
-    latitude: 1.1448461412643667
-    alertValue: 0.83691204
+  - vehicleId: CAP-404
+    longitude: 36.814711
+    latitude: -1.281401
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -181498,18 +180770,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6978179792793046751}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u68B5\u8482\u5188-001"
-    longitude: 12.453787917768977
-    latitude: 41.90229621065157
-    alertValue: 0.9347099
-  - vehicleId: "\u68B5\u8482\u5188-002"
-    longitude: 12.443568113761273
-    latitude: 41.90727255173647
-    alertValue: 0.28961307
-  - vehicleId: "\u68B5\u8482\u5188-003"
-    longitude: 12.44799221331482
-    latitude: 41.90748068363405
-    alertValue: 0.33318338
+  - vehicleId: CAP-336
+    longitude: 12.453387
+    latitude: 41.903282
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -181822,18 +181086,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6985511052420569666}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u51E0\u5185\u4E9A-001"
-    longitude: -8.922932987159129
-    latitude: 7.657955604313042
-    alertValue: 0.2546801
-  - vehicleId: "\u51E0\u5185\u4E9A-002"
-    longitude: -9.586829803592991
-    latitude: 9.460165404882645
-    alertValue: 0.46675447
-  - vehicleId: "\u51E0\u5185\u4E9A-003"
-    longitude: -15.094887288068344
-    latitude: 12.373092719042006
-    alertValue: 0.13261792
+  - vehicleId: CAP-324
+    longitude: -13.682181
+    latitude: 9.533469
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -181945,18 +181201,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 6986575300067461941}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5C3C\u52A0\u62C9\u74DC-001"
-    longitude: -84.30003772439568
-    latitude: 12.367814478520359
-    alertValue: 0.27250594
-  - vehicleId: "\u5C3C\u52A0\u62C9\u74DC-002"
-    longitude: -83.53495038053188
-    latitude: 11.004284028905829
-    alertValue: 0.7459597
-  - vehicleId: "\u5C3C\u52A0\u62C9\u74DC-003"
-    longitude: -86.98169421234104
-    latitude: 13.648452122168692
-    alertValue: 0.30995333
+  - vehicleId: CAP-558
+    longitude: -86.270438
+    latitude: 12.154962
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -182266,10 +181514,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7000456782889705372}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7F8E\u56FD-002"
-    longitude: -77.0369
-    latitude: 38.9072
-    alertValue: 0.45318112
+  - vehicleId: CAP-840
+    longitude: -77.011364
+    latitude: 38.901495
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -182406,18 +181654,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7008667818838767438}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u571F\u8033\u5176-001"
-    longitude: 41.02873921394348
-    latitude: 37.056839203715526
-    alertValue: 0.9582616
-  - vehicleId: "\u571F\u8033\u5176-002"
-    longitude: 39.56490017473698
-    latitude: 41.95803757592512
-    alertValue: 0.6617117
-  - vehicleId: "\u571F\u8033\u5176-003"
-    longitude: 40.639508217573166
-    latitude: 36.80080123814503
-    alertValue: 0.6126014
+  - vehicleId: CAP-792
+    longitude: 32.862446
+    latitude: 39.929184
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -182662,18 +181902,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7035878546592642950}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u82CF\u91CC\u5357-001"
-    longitude: -54.33999005205078
-    latitude: 2.914456643540266
-    alertValue: 0.64913034
-  - vehicleId: "\u82CF\u91CC\u5357-002"
-    longitude: -57.90524851860965
-    latitude: 5.893016492968826
-    alertValue: 0.91174847
-  - vehicleId: "\u82CF\u91CC\u5357-003"
-    longitude: -56.21369065814997
-    latitude: 3.756130283123575
-    alertValue: 0.23934516
+  - vehicleId: CAP-740
+    longitude: -55.167031
+    latitude: 5.83503
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -183001,18 +182233,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7055496941902988952}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5723\u5362\u897F\u4E9A-001"
-    longitude: -61.06142192544635
-    latitude: 13.736769998172548
-    alertValue: 0.9814024
-  - vehicleId: "\u5723\u5362\u897F\u4E9A-002"
-    longitude: -60.99913105243718
-    latitude: 13.916368266285417
-    alertValue: 0.75489706
-  - vehicleId: "\u5723\u5362\u897F\u4E9A-003"
-    longitude: -60.95505579534279
-    latitude: 13.780005482760203
-    alertValue: 0.14516047
+  - vehicleId: CAP-662
+    longitude: -61.000008
+    latitude: 14.001974
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -183346,18 +182570,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7080727307197271412}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u54C8\u8428\u514B\u65AF\u5766-001"
-    longitude: 49.99085397300303
-    latitude: 44.39928592892841
-    alertValue: 0.8811242
-  - vehicleId: "\u54C8\u8428\u514B\u65AF\u5766-002"
-    longitude: 69.59052559852444
-    latitude: 44.66952881780219
-    alertValue: 0.5432003
-  - vehicleId: "\u54C8\u8428\u514B\u65AF\u5766-003"
-    longitude: 51.18814542537598
-    latitude: 53.29228025160546
-    alertValue: 0.54582214
+  - vehicleId: CAP-398
+    longitude: 71.427774
+    latitude: 51.181125
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -184443,18 +183659,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7195414605624088497}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5965\u5730\u5229-001"
-    longitude: 10.232426337897778
-    latitude: 48.8757134720945
-    alertValue: 0.8346122
-  - vehicleId: "\u5965\u5730\u5229-002"
-    longitude: 14.109894186258316
-    latitude: 47.181441884826654
-    alertValue: 0.5152031
-  - vehicleId: "\u5965\u5730\u5229-003"
-    longitude: 11.641246005892754
-    latitude: 46.554173584784735
-    alertValue: 0.5630202
+  - vehicleId: CAP-040
+    longitude: 16.364693
+    latitude: 48.201961
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -184634,18 +183842,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7205841017017055607}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6377\u514B-001"
-    longitude: 15.116609233996314
-    latitude: 48.80668513614273
-    alertValue: 0.24515718
-  - vehicleId: "\u6377\u514B-002"
-    longitude: 18.4056857771684
-    latitude: 49.49680017776518
-    alertValue: 0.54406315
-  - vehicleId: "\u6377\u514B-003"
-    longitude: 15.379835713752072
-    latitude: 49.90932702128703
-    alertValue: 0.16059507
+  - vehicleId: CAP-203
+    longitude: 14.464034
+    latitude: 50.085283
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -185531,18 +184731,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7282781857002196156}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u57C3\u585E\u4FC4\u6BD4\u4E9A-001"
-    longitude: 43.5451759974801
-    latitude: 10.217235298337357
-    alertValue: 0.7932663
-  - vehicleId: "\u57C3\u585E\u4FC4\u6BD4\u4E9A-002"
-    longitude: 43.976812149417356
-    latitude: 9.626817514644529
-    alertValue: 0.50346553
-  - vehicleId: "\u57C3\u585E\u4FC4\u6BD4\u4E9A-003"
-    longitude: 46.09114749592163
-    latitude: 11.067758869878105
-    alertValue: 0.4418946
+  - vehicleId: CAP-231
+    longitude: 38.698059
+    latitude: 9.035256
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -185810,18 +185002,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7302792090837798876}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E5F\u95E8-001"
-    longitude: 47.78955421250021
-    latitude: 18.536402166196694
-    alertValue: 0.66994196
-  - vehicleId: "\u4E5F\u95E8-002"
-    longitude: 42.913495368118646
-    latitude: 18.145710885595236
-    alertValue: 0.26557127
-  - vehicleId: "\u4E5F\u95E8-003"
-    longitude: 45.909806866748795
-    latitude: 14.632465843515888
-    alertValue: 0.23954117
+  - vehicleId: CAP-887
+    longitude: 44.204648
+    latitude: 15.356679
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -186172,18 +185356,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7334256489112484295}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65B0\u897F\u5170-001"
-    longitude: 170.3414400287511
-    latitude: -42.189784780516334
-    alertValue: 0.18280645
-  - vehicleId: "\u65B0\u897F\u5170-002"
-    longitude: 175.50341457234754
-    latitude: -42.6892609460466
-    alertValue: 0.7077961
-  - vehicleId: "\u65B0\u897F\u5170-003"
-    longitude: 170.57087787052296
-    latitude: -36.539875989555185
-    alertValue: 0.60882485
+  - vehicleId: CAP-554
+    longitude: 174.783266
+    latitude: -41.299988
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -186673,18 +185849,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7382534927156841584}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u57C3\u53CA-001"
-    longitude: 35.75580087140224
-    latitude: 24.374168406055674
-    alertValue: 0.20756109
-  - vehicleId: "\u57C3\u53CA-002"
-    longitude: 25.94381430881117
-    latitude: 26.714544457705188
-    alertValue: 0.3152651
-  - vehicleId: "\u57C3\u53CA-003"
-    longitude: 28.855735412533704
-    latitude: 27.161743551963582
-    alertValue: 0.65918976
+  - vehicleId: CAP-818
+    longitude: 31.248022
+    latitude: 30.051906
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -187251,18 +186419,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7426603408478105358}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: SD-001
-    longitude: 117.12
-    latitude: 36.65
-    alertValue: 0.1
-  - vehicleId: SD-002
-    longitude: 120.38
-    latitude: 35.42
-    alertValue: 0.85
-  - vehicleId: SD-003
-    longitude: 118.35
-    latitude: 37.44
-    alertValue: 0.3
+  - vehicleId: CAP-659
+    longitude: -62.717009
+    latitude: 17.302031
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -187511,18 +186671,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7435802166655454024}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8D1D\u5B81-001"
-    longitude: 0.8049789930464339
-    latitude: 8.272457223574335
-    alertValue: 0.55016947
-  - vehicleId: "\u8D1D\u5B81-002"
-    longitude: 1.1532437632553645
-    latitude: 9.63218830728627
-    alertValue: 0.95028394
-  - vehicleId: "\u8D1D\u5B81-003"
-    longitude: 0.868209231723374
-    latitude: 10.945968552793147
-    alertValue: 0.755879
+  - vehicleId: CAP-204
+    longitude: 2.518045
+    latitude: 6.401954
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -187787,18 +186939,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7450508280021177340}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65AF\u6D1B\u4F10\u514B-001"
-    longitude: 19.05906562591963
-    latitude: 49.199877789534185
-    alertValue: 0.35903203
-  - vehicleId: "\u65AF\u6D1B\u4F10\u514B-002"
-    longitude: 19.531103901250845
-    latitude: 48.308738155964534
-    alertValue: 0.436891
-  - vehicleId: "\u65AF\u6D1B\u4F10\u514B-003"
-    longitude: 22.11064907520722
-    latitude: 49.42429931910874
-    alertValue: 0.16120619
+  - vehicleId: CAP-703
+    longitude: 17.116981
+    latitude: 48.150018
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -188410,18 +187554,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7491402301418264904}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u9A6C\u62C9\u7EF4-001"
-    longitude: 34.98024561422881
-    latitude: -12.35528536535503
-    alertValue: 0.4023186
-  - vehicleId: "\u9A6C\u62C9\u7EF4-002"
-    longitude: 33.18269458795544
-    latitude: -12.731735606288112
-    alertValue: 0.60316455
-  - vehicleId: "\u9A6C\u62C9\u7EF4-003"
-    longitude: 35.43089142666577
-    latitude: -13.61147222081263
-    alertValue: 0.36653835
+  - vehicleId: CAP-454
+    longitude: 33.783302
+    latitude: -13.983295
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -188600,18 +187736,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7498673067256165422}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5C3C\u65E5\u5C14-001"
-    longitude: 8.483539887531581
-    latitude: 13.65194545395687
-    alertValue: 0.8616275
-  - vehicleId: "\u5C3C\u65E5\u5C14-002"
-    longitude: 14.058457182592996
-    latitude: 17.166634568705035
-    alertValue: 0.40384382
-  - vehicleId: "\u5C3C\u65E5\u5C14-003"
-    longitude: 5.222131700370289
-    latitude: 16.687561776381358
-    alertValue: 0.1597608
+  - vehicleId: CAP-562
+    longitude: 2.11471
+    latitude: 13.518652
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -188953,18 +188081,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7518954724434686028}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5362\u68EE\u5821-001"
-    longitude: 6.026757772292967
-    latitude: 50.043991275684675
-    alertValue: 0.863377
-  - vehicleId: "\u5362\u68EE\u5821-002"
-    longitude: 6.007739861981008
-    latitude: 50.0783215088959
-    alertValue: 0.91178083
-  - vehicleId: "\u5362\u68EE\u5821-003"
-    longitude: 6.012275882692393
-    latitude: 49.711461718357896
-    alertValue: 0.26085895
+  - vehicleId: CAP-442
+    longitude: 6.130003
+    latitude: 49.61166
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -189179,18 +188299,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7533119905978980345}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CE2\u5170-001"
-    longitude: 21.66587584795343
-    latitude: 50.56392117742121
-    alertValue: 0.3000474
-  - vehicleId: "\u6CE2\u5170-002"
-    longitude: 22.173736153767777
-    latitude: 50.38404987566514
-    alertValue: 0.35751358
-  - vehicleId: "\u6CE2\u5170-003"
-    longitude: 16.099258912220478
-    latitude: 51.4795273032837
-    alertValue: 0.563069
+  - vehicleId: CAP-616
+    longitude: 20.998054
+    latitude: 52.251947
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -189329,18 +188441,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7535473885383727976}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u9A6C\u6765\u897F\u4E9A-001"
-    longitude: 100.85761018452163
-    latitude: 4.754994927877078
-    alertValue: 0.26669306
-  - vehicleId: "\u9A6C\u6765\u897F\u4E9A-002"
-    longitude: 112.39770631328656
-    latitude: 3.86826083614892
-    alertValue: 0.3302426
-  - vehicleId: "\u9A6C\u6765\u897F\u4E9A-003"
-    longitude: 110.92549988326527
-    latitude: 5.67209610240252
-    alertValue: 0.44860688
+  - vehicleId: CAP-458
+    longitude: 101.698037
+    latitude: 3.168612
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -189660,18 +188764,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7552315677985076220}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5B5F\u52A0\u62C9\u56FD-001"
-    longitude: 88.23907571658913
-    latitude: 25.31457891327227
-    alertValue: 0.5284362
-  - vehicleId: "\u5B5F\u52A0\u62C9\u56FD-002"
-    longitude: 90.26391432624769
-    latitude: 24.074559932086345
-    alertValue: 0.82849646
-  - vehicleId: "\u5B5F\u52A0\u62C9\u56FD-003"
-    longitude: 88.73553259449045
-    latitude: 21.687999624845617
-    alertValue: 0.48218727
+  - vehicleId: CAP-050
+    longitude: 90.406634
+    latitude: 23.725006
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -189825,18 +188921,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7558473787442630991}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CE2\u591A\u9ECE\u5404\uFF08\u7F8E\uFF09-001"
-    longitude: -65.60632560571139
-    latitude: 18.35884272084195
-    alertValue: 0.4733775
-  - vehicleId: "\u6CE2\u591A\u9ECE\u5404\uFF08\u7F8E\uFF09-002"
-    longitude: -66.50562681890324
-    latitude: 18.479230358971108
-    alertValue: 0.17023933
-  - vehicleId: "\u6CE2\u591A\u9ECE\u5404\uFF08\u7F8E\uFF09-003"
-    longitude: -66.09348501334762
-    latitude: 18.39198751985259
-    alertValue: 0.92529374
+  - vehicleId: CAP-630
+    longitude: -66.1057
+    latitude: 18.4655
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -190163,18 +189251,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7606192719114015600}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u52A0\u7EB3-001"
-    longitude: -1.0242542214531767
-    latitude: 5.653728226911099
-    alertValue: 0.1273903
-  - vehicleId: "\u52A0\u7EB3-002"
-    longitude: -2.026701454861758
-    latitude: 6.236161146801379
-    alertValue: 0.5270004
-  - vehicleId: "\u52A0\u7EB3-003"
-    longitude: -2.582564893204779
-    latitude: 6.37767781724088
-    alertValue: 0.43733978
+  - vehicleId: CAP-288
+    longitude: -0.218662
+    latitude: 5.551981
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -190696,18 +189776,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7626157302603377535}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8461\u8404\u7259-001"
-    longitude: -7.50798170462005
-    latitude: 41.70522235121416
-    alertValue: 0.7116376
-  - vehicleId: "\u8461\u8404\u7259-002"
-    longitude: -9.309437444498766
-    latitude: 38.29632467699264
-    alertValue: 0.48284495
-  - vehicleId: "\u8461\u8404\u7259-003"
-    longitude: -6.622307829515762
-    latitude: 38.39948390693223
-    alertValue: 0.39623535
+  - vehicleId: CAP-620
+    longitude: -9.146812
+    latitude: 38.724669
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -191016,18 +190088,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7668530641855766857}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6469\u6D1B\u54E5-001"
-    longitude: -15.729583644610464
-    latitude: 32.85600870620533
-    alertValue: 0.14432962
-  - vehicleId: "\u6469\u6D1B\u54E5-002"
-    longitude: -8.392645429148253
-    latitude: 33.938295818564484
-    alertValue: 0.75923926
-  - vehicleId: "\u6469\u6D1B\u54E5-003"
-    longitude: -16.408228344549574
-    latitude: 30.535932506620952
-    alertValue: 0.617759
+  - vehicleId: CAP-504
+    longitude: -6.836408
+    latitude: 34.025307
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -191335,18 +190399,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7691492715868329487}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E0D\u4E39-001"
-    longitude: 89.61124032531711
-    latitude: 27.874840829636582
-    alertValue: 0.24703708
-  - vehicleId: "\u4E0D\u4E39-002"
-    longitude: 91.35502650987837
-    latitude: 28.219503623557785
-    alertValue: 0.28899863
-  - vehicleId: "\u4E0D\u4E39-003"
-    longitude: 91.47295319870227
-    latitude: 26.750997127548626
-    alertValue: 0.5752838
+  - vehicleId: CAP-064
+    longitude: 89.639014
+    latitude: 27.472986
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -192287,18 +191343,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7793457546703625679}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4FDD\u52A0\u5229\u4E9A-001"
-    longitude: 24.653567026472274
-    latitude: 44.21571481227875
-    alertValue: 0.94848967
-  - vehicleId: "\u4FDD\u52A0\u5229\u4E9A-002"
-    longitude: 24.08975948968532
-    latitude: 42.063357681035995
-    alertValue: 0.23841894
-  - vehicleId: "\u4FDD\u52A0\u5229\u4E9A-003"
-    longitude: 22.74202019407909
-    latitude: 41.59912697970867
-    alertValue: 0.71799874
+  - vehicleId: CAP-100
+    longitude: 23.314708
+    latitude: 42.685295
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -192428,18 +191476,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7796478742660769597}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u83F2\u5F8B\u5BBE-001"
-    longitude: 125.31914275145755
-    latitude: 14.703732899594343
-    alertValue: 0.31222302
-  - vehicleId: "\u83F2\u5F8B\u5BBE-002"
-    longitude: 125.33813495573031
-    latitude: 16.860720041210698
-    alertValue: 0.36854422
-  - vehicleId: "\u83F2\u5F8B\u5BBE-003"
-    longitude: 118.66768826293185
-    latitude: 16.41681449956559
-    alertValue: 0.6928538
+  - vehicleId: CAP-608
+    longitude: 120.980271
+    latitude: 14.606105
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -192848,18 +191888,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7824461178475160338}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u52D2\u65AF\u5766-001"
-    longitude: 35.10066172941481
-    latitude: 32.23275294251255
-    alertValue: 0.48074532
-  - vehicleId: "\u5DF4\u52D2\u65AF\u5766-002"
-    longitude: 35.469148603489884
-    latitude: 31.588788167863356
-    alertValue: 0.5568077
-  - vehicleId: "\u5DF4\u52D2\u65AF\u5766-003"
-    longitude: 34.94529317121125
-    latitude: 31.99337199951367
-    alertValue: 0.94957864
+  - vehicleId: CAP-275
+    longitude: 35.2333
+    latitude: 31.7667
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -192971,18 +192003,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7824462855132288667}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u82AC\u5170-001"
-    longitude: 27.59419635205711
-    latitude: 69.82466641122028
-    alertValue: 0.74433786
-  - vehicleId: "\u82AC\u5170-002"
-    longitude: 30.572549250886368
-    latitude: 65.8398917984
-    alertValue: 0.5329839
-  - vehicleId: "\u82AC\u5170-003"
-    longitude: 25.480819906437432
-    latitude: 65.40865313039694
-    alertValue: 0.29702628
+  - vehicleId: CAP-246
+    longitude: 24.932181
+    latitude: 60.177509
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -193092,18 +192116,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7825899906559192367}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u767D\u4FC4\u7F57\u65AF-001"
-    longitude: 25.653294271223103
-    latitude: 56.12847436780794
-    alertValue: 0.19149229
-  - vehicleId: "\u767D\u4FC4\u7F57\u65AF-002"
-    longitude: 24.90932566148342
-    latitude: 55.44380805689616
-    alertValue: 0.36055058
-  - vehicleId: "\u767D\u4FC4\u7F57\u65AF-003"
-    longitude: 32.5744695577805
-    latitude: 53.63358858454603
-    alertValue: 0.25375956
+  - vehicleId: CAP-112
+    longitude: 27.564681
+    latitude: 53.901923
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -193331,18 +192347,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7837595470036113147}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5E03\u57FA\u7EB3\u6CD5\u7D22-001"
-    longitude: -2.0722621510003165
-    latitude: 14.274038375046075
-    alertValue: 0.9507437
-  - vehicleId: "\u5E03\u57FA\u7EB3\u6CD5\u7D22-002"
-    longitude: -2.2932178584717207
-    latitude: 11.435533947184183
-    alertValue: 0.6701753
-  - vehicleId: "\u5E03\u57FA\u7EB3\u6CD5\u7D22-003"
-    longitude: -1.7594173439803313
-    latitude: 13.691168516530183
-    alertValue: 0.47307697
+  - vehicleId: CAP-854
+    longitude: -1.52667
+    latitude: 12.372262
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -193849,18 +192857,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7885902865230931280}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u572D\u4E9A\u90A3-001"
-    longitude: -61.18522862927374
-    latitude: 3.050004002384682
-    alertValue: 0.298777
-  - vehicleId: "\u572D\u4E9A\u90A3-002"
-    longitude: -61.034585985699294
-    latitude: 1.4638477802315943
-    alertValue: 0.6012725
-  - vehicleId: "\u572D\u4E9A\u90A3-003"
-    longitude: -60.50372835739148
-    latitude: 5.763234012570393
-    alertValue: 0.7877773
+  - vehicleId: CAP-328
+    longitude: -58.167029
+    latitude: 6.801974
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -194021,18 +193021,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7890876522603860718}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5E03\u9686\u8FEA-001"
-    longitude: 30.43291394398466
-    latitude: -2.4339109815624624
-    alertValue: 0.55134
-  - vehicleId: "\u5E03\u9686\u8FEA-002"
-    longitude: 30.232407237753478
-    latitude: -2.6442404877525405
-    alertValue: 0.6942035
-  - vehicleId: "\u5E03\u9686\u8FEA-003"
-    longitude: 29.32907009485035
-    latitude: -3.180105189547106
-    alertValue: 0.2603049
+  - vehicleId: CAP-108
+    longitude: 29.360006
+    latitude: -3.376087
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -194626,18 +193618,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7953052741982026315}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6469\u5C14\u591A\u74E6-001"
-    longitude: 27.70383763669946
-    latitude: 45.604374507158425
-    alertValue: 0.17355904
-  - vehicleId: "\u6469\u5C14\u591A\u74E6-002"
-    longitude: 29.3084124171412
-    latitude: 47.217479150770714
-    alertValue: 0.62622535
-  - vehicleId: "\u6469\u5C14\u591A\u74E6-003"
-    longitude: 27.665887911991547
-    latitude: 48.146333067068554
-    alertValue: 0.66952074
+  - vehicleId: CAP-498
+    longitude: 28.857711
+    latitude: 47.005024
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -194806,18 +193790,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7963417792375899199}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u585E\u5C14\u7EF4\u4E9A-001"
-    longitude: 22.050298229353302
-    latitude: 45.617499800311634
-    alertValue: 0.65825135
-  - vehicleId: "\u585E\u5C14\u7EF4\u4E9A-002"
-    longitude: 19.489969253174365
-    latitude: 45.96543003101033
-    alertValue: 0.73237264
-  - vehicleId: "\u585E\u5C14\u7EF4\u4E9A-003"
-    longitude: 21.864882949136472
-    latitude: 44.66872362167214
-    alertValue: 0.79591596
+  - vehicleId: CAP-688
+    longitude: 20.466045
+    latitude: 44.820591
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -194947,18 +193923,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 7966149123579252190}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5DF4\u897F-001"
-    longitude: -46.71878907566111
-    latitude: -22.461425546516523
-    alertValue: 0.9597539
-  - vehicleId: "\u5DF4\u897F-002"
-    longitude: -49.51670363986182
-    latitude: -16.405337587635927
-    alertValue: 0.39057362
-  - vehicleId: "\u5DF4\u897F-003"
-    longitude: -70.5196287597233
-    latitude: -30.305332667988594
-    alertValue: 0.73396164
+  - vehicleId: CAP-076
+    longitude: -47.917998
+    latitude: -15.781394
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -195729,18 +194697,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8021258785609111022}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7D22\u9A6C\u91CC-001"
-    longitude: 49.84369414780849
-    latitude: 9.044204659638567
-    alertValue: 0.70362425
-  - vehicleId: "\u7D22\u9A6C\u91CC-002"
-    longitude: 42.789573383423544
-    latitude: 5.790798998363833
-    alertValue: 0.434914
-  - vehicleId: "\u7D22\u9A6C\u91CC-003"
-    longitude: 49.40924071430891
-    latitude: 11.626712537097418
-    alertValue: 0.4473295
+  - vehicleId: CAP-706
+    longitude: 45.364732
+    latitude: 2.068627
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -197045,18 +196005,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8150482682609722753}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u59D4\u5185\u745E\u62C9-001"
-    longitude: -64.49876544920357
-    latitude: 8.88451374950462
-    alertValue: 0.2554588
-  - vehicleId: "\u59D4\u5185\u745E\u62C9-002"
-    longitude: -70.6390244670871
-    latitude: 5.6350705846486875
-    alertValue: 0.4834024
-  - vehicleId: "\u59D4\u5185\u745E\u62C9-003"
-    longitude: -62.386480078351724
-    latitude: 5.266408261767836
-    alertValue: 0.81941986
+  - vehicleId: CAP-862
+    longitude: -66.918983
+    latitude: 10.502944
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -197305,18 +196257,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8169909988107354477}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u667A\u5229-001"
-    longitude: -75.51862476212715
-    latitude: -44.295964923963936
-    alertValue: 0.32609525
-  - vehicleId: "\u667A\u5229-002"
-    longitude: -68.17735435951181
-    latitude: -40.85091215963337
-    alertValue: 0.23947164
-  - vehicleId: "\u667A\u5229-003"
-    longitude: -69.19617315763435
-    latitude: -21.07600389117033
-    alertValue: 0.15666693
+  - vehicleId: CAP-152
+    longitude: -70.668987
+    latitude: -33.448068
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -197428,18 +196372,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8171324873677915996}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8377\u5170-001"
-    longitude: 5.7378889322812086
-    latitude: 53.36780120050662
-    alertValue: 0.73921674
-  - vehicleId: "\u8377\u5170-002"
-    longitude: 5.03630451128268
-    latitude: 51.22432924106363
-    alertValue: 0.6549504
-  - vehicleId: "\u8377\u5170-003"
-    longitude: 3.4624556743037314
-    latitude: 53.01133357324488
-    alertValue: 0.29714376
+  - vehicleId: CAP-528
+    longitude: 4.914694
+    latitude: 52.351915
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -197863,18 +196799,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8221748176204315590}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8D64\u9053\u51E0\u5185\u4E9A-001"
-    longitude: 10.789025221060228
-    latitude: 1.082881330274713
-    alertValue: 0.4398737
-  - vehicleId: "\u8D64\u9053\u51E0\u5185\u4E9A-002"
-    longitude: 10.614318740417048
-    latitude: 1.229144969122551
-    alertValue: 0.72112334
-  - vehicleId: "\u8D64\u9053\u51E0\u5185\u4E9A-003"
-    longitude: 10.339084054732439
-    latitude: 1.8588205776288476
-    alertValue: 0.35316733
+  - vehicleId: CAP-226
+    longitude: 8.783278
+    latitude: 3.750015
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -198245,18 +197173,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8256799809913877431}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u79D1\u7279\u8FEA\u74E6-001"
-    longitude: -6.499593960080418
-    latitude: 9.122404217846452
-    alertValue: 0.6789325
-  - vehicleId: "\u79D1\u7279\u8FEA\u74E6-002"
-    longitude: -4.264239890378093
-    latitude: 8.260690759909721
-    alertValue: 0.9285855
-  - vehicleId: "\u79D1\u7279\u8FEA\u74E6-003"
-    longitude: -8.183111387312582
-    latitude: 8.558124816097461
-    alertValue: 0.3300922
+  - vehicleId: CAP-384
+    longitude: -4.041994
+    latitude: 5.321943
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -198618,18 +197538,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8284759243366492378}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5308\u7259\u5229-001"
-    longitude: 17.944626226923106
-    latitude: 46.4593569763897
-    alertValue: 0.65070254
-  - vehicleId: "\u5308\u7259\u5229-002"
-    longitude: 20.7269740478921
-    latitude: 46.573697568379885
-    alertValue: 0.5035701
-  - vehicleId: "\u5308\u7259\u5229-003"
-    longitude: 22.083007826337052
-    latitude: 48.1137544862886
-    alertValue: 0.8629238
+  - vehicleId: CAP-348
+    longitude: 19.081375
+    latitude: 47.501952
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -199062,18 +197974,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8324307648305689718}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u65AF\u91CC\u5170\u5361-001"
-    longitude: 81.4078441816282
-    latitude: 6.835349963031646
-    alertValue: 0.6731589
-  - vehicleId: "\u65AF\u91CC\u5170\u5361-002"
-    longitude: 80.75366167938
-    latitude: 8.562211947007
-    alertValue: 0.27261293
-  - vehicleId: "\u65AF\u91CC\u5170\u5361-003"
-    longitude: 80.16563273751876
-    latitude: 7.471224094993744
-    alertValue: 0.47679698
+  - vehicleId: CAP-144
+    longitude: 79.857751
+    latitude: 6.931966
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -199475,18 +198379,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8332756404812303017}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u51B0\u5C9B-001"
-    longitude: -15.810765588267031
-    latitude: 64.15115699254147
-    alertValue: 0.78459543
-  - vehicleId: "\u51B0\u5C9B-002"
-    longitude: -20.25735639917849
-    latitude: 65.06770537458397
-    alertValue: 0.5316133
-  - vehicleId: "\u51B0\u5C9B-003"
-    longitude: -16.078131489244583
-    latitude: 63.7432059010805
-    alertValue: 0.799408
+  - vehicleId: CAP-352
+    longitude: -21.950015
+    latitude: 64.150024
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -199639,18 +198535,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8339840358005303667}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6BD4\u5229\u65F6-001"
-    longitude: 6.066094002827782
-    latitude: 49.945095735772725
-    alertValue: 0.8988114
-  - vehicleId: "\u6BD4\u5229\u65F6-002"
-    longitude: 5.614469281357827
-    latitude: 51.44278949235377
-    alertValue: 0.73000896
-  - vehicleId: "\u6BD4\u5229\u65F6-003"
-    longitude: 5.373610682313313
-    latitude: 51.067823713686266
-    alertValue: 0.6356869
+  - vehicleId: CAP-056
+    longitude: 4.331371
+    latitude: 50.835263
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -199777,18 +198665,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8346996401200622885}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u79D1\u5A01\u7279-001"
-    longitude: 47.28115401322566
-    latitude: 29.393144262807255
-    alertValue: 0.6098623
-  - vehicleId: "\u79D1\u5A01\u7279-002"
-    longitude: 47.38318876607491
-    latitude: 28.62720913231692
-    alertValue: 0.7555892
-  - vehicleId: "\u79D1\u5A01\u7279-003"
-    longitude: 47.33888883651662
-    latitude: 29.985912073356303
-    alertValue: 0.6188241
+  - vehicleId: CAP-414
+    longitude: 47.976355
+    latitude: 29.371664
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -199982,10 +198862,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8354218801994410971}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u52A0\u62FF\u5927-001"
-    longitude: -136.054688
-    latitude: 67.80717
-    alertValue: 0.18816443
+  - vehicleId: CAP-124
+    longitude: -75.701961
+    latitude: 45.418643
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -200310,18 +199190,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8381982010130283466}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5FB7\u56FD-001"
-    longitude: 11.45550080910914
-    latitude: 52.15796833268678
-    alertValue: 0.728103
-  - vehicleId: "\u5FB7\u56FD-002"
-    longitude: 14.869688970341713
-    latitude: 51.5576790021928
-    alertValue: 0.7413429
-  - vehicleId: "\u5FB7\u56FD-003"
-    longitude: 13.420584398481196
-    latitude: 53.23959297893816
-    alertValue: 0.20735607
+  - vehicleId: CAP-276
+    longitude: 13.399603
+    latitude: 52.523765
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -201303,18 +200175,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8464764715589474770}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E39\u9EA6-001"
-    longitude: 11.161942874728936
-    latitude: 56.57649805511983
-    alertValue: 0.5495082
-  - vehicleId: "\u4E39\u9EA6-002"
-    longitude: 8.31105998239861
-    latitude: 55.96931522210298
-    alertValue: 0.25172657
-  - vehicleId: "\u4E39\u9EA6-003"
-    longitude: 10.911320847989657
-    latitude: 56.78409525615507
-    alertValue: 0.14727898
+  - vehicleId: CAP-208
+    longitude: 12.56154
+    latitude: 55.68051
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -201836,18 +200700,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8504065294747315970}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u671D\u9C9C-001"
-    longitude: 128.59901472227966
-    latitude: 41.57399872590054
-    alertValue: 0.15399653
-  - vehicleId: "\u671D\u9C9C-002"
-    longitude: 126.06189870954108
-    latitude: 39.95205432516491
-    alertValue: 0.33116752
-  - vehicleId: "\u671D\u9C9C-003"
-    longitude: 126.63402107893467
-    latitude: 38.322485408276805
-    alertValue: 0.59849334
+  - vehicleId: CAP-408
+    longitude: 125.752745
+    latitude: 39.021385
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -202276,18 +201132,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8541998701696542087}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u585E\u6D66\u8DEF\u65AF-001"
-    longitude: 32.272319745218525
-    latitude: 34.97442546751836
-    alertValue: 0.39695644
-  - vehicleId: "\u585E\u6D66\u8DEF\u65AF-002"
-    longitude: 32.49525346054696
-    latitude: 35.03009321506579
-    alertValue: 0.4741636
-  - vehicleId: "\u585E\u6D66\u8DEF\u65AF-003"
-    longitude: 33.95745954463064
-    latitude: 34.68272673429851
-    alertValue: 0.21917978
+  - vehicleId: CAP-196
+    longitude: 33.366635
+    latitude: 35.166677
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -202448,18 +201296,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8545971780916488241}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7231\u5C14\u5170-001"
-    longitude: -6.125493516280301
-    latitude: 53.37728581790293
-    alertValue: 0.34266937
-  - vehicleId: "\u7231\u5C14\u5170-002"
-    longitude: -9.37819892280529
-    latitude: 51.797775555403106
-    alertValue: 0.43816975
-  - vehicleId: "\u7231\u5C14\u5170-003"
-    longitude: -6.777368979506377
-    latitude: 52.23936502391342
-    alertValue: 0.45103672
+  - vehicleId: CAP-372
+    longitude: -6.250852
+    latitude: 53.335007
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -202757,18 +201597,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8565500177630785235}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u963F\u5BCC\u6C57-001"
-    longitude: 72.95459261124779
-    latitude: 29.70180184118574
-    alertValue: 0.47746506
-  - vehicleId: "\u963F\u5BCC\u6C57-002"
-    longitude: 63.93769219852766
-    latitude: 33.4592837674852
-    alertValue: 0.26818514
-  - vehicleId: "\u963F\u5BCC\u6C57-003"
-    longitude: 64.84820795980704
-    latitude: 33.68761207348393
-    alertValue: 0.19476213
+  - vehicleId: CAP-004
+    longitude: 69.181314
+    latitude: 34.518636
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -203634,18 +202466,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8647538600651092513}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8428\u5C14\u74E6\u591A-001"
-    longitude: -88.63413409716713
-    latitude: 13.482441784462821
-    alertValue: 0.4707398
-  - vehicleId: "\u8428\u5C14\u74E6\u591A-002"
-    longitude: -88.90148136287507
-    latitude: 13.987529118939847
-    alertValue: 0.940953
-  - vehicleId: "\u8428\u5C14\u74E6\u591A-003"
-    longitude: -88.57624205124421
-    latitude: 13.310513607750352
-    alertValue: 0.26632497
+  - vehicleId: CAP-222
+    longitude: -89.204987
+    latitude: 13.711948
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -203853,18 +202677,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8655571267667747534}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u51E0\u5185\u4E9A\u6BD4\u7ECD-001"
-    longitude: -15.754369306903385
-    latitude: 12.232738331579185
-    alertValue: 0.7079973
-  - vehicleId: "\u51E0\u5185\u4E9A\u6BD4\u7ECD-002"
-    longitude: -15.626820107077236
-    latitude: 11.535324596911892
-    alertValue: 0.117666855
-  - vehicleId: "\u51E0\u5185\u4E9A\u6BD4\u7ECD-003"
-    longitude: -14.921804353667028
-    latitude: 11.599815772553598
-    alertValue: 0.44686118
+  - vehicleId: CAP-624
+    longitude: -15.598361
+    latitude: 11.865024
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -204018,18 +202834,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8659340998826957185}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u4E4D\u5F97-001"
-    longitude: 21.827029294579006
-    latitude: 15.619907021569702
-    alertValue: 0.94325787
-  - vehicleId: "\u4E4D\u5F97-002"
-    longitude: 21.19231050325658
-    latitude: 18.717706808856406
-    alertValue: 0.44625756
-  - vehicleId: "\u4E4D\u5F97-003"
-    longitude: 18.559240883259292
-    latitude: 12.88819555293395
-    alertValue: 0.9782738
+  - vehicleId: CAP-148
+    longitude: 15.047203
+    latitude: 12.115042
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -204185,18 +202993,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8667496620251258223}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u7231\u6C99\u5C3C\u4E9A-001"
-    longitude: 24.008586626940627
-    latitude: 57.60777960587882
-    alertValue: 0.23775482
-  - vehicleId: "\u7231\u6C99\u5C3C\u4E9A-002"
-    longitude: 25.367578030013306
-    latitude: 59.48355795651878
-    alertValue: 0.108752266
-  - vehicleId: "\u7231\u6C99\u5C3C\u4E9A-003"
-    longitude: 25.638598206334677
-    latitude: 57.63513762219634
-    alertValue: 0.55698687
+  - vehicleId: CAP-233
+    longitude: 24.728041
+    latitude: 59.433877
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -204425,18 +203225,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8681826712752102954}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u74E6\u52AA\u963F\u56FE-001"
-    longitude: 167.6352119054136
-    latitude: -15.184883346072809
-    alertValue: 0.893365
-  - vehicleId: "\u74E6\u52AA\u963F\u56FE-002"
-    longitude: 167.60509600466685
-    latitude: -14.649366622212028
-    alertValue: 0.29137474
-  - vehicleId: "\u74E6\u52AA\u963F\u56FE-003"
-    longitude: 167.23508160235906
-    latitude: -15.128936387576857
-    alertValue: 0.9025682
+  - vehicleId: CAP-548
+    longitude: 168.316641
+    latitude: -17.73335
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -204913,18 +203705,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8724724256819781039}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5723\u9A6C\u529B\u8BFA-001"
-    longitude: 12.502163414188317
-    latitude: 43.893529973147096
-    alertValue: 0.7082307
-  - vehicleId: "\u5723\u9A6C\u529B\u8BFA-002"
-    longitude: 12.441773910610834
-    latitude: 43.90717276450545
-    alertValue: 0.9629615
-  - vehicleId: "\u5723\u9A6C\u529B\u8BFA-003"
-    longitude: 12.467977105138857
-    latitude: 43.916531040544555
-    alertValue: 0.96720755
+  - vehicleId: CAP-674
+    longitude: 12.44177
+    latitude: 43.936096
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -205260,18 +204044,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8748795913242711512}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5C3C\u6CCA\u5C14-001"
-    longitude: 87.09362112448434
-    latitude: 30.18631063661269
-    alertValue: 0.9534913
-  - vehicleId: "\u5C3C\u6CCA\u5C14-002"
-    longitude: 81.42685858146683
-    latitude: 29.51852999435596
-    alertValue: 0.8920957
-  - vehicleId: "\u5C3C\u6CCA\u5C14-003"
-    longitude: 86.5981885876663
-    latitude: 27.101425975861446
-    alertValue: 0.7784286
+  - vehicleId: CAP-524
+    longitude: 85.314696
+    latitude: 27.718638
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -205879,18 +204655,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8787528427286860255}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6D77\u5730-001"
-    longitude: -72.3054366953038
-    latitude: 19.548184969096837
-    alertValue: 0.71388716
-  - vehicleId: "\u6D77\u5730-002"
-    longitude: -72.98273096078447
-    latitude: 19.075722184436927
-    alertValue: 0.64161265
-  - vehicleId: "\u6D77\u5730-003"
-    longitude: -73.49327378117869
-    latitude: 19.56138764518255
-    alertValue: 0.94655967
+  - vehicleId: CAP-332
+    longitude: -72.33798
+    latitude: 18.542971
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -206229,18 +204997,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8800525521532850281}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u897F\u73ED\u7259-001"
-    longitude: 1.2301301642955877
-    latitude: 42.264397528047084
-    alertValue: 0.16427216
-  - vehicleId: "\u897F\u73ED\u7259-002"
-    longitude: 1.3507226564988741
-    latitude: 38.223382554609884
-    alertValue: 0.916853
-  - vehicleId: "\u897F\u73ED\u7259-003"
-    longitude: -1.2912959417158163
-    latitude: 36.26014358869479
-    alertValue: 0.72319734
+  - vehicleId: CAP-724
+    longitude: -3.685298
+    latitude: 40.401972
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -206515,18 +205275,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8816869114282954353}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5217\u652F\u6566\u58EB\u767B-001"
-    longitude: 9.580273571031853
-    latitude: 47.21377356683115
-    alertValue: 0.2288545
-  - vehicleId: "\u5217\u652F\u6566\u58EB\u767B-002"
-    longitude: 9.635447070939335
-    latitude: 47.257971291553986
-    alertValue: 0.45738423
-  - vehicleId: "\u5217\u652F\u6566\u58EB\u767B-003"
-    longitude: 9.580801489607552
-    latitude: 47.142273657909755
-    alertValue: 0.94869643
+  - vehicleId: CAP-438
+    longitude: 9.51667
+    latitude: 47.133724
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -206849,18 +205601,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8843060302294195711}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u514B\u7F57\u5730\u4E9A-001"
-    longitude: 15.442611107572361
-    latitude: 42.95428022808363
-    alertValue: 0.80875087
-  - vehicleId: "\u514B\u7F57\u5730\u4E9A-002"
-    longitude: 16.27876581788246
-    latitude: 46.08913090795613
-    alertValue: 0.8524062
-  - vehicleId: "\u514B\u7F57\u5730\u4E9A-003"
-    longitude: 16.44077479856537
-    latitude: 43.619786545485454
-    alertValue: 0.28517628
+  - vehicleId: CAP-191
+    longitude: 15.999995
+    latitude: 45.800007
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -207013,18 +205757,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8857572381588601698}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u535A\u8328\u74E6\u7EB3-001"
-    longitude: 26.901636821846864
-    latitude: -23.36021156344816
-    alertValue: 0.90433174
-  - vehicleId: "\u535A\u8328\u74E6\u7EB3-002"
-    longitude: 23.334469774760976
-    latitude: -24.85911286949471
-    alertValue: 0.14262384
-  - vehicleId: "\u535A\u8328\u74E6\u7EB3-003"
-    longitude: 23.98108622570487
-    latitude: -22.134360615882656
-    alertValue: 0.93993384
+  - vehicleId: CAP-072
+    longitude: 25.911948
+    latitude: -24.646314
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -207192,18 +205928,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8869443204655592475}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6BDB\u91CC\u5854\u5C3C\u4E9A-001"
-    longitude: -5.571372087631971
-    latitude: 26.37423673865669
-    alertValue: 0.9128738
-  - vehicleId: "\u6BDB\u91CC\u5854\u5C3C\u4E9A-002"
-    longitude: -6.9379405556846905
-    latitude: 24.840188802321904
-    alertValue: 0.69295424
-  - vehicleId: "\u6BDB\u91CC\u5854\u5C3C\u4E9A-003"
-    longitude: -14.86363487825497
-    latitude: 27.394643011205062
-    alertValue: 0.69269353
+  - vehicleId: CAP-478
+    longitude: -15.97534
+    latitude: 18.086427
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -207729,18 +206457,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8911998209102751017}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CE2\u9ED1-001"
-    longitude: 19.05751736749471
-    latitude: 43.7936160962729
-    alertValue: 0.14757842
-  - vehicleId: "\u6CE2\u9ED1-002"
-    longitude: 19.38739369193172
-    latitude: 42.971493443131465
-    alertValue: 0.7050039
-  - vehicleId: "\u6CE2\u9ED1-003"
-    longitude: 15.905265223904145
-    latitude: 42.96045850755826
-    alertValue: 0.91537386
+  - vehicleId: CAP-070
+    longitude: 18.383002
+    latitude: 43.850022
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -208025,18 +206745,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8934227767495377041}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5580\u9EA6\u9686-001"
-    longitude: 15.893259518192735
-    latitude: 10.238955306518164
-    alertValue: 0.80703825
-  - vehicleId: "\u5580\u9EA6\u9686-002"
-    longitude: 13.17502703575542
-    latitude: 10.836776596619416
-    alertValue: 0.86350214
-  - vehicleId: "\u5580\u9EA6\u9686-003"
-    longitude: 13.1159973385586
-    latitude: 4.352614304562863
-    alertValue: 0.55661386
+  - vehicleId: CAP-120
+    longitude: 11.514705
+    latitude: 3.868647
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -208148,18 +206860,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8935126481100451049}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5384\u74DC\u591A\u5C14-001"
-    longitude: -80.4694074134922
-    latitude: 1.1126116595496
-    alertValue: 0.8831502
-  - vehicleId: "\u5384\u74DC\u591A\u5C14-002"
-    longitude: -80.10024031375076
-    latitude: -1.4682316846596493
-    alertValue: 0.8920969
-  - vehicleId: "\u5384\u74DC\u591A\u5C14-003"
-    longitude: -79.29679525240294
-    latitude: 0.49509219418989403
-    alertValue: 0.8123753
+  - vehicleId: CAP-218
+    longitude: -78.501997
+    latitude: -0.213042
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -208307,18 +207011,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8942623687070959068}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u632A\u5A01-001"
-    longitude: 8.45927632496975
-    latitude: 67.76948461266511
-    alertValue: 0.20085481
-  - vehicleId: "\u632A\u5A01-002"
-    longitude: 23.979828105169304
-    latitude: 68.59671657544459
-    alertValue: 0.99707234
-  - vehicleId: "\u632A\u5A01-003"
-    longitude: 24.998084509769797
-    latitude: 61.59976289139831
-    alertValue: 0.88073194
+  - vehicleId: CAP-578
+    longitude: 10.748033
+    latitude: 59.918636
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -208465,18 +207161,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8947724840272073785}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u745E\u58EB-001"
-    longitude: 9.839046499351639
-    latitude: 46.40354878297558
-    alertValue: 0.90470165
-  - vehicleId: "\u745E\u58EB-002"
-    longitude: 9.423847984368706
-    latitude: 47.00334926270716
-    alertValue: 0.83729506
-  - vehicleId: "\u745E\u58EB-003"
-    longitude: 7.571584678353631
-    latitude: 45.93967116738315
-    alertValue: 0.17327666
+  - vehicleId: CAP-756
+    longitude: 7.466976
+    latitude: 46.916683
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -208757,18 +207445,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 8981667473303216208}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u6CF0\u56FD-001"
-    longitude: 102.19813787792873
-    latitude: 17.57998517145529
-    alertValue: 0.89767426
-  - vehicleId: "\u6CF0\u56FD-002"
-    longitude: 100.26585160648142
-    latitude: 16.469388022671666
-    alertValue: 0.69886196
-  - vehicleId: "\u6CF0\u56FD-003"
-    longitude: 105.40961259469259
-    latitude: 7.987611885810743
-    alertValue: 0.30481434
+  - vehicleId: CAP-764
+    longitude: 100.514699
+    latitude: 13.751945
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -209347,18 +208027,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9041851086840221408}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5229\u6BD4\u91CC\u4E9A-001"
-    longitude: -10.10061127233331
-    latitude: 4.421181774644324
-    alertValue: 0.7103403
-  - vehicleId: "\u5229\u6BD4\u91CC\u4E9A-002"
-    longitude: -7.8497745449335525
-    latitude: 5.090511349539831
-    alertValue: 0.40866375
-  - vehicleId: "\u5229\u6BD4\u91CC\u4E9A-003"
-    longitude: -8.910916212218467
-    latitude: 7.78968557578105
-    alertValue: 0.8382094
+  - vehicleId: CAP-430
+    longitude: -10.79966
+    latitude: 6.314582
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -209706,18 +208378,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9049563347041043409}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5384\u7ACB\u7279\u91CC\u4E9A-001"
-    longitude: 41.16526726058191
-    latitude: 14.133674822846132
-    alertValue: 0.20482373
-  - vehicleId: "\u5384\u7ACB\u7279\u91CC\u4E9A-002"
-    longitude: 41.12004751019276
-    latitude: 17.779324800103495
-    alertValue: 0.41912887
-  - vehicleId: "\u5384\u7ACB\u7279\u91CC\u4E9A-003"
-    longitude: 37.19797001032828
-    latitude: 16.991414005548677
-    alertValue: 0.8843323
+  - vehicleId: CAP-232
+    longitude: 38.933324
+    latitude: 15.333339
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -210607,18 +209271,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9140749760543917009}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u97E9\u56FD-001"
-    longitude: 127.33961821525986
-    latitude: 38.45188679412968
-    alertValue: 0.19423887
-  - vehicleId: "\u97E9\u56FD-002"
-    longitude: 128.76078270791186
-    latitude: 38.20717615634567
-    alertValue: 0.88949525
-  - vehicleId: "\u97E9\u56FD-003"
-    longitude: 126.87708556589655
-    latitude: 36.92590424579066
-    alertValue: 0.66002244
+  - vehicleId: CAP-410
+    longitude: 126.997785
+    latitude: 37.568295
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -211022,18 +209678,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9173034352644410016}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u8001\u631D-001"
-    longitude: 101.22285602556428
-    latitude: 17.310433055827332
-    alertValue: 0.9879472
-  - vehicleId: "\u8001\u631D-002"
-    longitude: 106.87998094293289
-    latitude: 19.316516031678418
-    alertValue: 0.67114604
-  - vehicleId: "\u8001\u631D-003"
-    longitude: 100.40708167949217
-    latitude: 18.790064669322817
-    alertValue: 0.52071464
+  - vehicleId: CAP-418
+    longitude: 102.59998
+    latitude: 17.966693
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -211362,18 +210010,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9202349199531945677}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u53E4\u5DF4-001"
-    longitude: -84.27190729483874
-    latitude: 21.677021636460154
-    alertValue: 0.21282926
-  - vehicleId: "\u53E4\u5DF4-002"
-    longitude: -77.84864792540475
-    latitude: 22.15516432808488
-    alertValue: 0.5926417
-  - vehicleId: "\u53E4\u5DF4-003"
-    longitude: -76.93637110673217
-    latitude: 22.756942567018314
-    alertValue: 0.26986817
+  - vehicleId: CAP-192
+    longitude: -82.366128
+    latitude: 23.133905
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -211508,18 +210148,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9203986903650867601}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u5B89\u63D0\u74DC\u548C\u5DF4\u5E03\u8FBE-001"
-    longitude: -61.876509334892035
-    latitude: 17.03409934900158
-    alertValue: 0.5811542
-  - vehicleId: "\u5B89\u63D0\u74DC\u548C\u5DF4\u5E03\u8FBE-002"
-    longitude: -61.89489090256393
-    latitude: 17.498297468563692
-    alertValue: 0.4873402
-  - vehicleId: "\u5B89\u63D0\u74DC\u548C\u5DF4\u5E03\u8FBE-003"
-    longitude: -61.737156078219414
-    latitude: 17.28653869874495
-    alertValue: 0.35384184
+  - vehicleId: CAP-028
+    longitude: -61.850034
+    latitude: 17.118037
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0
@@ -211739,18 +210371,10 @@ MonoBehaviour:
   _instancedRenderer: {fileID: 9209692697322412403}
   _useDefaultVehiclePointsTestData: 0
   _vehiclePoints:
-  - vehicleId: "\u58A8\u897F\u54E5-001"
-    longitude: -88.20702727819025
-    latitude: 14.86364471340825
-    alertValue: 0.36588582
-  - vehicleId: "\u58A8\u897F\u54E5-002"
-    longitude: -115.51736320509423
-    latitude: 16.891283354552016
-    alertValue: 0.17229196
-  - vehicleId: "\u58A8\u897F\u54E5-003"
-    longitude: -109.90152100447654
-    latitude: 26.54965906690444
-    alertValue: 0.9862835
+  - vehicleId: CAP-484
+    longitude: -99.132934
+    latitude: 19.444388
+    alertValue: 0.5
   _enableProximityMerge: 1
   _mergeDistanceLocal: 0.002
   _mergeUseAveragePosition: 0

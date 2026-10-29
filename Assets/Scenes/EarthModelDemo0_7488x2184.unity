@@ -167980,12 +167980,12 @@ MonoBehaviour:
   _mapRoot: {fileID: 2284446813405232901}
   _westAnchor:
     marker: {fileID: 496282489}
-    longitude: 95.29000091552734
+    longitude: 92.218574
     latitude: -10.359999656677246
   _eastAnchor:
     marker: {fileID: 755576563}
     longitude: 141.02999877929688
-    latitude: 5.480000019073486
+    latitude: 13.921102
   _autoBindWestEastByLocalX: 0
   _focusCenterWorldOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &5922029539976543715
